@@ -1,0 +1,947 @@
+{
+  "query": "coding agents rebuild application from reference behavior without source code",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-11T22:35:07+06:00",
+  "raw_hits": 20,
+  "unique": 20,
+  "errors": {},
+  "results": [
+    {
+      "title": "Inside the Scaffold: A Source-Code Taxonomy of Coding Agent Architectures",
+      "authors": [
+        {
+          "family": "Rombaut",
+          "given": "Benjamin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2604.03515",
+      "arxiv_id": "2604.03515",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7151236611",
+      "url": "https://arxiv.org/abs/2604.03515",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.03515",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 22,
+      "abstract": "LLM-based coding agents can localize bugs, generate patches, and run tests with diminishing human oversight, yet the scaffolding code that surrounds the language model (the control loop, tool definitions, state management, and context strategy) remains poorly understood. Existing surveys classify agents by abstract capabilities (tool use, planning, reflection) that cannot distinguish between architecturally distinct systems, and trajectory studies observe what agents do without examining the scaffold code that determines why. This paper presents a source-code-level architectural taxonomy derived from analysis of 13 open-source coding agent scaffolds at pinned commit hashes. Each agent is characterized across 12 dimensions organized into three layers: control architecture, tool and environment interface, and resource management. The analysis reveals that scaffold architectures resist discrete classification: control strategies range from fixed pipelines to Monte Carlo Tree Search, tool counts range from 0 to 37, and context compaction spans seven distinct strategies. Five loop primitives (ReAct, generate-test-repair, plan-execute, multi-attempt retry, tree search) function as composable building blocks that agents layer in different combinations; 11 of 13 agents compose multiple primitives rather than relying on a single control structure. Dimensions converge where external constraints dominate (tool capability categories, edit formats, execution isolation) and diverge where open design questions remain (context compaction, state management, multi-model routing). All taxonomic claims are grounded in file paths and line numbers, providing a reusable reference for researchers studying agent behavior and practitioners designing new scaffolds.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "RedCode: Risky Code Execution and Generation Benchmark for Code Agents",
+      "authors": [
+        {
+          "family": "Guo",
+          "given": "Chengquan"
+        },
+        {
+          "family": "Liu",
+          "given": "Xun"
+        },
+        {
+          "family": "Xie",
+          "given": "Chulin"
+        },
+        {
+          "family": "Zhou",
+          "given": "Andy"
+        },
+        {
+          "family": "Zeng",
+          "given": "Yi"
+        },
+        {
+          "family": "Lin",
+          "given": "Zinan"
+        },
+        {
+          "family": "Song",
+          "given": "Dawn Xiaodong"
+        },
+        {
+          "family": "Li",
+          "given": "Bo"
+        }
+      ],
+      "year": 2024,
+      "venue": "neural information processing systems",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.52202/079017-3369",
+      "arxiv_id": "2411.07781",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415795995",
+      "url": "https://doi.org/10.52202/079017-3369",
+      "oa_pdf_url": "https://arxiv.org/pdf/2411.07781",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 42,
+      "abstract": "With the rapidly increasing capabilities and adoption of code agents for AI-assisted coding, safety concerns, such as generating or executing risky code, have become significant barriers to the real-world deployment of these agents. To provide comprehensive and practical evaluations on the safety of code agents, we propose RedCode, a benchmark for risky code execution and generation: (1) RedCode-Exec provides challenging prompts that could lead to risky code execution, aiming to evaluate code agents' ability to recognize and handle unsafe code. We provide a total of 4,050 risky test cases in Python and Bash tasks with diverse input formats including code snippets and natural text. They covers 25 types of critical vulnerabilities spanning 8 domains (e.g., websites, file systems). We provide Docker environments and design corresponding evaluation metrics to assess their execution results. (2) RedCode-Gen provides 160 prompts with function signatures and docstrings as input to assess whether code agents will follow instructions to generate harmful code or software. Our empirical findings, derived from evaluating three agent frameworks based on 19 LLMs, provide insights into code agents' vulnerabilities. For instance, evaluations on RedCode-Exec show that agents are more likely to reject executing risky operations on the operating system, but are less likely to reject executing technically buggy code, indicating high risks. Risky operations described in natural text lead to a lower rejection rate than those in code format. Additionally, evaluations on RedCode-Gen show that more capable base models and agents with stronger overall coding abilities, such as GPT4, tend to produce more sophisticated and effective harmful software. Our findings highlight the need for stringent safety evaluations for diverse code agents. Our dataset and code are available at https://github.com/AI-secure/RedCode.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "SWE-Touch: Benchmarking Coding Agents When Users Touch the Code",
+      "authors": [
+        {
+          "family": "Tan",
+          "given": "Yuqiao"
+        },
+        {
+          "family": "Meng",
+          "given": "Jinxiang"
+        },
+        {
+          "family": "Lei",
+          "given": "Fangyu"
+        },
+        {
+          "family": "Wang",
+          "given": "Minzheng"
+        },
+        {
+          "family": "He",
+          "given": "Shizhu"
+        },
+        {
+          "family": "Zhao",
+          "given": "Jun"
+        },
+        {
+          "family": "Liu",
+          "given": "Kang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.02499",
+      "arxiv_id": "2608.02499",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7172401410",
+      "url": "https://arxiv.org/abs/2608.02499",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.02499",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": "Real-world software development requires coding agents to operate in shared workspaces where users may inspect and modify code during an ongoing task, yet existing repository-level benchmarks typically evaluate agents working alone or restrict user participation to messages. This leads us to ask: how do coding agents understand and respond to code changes in a shared workspace? We introduce SWE-Touch, a framework that stress-tests this setting through validated Counter-Edits: plausible edits to task-relevant code that conflict with task completion. SWE-Touch mines task-critical regions from multiple repair trajectories, uses a separate User Patch Generator to construct the edits, and injects them with contextual user messages when agents reach the relevant code. We evaluate nine coding models on SWE-bench Verified, with additional experiments on longer-horizon tasks from SWE-Bench Pro and DeepSWE. Counter-Edit lowers average resolve rate by 7.7 percentage points on SWE-bench Verified, with degradation also persisting on both longer-horizon benchmarks. Trajectory analysis links these failures to limited awareness of the evolving workspace: agents may retain conflicting code or replace it without sufficiently re-inspecting the repository and validating the revised code with targeted tests. These findings show that strong autonomous performance does not yet ensure the state awareness and adaptive behavior needed for shared-workspace collaboration, and point to detecting workspace changes, reconciling conflicting edits with the task, and verifying the affected behavior as key capabilities for future optimization.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "From Dead Code and Static Requirements to Working Engines: Software Revival with Coding Agents",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Tianyu"
+        },
+        {
+          "family": "Dai",
+          "given": "Dingyuan"
+        },
+        {
+          "family": "Du",
+          "given": "Yufan"
+        },
+        {
+          "family": "Yang",
+          "given": "Zhen"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.36161",
+      "arxiv_id": "2609.36161",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214965235",
+      "url": "https://arxiv.org/abs/2609.36161",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.36161",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Can coding agents restore software that no longer runs while preserving its underlying methods, and reconstruct industrial software engines from open specifications? Here we introduce ReviveBench, a benchmark with two task families evaluated by hidden verifiers calibrated against native execution environments, established engineering tools, or purpose-built reference implementations. The revival family comprises ten tasks involving dependency incompatibilities, deleted core modules, legacy builds, and a GPU-based foundation model. Every starting workspace fails verification, and the strongest evaluated model passes all ten tasks in at least one run each. In contamination-control experiments, identifier obfuscation reduces line similarity to the original implementations from 0.51--0.96 to 0.03--0.44 without reducing the observed pass rate of any evaluated model. On repositories created after the stated knowledge cutoffs, the strongest model passes eight of nine runs. The reconstruction family comprises thirteen tasks spanning numerical, geometric, hardware, and transactional systems (e.g. CAD and CRM). Two models meet the benchmark's pass criteria on all thirteen, although our audit shows that the CFD task cannot establish numerical-solver capability. Benchmark construction and auditing uncover 28 verifier defects, including 24 false negatives and two false positives. These findings show that executable verification can itself introduce substantial measurement error. We present three practical checks: test whether prescribed methods can reach the grading thresholds, investigate agreement among independently generated candidates, and recompute diagnostics from submitted artifacts. ReviveBench thus provides both an evaluation of software revival and engine reconstruction, and cases in validating the verifiers used to measure coding agents for software design.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Migrating a Legacy Scientific Application with an AI Coding Agent: NICAM from Fortran to Kokkos",
+      "authors": [
+        {
+          "family": "Ren",
+          "given": "Xuanzhengbo"
+        },
+        {
+          "family": "Shimokawabe",
+          "given": "Takashi"
+        },
+        {
+          "family": "Yashiro",
+          "given": "Hisashi"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.41313",
+      "arxiv_id": "2610.41313",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7225129806",
+      "url": "https://arxiv.org/abs/2610.41313",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.41313",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Migrating from Fortran to C++/Kokkos broadens access to hardware accelerators through backends such as CUDA and HIP while offering greater flexibility in software design. However, legacy Fortran applications often have large codebases, making manual porting time-consuming and costly. Recent advances in large language models (LLMs) and AI coding agents have made large-scale code migration increasingly feasible. In this study, we ported NICAM (Nonhydrostatic ICosahedral Atmospheric Model), a legacy Fortran climate model accelerated with OpenACC, to C++/Kokkos with the assistance of Claude Code. The agent translated the code directly from Fortran to C++/Kokkos under human review. Approximately 140,000 lines of Fortran were analyzed and ported into 35,000 lines of C++/Kokkos, covering the dynamical core and seven physics packages. A 100-member ensemble comparison with the original Fortran model showed that the port is statistically consistent with the original. Performance was evaluated on Miyabi-G, an NVIDIA GH200 cluster, and Sirius, an AMD MI300A cluster. Compared with the Fortran/OpenACC baseline on GH200, the port achieved application speedups of $1.71\\times$ on GH200 and $1.54\\times$ on MI300A. The CUDA build achieved a GPU kernel-time speedup of $1.38\\times$ on GH200. After normalization by peak memory bandwidth, the HIP build on MI300A achieved $0.96\\times$ the kernel performance of the Fortran/OpenACC baseline.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Training Versatile Coding Agents in Synthetic Environments",
+      "authors": [
+        {
+          "family": "Zhu",
+          "given": "Yiqi"
+        },
+        {
+          "family": "Gandhi",
+          "given": "Akshat"
+        },
+        {
+          "family": "Neubig",
+          "given": "Graham"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2512.12216",
+      "arxiv_id": "2512.12216",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417448067",
+      "url": "http://arxiv.org/abs/2512.12216",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.12216",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "Prior works on training software engineering agents have explored utilizing existing resources such as issues on GitHub repositories to construct software engineering tasks and corresponding test suites. These approaches face two key limitations: (1) their reliance on pre-existing GitHub repositories offers limited flexibility, and (2) their primary focus on issue resolution tasks restricts their applicability to the much wider variety of tasks a software engineer must handle. To overcome these challenges, we introduce SWE-Playground, a novel pipeline for generating environments and trajectories which supports the training of versatile coding agents. Unlike prior efforts, SWE-Playground synthetically generates projects and tasks from scratch with strong language models and agents, eliminating reliance on external data sources. This allows us to tackle a much wider variety of coding tasks, such as reproducing issues by generating unit tests and implementing libraries from scratch. We demonstrate the effectiveness of this approach on three distinct benchmarks, and results indicate that SWE-Playground produces trajectories with dense training signal, enabling agents to reach comparable performance with significantly fewer trajectories than previous works.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "TestSuiteBench: Coding Agents Struggle to Generate Strong Test Suites from Specifications",
+      "authors": [
+        {
+          "family": "Egashira",
+          "given": "Kazuki"
+        },
+        {
+          "family": "Mündler",
+          "given": "Niels"
+        },
+        {
+          "family": "Müller",
+          "given": "Mark Niklas"
+        },
+        {
+          "family": "Vechev",
+          "given": "Martin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.13065",
+      "arxiv_id": "2610.13065",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7221568600",
+      "url": "https://arxiv.org/abs/2610.13065",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.13065",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding agents are increasingly used to create large software projects. While code-generation benchmarks have scaled accordingly to full applications, test-generation benchmarks remain limited to individual functions or bug fixes. In particular, generating complete test suites for complex software from scratch remains unexplored. To address this gap, we introduce TestSuiteBench, a benchmark of 165 open-source applications, each with a structured and detailed specification of intended behavior, a reference implementation, a reference test suite, and on average 74 mutants. Each mutant is generated from a single requirement of the specification and refined to isolate that behavior: 73\\% are killed by exactly one reference test and, on average, by only 0.2\\% of the remaining tests. We find that even frontier coding agents struggle to generate strong test suites given our specifications, achieving mutation scores below 60\\%, despite their suites being largely valid and 88\\% of their tests passing on the reference implementation. We observe that generated test suites often lack relevant input combinations and are smaller than reference test suites. Meanwhile, implementations generated for the same specifications pass 82\\% of the reference tests. These results show agents can build software they cannot verify, a gap that directly limits fully autonomous software development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "When and How Context Rot Appears in Coding Agents: A White-Box Study of Agent Skills in Code Auditing",
+      "authors": [
+        {
+          "family": "Xue",
+          "given": "Yue"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.17937",
+      "arxiv_id": "2607.17937",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7169877216",
+      "url": "https://arxiv.org/abs/2607.17937",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.17937",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Agent Skills package procedural instructions and checks for use by general-purpose agents, but loading a skill does not guarantee that every requirement remains active throughout a long tool-using trajectory. We study this problem in a production-derived, white-box code-audit workflow. Holding the task and 24 artifact checks fixed, we vary the surrounding context and classify where failures first become visible: lost requirements, editing drift, failed checking, or non-agent evaluator/runtime failures. Codex with gpt-5.4-mini passes 8/10 runs in a 10,991-character clean context but only 3/10 in both a 299,140-character relevant context and an equal-length irrelevant context. This 50-percentage-point difference is large but remains trend-level under two-sided Fisher tests (p = 0.0698). Requirement coverage nevertheless stays above 92% in both long conditions, showing that a few omissions can invalidate an otherwise complete artifact. A second task passes all clean and long runs, so the evidence does not support a universal context-length threshold. A detailed external checklist passes 10/10 runs, compared with 5/10 for a generic self-check (p = 0.0325). Coding-agent scaffolds may help by selecting a smaller working set, but they do not eliminate failures. We do not introduce context rot or a new general monitoring method; we provide a bounded failure classification and empirical case study for white-box code auditing.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Benchmarking Coding Agents for System-Level Performance Optimization",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Yanze"
+        },
+        {
+          "family": "Guan",
+          "given": "Maggie Yongqi"
+        },
+        {
+          "family": "Liu",
+          "given": "Shudong"
+        },
+        {
+          "family": "Hao",
+          "given": "Qi"
+        },
+        {
+          "family": "Wang",
+          "given": "Kanye Ye"
+        },
+        {
+          "family": "Qu",
+          "given": "Meng"
+        },
+        {
+          "family": "Zhou",
+          "given": "Xiaobo"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.29695",
+      "arxiv_id": "2610.29695",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223203659",
+      "url": "https://arxiv.org/abs/2610.29695",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.29695",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding agents are becoming an increasingly important paradigm for automating software engineering tasks. However, existing coding benchmarks primarily evaluate agents at the function or repository level, leaving their capabilities in more complex distributed software systems largely unexplored. In practice, many modern applications adopt microservice architectures, where end-to-end performance emerges from interactions among multiple independently running services, requiring agents to reason beyond local code changes. To study this capability, we introduce MicroPerf-Bench, a benchmark for evaluating coding agents on end-to-end performance optimization in microservice systems. Constructing such a benchmark is challenging because reproducible system-level performance fixes are sparse and difficult to attribute. We address this challenge by injecting empirically grounded performance anti-patterns into real-world open-source systems while preserving functionality and ensuring measurable performance degradation. The resulting benchmark contains 65 optimization instances across seven systems and nine anti-patterns, each with an executable environment, functional tests, and mixed-workload evaluation. Across 1,755 runs covering nine agent-model configurations, the best configuration recovers only 42.0% of the injected performance degradation. The dominant failure is not invalid code, but functionally correct and constraint-compliant changes that fail to improve end-to-end performance, highlighting system-level bottleneck localization as a key challenge for current coding agents. The source code and data are available at https://github.com/zyzcjnb/microperf.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "WitnessGym: Benchmarking Coding Agents on the Construction of Bug Witnesses",
+      "authors": [
+        {
+          "family": "Qi",
+          "given": "Haomin"
+        },
+        {
+          "family": "Xu",
+          "given": "Xiangzhe"
+        },
+        {
+          "family": "Huang",
+          "given": "Yiming"
+        },
+        {
+          "family": "Shang",
+          "given": "Jingbo"
+        },
+        {
+          "family": "Wang",
+          "given": "Chengpeng"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.36635",
+      "arxiv_id": "2609.36635",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214963705",
+      "url": "https://arxiv.org/abs/2609.36635",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.36635",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Bug validation asks a coding agent to produce an executable witness for a reported bug. The witness combines a concrete input with a testing harness and exposes faulty behavior during execution. Such evidence makes audit findings actionable, yet benchmark evaluation is difficult when cases reuse public historical bugs and witnesses or require manual construction. We present WitnessGym, an automated framework for constructing bug-validation benchmarks through bug injection. It injects bugs into test-reached paths of real projects, rebuilds each project, and retains cases exposed by a construction-time witness. Bug specifications and execution adapters allow extension to additional bug types and languages. Bug-preserving transformations vary the surrounding structure while preserving the witness behavior. Based on real-world Java projects with test suites, WitnessGym automatically constructs 1,300 benchmark cases. The injected patches resemble historical bug patches and are difficult for the two evaluated models to distinguish in blinded comparisons. We evaluate four coding agent frameworks in six framework/model pairings across bug types, execution contexts, and transformation depths. Witness construction remains difficult even when the bug pattern is known. Our framework, benchmark cases, and evaluation scripts are available.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Multi-step SWE: Can Coding Agents Keep Building on Their Own Code Over Long Horizons?",
+      "authors": [
+        {
+          "family": "Zeng",
+          "given": "Xiangkai"
+        },
+        {
+          "family": "Liu",
+          "given": "Zheng"
+        },
+        {
+          "family": "Lin",
+          "given": "Zihao"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2611.07166",
+      "arxiv_id": "2611.07166",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7225409417",
+      "url": "https://arxiv.org/abs/2611.07166",
+      "oa_pdf_url": "https://arxiv.org/pdf/2611.07166",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Developers rarely give a coding agent a single request: they ask it to build a component and then to extend, upgrade, and optimize it, each time on code the agent itself wrote. Most benchmarks, however, score one task at a time. We introduce Multi-step SWE, a long-horizon benchmark of 69 software engineering tasks, each a chain of 5-15 dependent steps on a single codebase. Every step is a complete, multi-hour engineering request that starts from the code the agent produced in the preceding steps, so early design decisions and errors carry forward. The tasks span four families of engineering work and nine languages, include both from-scratch builds and existing open-source codebases, and ground every step in an existing source of truth that defines both the instruction and its verifier. Across nine frontier models, the strongest model reaches a solve rate of only 18.5%, and 38 of the 69 tasks are not solved by any model. We release Multi-step SWE publicly at https://multistepswe.com.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Evaluating Coding Agents on Kernel Exploit Generation",
+      "authors": [
+        {
+          "family": "Jang",
+          "given": "Junyoung"
+        },
+        {
+          "family": "Lee",
+          "given": "Gwanhyun"
+        },
+        {
+          "family": "Lee",
+          "given": "Hwiwon"
+        },
+        {
+          "family": "Kim",
+          "given": "Kyuheon"
+        },
+        {
+          "family": "Kim",
+          "given": "Jongseong"
+        },
+        {
+          "family": "Jung",
+          "given": "Jinho"
+        },
+        {
+          "family": "Zhang",
+          "given": "Lingming"
+        }
+      ],
+      "year": 2026,
+      "venue": "Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.18653/2026.emnlp-main.1653",
+      "arxiv_id": "2609.25591",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214245999",
+      "url": "https://doi.org/10.18653/2026.emnlp-main.1653",
+      "oa_pdf_url": "https://aclanthology.org/2026.emnlp-main.1653.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding agents now find real vulnerabilities in production software.However, bug discovery results do not measure whether agents can construct exploit primitives.We introduce KEX-bench, a benchmark for evaluating coding agents on exploit primitive generation against real operating-system kernels.KEX-bench contains 45 task instances across 40 Linux and Windows CVEs, covering kernel address leak, instruction-pointer control, heap read, heap write, and arbitrary address write.Each task runs in an isolated virtual machine, exposes controlled tools, and uses a deterministic verifier for checking primitive-specific success.We evaluate state-of-the-art coding agents paired with frontier and open-weight models under fixed tool-call budgets.Without a PoC, the strongest configuration solves 1 of 20 Windows tasks (5.0%) and 14 of 25 Linux tasks (56.0%).With a reference PoC, the strongest configuration solves 31 of 45 tasks (68.9%).This highlights the gap where agents reach kernel crashes but fail to shape kernel state into exploit primitives.We release KEX-bench for reproducible research on AI-assisted exploitation at https://kex-bench.github.io.a reproducible vulnerable kernel, a target primitive, and a verifier that distinguishes the primitive from a crash.Appendix F summarizes the challenges of the agent-assisted construction process.This design follows the Agentic Benchmark Checklist (Zhu et al., 2025a).MCP-based evaluation.Agents interact exclusively through the Model Context Protocol (MCP).MCP exposes platform-specific tools for execution, debugging, binary analysis, and source inspection.A proxy enforces tool-call budgets.Agent capability gap.In our evaluation, the best agent-model pair solves 1 of 20 Windows tasks (5.0%) and 14 of 25 Linux tasks (56.0%) w/o PoC (no PoC provided).With PoC context (w/ PoC), it solves 31 of 45 tasks (68.9%).Its solved tasks cover all 5 of 5 exploit primitive categories.Full trajectories expose the central gap: agents reach triggers and crashes, but fail to shape kernel state into verifier-directed primitives.KEX-bench focuses on the exploit primitives that make such chains possible, not full compromise or post-exploitation.Contributions.Our contributions are as follows.• We develop KEX-bench, a benchmark of 45 task instances across 40 CVEs, five exploit primitives, and two kernel platforms.Each task pairs an isolated VM with a deterministic verifier for the requested kernel-state transition.• We evaluate three MCP-capable coding agents paired with frontier LLMs.The best pair solves only 1/20 Windows tasks (5.0%) and 14/25 Linux tasks (56.0%) w/o PoC, and 31/45 combined tasks (68.9%) w/ PoC.Trajectory analysis identifies the trigger-to-primitive gap.• We release KEX-bench as an open platform at https://kex-bench.github.io,including configurations, prompts, verifiers, environment setup, and reproduction instructions.The release supports reproducible studies of longhorizon kernel exploitation and autonomous security reasoning.2 KEX-bench Design 2.1 Exploit Primitives and Targets KEX-bench tests AI agents on five critical exploit primitives for production kernels.They span information disclosure, heap manipulation, and controlflow hijacking.Kernel security impact.We focus on operatingsystem kernels because kernel bugs expose privi-leged memory and control-flow effects that determine whether a vulnerability becomes a real exploit chain.Yet web and user-space benchmarks do not measure hidden-kernel-state recovery, allocator and layout constraints, or verifier-observable primitives under hardware privilege boundaries.KEX-bench directly targets this gap.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Benchmarking Coding Agents under Evolving Requirements",
+      "authors": [
+        {
+          "family": "Feng",
+          "given": "Jia"
+        },
+        {
+          "family": "Wu",
+          "given": "Alyssa"
+        },
+        {
+          "family": "Gao",
+          "given": "Cuiyun"
+        },
+        {
+          "family": "Wang",
+          "given": "Yue"
+        },
+        {
+          "family": "Lu",
+          "given": "Songyuanyi"
+        },
+        {
+          "family": "Hu",
+          "given": "Zhichao"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.35488",
+      "arxiv_id": "2610.35488",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223800603",
+      "url": "https://arxiv.org/abs/2610.35488",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.35488",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Software development with coding agents often begins with a rough request that users refine after trying the implementation. Final correctness alone does not capture the repeated guidance this process requires. We introduce FeatureLoop, a benchmark of 61 human-reviewed tasks from 34 repositories across five primary programming languages and seven software forms. Each task follows one development goal in a persistent workspace through evolution feedback, which adds or clarifies requirements, and completion feedback, which reports failures of stated requirements. Cumulative executable checks track new behavior, repair, and preservation of earlier functionality. We evaluate 12 frontier models and find that the strongest completes 72.1% of tasks with both feedback types. Across models, however, only 15.4% of observed failed stages recover within two corrective revisions. Further analysis reveals incomplete repairs, regressions, and model-specific differences in feedback use and token efficiency, identifying obstacles to reliable, low-intervention development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Auto-Configuring Scientific Simulators with Lightweight Coding-Agent Adapters",
+      "authors": [
+        {
+          "family": "Matthew",
+          "given": "Ho,"
+        },
+        {
+          "family": "Liu",
+          "given": "Brian"
+        },
+        {
+          "family": "Chen",
+          "given": "Jixuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Audrey"
+        },
+        {
+          "family": "Qin",
+          "given": "Lianhui"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.09774",
+      "arxiv_id": "2606.09774",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7163991313",
+      "url": "https://arxiv.org/abs/2606.09774",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.09774",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Configuring an advanced scientific simulator, translating a modeling goal into a valid, runnable input deck, is a persistent bottleneck that costs domain scientists hours to days. Input decks are executable interfaces: simulator-specific vocabulary, cross-file references, schema constraints, and validation rules must align before a simulation can run. We show that this bottleneck can be substantially reduced with a lightweight adapter around an off-the-shelf coding agent, rather than a bespoke simulator agent. Coding agents already navigate files, edit code, run commands, and repair outputs; what they lack is the simulator's executable contract, and rebuilding the agent loop risks discarding harness-calibrated tool-use and self-correction behavior. We introduce SIGA, a coding-agent adapter that supplies this contract through retrieval, procedural memory, agent-callable validation, and validation-gated termination while leaving the model and loop frozen. Because this contract is small and external, SIGA also supports adapter self-evolution: prior trajectories can rewrite the adapter contents without modifying the underlying agent. On GEOS, a multiphysics subsurface simulator, SIGA's main gain is reliability: on harder held-out tasks it improves TreeSim from 0.720 to 0.789 and reduces across-run standard deviation by about 16x by preventing empty or invalid decks. In a human calibration, SIGA reaches in about five minutes the deck quality a domain expert reached in about three hours. Transfers to OpenFOAM and LAMMPS show the recipe is portable but interface-dependent: completion gates help when structural completeness is the bottleneck, while memory and retrieval help when value correctness is.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "MirrorCode: AI can rebuild entire programs from behavior alone",
+      "authors": [
+        {
+          "family": "Adamczewski",
+          "given": "Tom"
+        },
+        {
+          "family": "Owen",
+          "given": "David"
+        },
+        {
+          "family": "Rein",
+          "given": "David"
+        },
+        {
+          "family": "Brand",
+          "given": "Florian"
+        },
+        {
+          "family": "Edkins",
+          "given": "Giles"
+        },
+        {
+          "family": "Hart",
+          "given": "Allen"
+        },
+        {
+          "family": "O’Connell",
+          "given": "Daniel"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.30182",
+      "arxiv_id": "2606.30182",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7166643087",
+      "url": "https://arxiv.org/abs/2606.30182",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.30182",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": "AI models are rapidly improving at autonomous coding, as shown by benchmark progress and one-off demonstrations such as AI implementing a C compiler. However, existing coding benchmarks tend to focus on shorter tasks, and one-off demonstrations are hard to compare systematically because they often have some human guidance, and are not standardized or repeated across models. To address these challenges, we introduce MirrorCode, a long-horizon coding benchmark based on reimplementing entire software projects. In MirrorCode, AI agents must replicate the functionalities of an existing program, without access to its source code. AI solutions must match the original program's output exactly on end-to-end tests, including held-out tests. MirrorCode's 25 target programs span different areas of computing: Unix utilities, data serialization and query tools, bioinformatics, interpreters, static analysis, cryptography, and compression. Existing AI models can already reimplement complex software, with the strongest model scoring 56% across the benchmark. For example, AI can reimplement gotree, a 16,000-line bioinformatics toolkit - a task that we believe would take weeks for a human engineer. However, studying the frontier of performance requires a larger inference budget than typical benchmarks, for example, \\$2,600 over 19 days for a single attempt on a large task. We show that AI agents can already complete long-horizon software engineering tasks, especially when requirements are precisely specified. More broadly, our work suggests AI will have transformative effects on software engineering, as autonomous agents continue to improve.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Trace2Eval: Contextualized Evaluation of Coding Agents from Real-World Traces",
+      "authors": [
+        {
+          "family": "Shi",
+          "given": "Ji"
+        },
+        {
+          "family": "Jie",
+          "given": "Lirong"
+        },
+        {
+          "family": "Zou",
+          "given": "Lexiao"
+        },
+        {
+          "family": "Zhu",
+          "given": "Yaoming"
+        },
+        {
+          "family": "Yang",
+          "given": "Yifan"
+        },
+        {
+          "family": "Cao",
+          "given": "Xuezhi"
+        },
+        {
+          "family": "Cai",
+          "given": "Xunliang"
+        },
+        {
+          "family": "Zhang",
+          "given": "Miao"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2611.06506",
+      "arxiv_id": "2611.06506",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7225336011",
+      "url": "https://arxiv.org/abs/2611.06506",
+      "oa_pdf_url": "https://arxiv.org/pdf/2611.06506",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding agents are increasingly used in real-world workflows across diverse domains, motivating evaluation grounded in real user tasks. Existing benchmarks, however, largely rely on static public tasks with reference patches or hidden tests. Next-generation coding-agent benchmarks should therefore move beyond correctness on fixed tasks toward continually renewed evaluation of overall artifact quality in real user workflows. We propose Trace2Eval, a dynamically updatable pipeline that constructs benchmarks from real-world interaction trajectories. Trace2Eval employs a multi-agent reconstruction system to analyze the filtered trajectory, recover the original user query, restore the workspace files to their pre-interaction state, and rebuild a trajectory-equivalent execution environment. A candidate agent then executes the reconstructed query to produce an initial artifact. To evaluate these artifacts, the pipeline iteratively refines human rubrics through inter-annotator alignment, and calibrates judge agents against human assessments using source-code and runtime evidence. Guided by feedback from the Trace2Eval pipeline, models revise their initial artifacts, yielding a mean score gain of 10.05 percentage points across 19 model-harness configurations and a maximum of 19.28 percentage points for DeepSeek-V4-Pro with Claude Code, which supports rubric feedback as actionable guidance for artifact improvement.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "LoopsBench: From Harness Engineering to Loop Engineering in Coding Agent Evaluation",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Han"
+        },
+        {
+          "family": "Fang",
+          "given": "Zhemin"
+        },
+        {
+          "family": "Feng",
+          "given": "Rili"
+        },
+        {
+          "family": "Zhao",
+          "given": "Yingqi"
+        },
+        {
+          "family": "Liu",
+          "given": "Jiaheng"
+        },
+        {
+          "family": "Gao",
+          "given": "Pengfei"
+        },
+        {
+          "family": "Ye",
+          "given": "He"
+        },
+        {
+          "family": "Lin",
+          "given": "Dayi"
+        },
+        {
+          "family": "Lin",
+          "given": "Qingwei"
+        },
+        {
+          "family": "Rajmohan",
+          "given": "Saravan"
+        },
+        {
+          "family": "Zhang",
+          "given": "Dongmei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.00267",
+      "arxiv_id": "2608.00267",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7172416829",
+      "url": "https://arxiv.org/abs/2608.00267",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.00267",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": "Coding agent infrastructure is shifting from harness engineering toward loop engineering as coding agents are deployed for sustained long-horizon software development. Existing benchmarks often center on localized tasks or end-state outcomes, offering limited insight into sustained execution. We introduce LOOPSBENCH, a long-horizon benchmark for loop engineering in coding agent evaluation. Each task is a dependency DAG over separately testable development units with source-evidenced prerequisite edges. LOOPSBENCH comprises 112 tasks from authentic sources spanning 8 programming languages and 9 domains. Its flow-aware runtime releases tests along the ready frontier and retains completed nodes as regression obligations. We evaluate frontier coding agents paired with widely used loop implementations. The strongest configuration, Opus-4.7 with Claude Code and outer continuation, resolves 25.00% of tasks. Recorded plans recover only part of the source-recovered prerequisite DAG, and regression events remain visible across the evaluated loop profiles. We open source the benchmark data and code, including all tasks, more than 5,300 development units, and executable tests, at microsoft/Loopsbench.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Rebuild Dossier: Mechanically-Enforced Specs for Agentic App Rebuilds, and What Model-Tier Failures Reveal",
+      "authors": [
+        {
+          "family": "Fawcett",
+          "given": "Parker"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.23616",
+      "arxiv_id": "2608.23616",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7204266236",
+      "url": "https://arxiv.org/abs/2608.23616",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.23616",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "An AI agent's rebuild is only as good as the process that produced it. Prior work found that once a model is strong enough, a multi-agent rebuild pipeline loses to the simplest approach: giving the model the original code and one instruction (AgentModernize). We present rebuild-dossier, an open-source tool that locks an application's real interface - its exact inputs and outputs - before any code is written, then enforces one-test-at-a-time building through automated checks, not written instructions alone. Three results shape this evaluation, with differing amounts of evidence. First, in a small comparison, the compliant agent failed a held-back test while the rule-breaking agent passed everything - proof that a passing suite doesn't certify correctness when tests can be gamed. Second, we tested whether this beats simply giving the weaker model the source and one instruction: tied on a small app, but lost outright on a larger one where the automated check wasn't even running - pointing to the check mechanism, not interface-locking, which held up separately. Third, every claim here is checked at three levels - the agent's own report, an automated log, and the actual files produced - catching real errors, including a bug in our own logging code, that a single level would have missed. These risks reproduce on a different model and toolchain: a stronger model followed our process three times running, something the weaker model never managed. The tool is public, MIT licensed, and reproduces end to end against our own applications.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "The Developer as Curator: A Canvas for Coding Agent Context",
+      "authors": [
+        {
+          "family": "Böhme",
+          "given": "Lukas"
+        },
+        {
+          "family": "Beckmann",
+          "given": "Tom"
+        },
+        {
+          "family": "Perscheid",
+          "given": "Michael"
+        },
+        {
+          "family": "Hirschfeld",
+          "given": "Robert"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software (Onward!)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3840586.3843212",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7215041472",
+      "url": "https://doi.org/10.1145/3840586.3843212",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3840586.3843212?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The quality of AI-generated code depends on the context that coding agents automatically receive as input. Today's coding agents do not expose that context to the developer. When retrieval fails, the developer cannot distinguish whether a wrong output stems from flawed reasoning or from incorrect or missing input. We describe how coding agents retrieve context internally and derive three failure modes: wrong context, missing context and stale context. Existing mechanisms for managing context (compaction, session reset, and sub-agent delegation) are automated responses to token limits that give developers no way to correct these failures. We present Monet, a canvas-based development tool that positions the developer as curator of the context the agent receives. Monet is guided by two design goals: context observability, letting developers see every piece of gathered context and its current state, and context curation, letting developers add, remove, and refresh context through direct manipulation. On Monet's canvas, each piece of context is a node that developers can remove, add, or refresh to correct the agent's input before re-prompting. Case studies show that each mechanism catches retrieval errors that autonomous agents cannot self-correct. Monet opens a new design space for human-AI collaboration in agent-assisted programming, shifting the developer's role from prompt author to context curator.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Binghai"
+        },
+        {
+          "family": "Zhang",
+          "given": "Chenlong"
+        },
+        {
+          "family": "Liu",
+          "given": "Dayiheng"
+        },
+        {
+          "family": "Zhang",
+          "given": "Jiajun"
+        },
+        {
+          "family": "Chen",
+          "given": "Jiawei"
+        },
+        {
+          "family": "Li",
+          "given": "Mingze"
+        },
+        {
+          "family": "Chen",
+          "given": "Mouxiang"
+        },
+        {
+          "family": "Fang",
+          "given": "Rongyao"
+        },
+        {
+          "family": "Zhang",
+          "given": "Siyuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Xuwu"
+        },
+        {
+          "family": "Jing",
+          "given": "Yuheng"
+        },
+        {
+          "family": "Ma",
+          "given": "Zeyao"
+        },
+        {
+          "family": "Cui",
+          "given": "Zeyu"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.26300",
+      "arxiv_id": "2606.26300",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7166022503",
+      "url": "https://arxiv.org/abs/2606.26300",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.26300",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 10,
+      "abstract": "A classical intuition holds that verifying a solution is easier than producing one. For today's coding agents, this intuition is being inverted: as foundation models develop stronger reasoning capabilities and engineering harnesses grow more sophisticated, generating complex candidate solutions is no longer difficult -- reliably verifying them has become the harder problem. Every verifier we can build is only a proxy for human intent, never the intent itself. This makes verification subject to a twofold difficulty: first, intent is underspecified by nature, making it inherently hard to faithfully check whether it has been fulfilled; second, during model training, optimization widens the gap between proxy and intent -- manifesting as reward hacking or signal saturation. To address this, we characterize the quality of verification signals along three dimensions -- scalability, faithfulness, and robustness -- and argue that achieving all three simultaneously is the central challenge. We further study four reward constructions: a test verifier for general coding tasks, a rubric verifier for frontend tasks, the user as verifier for real-world agent tasks, and an automated agent verifier for long-horizon tasks. Across different task types and policy capability levels, we conduct in-depth analysis and experiments on the core challenges of reward design and how to more effectively leverage reward signals. Experiments show that targeted verification design can effectively suppress reward hacking, improve task completion quality, and achieve significant gains across multiple internal and public benchmarks. These experiences collectively point to a core observation: no fixed reward function can remain effective as policy capability continues to grow; and verification must co-evolve with the generator.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 20,
+      "in_project": null
+    }
+  ]
+}

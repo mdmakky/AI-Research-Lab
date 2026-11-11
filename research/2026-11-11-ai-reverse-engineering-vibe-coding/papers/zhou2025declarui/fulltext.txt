@@ -1,0 +1,879 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                          Bridging Design and Development with Automated Declarative
+                                                              UI Code Generation
+                                                              Ting Zhou∗                                   Yanjie Zhao∗                                Xinyi Hou
+                                                  tingzhou27@hust.edu.cn                             Yanjie_Zhao@hust.edu.cn                   xinyihou@hust.edu.cn
+                                              Huazhong University of Science and                 Huazhong University of Science and       Huazhong University of Science and
+                                                        Technology                                          Technology                              Technology
+                                                       Wuhan, China                                        Wuhan, China                            Wuhan, China
+
+                                                              Xiaoyu Sun                                    Kai Chen†                               Haoyu Wang†
+                                                  Xiaoyu.Sun1@anu.edu.au                               kchen@hust.edu.cn                     haoyuwang@hust.edu.cn
+
+
+
+
+arXiv:2409.11667v1 [cs.SE] 18 Sep 2024
+                                              The Australian National University                 Huazhong University of Science and      Huazhong University of Science and
+                                                          Australia                                        Technology                              Technology
+                                                                                                          Wuhan, China                            Wuhan, China
+                                         ABSTRACT                                                                   better user experiences and more efficient development processes.
+                                         Declarative UI frameworks have gained widespread adoption in               Traditional imperative UIs, which specify step-by-step instructions
+                                         mobile app development, offering benefits such as improved code            for rendering UI elements, have given way to declarative UIs, which
+                                         readability and easier maintenance. Despite these advantages, the          describe the desired state of the UI rather than the sequence of oper-
+                                         process of translating UI designs into functional code remains chal-       ations to achieve it [30, 54]. Declarative UIs offer several advantages
+                                         lenging and time-consuming. Recent advancements in multimodal              over their imperative counterparts, such as improved maintainabil-
+                                         large language models (MLLMs) have shown promise in directly               ity, testability, and separation of concerns by decoupling the UI
+                                         generating mobile app code from user interface (UI) designs. How-          logic from the underlying implementation details.
+                                         ever, the direct application of MLLMs to this task is limited by              The adoption of declarative UI frameworks in mobile app de-
+                                         challenges in accurately recognizing UI components and compre-             velopment has become widespread due to these benefits [21, 30].
+                                         hensively capturing interaction logic.                                     However, while these frameworks have simplified many aspects of
+                                            To address these challenges, we propose DeclarUI, an auto-              UI development, they have not significantly reduced the amount of
+                                         mated approach that synergizes computer vision (CV), MLLMs,                manual coding required. In real-world scenarios, the development
+                                         and iterative compiler-driven optimization to generate and refine          process typically begins with the design of the UI [42], followed by
+                                         declarative UI code from designs. DeclarUI enhances visual fi-             the complex and time-consuming task of translating these visual
+                                         delity, functional completeness, and code quality through precise          designs into functional declarative UI code. This process requires
+                                         component segmentation, Page Transition Graphs (PTGs) for mod-             developers to manually map visual elements to their corresponding
+                                         eling complex inter-page relationships, and iterative optimization.        implementation details, which remains prone to errors and can
+                                         In our evaluation, DeclarUI outperforms baselines on React Na-             be particularly challenging despite the advantages of declarative
+                                         tive, a widely adopted declarative UI framework, achieving a 96.8%         frameworks. Consequently, there is a need for automated tools
+                                         PTG coverage rate and a 98% compilation success rate. Notably,             to streamline declarative UI code generation directly from
+                                         DeclarUI demonstrates significant improvements over state-of-              UI designs.
+                                         the-art MLLMs, with a 123% increase in PTG coverage rate, up to               Despite this evident need, current research efforts in this area
+                                         55% enhancement in visual similarity scores, and a 29% boost in            are still inadequate. Some methods rely on heuristics or machine
+                                         compilation success rate. We further demonstrate DeclarUI’s gen-           learning models to extract UI components and layout information
+                                         eralizability through successful applications to Flutter and ArkUI         from design images [7, 10], but they often struggle with complex de-
+                                         frameworks. User studies with professional developers confirm              signs and lack ability to handle interactive logic. Other approaches
+                                         that DeclarUI’s generated code meets industrial-grade standards            use program synthesis techniques to generate code from natural
+                                         in code availability, modification time, readability, and maintain-        language descriptions [56], but they require detailed specifications
+                                         ability. By streamlining app development, improving efficiency, and        and cannot directly interpret visual designs. Researchers have also
+                                         fostering designer-developer collaboration, DeclarUI offers a prac-        explored generating UI code across different frameworks [4, 14],
+                                         tical solution to the persistent challenges in mobile UI development.      but these approaches are carried out on traditional imperative UI
+                                                                                                                    frameworks and cannot be extended to declarative UI frameworks.
+                                                                                                                    In summary, existing research falls short in addressing spe-
+                                         1    INTRODUCTION                                                          cific challenges of automatically generating declarative UI
+                                         As the mobile app ecosystem continues to expand, with a constant           code for real-world development scenarios and lacks ability
+                                         influx of new apps entering the market, the development of user            to generalize across different UI frameworks.
+                                         interfaces (UIs) has evolved to meet the increasing demands for               Recent advancements in multimodal large language models (MLLMs)
+                                                                                                                    have opened up new possibilities for generating code from visual
+                                         ∗ Ting Zhou and Yanjie Zhao are the co-first authors.
+                                         † Corresponding authors.
+                                                                                                                    inputs. MLLMs, which integrate image processing capabilities into
+
+=== [PDF page 2] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                                         T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+large language models (LLMs), have demonstrated superior per-                                 effectively bridging UI designs and functional declarative UI
+formance in understanding and interpreting visual information                                 code across frameworks.
+compared to traditional computer vision (CV) models based on con-                           • We conducted a user study with professional developers to
+volutional neural networks (CNNs) [6, 55, 61]. Furthermore, LLMs                              evaluate the performance of DeclarUI. The results demon-
+have exhibited remarkable proficiency in various code intelligence                            strate that DeclarUI significantly outperforms the baseline
+tasks, such as code generation [12, 13, 32, 40], translation [17, 33],                        in terms of code availability (4.97 vs. 4.15), modification
+summarization [2, 8, 23, 27], and repair [16, 39, 59, 60]. The synergy                        time (4.03 vs. 2.45), readability (4.62 vs. 3.75), and maintain-
+between visual comprehension and code generation abilities within                             ability (4.55 vs. 3.37). Developers reported that the UI code
+MLLMs presents a promising avenue for translating UI designs into                             generated by DeclarUI meets industrial-grade standards in
+functional code, bridging the gap between visual representations                              multiple dimensions, highlighting its potential to streamline
+and programmatic implementations.                                                             app development processes and improve designer-developer
+   Despite the powerful image understanding and code generation                               collaboration.
+abilities of MLLMs, directly applying them to UI code generation
+faces several significant challenges. Imprecise component recog-                      2     BACKGROUND AND MOTIVATIONS
+nition often occurs due to the complexity of UI designs and the
+lack of explicit annotations. MLLMs also struggle with a limited
+understanding of interactive logic, failing to accurately infer
+navigation flow and event handling from static images. Further-
+more, they often generate inconsistent behavior across pages,
+producing code that may work for individual screens but fails to
+maintain coherence in a multi-page app. Lastly, the generated code                                            Click                         Click
+frequently suffers from reliability and compilation issues, con-
+taining syntax errors or violating framework-specific conventions.
+These challenges underscore the need for a specialized approach
+that can bridge the gap between MLLMs’ capabilities and the spe-
+cific requirements of declarative UI code generation, addressing
+accuracy, consistency, and reliability in the process.
+   To fill this gap, we propose DeclarUI, a novel approach to en-
+                                                                                          (a1) Account page            (a2) LazFlash page           (a3) Home page
+hance MLLM-based declarative UI code generation from UI designs.
+DeclarUI integrates advanced CV techniques with MLLMs to de-                                        (a) Screenshots of an app named “com.lazada.android”.
+compose complex UI designs into structured component informa-
+tion. We introduce the Page Transition Graph (PTG) to represent
+the app’s navigation logic, which, combined with the structured
+component information, forms a comprehensive prompt for the
+MLLM. After initial code generation, DeclarUI employs an iter-
+ative refinement process, performing navigational integrity and
+compilation checks to identify and rectify common errors. This                                                Click                         Click
+multi-stage approach ensures the generated UI code is both visually
+accurate and functionally robust across multiple pages.                                                        No
+                                                                                                              button
+   In summary, our key contributions are as follows:
+     • We propose DeclarUI, an approach that enhances MLLM-
+       based declarative UI code generation from UI designs. DeclarUI
+       combines CV techniques with MLLMs to decompose UI de-
+       signs into structured component information, introduces the                        (b1) Account page            (b2) LazFlash page           (b3) Home page
+       PTG to represent navigation logic, and employs an iterative
+       refinement process.                                                                         (b) UI rendering of the generated UI code by Claude-3.5.
+     • Our study compiled a dataset of 50 top-ranked UI design sets
+       (50% mockups, 50% app screenshots) from design websites
+                                                                                      Figure 1: Motivating example comparing the original app
+       and app stores across 10 categories. For React Native [47],
+                                                                                      screenshots with the rendering of code generated by an
+       DeclarUI significantly outperformed state-of-the-art MLLMs
+                                                                                      MLLM. Please note that this paper focuses on code genera-
+       like Claude-3.5 [1]1 and GPT-4o [44] in generating UI code.
+                                                                                      tion evaluation and does not consider the impact of image
+       DeclarUI achieved a 123% improvement in PTG coverage
+                                                                                      assets on the generation process.
+       rate, up to 55% increase in visual similarity scores, and a
+       29% higher compilation success rate. Furthermore, DeclarUI
+       demonstrated strong generalization to Flutter [22] and ArkUI [29],                The rapid advancement of MLLMs has ushered in a new era of
+                                                                                      possibilities for automating mobile app development. Models such
+1 The specific reference to “Claude-3.5” in this paper refers to Claude 3.5 Sonnet.   as OpenAI’s DALL-E [46] and Google’s Imagen [48] have showcased
+
+=== [PDF page 3] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                Conference’17, July 2017, Washington, DC, USA
+
+
+remarkable abilities in generating images and text from natural                 vision of streamlined app development through AI-assisted code
+language prompts, inspiring researchers to explore their potential              generation.
+in generating app code directly from UI design mockups or app                      Our Solutions. To address the issue of imprecise component
+screenshots [28, 52, 58]. This innovative approach holds the promise            recognition, we leverage advanced CV techniques. By integrating
+of streamlining the app development process, potentially allowing               the Grounding DINO object detection model [38] with the Segment
+designers to transform their visual concepts into functional UI code            Anything image segmentation model [34], we are able to precisely
+with unprecedented ease and speed.                                              isolate individual components within UI designs. This preprocess-
+    Unfortunately, despite the exciting potential of MLLMs for UI               ing step significantly enhances the MLLM’s ability to recognize
+code generation, current approaches face significant challenges                 UI elements, ensuring that the generated code more accurately re-
+when processing raw UI design mockups or screenshots. In Fig-                   flects the design intent. To tackle the limitations in understanding
+ure 1, we provide an example of a shopping app named “com.lazada.               interactive logic and maintaining consistent behavior across pages,
+android” [26], sourced from Google Play, to illustrate some of the              we introduce the concept of Page Transition Graph (PTG). The
+issues with generating UI code using an MLLM, i.e., Claude-3.5:                 PTG serves as a structured representation that clearly delineates
+Imprecise Component Recognition. The MLLM struggles with                        the navigation logic between different pages. By providing this
+accurate identification and rendering of UI components. As evident              high-level abstraction to the MLLM, we compensate for the model’s
+in Figure 1(b1), the generated Account page lacks several crucial               weaknesses in comprehending complex inter-page relationships,
+elements present in the original design (Figure 1(a1)). Most notably,           thereby generating interaction logic that more closely aligns with
+the LazFlash button is missing, which is a critical component for               the designer’s intentions. Finally, to improve code reliability and
+navigation within the app. This omission demonstrates that MLLMs                reduce compilation errors, we implement an iterative refinement
+may not fully capture all the necessary visual elements, potentially            process. This mechanism not only checks the navigational integrity
+leading to incomplete or inaccurate UI implementations.                         of the MLLM-generated code but also performs compilation checks,
+Limited Understanding of Interactive Logic. UI design encom-                    ensuring consistent code quality. This approach significantly re-
+passes more than just visual elements; it includes complex inter-               duces the need for manual intervention, lowering time costs while
+action patterns and user experience considerations. The MLLM                    simultaneously improving the overall quality of the generated code.
+faces difficulties in accurately interpreting the designer’s intentions
+and the relationships between different elements. This is clearly               3     APPROACH
+illustrated by the lack of navigation logic in the generated UI code.           The workflow of DeclarUI, as illustrated in Figure 2, starts with
+The arrows with crosses in Figure 1(b) indicate that the expected               UI designs as input. These designs include high-quality Figma [20]
+transitions between pages (such as from the Account page to the                 design mockups and screenshots of Google Play [25] apps. Design
+LazFlash page) are not implemented in the generated code, despite               mockups typically include both visual elements and text-based
+being clearly present in the original designs shown in Figure 1(a).             specifications, providing comprehensive design information. While
+Inconsistent Behavior Across Pages. The MLLM struggles to                       text-based design specifications are readily interpretable by LLMs,
+recognize and implement consistent behaviors across different                   DeclarUI aims to address more challenging scenarios where only
+pages of an app. This challenge is exemplified in Figure 1, where               visual designs are available. Therefore, DeclarUI processes both
+both the Account page (a1) and the Home page (a3) should navigate               sources uniformly as image data, focusing exclusively on visual
+to the LazFlash page (a2) when the LazFlash button is clicked. How-             content. This unified image-based analysis allows DeclarUI to pro-
+ever, the generated UI code fails to maintain this consistency, as              cess diverse inputs consistently, whether they are design mockups
+indicated by the crossed-out arrows in Figure 1(b). This suggests               or app screenshots.
+that MLLMs have difficulty in analyzing and implementing complex                   DeclarUI preprocesses the input through two key steps: PTG
+attention patterns across multiple screenshots, potentially leading             Construction (§ 3.1), which captures navigation logic, and UI
+to inconsistent user experiences in the generated app.                          Component Extraction and Representation (§ 3.2), which uti-
+Code Reliability and Compilation Issues. The output from the                    lizes CV techniques. Subsequently, the Prompt Synthesis step
+MLLMs can be unpredictable, often resulting in code that contains               (§ 3.3) integrates the preprocessed data—including the generated
+compilation errors or runtime issues. While not directly visible in             PTG, component analysis results, and the complete UI screen-
+Figure 1, this challenge is implicit in the discrepancies between the           shot—into a comprehensive prompt. This prompt serves as the
+original app screenshots and the rendered UI from the generated                 foundation for the MLLM to generate complete UI code. Lastly, an
+code. These issues necessitate significant human intervention to cor-           Iterative Code Refinement process (§ 3.4) checks for errors and
+rect errors and ensure the code is functional, potentially offsetting           navigation absence, ensuring the reliability of the final code output.
+the time-saving benefits of using MLLMs for UI code generation.
+    These challenges underscore the current limitations of MLLM-
+                                                                                3.1    PTG Construction
+based approaches in UI code generation. While the potential for
+automating app development is promising, significant improve-                   To address challenges rooted in the complexities of modern UI
+ments in component recognition, understanding of interactive logic,             designs and MLLM limitations, we propose the utilization of PTGs
+cross-page consistency, and code reliability are necessary before               as a key tool for capturing and representing UI interaction logic.
+MLLMs can reliably transform visual designs into fully functional               We formally define a PTG where nodes represent individual app
+UI code. Addressing these challenges will be crucial for realizing the          pages, and edges represent transitions between pages along with
+                                                                                their triggering conditions. The PTG is defined as a tuple:
+
+=== [PDF page 4] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                              T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+
+
+                                                            Figure 2: The workflow of DeclarUI.
+
+
+                                                                                 with utilizing MLLMs for UI code generation from designs, in-
+                                𝑃𝑇𝐺 = (𝑁 , 𝐸)                                    cluding limited understanding of interactive logic and inconsistent
+   where:                                                                        behavior across pages.
+    • 𝑁 is a finite set of nodes representing app pages. Each node
+      includes an 𝑖𝑑 as a unique identifier, a 𝑛𝑎𝑚𝑒 for the page
+      name, a 𝑡𝑦𝑝𝑒 indicating the page type, and 𝑝𝑟𝑜𝑝𝑒𝑟𝑡𝑦 contain-               3.2    UI Component Extraction and
+      ing additional properties. 𝑁 is defined as:
+                                                                                        Representation
+      𝑁 = {𝑛𝑖 = (𝑖𝑑𝑖 , 𝑛𝑎𝑚𝑒𝑖 , 𝑡𝑦𝑝𝑒𝑖 , 𝑝𝑟𝑜𝑝𝑒𝑟𝑡𝑦𝑖 ) | 𝑖 = 1, 2, . . . , 𝑘 }       This process aims to transform the complex UI design images into
+     • 𝐸 is a set of directed edges representing transitions between             a structured representation of components, which is more easily
+       pages. Each edge has specific attributes: 𝑖𝑑 is a unique iden-            understood and processed by MLLMs for generating high-quality
+       tifier for the edge, 𝑛𝑠, 𝑛𝑡 ∈ 𝑁 denote the source and target              code, as illustrated in Figure 5. It includes three stages as follows:
+       nodes, while 𝑐𝑜𝑛𝑑𝑖𝑡𝑖𝑜𝑛 is the condition that triggers the tran-           Automated Component Detection. Instead of relying on man-
+       sition, and 𝑎𝑐𝑡𝑖𝑜𝑛 is the operation performed during the                  ual annotation, DeclarUI leverages the capabilities of Grounding
+       transition. 𝐸 is defined as:                                              DINO [38], a state-of-the-art object detection model. Grounding
+                                                                                 DINO excels in zero-shot object detection, making it ideal for iden-
+    𝐸 = {𝑒𝑖 = (𝑖𝑑𝑖 , 𝑛𝑠𝑖 , 𝑛𝑡𝑖 , 𝑐𝑜𝑛𝑑𝑖𝑡𝑖𝑜𝑛𝑖 , 𝑎𝑐𝑡𝑖𝑜𝑛𝑖 ) | 𝑖 = 1, 2, . . . , 𝑚}
+                                                                                 tifying potential UI components without requiring extensive train-
+   Our introduction of PTGs seeks to offer MLLMs a clear, struc-                 ing on UI-specific datasets. The model generates bounding boxes
+tured representation of interaction logic, effectively bridging the              around detected objects, which serve as initial component localiza-
+gap in expressing dynamic interactions in static UI designs. The                 tion.
+PTG generation process leverages the robust inference capabilities               Automated Instance Segmentation. To achieve precise instance
+of MLLMs combined with the analysis of UI designs. Initially, a set              segmentation of the UI components, DeclarUI employs the Seg-
+of UI designs is provided to an MLLM, i.e., Claude-3.5, accompanied              ment Anything Model (SAM) [34]. The bounding boxes produced
+by a formal definition of the PTG structure. The MLLM analyzes the               by Grounding DINO act as prompts for SAM, guiding the segmenta-
+UI designs and generates a comprehensive PTG based on the pro-                   tion process. This approach combines the strengths of both models:
+vided prompt, as exemplified in Figure 3. It is guided to output its             Grounding DINO’s ability to detect objects without prior training,
+analysis in a structured JSON format to facilitate further processing            and SAM’s capability to produce highly accurate segmentation
+and integration. Figure 4 illustrates an example PTG for a simplified            masks.
+e-commerce app scenario, designed to clearly demonstrate the PTG                 Component Classification and Functional Analysis. We then
+concept. Finally, designers or developers review the generated PTG,              leverage an MLLM (i.e., Claude-3.5) to process the segmented com-
+making necessary corrections or additions to ensure the accuracy                 ponent images. As shown in Figure 6(a), a carefully designed prompt
+and completeness of the captured interaction logic.                              is used to extract the component type. The prompt includes the
+   PTGs offer a structured representation of UI elements, encom-                 segmented images and instructs the MLLM to classify the compo-
+passing page hierarchies, transition logic, and navigation rules.                nent type (e.g., button, text field, dropdown menu, etc.) and infer its
+PTGs play a crucial role in addressing key challenges associated                 potential functionality within the UI. This step utilizes the MLLM’s
+
+=== [PDF page 5] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                                   Conference’17, July 2017, Washington, DC, USA
+
+
+
+                       Given the following set of UI design images:
+                       [Image Set]
+                       And the formal definition of a Page Transition Graph (PTG):
+                       [PTG Formal Definition]
+                       Please analyze the UI design images and generate a complete Page Transition Graph (PTG) that captures all
+                       pages, their elements, and the possible transitions between them. Ensure that you include both page-specific
+                       transitions and global transitions where applicable.
+
+
+                                                           Figure 3: Example of prompt used to construct PTG.
+
+{
+N = [{id: 'login', name: 'Login Page', type: 'login'},                                             component analysis results, detailing UI element types and their
+    {id: 'home', name: 'Home Page', type: 'list', props: {layout: 'grid', itemType: 'product'}},
+    {id: 'search', name: 'Search Page', type: 'search'},
+                                                                                                   functionalities; and the complete UI images, providing visual
+    {id: 'product', name: 'Product Detail Page', type: 'detail', props: {layout: 'vertical'}},
+    {id: 'cart', name: 'Shopping Cart Page', type: 'list', props: {layout: 'vertical', itemType:
+                                                                                                   context. Together, these components give the MLLM a holistic
+'cartItem'}}],                                                                                     understanding of both the structure and visual design, enabling
+E = [{id: 'login->home', from: 'login', to: 'home', conditions: 'isLoggedIn'},                     accurate and functionally complete UI code generation. Figure 6(b)
+    {id: 'home->search', from: 'home', to: 'search', actions: 'passSearchParams'},
+    {id: 'home->product', from: 'home', to: 'product', actions: 'passProductId'},                  illustrates an example of the synthesized prompt.
+    {id: 'search->product', from: 'search', to: 'product', actions: 'passProductId'},
+    {id: 'product->cart', from: 'product', to: 'cart', actions: 'addToCart'},                          The resulting prompt is fed into the MLLM for the initial code
+    {id: 'cart->product', from: 'cart', to: 'product', actions: 'passProductId'}]
+}                                                                                                  generation, setting the stage for the subsequent iterative code re-
+                                                                                                   finement process, where the generated code undergoes navigation
+Figure 4: Example of the PTG for a simplified e-commerce                                           and compilation checks for further improvement.
+app scenario.
+
+
+                                                                                                   3.4    Iterative Code Refinement
+                                                                                                   The initial code generated by MLLMs may fail to implement the
+                                                                                                   navigation logic defined in the PTG fully, contain syntax errors,
+                                                                                                   or exhibit logical inconsistencies. To address these potential issues
+                                                                                                   and ensure high-quality code output, DeclarUI employs a two-
+                                                                                                   pronged strategy for code refinement: navigation consistency
+                                                                                                   validation and compile-time error correction. This iterative
+                                                                                                   process systematically identifies and rectifies discrepancies between
+                                                                                                   the generated code and the intended app structure and behavior.
+                                                                                                   Navigation Consistency Validation. To ensure fidelity to the
+(a) Original      UI    (b)        DINO- (c)        SAM- (d) Component clas-                       PTG, DeclarUI implements a comprehensive navigation consis-
+screenshot              dectected UI     segmented UI    sification and func-
+                                                         tional analysis
+                                                                                                   tency validation process using static code analysis techniques. This
+                                                                                                   process begins by parsing the generated code to extract all im-
+                                                                                                   plemented navigation logic, specifically identifying framework-
+Figure 5: Example of the UI component extraction process.                                          specific navigation statements without executing the code. The
+                                                                                                   extracted navigation paths are then meticulously compared against
+                                                                                                   the PTG definition, with a primary focus on identifying any missing
+understanding of UI design patterns and its ability to reason about                                transitions that are present in the PTG but absent in the generated
+the purpose of visual elements.                                                                    code. This static analysis approach allows for additional naviga-
+   The output of this three-stage process is a comprehensive, struc-                               tion options in the code that may not be explicitly defined in the
+tured representation of the UI design images. This representation                                  PTG, providing flexibility for potential enhancements or alternative
+includes precise spatial information and instance segmentation                                     user flows. Upon completion of the analysis, a detailed report is
+masks for each component, type classifications, and inferred func-                                 generated, highlighting any navigation inconsistencies, specifically
+tional descriptions.                                                                               focusing on missing transitions. This report serves as a crucial in-
+                                                                                                   put for the MLLM in subsequent refinement iterations, offering
+3.3      Prompt Synthesis                                                                          targeted guidance to address specific navigation-related omissions
+Prompt synthesis integrates the preprocessed data into a compre-                                   and ensuring comprehensive implementation of the intended user
+hensive prompt for the MLLM, enhancing its ability to generate                                     journey as defined in the PTG.
+UI code that accurately reflects both the visual elements and the                                  Compile-Time Error Correction. An integral part of DeclarUI’s
+underlying interactive logic of the original design. This process                                  iterative refinement process is leveraging compiler feedback to de-
+combines three key elements: the PTG, which provides a structured                                  tect and correct syntactic errors in the generated code. This is
+representation of the navigation logic and inter-page relationships;                               achieved through an automated compilation checking script that
+
+=== [PDF page 6] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                     T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+                                                                        Iterative Refinement Process. The code refinement process in
+       You are an engineer proficient in React Native.                  DeclarUI is iterative, designed to continuously enhance the quality
+       # Task Description                                               of the generated code. Initially, DeclarUI generates code for each
+       I will provide you with some common component types in           app page based on the PTG. Then, it undergoes iterative cycles
+       React Native, a complete app screenshot from a real              to check and correct navigation inconsistencies and compile-time
+       mobile app and several component images extracted from           errors. After generating each page’s code, a navigation consistency
+       the mobile app screenshot.
+                                                                        check is performed, producing a report of any missing navigation
+       Your task is to match each component image to a possible
+                                                                        paths. This report is fed back into the MLLM to address the gaps,
+       component type in React Native and provide a brief
+       description of the possible functionality of that component.
+                                                                        with up to three iterations per page to ensure completeness. Once
+       To conclude your answer, you should label each                   all pages are generated and compiled into a project, DeclarUI
+       component with its matched type using the format                 conducts a compile-time error analysis. It identifies the relevant
+       ‘@@@{component type}@@@’.                                        files and error messages, which are passed to the MLLM for targeted
+       # Common Component Type                                          corrections. The MLLM refines the code based on both navigation
+       [Common Component Types]                                         and compile-time issues. This process is repeated, with compile-
+                                                                        time error correction limited to three iterations for the entire project
+       # Complete App Screenshot and Component Images
+       [Complete App Screenshot]
+                                                                        to maintain efficiency. This iterative approach ensures continuous
+       [Component Image Set]                                            improvement, addressing specific issues while keeping the process
+                                                                        efficient through iteration limits.
+
+           (a) Example of the prompt used to extract component types.   4     EVALUATION
+                                                                        To comprehensively evaluate the performance of DeclarUI, we
+       You are an engineer proficient in React Native.                  designed a series of experiments to address three key research
+       # Task Description
+                                                                        questions (RQs):
+       I have a set of UI design images that need to be converted       RQ1: Effectiveness. How effective is DeclarUI? How does DeclarUI
+       into fully functional React Native application code,                  perform in comparison to baseline methods when operating
+       including navigation logic between pages. I will now                  autonomously without human intervention?
+       provide you with the UI image of the page [page name].           RQ2: Ablation Study. How do individual key modules contribute
+       Please generate the corresponding React Native code                   to the overall performance of DeclarUI?
+       based on the provided information.                               RQ3: User Study and Manual Repair. How do professional de-
+       # Requirements                                                        velopers evaluate DeclarUI’s generated UI code compared to
+       [Requirements]                                                        the baseline in real-world scenarios? To what extent is man-
+       # Output Format                                                       ual effort required to repair compilation failures in DeclarUI’s
+       [Output Format]                                                       output?
+       # Component Analysis Results
+       [Component Analysis Results]                                     4.1    Dataset
+       # PTG                                                            We curated a dataset of 50 mobile app UI designs (totaling 250 app
+       [PTG]                                                            pages), including 25 UI design mockups and 25 app screenshots,
+       # UI Screenshot                                                  across 10 functional categories. This diversity allows us to assess
+       [Complete UI Screenshot]                                         the generalizability and robustness of our approach across various
+                                                                        UI design paradigms and app types. We now provide details on the
+                     (b) Example of a synthesized prompt.
+                                                                        data sources, selection criteria, and dataset composition.
+                                                                        Data Sources. Our dataset is drawn from two main sources: Figma [20]
+ Figure 6: Examples of the prompts used in § 3.2 and § 3.3.             and Google Play [25]. Figma, a leading collaborative design tool,
+                                                                        provides a selection of contemporary, high-quality mobile UI de-
+                                                                        sign mockups. Google Play, the official app distribution platform
+systematically processes the code using the appropriate develop-        for Android devices, serves as our source for downloading apks,
+ment tools. The script captures and analyzes compiler error mes-        which we subsequently install on an emulator to manually capture
+sages generated during this process. To bridge the gap between          screenshots. By incorporating cutting-edge designs from Figma and
+the compiler’s technical output and the MLLM’s natural language         real-world apps from Google Play, we ensure that our approach
+processing capabilities, these error messages are processed and         is evaluated against a dataset that reflects both ideal design prac-
+restructured into clear, actionable instructions. This process in-      tices and practical implementation challenges in the mobile app
+volves extracting key information from error messages, including        development landscape.
+file names, line numbers, and error descriptions. The extracted in-     Selection Criteria. To ensure diversity in our dataset, we em-
+formation is then combined with relevant code snippets to form a        ployed strict selection criteria. We classified mobile apps into 10
+structured prompt. This prompt is fed back to the MLLM, enabling        functional categories, including Social Networking, Entertainment,
+it to make targeted corrections to the code.                            Productivity, Education, Wellness, Finance, Shopping & E-commerce,
+
+=== [PDF page 7] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                 Conference’17, July 2017, Washington, DC, USA
+
+
+Travel & Navigation, News & Information, and Utility & Practical                compiled apps while minimizing manual intervention. We then
+Tools. For Figma designs, we selected 194 mobile UI design mock-                employ different metrics based on the compilation outcome.
+ups with over 300 followers, indicating their recognition within                   For successfully compiled apps (within three iterations), we cal-
+the design community. We then excluded designs that didn’t meet                 culate:
+our page count requirements (i.e., less than five pages) or weren’t                 • Compilation Success Rate (CSR) [56]: This measures the
+specifically designed for mobile apps. For Google Play apps, we                       percentage of generated app code that is compiles success-
+focused on those ranking in the top 10 by download count within                       fully without errors after our automated iterative refinement
+their respective categories, ensuring the representation of popular                   process, without any human intervention:
+and widely used apps. We excluded paid apps and those requiring
+complex registration processes. From each source, we selected 3-5                             Number of successfully compiled apps
+                                                                                      𝐶𝑆𝑅 =                                        × 100%
+designs or apps per category that met our criteria. This range was                                   Total number of apps
+established to accommodate potential scarcity in certain categories                 • Average Compilation Iteration Count (ACIC): This met-
+while maintaining a minimum threshold for diversity. For each cat-                    ric indicates code generation efficiency and is computed as:
+egory, we ultimately collected no fewer than five designs; for those                                          Í𝑛
+with more than five, we randomly selected five for experimentation                                                𝑖𝑡𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑠𝑖
+                                                                                                     𝐴𝐶𝐼𝐶 = 𝑖=1
+to control experimental costs while ensuring research quality and                                                    𝑛
+statistical significance.                                                             where 𝑛 is the total number of successfully compiled apps
+Dataset Composition. The composition of our dataset is struc-                         and 𝑖𝑡𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑠𝑖 is the number of compilation attempts for the
+tured to provide a balanced and comprehensive representation of                       𝑖-th app (maximum 3). A lower ACIC suggests more efficient
+mobile UI designs. We selected 50 apps in total, equally divided                      initial code generation.
+between Figma designs and Google Play apps. These 50 apps are dis-                 For apps that fail to compile after three iterations (termed compilation-
+tributed across 10 functional categories, with five apps per category.          failed apps), we measure:
+The categorization was designed to encompass the broad spectrum
+of mobile app functionalities, aiming to provide a comprehensive                    • Average Manual Correction Time (AMCT): This quan-
+representation of the app ecosystem. For each app, we captured                        tifies the average time required for human developers to
+five logically connected pages, allowing us to analyze the flow and                   manually correct remaining errors in the generated code:
+interaction between related interfaces.                                                                Total manual correction Time
+                                                                                           𝐴𝑀𝐶𝑇 =
+                                                                                                      Number of compilation-failed apps
+4.2     Experimental Setup                                                             AMCT provides insight into the practical efficiency gains of
+4.2.1 Evaluation Metrics. Our evaluation employs a set of met-                         our method and the potential reduction in developer work-
+rics to assess the performance of DeclarUI, encompassing visual                        load.
+fidelity, navigation logic, code quality, and practical usability.                 To provide a comprehensive assessment of the generated code’s
+   To evaluate visual fidelity, we utilize two metrics:                         practical usability and efficiency, we employ user study met-
+      • CLIP score [50]: This metric quantifies the semantic simi-              rics [11]. These metrics evaluate:
+        larity between the generated and original UIs, providing an                 • Code Availability: Quantifies the proportion of usable code
+        indicator of how well the generated UI captures the intended                  in the generated output.
+        visual elements and overall design concept.                                 • Modification Time: Measures time to adapt generated code
+      • SSIM (Structural Similarity Index Measure) score [53]: It                     to production standards.
+        assesses the layout and compositional accuracy, focusing on                 • Readability: Assesses the structural understandability of
+        the spatial arrangement and structural similarities between                   the code.
+        the generated and original UIs.                                             • Maintainability: Measures the ease of adapting the code to
+   The completeness of navigation logic implementation is mea-                        new requirements.
+sured by PTG Coverage Rate (PCR). This metric, manually cal-                       Scores for these metrics are assigned using predefined scales and
+culated by human evaluators, assesses the alignment between the                 intervals, allowing for a nuanced evaluation of the code’s quality
+implemented app structure and the intended design. It compares                  from a developer’s perspective.
+the predefined PTG (e.g., Figure 4) with the UI Transition Graph
+(UTG) of the apps generated by DeclarUI. The UTG is obtained                    4.2.2 Baselines. We compare DeclarUI against two baselines:
+using DroidBot [36], a widely adopted automated testing tool. The               GPT-4o and Claude-3.5 (specifically, Claude-3.5-Sonnet-20240620).
+PCR is calculated as:                                                           Both baselines use unprocessed UI design images without our cus-
+                                                                                tom prompting techniques or additional processing. To ensure a fair
+                        |PTGedges ∩ UTGedges |                                  comparison and avoid underestimating the capabilities of MLLMs,
+               𝑃𝐶𝑅 =                                × 100%
+                                |PTGedges |                                     we meticulously designed the prompts for the baselines. These
+                                                                                prompts adhere to established practices from existing image-to-
+  As described in § 3.4, we apply a compile-time error correction               code research [52, 56, 58] and widely-adopted techniques for LLM
+process, allowing up to three compilation attempts for each app.                utilization [18, 51]. Both baseline approaches are evaluated within
+This iterative process aims to maximize the number of successfully              the React Native framework.
+
+=== [PDF page 8] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                     T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+4.2.3 Implementation Details. Our experiments cover three popu-           mobile app UI designs. Under fully automated conditions, the base-
+lar mobile development frameworks that employ a declarative UI            line methods achieved a CSR of 76% (GPT-4o) and 74% (Claude-3.5).
+paradigm, i.e., React Native, Flutter, and ArkUI. For each framework,     Compilation failures primarily stemmed from issues such as using
+we generate UI code using our DeclarUI approach and evaluate its          non-existent packages or components, inadequate special charac-
+performance. All experiments were conducted on a server equipped          ter handling, and component utilization without proper package
+with dual NVIDIA GeForce RTX 3090 GPUs, 64-core AMD EPYC                  imports. While Baseline (GPT-4o) showed a slight edge in visual
+processors, and 512GB of RAM. The code generation process was             fidelity compared to Baseline (Claude-3.5), the advantage was mar-
+automated with custom Python scripts, totaling 2,935 lines, to min-       ginal, with both falling short of our DeclarUI’s performance. No-
+imize human intervention and bias.                                        tably, there was a stark contrast in PCR between the baselines,
+                                                                          with Baseline (GPT-4o) achieving 1.4% and Baseline (Claude-3.5)
+                                                                          reaching 43.4%. This disparity highlights Claude-3.5’s substantial
+4.3     Effectiveness (RQ1)                                               advantage in logical comprehension over GPT-4o in the baseline
+To address RQ1, we conducted experiments on a carefully curated           scenario.
+dataset comprising 50 app UI designs, each containing five pages,            Comparing DeclarUI to the baselines reveals significant im-
+as stated in § 4.1. Given their status as state-of-the-art MLLMs, we      provements across key metrics. The PCR, a crucial indicator of an
+selected GPT-4o and Claude-3.5 as base models to power DeclarUI.          app’s navigational structure implementation, demonstrates DeclarUI’s
+The experiment’s input consisted of these 50 app UI designs, while        substantial advantage. In the React Native framework, DeclarUI
+the output was the code generated by DeclarUI for each app’s              achieves 88.6% and 96.8% coverage with GPT-4o and Claude-3.5 re-
+five pages. We integrated the generated code directly into an initial     spectively, far surpassing the corresponding baseline methods (1.4%
+project in the IDE (i.e., Android Studio for React Native) without        and 43.3%). This marked improvement suggests DeclarUI’s en-
+any manual intervention. The project was then packaged into an            hanced ability to capture and implement complex app structures ac-
+APK, which we installed and ran on the Android Studio built-in            curately. The compilation statistics further underscore DeclarUI’s
+emulator to render the UI. We then evaluated the results according        superiority in code quality. The 98% CSR of DeclarUI (Claude-3.5)
+to the metrics outlined in § 4.2.1.                                       compared to Baseline (Claude-3.5)’s 74%, and DeclarUI (GPT-4o)’s
+   As shown in Table 1, the evaluation results reveal that DeclarUI       88% versus Baseline (GPT-4o)’s 76%, clearly demonstrate DeclarUI’s
+(Claude-3.5) outperforms DeclarUI (GPT-4o) in several key areas.          significant outperformance of baseline methods. This high CSR, cou-
+For example, DeclarUI (Claude-3.5) achieved a remarkable 98%              pled with low iteration requirements (only 11 iterations needed for
+Compilation Success Rate (CSR), meaning that only one out of the          49 successfully compiled apps), indicates that DeclarUI generates
+50 apps failed to compile automatically. In contrast, DeclarUI (GPT-      more robust, deployment-ready code. Based on the comprehensive
+4o) had six apps that didn’t compile under automated conditions.          performance of Claude-3.5 and GPT-4o in both baseline scenarios
+Upon analyzing the single app that failed to compile with DeclarUI        and with DeclarUI, we have selected Claude-3.5 as the base model
+(Claude-3.5), we found that the issue was due to the app’s use of non-    for our subsequent experiments.
+existent file resources, which caused it to fail multiple compilation     Generalization Capabilities. The results for Flutter and ArkUI
+checks.                                                                   presented in Table 1 demonstrate DeclarUI’s robust performance
+   While DeclarUI (GPT-4o) showed a marginally lower Average              across diverse UI frameworks, highlighting its impressive general-
+Compilation Iteration Count (ACIC) – 10 iterations for 44 com-            ization capabilities and adaptability. Consistent with our evaluation
+piled apps versus 11 for 49 apps with DeclarUI (Claude-3.5) – this        approach for React Native, we compiled Flutter projects in Android
+advantage was minimal, differing by only 0.01 iterations per app.         Studio and ArkUI projects in DevEco Studio, integrating the gener-
+Despite this slight edge in iteration efficiency, DeclarUI (GPT-4o)       ated code directly into initial projects without manual intervention.
+lagged behind in other crucial metrics. The SSIM score showed a              Flutter emerges as particularly noteworthy, with DeclarUI achiev-
+particularly significant lead of 17.2% (0.68 vs. 0.58), indicating that   ing an exceptional PCR of 99.4%. This near-perfect score indicates
+DeclarUI (Claude-3.5) excels in accurately reproducing the struc-         DeclarUI’s profound understanding and accurate implementation
+tural elements of the original UI. Moreover, it exhibited a better        of navigation logic within the Flutter ecosystem. React Native and
+PTG Coverage Rate (PCR), suggesting a more comprehensive under-           ArkUI also display impressive results, with PCRs of 96.8% and 95.9%
+standing of navigation logic. These results suggest that while both       respectively, further reinforcing DeclarUI’s versatility across dif-
+models show promise, DeclarUI (Claude-3.5) offers a more ro-              ferent framework paradigms. The CSRs across frameworks, ranging
+bust and accurate solution for automating UI code generation              from 86% to 98%, reveal both DeclarUI’s strengths and areas for po-
+from designs. Its higher CSR, coupled with better visual fidelity         tential improvement. Specifically, the slightly lower CSR for ArkUI
+and navigation logic understanding, positions it as the more reli-        presents an intriguing avenue for future investigation. We explore
+able choice for practical applications. The marginally higher ACIC        potential strategies for improving DeclarUI’s performance with
+for DeclarUI (Claude-3.5) is a small trade-off for the significant        ArkUI in § 5.1, where we discuss the implementation of advanced
+improvements in other areas, particularly given the importance of         techniques to potentially bridge this performance gap.
+visual accuracy and functional correctness in UI development.
+DeclarUI vs. Baselines. As detailed in § 4.2.2, we carefully se-
+lected and configured our baselines for comparison. The results,
+presented in Table 1, reveal significant limitations in using GPT-4o
+and Claude-3.5 directly for declarative UI code generation from
+
+=== [PDF page 9] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                   Conference’17, July 2017, Washington, DC, USA
+
+
+                       Table 1: Comprehensive performance metrics across different methods and frameworks.
+
+                         Framework               Method               CLIP Score     SSIM Score    PCR (%)     ACIC     CSR (%)
+                                            Baseline (GPT-4o)            0.66           0.44          1.4         -      76.0
+                                           Baseline (Claude-3.5)         0.65           0.41         43.3         -      74.0
+                         React Native
+                                           DeclarUI (GPT-4o)             0.87           0.58         88.6       0.23     88.0
+                                          DeclarUI (Claude-3.5)          0.88           0.68         96.8       0.22     98.0
+                         Flutter          DeclarUI (Claude-3.5)          0.85           0.68         99.4       0.82     92.0
+                         ArkUI            DeclarUI (Claude-3.5)          0.85           0.66         95.9       1.62     86.0
+
+
+ Answer to RQ1: DeclarUI demonstrates high effectiveness in                        relatively high based on Table 2, the PCR dropped drastically to
+ generating functional UI code across multiple frameworks, signifi-                23.1% and the CSR decreased to 80.0%. These results emphasize the
+ cantly outperforming baselines. It achieves up to 98% CSRs, superior              critical role of PTG and refinement in ensuring accurate navigation
+ visual fidelity, and navigation logic implementation (PCR up to                   logic, code compilability, and overall UI quality.
+ 99.4%). With strong generalization across React Native, Flutter,
+ and ArkUI, and Claude-3.5 as the preferred base model, DeclarUI
+ proves to be a robust solution for automated UI development, de-                   Answer to RQ2: The combination of CV techniques contributes to
+ spite some room for improvement in ArkUI, which will be discussed                  the visual accuracy of UI generation, while the PTG and refinement
+ in § 5.1.                                                                          processes ensure functional correctness and high code quality. The
+                                                                                    synergistic integration of these three components forms the core
+4.4    Ablation Study (RQ2)                                                         technology of DeclarUI, enabling the generation of high-fidelity
+                                                                                    and functionally-correct UIs.
+To assess the contribution of each key component in DeclarUI,
+we conducted two ablation studies on a subset of 13 apps from
+our dataset. This selection was based on CLIP score distributions
+across app categories, ensuring diverse representation. Our sample                 4.5    User Study and Manual Repair (RQ3)
+includes: three apps from categories with the lowest median CLIP                   4.5.1 User Study. To comprehensively evaluate the performance of
+scores, five from categories with median performance, three from                   our automatic generation method, we focused not only on the visual
+categories showing high CLIP score variability, one from a category                quality of the rendered UI but also on the overall quality of the
+with low variability, and one from a category exhibiting multiple                  generated code. In real-world application scenarios, particularly in
+outliers in CLIP scores. This diverse sample spans various com-                    industry settings, code readability, availability, and maintainability
+plexities and visual effects, providing a robust basis for evaluating              are three crucial evaluation dimensions [11, 43]. To assess these
+DeclarUI’s performance across different scenarios. We focused on                   aspects, we conducted a user study with experienced developers.
+two key aspects: the impact of CV techniques, and the role of PTG                  Procedures. We recruited five React Native developers with an
+and the refinement process. It’s important to note that we couldn’t                average of over two years of experience. All participants were
+isolate PTG construction alone due to its inherent coupling with                   compensated $50 for their time and expertise. Each participant
+the iterative refinement process, as the navigation checks during                  reviewed 12 apps with UI code generated by DeclarUI and Base-
+refinement rely on the PTG. These studies help isolate the effects                 line (Claude-3.5). These apps were carefully selected based on their
+of these components on the overall performance of DeclarUI.                        CLIP scores: three well-performing apps (CLIP score > 0.85), six
+Impact of CV techniques on UI Generation. In this ablation                         average-performing apps (0.8 < CLIP score < 0.85), and three poor-
+study, we removed the UI component extraction and representation                   performing apps (CLIP score < 0.8), all randomly chosen within
+module while retaining the PTG and refinement processes to inves-                  their respective groups. For code availability evaluation, partici-
+tigate the impact of CV techniques on UI generation. The results in                pants modified each set of UI page code to meet basic business
+Table 2 illustrate that the absence of the UI component extraction                 requirements. We tracked modifications using git, following the
+and representation module led to a significant decrease in visual                  method of Chen et al. [11], mapping scores from 0.8 with each
+similarity scores, with the SSIM score dropping from 0.72 to 0.57,                 5% interval corresponding to levels 1-5. After modifying each set,
+and the CLIP score slightly decreasing from 0.90 to 0.88. These                    participants rated its readability and maintainability on a five-point
+reductions in structural and semantic similarity metrics directly                  Likert scale. Code modification time measures the time required to
+reflect CV techniques’ impact on the MLLM’s component recogni-                     adjust the code to production standards. We scored this on 5-minute
+tion capabilities. The decrease in visual similarity scores without                intervals, with 5 points for completion within 5 minutes and 1 point
+the combination of CV techniques indicates that MLLMs struggle                     for over 20 minutes. To avoid tool bias, participants used Android
+more with accurately identifying and reproducing individual UI                     Studio, with a 20-minute time limit per app. We recorded modifica-
+elements, as evidenced by the drop in PCR from 96.8% to 95.1%.                     tion time and collected ratings for each set of UI page code. This
+Impact of PTG and Refinement Process. In the second ablation                       study design allowed us to evaluate the generated code’s quality
+study, we removed both the PTG and refinement components, re-                      through both objective measures (modification time and extent)
+lying solely on the UI component extraction and representation                     and subjective assessments (readability and maintainability ratings)
+for UI generation. Although the visual similarity scores remained                  from experienced professionals.
+
+=== [PDF page 10] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                               T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+                            Table 2: Comprehensive performance metrics across different DeclarUI versions.
+
+                         Version                                    CLIP Score     SSIM Score     PCR (%)     ACIC      CSR (%)
+                         DeclarUI (Full)                               0.90           0.72          96.8       0.22      98.0
+                         DeclarUI (without CV)                         0.88           0.57          95.1         0       100.0
+                         DeclarUI (without PTG+Refinement)             0.87           0.68          23.1         -       80.0
+
+                               Table 3: Participant ratings of DeclarUI vs. Baseline across different metrics.
+
+                              Metric            Code Availability   Modification Time        Readability      Maintainability
+                          Baseline Score                4.15               2.45                   3.75               3.37
+                         DeclarUI Score                 4.97               4.03                   4.62               4.55
+                             P-value                  9.23E-08           2.20E-10               2.57E-13           1.33E-12
+
+
+                                                                                 Results. We present the average scores and p-values using the
+                                                                                 Mann-Whitney U test in Table 3, while more detailed statistical anal-
+                                                                                 yses are visualized using a set of heatmaps in Figure 7. Professional
+                                                                                 React Native engineers consistently rated DeclarUI-generated code
+                                                                                 significantly higher in terms of availability, modifiability, readabil-
+                                                                                 ity, and maintainability. The substantial improvements observed in
+                                                                                 all these metrics were statistically significant (p < 0.05), underscor-
+                                                                                 ing the robustness of our findings. Notably, DeclarUI achieved a
+                              (a) Code Availability
+                                                                                 near-perfect score in code availability (4.97 out of 5), demonstrating
+                                                                                 its exceptional performance in generating immediately usable code.
+                                                                                 The marked reduction in modification time (4.03 for DeclarUI
+                                                                                 vs. 2.45 for the baseline) indicates that DeclarUI-generated code
+                                                                                 requires considerably less effort to adapt to production standards.
+                                                                                 This is further evidenced by the fact that users were able to com-
+                                                                                 plete modifications on 73.3% of DeclarUI-generated code within
+                                                                                 10 minutes. In contrast, 80% of the baseline code required more
+                                                                                 than 10 minutes to modify, and the actual modification time for the
+                              (b) Modification Time
+                                                                                 baseline is likely underestimated, as 27.1% of this 80% was not
+                                                                                 completed even within 20 minutes. Furthermore, the superior
+                                                                                 readability (4.62 vs. 3.75) and maintainability (4.55 vs. 3.37) scores
+                                                                                 highlight the enhanced long-term value of the code produced by
+                                                                                 DeclarUI.
+                                                                                 Case Study. To demonstrate DeclarUI’s superiority, we present
+                                                                                 concrete examples in Figure 8 and Figure 9. Our analysis reveals
+                                                                                 three primary areas where DeclarUI excels over baseline methods:
+                                 (c) Readability
+                                                                                 component fidelity, navigation completeness, and interaction con-
+                                                                                 sistency. We illustrate these using the com.amazon.mShop.android.
+                                                                                 shopping app [24]. DeclarUI achieves superior component fi-
+                                                                                 delity by accurately replicating all elements from the original de-
+                                                                                 sign (Figure 8(c)), including the bottom navigation bar omitted by
+                                                                                 the baseline (Figure 8(b)). This completeness extends to naviga-
+                                                                                 tion completeness (Figure 9). DeclarUI maintains comprehen-
+                                                                                 sive navigation pathways (Figure 9(a)), addressing gaps present in
+                                                                                 the baseline’s structure (Figure 9(b)). Consequently, our approach
+                                                                                 demonstrates improved interaction consistency, particularly in
+                               (d) Maintainability
+                                                                                 navigation between related UI components. This consistency is
+                                                                                 evident in the uniform navigation patterns to “Orders” from both
+           Figure 7: Heatmaps of user study metrics.                             “Profile” and “Account” pages (Figure 9(a)), ensuring a more coher-
+                                                                                 ent user experience.
+
+=== [PDF page 11] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                 Conference’17, July 2017, Washington, DC, USA
+
+
+                                                                                4.5.2 Manual Repair. To comprehensively assess the human effort
+                                                                                required to repair compilation failures of DeclarUI, we used the
+                                                                                Average Manual Correction Time (AMCT) metric. Our analysis
+                                                                                revealed that for the React Native framework, DeclarUI (Claude-
+                                                                                3.5) required an AMCT of 48s, while DeclarUI (GPT-4o) needed
+                                                                                43.2s. In comparison, Flutter required 62s, and ArkUI took 183s.
+                                                                                These results demonstrate DeclarUI’s efficiency in generating
+                                                                                code that requires minimal manual intervention, highlighting its
+                                                                                superiority across different frameworks.
+
+                                                                                 Answer to RQ3: DeclarUI significantly outperforms the base-
+                                                                                 line in code quality, usability, and efficiency. The user study and
+     (a) Original UI design           (b) Baseline          (c) DeclarUI         case study demonstrate DeclarUI’s superiority in generating high-
+                                                                                 quality, readily usable UI code that closely matches original designs.
+Figure 8: The original UI design image, output from Baseline                     Notably, DeclarUI requires minimal manual intervention, a char-
+(Claude-3.5), and DeclarUI’s generated result.                                   acteristic observed consistently across multiple UI frameworks.
+
+                                                                                5 DISCUSSION
+                                  ⑤
+                                                                                5.1 Retrieval-Augmented Generation (RAG):
+                                                                                    Impact and Implications
+                                                                    ①
+                                  ②                             1               The performance of DeclarUI across the three frameworks is un-
+                       ④                ⑦                                       even, with ArkUI showing relatively poor performance compared
+                                                                                to the others (Table 1). This suboptimal performance likely results
+                                                                                from the MLLM’s limited knowledge of ArkUI, a newer and less
+          Account                                 Profile   ⑧
+                                                                                mainstream framework, compared to its more comprehensive un-
+                 ③                          ⑥
+                                                                                derstanding of established frameworks.
+                                                                                   To address this challenge, we explored integrating a knowl-
+                                                                                edge graph (KG) [45] to supplement the MLLM’s understanding of
+                                                                                ArkUI. This approach follows a Retrieval-Augmented Generation
+                              Orders                                Home        (RAG) [19] method to compensate for the MLLM’s lack of knowl-
+                                                                                edge about less mainstream frameworks. When generating UI code,
+                                  (a) DeclarUI UTG
+                                                                                we first query the KG and then incorporate the retrieved informa-
+                                                                                tion into the prompt. We tested this approach with 20 apps with UI
+                                                                                designs from our dataset, totaling 100 app pages. The results showed
+                                                                                promising improvements: ACIC is relatively reduced by 0.52 (1.1
+                                                                                vs. 1.62), CSR increased by 4% (90% vs. 86%), and AMCT reduced by
+                                                                                139.5s (43.5s vs. 183s). While our preliminary results demonstrated
+                              ②                         ③                       potential, the improvements were not as significant as anticipated,
+                                                                                primarily due to time constraints limiting the sophistication of our
+                                                                                KG implementation.
+                                ①                     ④                            Future research should focus on refining the RAG-based ap-
+                                        Profile                                 proach, particularly for less common frameworks like ArkUI. This
+                                                                                could involve developing a more comprehensive and sophisticated
+                                                                                KG that captures the intricacies of ArkUI syntax and design pat-
+                                                                                terns. Additionally, exploring techniques to dynamically update the
+                                                                                KG with new framework features and best practices could ensure
+               Orders                                       Account             the system remains current and effective. Further investigation into
+                                                                                optimizing the integration of KG-retrieved information with the
+                           (b) Baseline (Claude-3.5) UTG                        MLLM’s existing knowledge could potentially yield more substan-
+                                                                                tial performance improvements. Moreover, extending this approach
+Figure 9: Navigation completeness & interaction consistency.                    to other emerging UI frameworks could enhance the versatility and
+                                                                                adaptability of DeclarUI.
+
+                                                                                5.2    Threat to Validity
+                                                                                Internal Validity. The primary threats stem from our evaluation
+                                                                                metrics and method implementation across different frameworks.
+
+=== [PDF page 12] ===
+
+Conference’17, July 2017, Washington, DC, USA                                                            T Zhou, Y Zhao, X Hou, X Sun, K Chen, and H Wang
+
+
+CLIP Score and SSIM, used for UI similarity assessment, may not          to generate high-quality declarative UI code from design mock-
+fully capture human-perceived UI similarity, potentially overlook-       ups and screenshots. Our evaluation demonstrates that DeclarUI
+ing subtle differences crucial to user experience. PTG Coverage,         outperforms state-of-the-art methods across multiple metrics, in-
+employed for navigation logic accuracy, ensures implementation           cluding PTG coverage rates, visual similarity, average compilation
+of expected page transitions but may not reflect the actual user         iteration counts, and compilation success rates. DeclarUI’s multi-
+experience of navigation fluidity and intuitiveness. Fortunately, our    framework compatibility is evidenced by its ability to generalize
+user study confirmed the validity of our evaluations, demonstrating      across React Native, Flutter, and ArkUI. The positive feedback from
+that DeclarUI indeed outperformed the baselines.                         professional developers in our user study underscores DeclarUI’s
+External Validity. Our study faces several threats related to the        practical value. By addressing challenges in component recogni-
+performance of MLLM influenced by prompt design and the expe-            tion, interactive logic understanding, and code reliability, DeclarUI
+rience levels of user study participants. Different prompts could        represents a significant advancement in bridging UI design and im-
+lead to varying results, making it challenging to isolate the true       plementation.
+impact of our approach. Although we selected participants with
+similar backgrounds, inherent biases may still affect the results.
+Fortunately, Figure 7 showed that participants’ opinions on the
+                                                                         REFERENCES
+                                                                          [1] Anthropic Claude 3.5 [n. d.]. Introducing Claude 3.5 Sonnet | Anthropic. https:
+same app were relatively consistent. Another threat involves the              //www.anthropic.com/news/claude-3-5-sonnet
+scope and size of our UI design sample. Despite efforts to include        [2] Shushan Arakelyan, Rocktim Jyoti Das, Yi Mao, and Xiang Ren. 2023. Ex-
+diverse UI designs within the mobile app domain, our sample may               ploring Distributional Shifts in Large Language Models for Code Analysis.
+                                                                              arXiv:2303.09128 [cs.CL] https://arxiv.org/abs/2303.09128
+not fully represent all mobile app UI types. The limited sample size      [3] R. Archana and P. S. Eliahim Jeevaraj. 2024. Deep learning models for digital
+of 50 UI design sets, due to MLLMs’ token cost constraints, may               image processing: a review. Artif. Intell. Rev. 57, 1 (jan 2024), 33 pages. https:
+                                                                              //doi.org/10.1007/s10462-023-10631-z
+not capture the full variability of mobile app UIs. Future research       [4] Tony Beltramelli. 2017. pix2code: Generating Code from a Graphical User Inter-
+should expand the size and diversity of the UI sample to ensure               face Screenshot. arXiv:1705.07962 [cs.LG] https://arxiv.org/abs/1705.07962
+comprehensive coverage of mobile app UI types.                            [5] Bo Cai, Jian Luo, and Zhen Feng. 2023. A novel code generator for graphical user
+                                                                              interfaces. Scientific Reports 13 (2023). https://api.semanticscholar.org/CorpusID:
+                                                                              265349539
+6    RELATED WORK                                                         [6] Jinyuan Chang, Jing He, Jian Kang, and Mingcong Wu. 2023. Statistical inferences
+                                                                              for complex dependence of multimodal imaging data. arXiv:2303.03582 [stat.ME]
+Mobile App UI-to-Code Generation. Mobile app UI-to-code                       https://arxiv.org/abs/2303.03582
+                                                                          [7] Chunyang Chen, Ting Su, Guozhu Meng, Zhenchang Xing, and Yang Liu.
+translation has seen various approaches in recent years. [4, 14] were         2018. From UI design image to GUI skeleton: a neural machine translator
+limited by traditional UI frameworks and lacked support for multi-            to bootstrap mobile GUI implementation. In Proceedings of the 40th Interna-
+page apps. [52] explored code generation from natural language                tional Conference on Software Engineering (Gothenburg, Sweden) (ICSE ’18).
+                                                                              Association for Computing Machinery, New York, NY, USA, 665–676. https:
+descriptions but struggled with complex designs and fine-grained              //doi.org/10.1145/3180155.3180240
+component recognition. [7, 9, 10, 57] introduced intermediate rep-        [8] Fuxiang Chen, Fatemeh Fard, David Lo, and Timofey Bryksin. 2022. On the
+resentations to aid UI code generation, yet still required significant        Transferability of Pre-trained Language Models for Low-Resource Programming
+                                                                              Languages. arXiv:2204.09653 [cs.PL] https://arxiv.org/abs/2204.09653
+manual effort to produce the final code. Unlike previous works,           [9] Jieshan Chen, Amanda Swearngin, Jason Wu, Titus Barik, Jeffrey Nichols, and
+DeclarUI is the first to focus on serving declarative UI frame-               Xiaoyi Zhang. 2022. Towards Complete Icon Labeling in Mobile Applications. In
+                                                                              Proceedings of the 2022 CHI Conference on Human Factors in Computing Systems
+works, combining advanced CV techniques for precise component                 (New Orleans, LA, USA) (CHI ’22). Association for Computing Machinery, New
+recognition with PTG-based inter-page logic capture to enable fully           York, NY, USA, Article 387, 14 pages. https://doi.org/10.1145/3491102.3502073
+automated, multi-page mobile app UI code generation.                     [10] Jieshan Chen, Mulong Xie, Zhenchang Xing, Chunyang Chen, Xiwei Xu, Liming
+                                                                              Zhu, and Guoqiang Li. 2020. Object detection for graphical user interface: old
+Image-to-Code Generation. Image-to-code generation research,                  fashioned or deep learning or a combination?. In Proceedings of the 28th ACM
+particularly in UI generation, has advanced significantly through             Joint Meeting on European Software Engineering Conference and Symposium on
+three main approaches: Deep Learning-based methods [3–5], CV-                 the Foundations of Software Engineering (ESEC/FSE ’20). ACM. https://doi.org/10.
+                                                                              1145/3368089.3409691
+based methods [15, 31, 49], and Multimodal Learning methods [35,         [11] Liuqing Chen, Yunnong Chen, Shuhong Xiao, Yaxuan Song, Lingyun Sun, Yankun
+37, 41]. [4] pioneered deep learning techniques to generate code              Zhen, Tingting Zhou, and Yanfang Chang. 2024. EGFE: End-to-end Grouping of
+                                                                              Fragmented Elements in UI Designs with Multimodal Learning. In Proceedings of
+from GUI screenshots. CV-based methods, exemplified by [31], con-             the IEEE/ACM 46th International Conference on Software Engineering (ICSE ’24,
+verted hand-drawn sketches into HTML code, while [49] advanced                Vol. 1). ACM, 1–12. https://doi.org/10.1145/3597503.3623313
+this by leveraging GPT-4V and DALL·E 3 to transform screenshots          [12] Liguo Chen, Qi Guo, Hongrui Jia, Zhengran Zeng, Xin Wang, Yijiang Xu, Jian
+                                                                              Wu, Yidong Wang, Qing Gao, Jindong Wang, Wei Ye, and Shikun Zhang. 2024.
+into functional code. Addressing limitations of single-modal ap-              A Survey on Evaluating Large Language Models in Code Generation Tasks.
+proaches, Multimodal Learning methods emerged. [37] presented a               arXiv:2408.16498 [cs.SE] https://arxiv.org/abs/2408.16498
+multimodal autoregressive model for various vision and language          [13] Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de
+                                                                              Oliveira Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+tasks, including code generation from images. [35] demonstrated               Brockman, Alex Ray, Raul Puri, Gretchen Krueger, Michael Petrov, Heidy Khlaaf,
+how combining different data types can enhance model robust-                  Girish Sastry, Pamela Mishkin, Brooke Chan, Scott Gray, Nick Ryder, Mikhail
+ness and versatility, potentially improving accuracy and contextual           Pavlov, Alethea Power, Lukasz Kaiser, Mohammad Bavarian, Clemens Winter,
+                                                                              Philippe Tillet, Felipe Petroski Such, Dave Cummings, Matthias Plappert, Fo-
+understanding in code generation tasks.                                       tios Chantzis, Elizabeth Barnes, Ariel Herbert-Voss, William Hebgen Guss, Alex
+                                                                              Nichol, Alex Paino, Nikolas Tezak, Jie Tang, Igor Babuschkin, Suchir Balaji, Shan-
+                                                                              tanu Jain, William Saunders, Christopher Hesse, Andrew N. Carr, Jan Leike,
+7    CONCLUSION                                                               Josh Achiam, Vedant Misra, Evan Morikawa, Alec Radford, Matthew Knight,
+                                                                              Miles Brundage, Mira Murati, Katie Mayer, Peter Welinder, Bob McGrew, Dario
+In this paper, we presented DeclarUI, an approach that combines               Amodei, Sam McCandlish, Ilya Sutskever, and Wojciech Zaremba. 2021. Eval-
+CV techniques, MLLMs, and iterative compiler-driven optimization              uating Large Language Models Trained on Code. arXiv:2107.03374 [cs.LG]
+
+=== [PDF page 13] ===
+
+Bridging Design and Development with Automated Declarative UI Code Generation                                                   Conference’17, July 2017, Washington, DC, USA
+
+
+     https://arxiv.org/abs/2107.03374                                                       [39] Yizhou Liu, Pengfei Gao, Xinchen Wang, Jie Liu, Yexuan Shi, Zhao Zhang,
+[14] Wen-Yin Chen, Pavol Podstreleny, Wen-Huang Cheng, Yung-Yao Chen, and Kai-                   and Chao Peng. 2024. MarsCode Agent: AI-native Automated Bug Fixing.
+     Lung Hua. 2021. Code generation from a graphical user interface via attention-              arXiv:2409.00899 [cs.SE] https://arxiv.org/abs/2409.00899
+     based encoder–decoder model. Multimedia Systems 28 (2021), 121 – 130. https:           [40] Shuai Lu, Daya Guo, Shuo Ren, Junjie Huang, Alexey Svyatkovskiy, Ambrosio
+     //api.semanticscholar.org/CorpusID:236365436                                                Blanco, Colin Clement, Dawn Drain, Daxin Jiang, Duyu Tang, Ge Li, Lidong Zhou,
+[15] Daniel de Souza Baulé, Christiane Gresse von Wangenheim, Aldo von Wangen-                   Linjun Shou, Long Zhou, Michele Tufano, Ming Gong, Ming Zhou, Nan Duan,
+     heim, and Jean Carlo Rossa Hauck. 2020. Recent Progress in Automated Code Gen-              Neel Sundaresan, Shao Kun Deng, Shengyu Fu, and Shujie Liu. 2021. CodeXGLUE:
+     eration from GUI Images Using Machine Learning Techniques. J. Univers. Comput.              A Machine Learning Benchmark Dataset for Code Understanding and Generation.
+     Sci. 26 (2020), 1095–1127. https://api.semanticscholar.org/CorpusID:227250670               arXiv:2102.04664 [cs.SE] https://arxiv.org/abs/2102.04664
+[16] Meghdad Dehghan, Jie JW Wu, Fatemeh H. Fard, and Ali Ouni. 2024. MergeRepair:          [41] Sanbi Luo. 2021. A Survey on Multimodal Deep Learning for Image Synthesis:
+     An Exploratory Study on Merging Task-Specific Adapters in Code LLMs for                     Applications, methods, datasets, evaluation metrics, and results comparison.
+     Automated Program Repair. arXiv:2408.09568 [cs.SE] https://arxiv.org/abs/2408.              Proceedings of the 2021 5th International Conference on Innovation in Artificial
+     09568                                                                                       Intelligence (2021). https://api.semanticscholar.org/CorpusID:237412418
+[17] Jiangyi Deng, Xinfeng Li, Yanjiao Chen, Yijie Bai, Haiqin Weng, Yan Liu, Tao           [42] MobileAppDaily. 2024. Mobile App Development Process: Step-by-Step
+     Wei, and Wenyuan Xu. 2024. RACONTEUR: A Knowledgeable, Insightful, and                      Guide.          https://www.mobileappdaily.com/knowledge-hub/mobile-app-
+     Portable LLM-Powered Shell Command Explainer. arXiv:2409.02074 [cs.CR]                      development-process Accessed: 2024-09-05.
+     https://arxiv.org/abs/2409.02074                                                       [43] Yun nong Chen, Yan kun Zhen, Chu ning Shi, Jia zhi Li, Liu qing Chen, Ze jian Li,
+[18] Yihong Dong, Xue Jiang, Zhi Jin, and Ge Li. 2024. Self-collaboration Code                   Ling yun Sun, Ting ting Zhou, and Yan fang Chang. 2022. UI Layers Merger: Merg-
+     Generation via ChatGPT. arXiv:2304.07590 [cs.SE] https://arxiv.org/abs/2304.                ing UI layers via Visual Learning and Boundary Prior. arXiv:2206.13389 [cs.CV]
+     07590                                                                                       https://arxiv.org/abs/2206.13389
+[19] Wenqi Fan, Yujuan Ding, Liangbo Ning, Shijie Wang, Hengyun Li, Dawei Yin,              [44] OpenAI Hello GPT-4o [n. d.]. Hello GPT-4o | OpenAI. https://openai.com/index/
+     Tat-Seng Chua, and Qing Li. 2024. A Survey on RAG Meeting LLMs: Towards                     hello-gpt-4o/
+     Retrieval-Augmented Large Language Models. arXiv:2405.06211 [cs.CL] https:             [45] Ciyuan Peng, Feng Xia, Mehdi Naseriparsa, and Francesco Osborne. 2023.
+     //arxiv.org/abs/2405.06211                                                                  Knowledge Graphs: Opportunities and Challenges. arXiv:2303.13948 [cs.AI]
+[20] Figma. 2024. Figma: Collaborative Interface Design Tool. https://www.figma.                 https://arxiv.org/abs/2303.13948
+     com/ Accessed: 2024-09-05.                                                             [46] Aditya Ramesh, Mikhail Pavlov, Gabriel Goh, Scott Gray, Chelsea Voss, Alec Rad-
+[21] Flatirons. 2024. Popularity of Flutter vs. React Native in 2024. https://flatirons.         ford, Mark Chen, and Ilya Sutskever. 2021. Zero-Shot Text-to-Image Generation.
+     com/blog/popularity-of-flutter-vs-react-native-2024/ Accessed: 2024-09-05.                  arXiv:2102.12092 [cs.CV] https://arxiv.org/abs/2102.12092
+[22] Flutter. 2024. User Interface (UI) in Flutter. https://docs.flutter.dev/ui Accessed:   [47] React Native. 2024. Getting Started with React Native. https://reactnative.dev/
+     2024-09-05.                                                                                 docs/getting-started Accessed: 2024-09-05.
+[23] Shuzheng Gao, Xinjie Wen, Cuiyun Gao, Wenxuan Wang, and Michael R.                     [48] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily Den-
+     Lyu. 2023. Constructing Effective In-Context Demonstration for Code In-                     ton, Seyed Kamyar Seyed Ghasemipour, Burcu Karagol Ayan, S. Sara Mahdavi,
+     telligence Tasks: An Empirical Study. ArXiv abs/2304.07575 (2023). https:                   Rapha Gontijo Lopes, Tim Salimans, Jonathan Ho, David J Fleet, and Mohammad
+     //api.semanticscholar.org/CorpusID:263867793                                                Norouzi. 2022. Photorealistic Text-to-Image Diffusion Models with Deep Lan-
+[24] Google Play Store. 2024. Amazon Shopping. https://play.google.com/store/apps/               guage Understanding. arXiv:2205.11487 [cs.CV] https://arxiv.org/abs/2205.11487
+     details?id=com.amazon.mShop.android.shopping&hl=en Accessed: 2024-09-05.               [49] ScreenshotToCode2024 [n. d.]. Screenshot to Code: Transform Screenshots into
+[25] Google Play Store. 2024. Google Play Store: Apps Section. https://play.google.              Code! https://supertools.therundown.ai/content/screenshot-to-code
+     com/store/apps?hl=en Accessed: 2024-09-05.                                             [50] Chenglei Si, Yanzhe Zhang, Zhengyuan Yang, Ruibo Liu, and Diyi Yang. 2024.
+[26] Google Play Store. 2024. Lazada - Online Shopping App. https://play.google.                 Design2Code: How Far Are We From Automating Front-End Engineering?
+     com/store/apps/details?id=com.lazada.android&hl=en Accessed: 2024-09-05.                    arXiv:2403.03163 [cs.CL]
+[27] Jian Gu, Pasquale Salza, and Harald C. Gall. 2022. Assemble Foundation Models          [51] The Decoder. 2024. ChatGPT Guide: Effective Prompt Strategies. https://the-
+     for Automatic Code Summarization. arXiv:2201.05222 [cs.SE] https://arxiv.org/               decoder.com/chatgpt-guide-prompt-strategies/ Accessed: 2024-09-05.
+     abs/2201.05222                                                                         [52] Yuxuan Wan, Chaozheng Wang, Yi Dong, Wenxuan Wang, Shuqing Li, Yin-
+[28] Yi Gui, Zhen Li, Yao Wan, Yemin Shi, Hongyu Zhang, Yi Su, Shaoling Dong,                    tong Huo, and Michael R. Lyu. 2024. Automatically Generating UI Code from
+     Xing Zhou, and Wenbin Jiang. 2024. VISION2UI: A Real-World Dataset with                     Screenshot: A Divide-and-Conquer-Based Approach. arXiv:2406.16386 [cs.SE]
+     Layout for Code Generation from UI Designs. arXiv:2404.06369 [cs.CV] https:                 https://arxiv.org/abs/2406.16386
+     //arxiv.org/abs/2404.06369                                                             [53] Zhou Wang, A.C. Bovik, H.R. Sheikh, and E.P. Simoncelli. 2004. Image quality
+[29] Huawei. 2024. ArkUI Overview: HarmonyOS. https://developer.huawei.com/                      assessment: from error visibility to structural similarity. IEEE Transactions on
+     consumer/cn/doc/harmonyos-guides-V5/arkui-overview-V5 Accessed: 2024-09-                    Image Processing 13, 4 (2004), 600–612. https://doi.org/10.1109/TIP.2003.819861
+     05.                                                                                    [54] Wolfpack Digital. 2024. Declarative UI: A New Way of Building Mobile
+[30] Increment. 2024. The Shift to Declarative UI. https://increment.com/mobile/the-             Apps. https://www.wolfpack-digital.com/blogposts/declarative-ui-new-way-
+     shift-to-declarative-ui/ Accessed: 2024-09-05.                                              of-building-mobile-apps Accessed: 2024-09-05.
+[31] Vanita Jain, Piyush Agrawal, Subham Banga, Rishabh Kapoor, and Shashwat                [55] Chenfei Wu, Shengming Yin, Weizhen Qi, Xiaodong Wang, Zecheng Tang, and
+     Gulyani. 2019. Sketch2Code: Transformation of Sketches to UI in Real-time Using             Nan Duan. 2023. Visual ChatGPT: Talking, Drawing and Editing with Visual
+     Deep Neural Network. arXiv:1910.08930 [cs.CV] https://arxiv.org/abs/1910.08930              Foundation Models. arXiv:2303.04671 [cs.CV] https://arxiv.org/abs/2303.04671
+[32] Juyong Jiang, Fan Wang, Jiasi Shen, Sungju Kim, and Sunghun Kim. 2024. A               [56] Jason Wu, Eldon Schoop, Alan Leung, Titus Barik, Jeffrey P. Bigham, and Jeffrey
+     Survey on Large Language Models for Code Generation. arXiv:2406.00515 [cs.CL]               Nichols. 2024. UICoder: Finetuning Large Language Models to Generate User
+     https://arxiv.org/abs/2406.00515                                                            Interface Code through Automated Feedback. arXiv:2406.07739 [cs.CL] https:
+[33] Dharma KC and Clayton T. Morrison. 2023. Neural Machine Translation for Code                //arxiv.org/abs/2406.07739
+     Generation. arXiv:2305.13504 [cs.CL] https://arxiv.org/abs/2305.13504                  [57] Jason Wu, Xiaoyi Zhang, Jeff Nichols, and Jeffrey P Bigham. 2021. Screen Parsing:
+[34] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura              Towards Reverse Engineering of UI Models from Screenshots. In The 34th Annual
+     Gustafson, Tete Xiao, Spencer Whitehead, Alexander C. Berg, Wan-Yen Lo, Piotr               ACM Symposium on User Interface Software and Technology (Virtual Event, USA)
+     Dollár, and Ross Girshick. 2023. Segment Anything. arXiv:2304.02643 (2023).                 (UIST ’21). Association for Computing Machinery, New York, NY, USA, 470–483.
+[35] Changwon Kwak, Pilsu Jung, and Seonah Lee. 2023. A Multimodal Deep Learning                 https://doi.org/10.1145/3472749.3474763
+     Model Using Text, Image, and Code Data for Improving Issue Classification Tasks.       [58] Shuhong Xiao, Yunnong Chen, Jiazhi Li, Liuqing Chen, Lingyun Sun, and Tingting
+     Applied Sciences (2023). https://api.semanticscholar.org/CorpusID:261157795                 Zhou. 2024. Prototype2Code: End-to-end Front-end Code Generation from UI
+[36] Yuanchun Li, Ziyue Yang, Yao Guo, and Xiangqun Chen. 2017. DroidBot: a                      Design Prototypes. arXiv:2405.04975 [cs.SE] https://arxiv.org/abs/2405.04975
+     lightweight UI-guided test input generator for Android. In Proceedings of the          [59] Kangwei Xu, Grace Li Zhang, Xunzhao Yin, Cheng Zhuo, Ulf Schlichtmann, and
+     39th International Conference on Software Engineering Companion (Buenos Aires,              Bing Li. 2024. Automated C/C++ Program Repair for High-Level Synthesis via
+     Argentina) (ICSE-C ’17). IEEE Press, 23–26. https://doi.org/10.1109/ICSE-C.2017.8           Large Language Models. arXiv:2407.03889 [eess.SY] https://arxiv.org/abs/2407.
+[37] Dongyang Liu, Shitian Zhao, Le Zhuo, Weifeng Lin, Yu Qiao, Hongsheng Li, and                03889
+     Peng Gao. 2024. Lumina-mGPT: Illuminate Flexible Photorealistic Text-to-Image          [60] Boyang Yang, Haoye Tian, Weiguo Pian, Haoran Yu, Haitao Wang, Jacques
+     Generation with Multimodal Generative Pretraining. arXiv:2408.02657 [cs.CV]                 Klein, Tegawendé F. Bissyandé, and Shunfu Jin. 2024. CREF: An LLM-
+     https://arxiv.org/abs/2408.02657                                                            based Conversational Software Repair Framework for Programming Tutors.
+[38] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Chunyuan              arXiv:2406.13972 [cs.SE] https://arxiv.org/abs/2406.13972
+     Li, Jianwei Yang, Hang Su, Jun Zhu, et al. 2023. Grounding dino: Marrying              [61] Zhengyuan Yang, Linjie Li, Kevin Lin, Jianfeng Wang, Chung-Ching Lin, Zicheng
+     dino with grounded pre-training for open-set object detection. arXiv preprint               Liu, and Lijuan Wang. 2023. The Dawn of LMMs: Preliminary Explorations with
+     arXiv:2303.05499 (2023).                                                                    GPT-4V(ision). arXiv:2309.17421 [cs.CV] https://arxiv.org/abs/2309.17421

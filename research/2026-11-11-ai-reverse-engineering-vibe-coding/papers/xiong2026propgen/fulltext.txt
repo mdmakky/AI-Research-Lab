@@ -1,0 +1,964 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                           PropGen: Automated Property Generation for Property-Based
+                                                            Testing of Mobile Apps
+                                                           Yiheng Xiong                                              Shiwen Song∗                                         Bo Ma
+                                              Singapore Management University                           Singapore Management University                     East China Normal University
+                                                    Singapore, Singapore                                      Singapore, Singapore                                Shanghai, China
+                                                   yihengx98@gmail.com                                        swsong@smu.edu.sg                                boma@stu.ecnu.edu.cn
+
+                                                                                             Ting Su                                         Xiaofei Xie
+                                                                              East China Normal University                      Singapore Management University
+                                                                                     Shanghai, China                                  Singapore, Singapore
+                                                                                   tsu@sei.ecnu.edu.cn                                 xfxie@smu.edu.sg
+
+
+
+
+arXiv:2604.13463v2 [cs.SE] 8 Oct 2026
+                                        Abstract                                                                                Keywords
+                                        Mobile apps often suffer from functional bugs that do not cause                         Property-Based Testing, Mobile App Testing, Property Synthesis,
+                                        crashes but instead manifest as incorrect behaviors under specific                      Large Language Models
+                                        user interactions. Such bugs are difficult to detect by conventional
+                                        automatic testing techniques because they often lack explicit test                      ACM Reference Format:
+                                                                                                                                Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie. 2026. PropGen:
+                                        oracles. Property-based testing can effectively expose them by spec-
+                                                                                                                                Automated Property Generation for Property-Based Testing of Mobile Apps.
+                                        ifying intended behavior as properties and checking them under                          In Proceedings of the 41st IEEE/ACM International Conference on Automated
+                                        diverse interactions. However, its practical use is limited by the                      Software Engineering (ASE ’26), October 12–16, 2026, Munich, Germany. ACM,
+                                        reliance on manually written properties, which are difficult and                        New York, NY, USA, 13 pages. https://doi.org/10.1145/3832783.3837536
+                                        expensive to construct.
+                                            To address this limitation, this paper explores the use of large
+                                        language models (LLMs) to automate property construction for                            1    Introduction
+                                        property-based testing of mobile apps. This is challenging in two                       Mobile apps are highly interactive and stateful systems whose func-
+                                        ways. First, it is difficult to systematically uncover and execute                      tionalities are largely driven by user interface interactions. Despite
+                                        diverse app functionalities. Second, it is difficult to derive valid                    extensive testing efforts, functional bugs (e.g., incorrect interaction
+                                        properties from functionality execution results. To address these                       logic) remain prevalent in real-world apps [72]. These bugs often
+                                        challenges, we introduce PropGen, which infers candidate app                            do not manifest as crashes, making them difficult to detect using
+                                        functionalities as hypotheses from GUI states, validates each hy-                       conventional GUI testing techniques that mainly emphasize code
+                                        pothesis by executing it to collect behavioral evidence, synthesizes                    coverage or crash discovery [9, 19, 33, 35, 37, 50, 61, 64]. Manual
+                                        properties from the collected evidence, and refines imprecise prop-                     testing (e.g., writing GUI tests) is widely used in practice to validate
+                                        erties based on testing feedback. We implemented PropGen and                            the functional correctness of mobile apps [25, 30]. However, it is
+                                        evaluated it on 12 real-world Android apps. The results show that                       brittle, costly to maintain, and typically covers only pre-defined
+                                        PropGen can effectively identify and execute app functionalities,                       happy paths, often missing non-trivial functional bugs [71].
+                                        generate valid properties, and refine most imprecise ones. Across                          Property-based testing (PBT) offers a promising direction for
+                                        all apps, PropGen inferred 1,210 valid functionalities and correctly                    addressing this challenge [6]. Recent work has demonstrated that
+                                        executed 977 of them, compared with 491 and 187 for the baseline. It                    carefully designed properties can reveal non-trivial functional bugs
+                                        generated 985 properties, 912 of which were valid, and successfully                     that are missed by other techniques [29, 55, 71]. In mobile app
+                                        refined 118 of 127 imprecise ones exposed during testing. Using the                     testing, developers specify expected behaviors as properties, and
+                                        resulting properties, we found 25 previously unknown functional                         PBT automatically generates a large number of GUI events to ex-
+                                        bugs, many of which were missed by existing testing techniques.                         plore diverse GUI states and check whether these properties hold.
+                                                                                                                                Compared with validating only a fixed set of manually crafted GUI
+                                        CCS Concepts                                                                            test cases, this paradigm provides a more efficient way to assess
+                                        • Software and its engineering → Software testing and debug-                            functional correctness across diverse GUI states.
+                                        ging.                                                                                      However, the effectiveness of PBT fundamentally depends on
+                                                                                                                                the availability of high-quality properties, whose manual construc-
+                                        ∗ Corresponding author.
+                                                                                                                                tion remains a major barrier to practical adoption [17, 18]. This
+                                                                                                                                challenge is especially pronounced for mobile apps, where explicit
+                                                                                                                                behavioral specifications are often unavailable. As a result, testers
+                                        This work is licensed under a Creative Commons Attribution 4.0 International License.   must manually understand app functionalities, abstract their ex-
+                                        ASE ’26, Munich, Germany                                                                pected behaviors into executable properties, and refine the proper-
+                                        © 2026 Copyright held by the owner/author(s).
+                                        ACM ISBN 979-8-4007-2882-2/2026/10                                                      ties when reported violations are false positives. This manual and
+                                        https://doi.org/10.1145/3832783.3837536                                                 iterative process substantially limits the broader adoption of PBT.
+
+=== [PDF page 2] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+    To address this limitation, a promising direction is to leverage     575 functionalities, with 491 valid and 187 correctly executed. It fur-
+the reasoning and code-generation capabilities of Large Language         ther generated 985 property descriptions, 912 (92.6%) of which were
+Models (LLMs) to automate property construction. However, di-            valid. During property-based testing, 127 properties were found
+rectly asking an LLM to generate properties is often unreliable:         to be imprecise, and 118 (92.9%) of them were successfully refined
+mobile apps lack explicit behavioral specifications, and without         by our refinement technique. Using the generated properties, we
+concrete evidence of how an app actually behaves, LLMs tend to           found 25 previously unknown functional bugs in the latest versions
+hallucinate properties that the app never satisfies. Instead, our idea   of the subject apps, whereas existing functional testing techniques
+is to anchor property construction in the app’s own functionalities:     could find only 3 of them in practice. These results demonstrate
+we collect the functionalities of the app, and generate the properties   the effectiveness of our approach in automating property construc-
+they are expected to satisfy.                                            tion for mobile apps, as well as the bug-finding capability of the
+Challenges. Realizing this idea faces two key challenges. First,         resulting properties.
+how to systematically discover the functionalities of an app? Mo-            In summary, this paper makes the following contributions:
+bile apps rarely come with specifications: what an app can do, and       • At the conceptual level, we propose a novel approach that auto-
+how, is implicit in its user interface rather than stated anywhere.         matically explores app functionalities and generates properties
+Its functionalities are further scattered across many GUI states, and       from runtime behavioral evidence, without relying on manual
+among the enormous number of possible event sequences, only a               specifications.
+few complete a functionality. Those that remain undiscovered yield       • At the technical level, we design a hypothesis-guided exploration
+no properties, leaving the corresponding app behavior unchecked.            technique that infers functionalities from GUI states and col-
+Second, how to generate properties from the discovered functional-          lects behavioral evidence from their executions, together with a
+ities? A functionality reveals only what the app can do, whereas a          property synthesis technique that derives properties from such
+property asserts what must hold every time it is used. Generating           evidence and refines imprecise ones through testing feedback.
+properties thus requires closing the gap between observed and ex-        • At the empirical level, we implement our approach as PropGen
+pected behavior, and no specification is available to tell whether it       and evaluate it on 12 real-world Android apps. PropGen gener-
+has been closed correctly.                                                  ates 912 valid properties, refines 92.9% of the imprecise ones, and
+Our approach. To address the first challenge, we design a function-         uncovers 25 previously unknown functional bugs.
+ality hypothesis-guided exploration strategy that systematically
+uncovers app functionalities and executes them to collect behav-
+                                                                         2    Background
+ioral evidence, i.e., concrete records of how each functionality is      Property-based testing. Property-based testing is a powerful test-
+carried out. Given a GUI state, it infers candidate functionalities as   ing methodology that validates whether a program satisfies general
+hypotheses, grounding each of them in a concrete actionable wid-         properties rather than specific input-output examples [6]. Instead
+get so that the hypothesis is directly executable. Each hypothesis       of writing example-based test cases, testers specify high-level prop-
+is then validated by execution: the app is driven to carry out the       erties that describe the expected behavior of the system. Then, a
+hypothesized functionality, and the resulting trace both confirms        PBT framework automatically generates a large number of test
+the hypothesis and provides the behavioral evidence. During this         inputs and executes them to verify whether the properties hold.
+process, it incrementally expands the functionality pool when new        For example, for a sorting function sort, rather than enumerating
+functionalities are inferred, reuses previously inferred function-       concrete examples (e.g., sort([3,1,2])== [1,2,3]), one can de-
+alities across recurrent GUI states, and falls back to lightweight       fine a general property such as idempotence: sort(sort(x)) =
+random exploration only when no unexecuted functionality re-             sort(x). The PBT tool then generates a large number of inputs to
+mains in the current GUI state.                                          verify this property and reports any violation as a counterexample.
+    To address the second challenge, instead of generating proper-       GUI state, event, and functionality. Android applications are
+ties directly from execution results, our approach first abstracts       GUI-driven and event-based. When an app A runs, its runtime
+each functionality execution trace into a compact condition–event–       state is represented by its current GUI layout, which we denote
+outcome representation, derives a structured property description        as a GUI state 𝑠. A GUI state corresponds to a hierarchical tree ℓ,
+in natural language, and then translates it into an executable prop-     whose nodes are GUI widgets 𝑤 (e.g., Button, TextView, EditText)
+erty. Because properties inferred from observed behavior may still       with attributes (e.g., text, resourceId) and interaction capabilities.
+be imprecise, it refines those that trigger false positives during       User interactions are modeled as events. An event is defined as
+testing. By grounding each refinement in the behavioral evidence         𝑒 = ⟨𝑡, 𝑤, 𝑣⟩, where 𝑡 is the event type (e.g., click), 𝑤 is the target
+from which the property was derived, it localizes the imprecision to     widget, and 𝑣 is optional data (e.g., text input). An app execution is
+one of three components, the precondition, interaction, or postcondi-    modeled as a sequence of events. Given 𝐸 = [𝑒 1, . . . , 𝑒𝑛 ], executing
+                                                                                                       𝑒1             𝑒𝑛             𝐸
+tion, and revises only that component. This makes the generated          A produces a trace 𝜏 = 𝑠 0 −→ 𝑠 1 −→ · · · −−→ 𝑠𝑛 , or 𝑠 0 ⇝ 𝑠𝑛 , where 𝑠 0
+properties more precise while preserving their original intent.          is the initial state.
+Evaluation and results. We implemented our approach as a tool                We define a functionality as a tuple 𝑓 = ⟨𝑑,𝑇 ⟩, where 𝑑 is a
+named PropGen and evaluated it on 12 real-world popular and              natural-language description of the semantic intent of the func-
+diverse Android apps. Across all apps, PropGen inferred 1,282 func-      tionality (e.g., “create a note”), and 𝑇 = {𝜏1, 𝜏2, . . .} is the set of
+tionalities, of which 1,210 (94.4%) were valid and 977 (76.2%) were      execution traces that realize this intent. Executing any 𝜏 ∈ 𝑇 com-
+correctly executed. In comparison, the baseline approach inferred        pletes the functionality and changes the app state. These traces
+                                                                         share the intent 𝑑 but may differ in input data, events, and starting
+
+=== [PDF page 3] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                              ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+
+                   Hypothesis-Guided Functionality Exploration                                     Property Synthesis from Behavioral Evidence
+
+                                                                                         Property Description Generation                Executable Property Translation
+                          Semantic Context
+                                                   Functionality selection
+                            Construction
+
+                                                                                              Feedback-Driven Property Refinement                            Output
+                        Hypothesis Inference       Event Planning and
+                                                                                                                                                            Property
+                                                       Execution                         Executable Property               Validation by PBT tool          Description
+
+                                                                                                                 Failed Information                        Executable
+                                                        Behavioral                                                                                          Property
+                                                        Evidence                           Property              Imprecise Property
+     App Under Test         Functionality                                                 Refinement
+                            Hypotheses                Summarization
+                                                                                                                  Failure Evidence
+
+
+
+
+                                                             Figure 1: Overview of PropGen.
+
+
+
+
+                                               (a) An execution trace of the functionality.                                                     (b) Suspicious violation.
+    ① Behavior Evidence Construction
+
+
+
+                                                                         ② Property
+                                                                             Synthesis
+                                                                                                                             ③ Feedback-Driven Property Refinement
+
+                         (c) Behavior evidence.                                                                 (d) Generated property.
+
+
+Figure 2: An Illustrative Example of Behavioral Evidence Construction, Property Synthesis, and Feedback-Driven Property
+Refinement for a Note-Taking App.
+
+
+GUI states. We refer to what can be observed when a trace 𝜏 ∈ 𝑇                          3    Approach
+is executed, i.e., the GUI states it traverses and the changes it in-                    Overview. Given an app, PropGen automatically generates prop-
+duces, as a behavior of 𝑓 . Each trace thus witnesses one behavior                       erties from runtime executions and further refines imprecise ones
+of the same functionality, and such observed behaviors form the                          based on testing feedback. Figure 1 presents the overall workflow,
+behavioral evidence from which properties are derived in this paper.                     which consists of three stages. First (§3.1), PropGen performs
+Property-based testing for mobile apps. A property is defined                            hypothesis-guided dynamic exploration to construct behavioral
+as a tuple 𝜙 = ⟨𝑃, 𝐼, 𝑄⟩, where the precondition 𝑃 characterizes                         evidence. For each encountered GUI state 𝑠, it infers functionality
+the GUI states in which the property applies, 𝐼 is the interaction                       hypotheses grounded in the visible UI widgets, executes selected
+scenario, i.e., a sequence of statements that defines how to interact                    functionalities, and summarizes the resulting execution traces into
+with the app, which may also contain control-flow constructs such                        behavioral evidence for downstream property generation. Second
+as conditionals and loops, and the postcondition 𝑄 specifies the                         (§3.2), PropGen synthesizes properties directly from the behavioral
+expected outcome after executing 𝐼 . During testing, executing 𝐼                         evidence constructed in the first stage. Specifically, it first generates
+from a GUI state 𝑠 that satisfies 𝑃 leads to a new state 𝑠 ′ , and the                   natural-language property descriptions that capture the intended
+                                      𝐼
+property holds if ∀𝑠. (𝑠 |= 𝑃 ∧ 𝑠 ⇝ 𝑠 ′ ) ⇒ 𝑠 ′ |= 𝑄. Otherwise, a                       condition–event–outcome relation, and then translates them into
+property violation is reported.
+
+=== [PDF page 4] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                  Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+executable properties. Third (§3.3), PropGen validates the gener-         Algorithm 1 Behavioral Evidence Construction
+ated properties with the PBT framework, and refines those whose           Require: Target app A, time budget 𝐵
+reported violations are manually confirmed to be false positives          Ensure: Behavioral evidence set T̂
+rather than real bugs.                                                     1: Launch A; obtain initial state 𝑠
+Illustrative example. Figure 2 illustrates the workflow of Prop-           2: G𝐹 ← ∅, U ← ∅, T̂ ← ∅
+Gen on a note-taking app. From the page in Figure 2(a), PropGen            3: while elapsed time < 𝐵 do
+infers candidate functionality hypotheses and selects one of them,         4:    𝑢 (𝑠) ← Extract(𝑠)                         ⊲ Extract the widgets
+i.e., attaching a photo to the note. It then executes the selected         5:    if UnseenWidgets(𝑢 (𝑠), U) then
+hypothesis by opening the attachment menu, choosing Camera,                6:         𝐹 (𝑠) ← Inferhypothesis(𝑠) ⊲ Infer the hypotheses
+taking a photo, and returning to the note page. The resulting trace        7:         G𝐹 ← G𝐹 ∪ 𝐹 (𝑠)          ⊲ Add hypotheses to global pool
+is summarized into structured behavioral evidence (Figure 2(c)),           8:         U ← U ∪ 𝑢 (𝑠)
+from which PropGen synthesizes an executable property for this             9:    end if
+functionality (Figure 2(d)).                                              10:    if HasUnexplored(G𝐹 (𝑢 (𝑠))) then
+    This property, however, is imprecise. Testing it with the PBT         11:         𝑓 ← Select(G𝐹 (𝑢 (𝑠)))
+framework Kea reports violations that manual inspection confirms          12:         (𝜏 𝑓 , 𝑠 ′, G𝐹 , U) ← Execute(𝑓 , 𝑠, G𝐹 , U)
+to be false positives: the postcondition requires the app to return to
+                                                                          13:         T̂ ← T̂ ∪ {Summarize(𝜏 𝑓 )} ⊲ Summarize evidence
+a page containing the text “Notes” and the attachment to appear as
+                                                                          14:         MarkExplored(𝑓 , G𝐹 )
+a thumbnail, but the app may legitimately return to either the Notes
+                                                                          15:        𝑠 ← 𝑠′
+or the Archive page, depending on where the note was opened, and
+                                                                          16:    else
+under reduced view the attachment appears as a compact icon (Fig-
+                                                                          17:        𝑠 ← RandomExplore(𝑠)
+ure 2(b)). Guided by this feedback, PropGen relaxes both assertions
+                                                                          18:    end if
+to accept either return page, checked through a menu button that
+                                                                          19: end while
+both contain, and either attachment representation. Re-testing then
+                                                                          20: return T̂
+uncovers a new functional bug: opening audio recording before
+taking a photo prevents the photo attachment from appearing.
+
+3.1     Hypothesis-Guided Functionality                                   GUI state 𝑠. This context includes three parts: the screen-level con-
+        Exploration                                                       text of the current state, app-level semantic cues, and cross-state
+The goal of this stage is to construct execution-grounded behavioral      functionality memory. The screen-level context is derived from
+evidence for downstream property synthesis. Instead of relying on         the current GUI screenshot. To obtain explicit widget references,
+external specifications, PropGen systematically explores executable       PropGen retrieves the accessibility tree of 𝑠 via uiautomator2 [59],
+app functionalities and records their runtime interaction traces as       keeps the leaf-level interactive widgets, and draws a sequential
+behavioral evidence. Algorithm 1 summarizes the workflow.                 number at each widget’s top-right corner using its bounds attribute.
+    Given a target app A and a time budget 𝐵, PropGen launches            These numbers let the MLLM name a widget rather than describe
+the app, initializes the global functionality pool G𝐹 , the set of ob-    it in prose, grounding the inferred functionalities in concrete wid-
+                                                                          gets. They are recomputed per screen and carry no meaning across
+served UI contexts U, and the behavioral evidence set T̂ (Lines 1–2),
+                                                                          screens; cross-screen identity is instead established by the widget
+and then iteratively explores the app until the budget is exhausted
+                                                                          signature described below. The app-level semantic cues include
+(Lines 3–19). In each iteration, it extracts the current GUI con-
+                                                                          the app name and the list of activity names extracted from the
+text (Line 4); if the context contains previously unseen widgets,
+                                                                          AndroidManifest.xml file, helping the MLLM interpret the cur-
+it invokes a Multimodal Large Language Model (MLLM) to infer
+                                                                          rent screen under the broader semantic context of A. Finally, the
+functionality hypotheses for the current state and adds them to G𝐹
+                                                                          cross-state functionality memory stores previously inferred func-
+(Lines 5–8). It then executes an unexplored hypothesis together
+                                                                          tionalities, helping avoid repeatedly rediscovering semantically sim-
+with its triggering widget, and summarizes the resulting trace into
+                                                                          ilar functionalities in later GUI states. Together, these components
+a behavioral evidence item added to T̂ (Lines 10–15). When no
+                                                                          provide the contextual information needed for inferring plausible
+unexplored hypothesis remains in the current context, PropGen
+                                                                          user-facing functionalities from 𝑠.
+performs lightweight random exploration to leave the current local
+                                                                          Functionality hypothesis inference. Using the constructed se-
+GUI region and expose new interaction opportunities (Lines 16–17).
+                                                                          mantic context, PropGen invokes an MLLM to infer candidate func-
+3.1.1 Functionality Hypothesis Generation. Given a GUI state 𝑠            tionality hypotheses for the current GUI state 𝑠. Formally, the in-
+encountered during exploration, this step aims to infer which app         ferred hypotheses are represented as 𝐹 (𝑠) = [⟨𝑓1, 𝑤 1 ⟩, ⟨𝑓2, 𝑤 2 ⟩, . . . ,
+functionalities may be executable under the current interface con-        ⟨𝑓𝑘 , 𝑤𝑘 ⟩], where each functionality hypothesis 𝑓𝑖 is a concise natural-
+text. To support subsequent execution, each inferred functionality        language description of a candidate app functionality, and 𝑤𝑖 de-
+is associated with a concrete triggering widget in the current state,     notes its corresponding triggering widget. This widget grounding
+i.e., the widget from which the functionality is initiated (e.g., a “+”   serves two purposes. First, it constrains the MLLM to infer func-
+button initiates “create a note”).                                        tionalities that are supported by the current GUI state, reducing
+Semantic context construction. To support functionality infer-            unsupported or non-actionable predictions. Second, it makes the in-
+ence, PropGen first constructs a semantic context for the current         ferred functionalities directly executable in subsequent exploration.
+
+=== [PDF page 5] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                 ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+The inferred functionality hypotheses, together with their associ-                 labeled widgets. The predicted event is denoted as 𝑒𝑖 = ⟨𝑡𝑖 , 𝑤𝑖 , 𝑣𝑖 ⟩,
+ated triggering widgets, are then stored in the global functionality               where the event type 𝑡𝑖 is chosen from a predefined event space
+pool G𝐹 to support later execution and cross-state reuse.                          including click, long-click, edit, swipe, and back, the target
+Inference triggering and hypothesis reuse. To avoid redundant                      widget 𝑤𝑖 is specified by its numeric label, and 𝑣𝑖 specifies the
+MLLM invocations on similar GUI states, PropGen triggers func-                     attached data. Before executing 𝑒𝑖 , PropGen verifies that the refer-
+tionality inference only when a newly visited state introduces un-                 enced widget 𝑤𝑖 is present in the current state 𝑠𝑖 . If the predicted
+seen widgets. It maintains a global set of explored UI contexts U =                widget identifier is invalid, the event is skipped and directly labeled
+{𝑢 1, 𝑢 2, . . .}, where each context is defined as 𝑢 (𝑠) = ⟨𝑎(𝑠),𝑊 (𝑠)⟩,          as a failed step. This guarded execution mechanism prevents invalid
+with 𝑎(𝑠) denoting the activity and 𝑊 (𝑠) the set of signatures of                 model-predicted interactions and improves execution robustness.
+                                                                                                                                        𝑒𝑖
+leaf-level interactive widgets.                                                       After execution produces a state transition 𝑠𝑖 −→ 𝑠𝑖+1 , PropGen
+   For each state 𝑠, PropGen compares 𝑊 (𝑠) with existing con-                     evaluates whether the step has advanced the selected functionality.
+texts under the same activity. If no new widget signatures are                     This evaluation jointly considers the pre- and post-event GUI states,
+observed, it reuses previously inferred functionality hypotheses;                  the functionality hypothesis 𝑓 , and the accumulated execution his-
+otherwise, it invokes the MLLM to infer new functionalities and                    tory 𝐻𝑖 . Based on this evidence, the MLLM assigns an outcome
+updates the global pool G𝐹 . To enable stable comparison across                    label 𝑜𝑖 ∈ {success, fail, complete} to the current step. Here, success
+screens, each widget 𝑤 is represented by a signature of attributes                 indicates meaningful progress toward the functionality goal, fail
+⟨𝑐𝑙𝑎𝑠𝑠, 𝑟𝑒𝑠𝑜𝑢𝑟𝑐𝑒𝐼𝑑, 𝑡𝑒𝑥𝑡, 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛⟩, which are commonly used to                 indicates that the event was unproductive for the intended func-
+identify unique widgets in practice [50, 52, 67]. To reduce noise                  tionality, and complete indicates that the functionality goal has been
+from dynamic content, PropGen retains only app-defined text in                     achieved. The resulting step and outcome are then incorporated
+signatures by filtering widget text against a whitelist extracted via              into the execution history for subsequent planning, while complete
+static analysis. This avoids treating semantically identical screens               terminates execution of the current functionality.
+with transient text differences as distinct contexts.                              Behavioral evidence summarization. To support downstream
+                                                                                   property synthesis, PropGen summarizes each executed interaction
+3.1.2 Functionality Hypothesis Validation. Given the global func-
+                                                                                   trace into compact behavioral evidence, since raw traces are low-
+tionality pool G𝐹 generated in § 3.1.1, PropGen executes app func-
+                                                                                   level, noisy, and specific to a single execution. It incrementally
+tionalities in a targeted manner rather than through arbitrary GUI                                                     𝑒𝑖
+events: it treats each hypothesis ⟨𝑓 , 𝑤⟩ in G𝐹 as an explicit execu-              converts each interaction step 𝑠𝑖 −→ 𝑠𝑖+1 into a structured transition
+tion target and prioritizes previously unexplored ones. Executing                  with five elements: the state summary before the event, an event
+                                        𝐸                                          summary describing the interaction performed, the state summary
+⟨𝑓 , 𝑤⟩ induces state transitions 𝑠 −→ 𝑠 ′ , which both collect behav-             after the event, a state-diff summary capturing the visible difference
+ioral evidence for the executed functionality and drive the app                    between the two GUI states, and the outcome label 𝑜𝑖 .
+into new states 𝑠 ′ , where further hypotheses 𝐹 (𝑠 ′ ) are inferred and              The state summaries are functionality-oriented: they describe
+added to G𝐹 . Execution and hypothesis generation thus form a                      the screen context, visible actionable elements, current content
+closed exploration loop.                                                           state, and observable feedback cues, whereas the state-diff summary
+Functionality selection. At each GUI state 𝑠, PropGen retrieves                    focuses on the concrete GUI changes induced by the interaction. The
+from G𝐹 the candidate functionality hypotheses associated with the                 resulting summarized trace, denoted as 𝜏ˆ𝑓 , serves as the behavioral
+current UI context 𝑢 (𝑠), denoted as G𝐹 (𝑢 (𝑠)). Since the exploration             evidence used in the subsequent property synthesis stage.
+budget is limited, PropGen does not execute these candidates arbi-                 Exploration beyond local hypothesis exhaustion. PropGen
+trarily, but prioritizes those with higher expected exploration util-              may reach a GUI state whose functionality hypotheses have all been
+ity. This prioritization is implemented using lightweight heuristics               executed. The only remaining task is to move the app into a new
+guided by three considerations: whether the functionality corre-                   GUI region, for which querying the MLLM would cost tokens and
+sponds to a main app behavior, whether it is semantically different                time without yielding new behavioral evidence. PropGen therefore
+from previously executed functionalities, and whether it is likely                 falls back to lightweight random exploration, issuing random events
+to be successfully executed in the current context. These consid-                  until it reaches a state that either has an unexecuted hypothesis,
+erations are operationalized by prompting the MLLM to rank the                     which it executes directly, or unseen widgets, for which it first
+candidates accordingly. Based on these heuristics, the top-ranked                  infers new hypotheses.
+unexplored functionality hypothesis ⟨𝑓 , 𝑤⟩ is selected as the next
+execution target. The selected hypothesis is then passed to a goal-
+directed interaction loop that incrementally plans, executes, and
+evaluates UI actions until the functionality is completed or a step
+                                                                                   3.2    Property Synthesis from Behavioral
+limit is reached.                                                                         Evidence
+Event planning and execution. Once a functionality hypothesis                      The goal of this stage is to derive executable properties from the
+⟨𝑓 , 𝑤⟩ is selected, PropGen executes it through a goal-directed in-               behavioral evidence collected during functionality exploration. As
+teraction loop consisting of event planning, guarded execution, and                input, PropGen takes the summarized trace 𝜏ˆ𝑓 produced in Sec-
+post-event evaluation. At each step 𝑖, PropGen first predicts the                  tion 3.1, which compactly captures how a functionality is exercised
+next GUI event based on three sources of information: the function-                and what observable GUI outcome it induces. Each synthesized
+ality goal 𝑓 , the execution history 𝐻𝑖 of prior events and their out-             property takes the form 𝜙 = ⟨𝑃, 𝐼, 𝑄⟩, where 𝑃 is a precondition, 𝐼
+comes, and the current GUI state 𝑠𝑖 , represented as a screenshot with             is an interaction scenario, and 𝑄 is a postcondition assertion.
+
+=== [PDF page 6] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                 Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+   Rather than generating 𝜙 directly from 𝜏ˆ𝑓 , PropGen decomposes             Given a property whose reported violations are manually con-
+property synthesis into two steps, separating semantic property            firmed to be false positives, our key idea is that refining it requires
+formulation from executable code generation. It first constructs a         first recovering the property’s original testing intent, and then
+natural-language property specification that explicitly captures the       revising it so that it remains valid for both the original intended
+intended ⟨𝑃, 𝐼, 𝑄⟩ relation, and then translates this intermediate         execution and the newly observed legitimate execution. To this
+specification into executable property code.                               end, we ground refinement in the source summarized trace from
+Natural-language property description generation. Based on                 which the property was originally inferred, rather than treating
+the summarized trace 𝜏ˆ𝑓 , PropGen first prompts the MLLM to con-          refinement as unconstrained rewriting.
+struct a natural-language property specification 𝜙 𝑁 𝐿 = ⟨𝑃, 𝐼, 𝑄⟩ for         Specifically, PropGen reasons about the refinement using both
+the functionality captured by the behavioral evidence. The sum-            the source summarized trace and the failure-triggering execution. It
+marized trace provides structured evidence about the execution             first recovers the original testing intent of the property by locating
+context, performed interactions, observable state changes, and step        the relevant segment in 𝜏ˆ𝑓 that matches the property’s trigger-
+outcomes. Rather than merely restating these observations, the             ing context, interaction scenario, and expected outcome. It then
+MLLM is guided to abstract from 𝜏ˆ𝑓 a generalized behavioral rule          compares this trace-grounded intended behavior with the failing
+that should hold across executions of the same functionality.              execution to explain why the violation occurs and identify which
+   The inferred specification 𝜙 𝑁 𝐿 consists of three parts: a pre-        component of 𝜙 has become imprecise, i.e., the precondition 𝑃, the
+condition 𝑃 describing the observable GUI context in which the             interaction scenario 𝐼 , or the postcondition 𝑄.
+property should be checked, an interaction scenario 𝐼 capturing the            Based on this diagnosis, PropGen refines only the faulty compo-
+user events needed to exercise the functionality, and a postcondition      nent through a minimal modification. More specifically, it strength-
+𝑄 specifying the immediate visible effect that should hold after-          ens 𝑃 when additional UI guards are needed, revises 𝐼 when the
+ward. To improve precision and executability, PropGen constrains           event sequence does not faithfully reflect the intended behavior, and
+this inference process in three ways. First, 𝑃 must be grounded in         relaxes or simplifies 𝑄 when the assertion is overly specific. In this
+observable UI evidence and sufficiently specific to avoid triggering       way, the refined property remains consistent with both the source-
+the property on unrelated screens with superficially similar wid-          trace execution and the newly observed legitimate execution, while
+gets. Second, 𝑄 must focus on effects that are directly and reliably       preserving the original testing intent as much as possible.
+verifiable from the GUI, such as the appearance, disappearance, or
+modification of visible widgets or content. Third, the inferred speci-     4     Implementation
+fication should avoid trace-specific brittle details, such as incidental   We implemented PropGen as an end-to-end prototype for auto-
+text instances or unstable widget states, and instead capture func-        mated property generation on Android apps. PropGen is built
+tionality semantics in a form that remains robust across executions.       on top of DroidBot [28], an open-source Android app exploration
+These three constraints are enforced as explicit instructions in the       tool. It is primarily written in Python and JavaScript. Specifically,
+synthesis prompt.                                                          PropGen uses uiautomator2 [59] to retrieve GUI layouts and An-
+Executable property translation. Given the inferred natural-               droid Debug Bridge (ADB) [56] to capture screenshots and send
+language property specification 𝜙 𝑁 𝐿 = ⟨𝑃, 𝐼, 𝑄⟩, PropGen trans-          GUI events, including click, long-click, edit, swipe, and back.
+lates it into executable property code for the target PBT frame-           The generated properties are translated into the executable format
+work. Specifically, this step realizes the precondition 𝑃, interaction     expected by Kea.
+scenario 𝐼 , and postcondition 𝑄 using the framework’s property
+structure and API conventions, thereby producing a runnable prop-          5     Evaluation
+erty implementation. Since the intended property semantics have            We aim to answer the following research questions:
+already been made explicit in the preceding step, this translation pri-
+                                                                           • RQ1: How effective is PropGen in exploring app functionalities
+marily serves to operationalize the structured specification rather
+                                                                             and generating valid properties?
+than to perform further behavioral inference.
+                                                                           • RQ2: To what extent do generated properties suffer from im-
+   This step is implemented by prompting the LLM with the gen-
+                                                                             precision that leads to false positives, and how effective is our
+erated natural-language specification together with framework-
+                                                                             refinement technique in refining them?
+specific APIs and widget attributes, with reference to the prompt
+                                                                           • RQ3: Can the generated properties help find new functional bugs
+design in prior work on translating natural-language properties
+                                                                             in real-world mobile apps?
+into executable ones [70]. The resulting code is then passed to the
+                                                                           • RQ4: How does PropGen compare with prior functional testing
+subsequent validation and refinement stage.
+                                                                             techniques in uncovering new functional bugs?
+
+3.3     Feedback-Driven Property Refinement                                5.1    Setup and Method
+Properties automatically generated from functionality traces may           App subjects. We selected 12 popular and representative open-
+still be imprecise and therefore trigger false positives during test-      source Android apps as experimental subjects. Among them, eight
+ing. However, a reported failure should not be refined by simply           apps were adopted from prior studies on functional bug detection
+adapting the property to that single execution, because such a fix         for Android apps [51, 55, 63, 71]. From the apps used in these studies,
+may overfit the observed case and drift away from the original             we excluded those that were either (1) no longer runnable or actively
+functionality intent.                                                      maintained, or (2) highly similar in functionality to apps already
+
+=== [PDF page 7] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 1: App subjects used in our experiment (K=1,000,                             on functionality-level evaluation beyond structural coverage met-
+M=1,000,000).                                                                      rics [7, 75]. The manual evaluation is conducted by two graduate
+                                                                                   students in software engineering, each with at least four years of
+  App Name        App Feature             #Downloads       #Stars       LOC        Android development experience. Neither annotator is a co-author
+  OmniNotes       Note Manager               100∼500K        2.8K      57,529      or was involved in developing PropGen, which reduces assessment
+  Markor          Text Editor                       -        5.3K      79,749
+                                                                                   bias. Before the annotation, each annotator was given at least fif-
+  RetroMusic      Audio Player                  1∼5M           5K     110,065
+  Amaze           File Manager                  1∼5M         6.1K     159,040
+                                                                                   teen minutes to familiarize themselves with the functionalities of
+  MyExpenses      Financial Assistant           1∼5M         1.1K     317,899      every subject app. During this process, annotators also referred
+  AntennaPod      Podcast Manager               1∼5M         7.7K     130,925      to the app’s official introduction page when available, so that the
+  AnkiDroid       Flashcards Manager          10∼50M        10.9K     403,785      subsequent judgments were made with sufficient understanding
+  OuterTune       YouTube Music Player              -        4.8K      89,673
+                                                                                   of the app’s functionalities. In addition, annotators could interact
+  NewPipe         Video Player                      -       37.5K     187,187
+  MaterialFiles   Storage Browser                1∼5M          8K      95,705
+                                                                                   with the running app at any time to verify uncertain cases.
+  Orgzly          To-do Lists Manager        100∼500K        2.8K      72,042          For each inferred functionality, we evaluate two aspects. The
+  uhabits         Habit Tracker                 5∼10M        9.7K      69,652      first is functionality validity, which examines whether the inferred
+                                                                                   functionality actually exists in the app. Annotators are given the
+                                                                                   inferred functionality description together with the GUI screenshot
+                                                                                   from which it was inferred, and determine whether the described
+selected. To further improve diversity, we additionally included four              functionality is genuinely supported by the interface. The second
+popular open-source apps from Google Play with different features.                 is execution correctness, which examines whether the system cor-
+Table 1 summarizes the selected apps. In the table, App Feature                    rectly executes the inferred functionality. For each inferred func-
+denotes the primary functionality of each app, #Downloads and                      tionality, annotators are provided with the corresponding execution
+#Stars report the number of Google Play installations and GitHub                   screenshots and interaction events, and judge whether the executed
+stars, respectively, and LOC gives the lines of code.                              interaction sequence indeed realizes the intended functionality.
+Experimental environment. All experiments were conducted on                            Because mobile apps lack ground-truth specifications, we cannot
+a machine running Ubuntu 22.04 with 192 CPU cores (AMD EPYC                        decide a property’s validity against a reference oracle. We therefore
+9654) and official Android emulators (Android 11, Pixel). We use                   assess validity along two complementary layers, one checked by an
+GPT-5.2 (snapshot gpt-5.2-2025-12-11) as the backend MLLM                          automated proxy and the other by human annotators. The ground-
+for PropGen and the baseline tool, with the default decoding param-                edness layer is verified by an automated proxy: we automatically
+eters (temperature = 1.0, top-𝑝 = 1.0). For each app, we allocated 3               check that every widget and event referenced in the property is
+hours for behavioral evidence construction and property synthesis.                 observable in its source trace, so that the property is executable on
+After that, we used Kea to perform property-based testing with                     the app rather than referring to hallucinated UI elements. The faith-
+the generated properties for 6 hours per app, following the testing                fulness layer is judged by human annotators, who assess the three
+budget adopted in Kea’s paper [71].                                                components: (1) whether the precondition appropriately constrains
+Baselines. We use six baselines for different research questions,                  the UI state in which the property should be applied, (2) whether
+according to evaluation goals. For RQ1, we compare PropGen with                    the interaction scenario accurately reflects the user interactions
+DroidAgent [75], a representative LLM-based mobile app function-                   required to perform the functionality, and (3) whether the postcon-
+ality exploration approach, which can automatically identify and                   dition correctly captures the observable UI behavior that should
+execute functionalities. To assess whether the multi-stage pipeline                hold immediately after the scenario. A property description is con-
+of PropGen is necessary at all, we additionally compare against a                  sidered valid only if it is grounded in its source trace and all three
+naive LLM baseline that asks the LLM to generate properties directly,              components are faithful to the intended functionality; otherwise,
+without any runtime exploration. Concretely, we prompt the same                    it is labeled as invalid. Validity does not imply precision: whether
+MLLM with the app’s official description and ask it to produce                     a property avoids false positives under arbitrary executions is a
+20 properties per app, using the same property format as Prop-                     separate question, examined in RQ2.
+Gen. For RQ4, which evaluates bug-finding capability, we compare                       To reduce bias, the two annotators first labeled all results fully
+PropGen with four representative prior techniques for Android                      independently, without discussing their judgments with each other
+functional bug detection: Genie [51], Odin [63], PBFDroid [52], and                or with the authors. We measured inter-rater agreement on these
+VisionDroid [34]. Among them, Genie and Odin rely on designed                      independent annotations using Cohen’s 𝜅, obtaining 0.91, 0.82, and
+automated oracles, PBFDroid is a property-based testing technique                  0.81 for functionality validity, execution correctness, and property
+for data manipulation functionalities (DMFs), and VisionDroid is                   validity, respectively, which indicates high agreement across all
+an LLM-based multi-agent approach for functional bug detection.                    three aspects. Only after the independent annotation was complete
+Evaluation method of RQ1. RQ1 aims to evaluate whether Prop-                       did the two annotators discuss the remaining disagreements be-
+Gen can correctly infer and execute app functionalities and synthe-                tween themselves and reach a consensus label for each disagreed
+size valid properties from the collected behavioral evidence. This                 item. Based on these final annotations, we report the proportions of
+evaluation cannot be performed fully automatically, because mo-                    inferred functionalities that are valid, inferred functionalities that
+bile apps typically lack precise functional specifications. Therefore,             are correctly executed, and generated valid property descriptions.
+we manually assess the validity of both the inferred functionali-                  Evaluation method of RQ2 and RQ3. RQ2 evaluates two aspects
+ties and the generated property descriptions, following prior work                 of property refinement: (1) how many generated properties are
+
+=== [PDF page 8] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                            Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+imprecise and thus lead to spurious violations during testing, and         Table 2: Validity of functionalities and synthesized properties
+(2) how many of these imprecise properties can be successfully             across subject apps (RQ1).
+refined through refinement. RQ3 evaluates whether the generated
+properties can find new functional bugs. Specifically, for each app,        App Name
+                                                                                           #Inferred Func           #Valid Func           #Correctly Executed
+                                                                                                                                                                     #Prop
+                                                                                                                                                                               #Valid
+                                                                                                                                                                                Prop
+we load all initially generated executable properties into Kea [71]                        D        P           D                 P          D             P
+                                                                            OmniNotes      53      108      53 (100.0%)    102 (94.4%)   18 (34.0%)    80 (74.1%)     81     80 (98.8%)
+for testing with 6 hours. Whenever Kea reports a property violation,         Markor        48      117      36 (75.0%)     116 (99.1%)   12 (25.0%)    85 (72.6%)     88     83 (94.3%)
+we manually inspect the property description, executable property           RetroMusic     48      113      42 (87.5%)     104 (92.0%)    9 (18.8%)    88 (77.9%)     89     70 (78.7%)
+
+code, violation-triggering execution trace, corresponding screen-             Amaze        37      84       24 (64.9%)     83 (98.8%)     8 (21.6%)    64 (76.2%)     57     52 (91.2%)
+                                                                            MyExpenses     54      106      54 (100.0%)    104 (98.1%)   21 (38.9%)    82 (77.4%)     81     78 (96.3%)
+shots and interaction events, and the assertion outcome. Based on           AntennaPod     47      142      38 (80.9%)     139 (97.9%)   28 (59.6%)    116 (81.7%)    120    111 (92.5%)
+this, we determine whether the violation is caused by a real app            AnkiDroid      50      116      28 (56.0%)     107 (92.2%)    9 (18.0%)    93 (80.2%)     91     85 (93.4%)
+bug or by property imprecision.                                             OuterTune      41      76       41 (100.0%)    67 (88.2%)     9 (22.0%)    55 (72.4%)     48     44 (91.7%)
+                                                                             NewPipe       46      106      45 (97.8%)     92 (86.8%)    20 (43.5%)    81 (76.4%)     79     72 (91.1%)
+   For RQ2, we focus on the properties whose reported violations
+                                                                           MaterialFiles   47      110      44 (93.6%)     103 (93.6%)   23 (48.9%)    82 (74.5%)     86     82 (95.3%)
+are diagnosed as spurious. We apply refinement only to those caused           Orgzly       49      124      48 (98.0%)     115 (92.7%)   14 (28.6%)    88 (71.0%)     96     91 (94.8%)
+by property imprecision. For each such property, the refinement              uhabits       55      80       38 (69.1%)     78 (97.5%)    16 (29.1%)    63 (78.8%)     69     64 (92.8%)
+
+module takes the original property description, executable prop-              Total        575    1282      491 (85.4%)   1210 (94.4%)   187 (32.5%)   977 (76.2%)    985    912 (92.6%)
+
+erty code, and violation-triggering execution evidence as input, and
+produces a revised executable property. We then re-execute the
+refined property on two traces and inspect the results: the source             Concretely, following prior comparative analysis practice [52,
+trace from which the property was originally derived, and the trace        71], we evaluate these tools from two perspectives. First, we mea-
+that triggered the spurious violation. We call the revised property        sure the overall bug-finding results of each tool empirically: we
+plausibly correct if it passes two automated checks: (a) it still holds    run each prior technique on the same 12 apps and count all previ-
+on the source trace, and (b) it no longer reports the previously ob-       ously unknown functional bugs it uncovers, using the same manual-
+served spurious violation on the violation-triggering trace. These         confirmation criterion as for PropGen, i.e., each reported violation
+two checks form an automated proxy: they are necessary but not             is inspected and counted only if it is confirmed to be a real, previ-
+sufficient, since a revision can pass both while still failing to faith-   ously unreported functional bug. For Genie, Odin, and VisionDroid,
+fully specify the intended functionality. We therefore reserve the         we follow the default configurations described in their original
+term correct for a plausibly correct property that human annotators        papers. PBFDroid requires users to manually specify properties for
+further confirm to be valid (i.e., grounded and faithful, as defined in    data manipulation functionalities (DMFs); therefore, we manually
+RQ1) and to preserve the original testing intent, by inspecting the full   defined the required DMF properties for detecting the correspond-
+⟨𝑃, 𝐼, 𝑄⟩ triple. A refinement is considered successful only when the      ing bugs. To ensure fairness, we align the time budget with each
+revised property is both plausibly correct and human-confirmed             tool’s workflow: PropGen uses 3 hours for property generation and
+correct. Based on this process, we report the number of properties         6 hours for bug finding; accordingly, we allocate 9 hours per app
+sent to refinement due to property imprecision, the number and             to Genie, Odin, and VisionDroid, and 6 hours of automated testing
+rate of successful refinements, and the breakdown of successfully          to PBFDroid after manual property construction. This single run
+refined properties by the modified component (i.e., precondition,          yields both each tool’s total bug count, independent of the bug set
+interaction, and postcondition).                                           found by PropGen, and, by intersecting with PropGen’s 25 new
+   For RQ3, we focus on the violations diagnosed as real app bugs          bugs, how many of them each tool rediscovers in practice.
+through manual inspection. For each confirmed bug, we prepare                  Second, we conduct a scope analysis to determine whether each
+a bug report containing the bug description, reproduction steps,           of the 25 bugs uncovered by PropGen theoretically falls within the
+expected and actual behaviors, and submit it to the corresponding          detection scope of each prior technique. This analysis is performed
+app developers.                                                            manually based on bug characteristics and the detection capabili-
+Evaluation method of RQ4. RQ4 compares PropGen with ex-                    ties claimed by each technique. To improve reliability, we further
+isting functional testing techniques in uncovering new functional          consulted the authors of Genie, Odin, and PBFDroid to validate
+bugs. Non-crash functional bug detection is oracle-dependent: each         our analysis. For VisionDroid, we do not perform a separate scope
+technique can only expose the bugs that its oracle is able to express.     analysis, since its LLM-based design makes its theoretical detection
+Raw bug counts alone are therefore not directly comparable across          scope difficult to characterize precisely; instead, we rely only on its
+these tools, as a tool that reports fewer bugs is not necessarily less     empirical bug-finding performance.
+capable, but may target a narrower class of bugs by design. To
+draw a meaningful comparison, we report absolute bug counts for            5.2         Results of RQ1
+completeness and complement them with a scope analysis, which              Table 2 reports the results of functionality inference, execution,
+separates the two distinct reasons a tool can miss a bug: its oracle       and property synthesis on all subject apps, where #Inferred Func
+cannot express the bug at all, or its oracle can express the bug but       denotes the number of functionalities inferred by tools, #Valid Func,
+the tool failed to expose it within the testing budget. Reporting          #Correctly Executed and #Valid Prop denote the numbers of function-
+both lets us measure overall bug-finding effectiveness while also          alities and properties validated by human annotators, and #Prop de-
+explaining where the differences come from.                                notes the number of generated properties. For functionality-related
+                                                                           evaluation, we compare DroidAgent (D) and our approach (P). Over-
+                                                                           all, our approach consistently outperforms DroidAgent in both
+
+=== [PDF page 9] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                        ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+functionality inference and execution. Across the 12 apps, our ap-                 Table 3: Effectiveness of property refinement across subject
+proach infers 1,282 functionalities, of which 1,210 are judged valid,              apps (RQ2).
+achieving 94.4% functionality validity, compared with 575 inferred
+functionalities and 491 valid ones (85.4%) for DroidAgent. It also                                                                               Modified Component
+                                                                                      App Name       #Imprecise Prop   #Successful Refinements
+correctly executes 977 functionalities, yielding 76.2% execution                                                                                 Pre    I     Post
+
+correctness, substantially higher than DroidAgent’s 187 correctly                     OmniNotes            12                 11 (91.7%)          5     0      6
+                                                                                         Markor            15                 12 (80.0%)          2     1      9
+executed functionalities and 32.5% execution correctness. On aver-
+                                                                                      RetroMusic           15                 14 (93.3%)          9     0      5
+age, this corresponds to 101 valid functionalities and 81 correctly                      Amaze             11                 10 (90.9%)          2     0      8
+executed functionalities per app for our approach, compared with                     MyExpenses             8                 8 (100.0%)          6     0      2
+41 and 16, respectively, for DroidAgent.                                             AntennaPod            20                 18 (90.0%)          7     0      11
+   One likely reason for the performance gap is the difference in                     AnkiDroid             9                 9 (100.0%)          7     0      2
+functionality inference. DroidAgent infers functionalities without                    OuterTune             3                 3 (100.0%)          3     0      0
+
+explicitly grounding them to concrete GUI widgets, making some                           NewPipe           11                 10 (90.9%)          2     0      8
+                                                                                     MaterialFiles          6                 6 (100.0%)          2     0      4
+inferred results loosely related to the current interface context and
+                                                                                         Orgzly            12                12 (100.0%)          5     0      7
+thus more likely to be invalid. In contrast, our approach grounds                        uhabits            5                 5 (100.0%)          3     0      2
+functionality inference in the current GUI context, which helps                           Total           127                118 (92.9%)         53     1      64
+produce more valid functionality hypotheses and makes subse-
+quent execution more reliable. Also, we find DroidAgent tends to
+repeatedly execute failed events during functionality execution.                       Among all generated executable properties, 127 produce spuri-
+   For property synthesis, our approach generates 985 property                     ous violations during testing and are thus identified as imprecise
+descriptions, among which 912 are judged valid, corresponding to                   properties that lead to false positives. This result shows that prop-
+92.6% property validity. Moreover, property validity exceeds 90% on                erty imprecision is not uncommon in LLM-generated properties,
+most apps, indicating that the synthesized properties are generally                and therefore refinement is necessary to improve their practical us-
+well aligned with observed app behaviors. In contrast, the naive                   ability. Overall, our refinement technique is highly effective. Across
+LLM baseline, which is given only the app description, produces                    all apps, 127 properties are sent to refinement, and 118 of them are
+240 properties across the 12 apps, none of which is valid: without                 successfully refined, yielding an overall refinement rate of 92.9%.
+observing the app at runtime, the LLM hallucinates functionalities                 Moreover, the refinement performance is consistently strong across
+and widgets that do not exist in the app, so the resulting properties              apps: six apps achieve a 100% refinement rate, while the remaining
+reference non-existent UI elements and are not executable. The LLM                 apps still achieve rates at least 80%.
+alone is thus insufficient without runtime behavioral evidence.                        We further analyze which property components are modified
+Failure analysis. Functionality validity. The MLLM occasionally                    during refinement. Among the 118 successfully refined properties,
+proposes a functionality that does not exist in the app, likely because            53 involve precondition modifications, 64 involve postcondition
+the semantic context for inference (§ 3.1.1) is sometimes insuffi-                 modifications, and only 1 involves an interaction modification. This
+cient. An interact-then-infer strategy, which first probes a widget                suggests that most false positives can be resolved by refining when
+and then infers the functionality from the observed effect, could                  a property should be triggered or what outcome it should assert,
+help. Execution correctness. Failed executions either do not com-                  rather than changing the core interaction sequence. Among the 127
+plete the functionality within the step budget, or are prematurely                 imprecise properties, 9 remain not refined. We find that 5 of them
+labeled as successful. The former could be mitigated by an activity                are caused by incorrect diagnosis of spurious violations, while the
+transition graph derived via static analysis to guide step planning,               others occur because the revised property can no longer remain
+the latter by an explicit completion check grounded in post-state                  consistent with the original functionality. More specifically, in the
+evidence rather than the MLLM’s own judgment. Property validity.                   5 misdiagnosed cases the refinement attributes the false positive to
+The LLM occasionally hallucinates widgets absent from the GUI                      the wrong component among 𝑃, 𝐼 , and 𝑄, and therefore revises a
+when synthesizing 𝑃, 𝐼 , or 𝑄, despite the grounding requirement                   component that is not the actual cause; in the remaining 4 cases
+(§ 3.2). A post-synthesis check that verifies every referenced widget              the revision drifts away from the original testing intent. These two
+against the source trace could reject or regenerate such properties.               patterns suggest two directions for improvement: providing richer
+LLM usage cost. For behavioral evidence construction and property                  context (e.g., more detailed traces or intermediate GUI states) to
+synthesis, each LLM call consumes 6,198 tokens / $0.0145 on average.               help localize the true cause of a false positive, and adding a post-
+Overall, our approach uses 6,364k tokens / $14.86 per app on average.              refinement intent-verification step (e.g., an LLM judge against the
+In comparison, DroidAgent uses 5,109k tokens / $13.01 per app.                     source trace) that rejects or regenerates revisions that drift from
+                                                                                   the original intent. Note that for property refinement, each property
+                                                                                   requires 8,768 tokens / $0.02 on average.
+
+5.3     Results of RQ2                                                             5.4      Results of RQ3
+Table 3 reports the effectiveness of property refinement across all                Table 4 summarizes the bug-finding results, including the app name,
+subject apps, including how many generated properties produce                      bug ID, and the brief description of the violated property. Overall,
+false positives during property-based testing, how many are suc-                   PropGen uncovered 25 unique previously unknown functional
+cessfully refined, and which property components are modified.                     bugs in the latest app versions. Currently, 5 of the reported bugs
+
+=== [PDF page 10] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                             Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+Table 4: Statistics of the 25 new functional bugs found by the                         Table 5: The 25 new bugs found by PropGen w.r.t. prior test-
+generated properties.                                                                  ing tools: how many fall within each tool’s detection scope,
+                                                                                       and how many it rediscovers in practice. Totals are dedupli-
+  App Name       ID   Violated Property                                                cated across tools.
+                 1    Note info dialog should contain statistical data
+                 2    The date should appear on the selection page                                  Tool            #In Scope           #Rediscovered
+                 3    The category selection should be changeable                                  Genie              1 (4.0%)             0 (0.0%)
+                 4    The category page should be accessible from the drawer                        ODIN              2 (8.0%)             0 (0.0%)
+                 5    The captured photo should appear in the note content                       PBFDroid            5 (20.0%)             2 (8.0%)
+  OmniNotes
+                 6    Returning from the sketch should display the note title                   VisionDroid               -                1 (4.0%)
+                 7    The reminder icon should be displayed after setting a reminder                Total            7 (28.0%)            3 (12.0%)
+                 8    The attachment should appear after selection
+                 9    The image can be opened in the note content
+                 10   The FAB should appear after return
+                                                                                       and only 3 (12%) are actually found in practice. Genie, Odin, and
+                 11   The specific item should disappear from the list
+                 12   The lyrics should be displayed after saving
+                                                                                       PBFDroid rely on predefined automated oracles or manually speci-
+                 13   The item should not exist in the list                            fied DMF properties, and can therefore only find the bug categories
+  RetroMusic                                                                           emphasized in their original designs, whereas PropGen targets
+                 14   The image should be displayed after change
+                 15   The artist can be reset to default                               more broadly. VisionDroid, in contrast, is a more general LLM-
+                 16   The metadata should remain consistent                            based approach, but its exploration validates a functionality by
+    Amaze        17   The item should be deleted successfully                          following one plausible interaction path at a time, whereas most
+  OuterTune      18   The song list should open from navigation menu                   bugs uncovered by PropGen are exposed only when a property is
+                 19   The file can be successfully created                             checked under specific event sequences.
+ MaterialFiles   20   The item can be found                                               We further compare the overall bug-finding results. On the same
+                 21   Navigation to the sub-directory should succeed                   12 apps, the four prior techniques together uncover 13 previously
+    uhabits      22   The added number should keep consistent
+                                                                                       unknown functional bugs (Genie 3, Odin 3, PBFDroid 6, and Vi-
+    Orgzly       23   The imported file should be present
+                                                                                       sionDroid 4; the per-tool counts sum to 16 because three bugs are
+                 24   Star and “Favourite” checkbox should stay in sync
+   Markor                                                                              found by more than one tool), fewer than the 25 bugs uncovered
+                 25   The insert image should be displayed after preview
+                                                                                       by PropGen. Both counts follow the same criterion, i.e., every bug
+                                                                                       is manually confirmed to be a real, previously unknown functional
+have been fixed by developers, while the remaining reports are                         bug; as reported in RQ3, 5 of those found by PropGen have already
+waiting for responses.                                                                 been fixed by developers. The 3 rediscovered bugs above are exactly
+   The bugs span four categories: (i) functionality does not take                      the overlap between the two bug sets: PropGen finds 22 bugs that
+effect (12 bugs, e.g., a captured photo is not attached to the note,                   the prior techniques miss, while they find 10 that PropGen misses.
+or a deleted item remains in the list), (ii) state inconsistencies (6                  The two are thus complementary rather than substitutable, as both
+bugs, e.g., the reminder icon is not shown after a reminder is set, or                 directions stem from the oracles each side can check. PropGen
+the lyrics of a song are not updated after saving), (iii) unexpected                   misses those 10 bugs mainly because its generated properties do
+wrong behaviors (4 bugs, e.g., the floating action button fails to                     not cover the oracles these techniques rely on, e.g., the differential
+reappear after returning to the note list, or an info dialog does not                  oracles of Genie and Odin; it also generates only one property per
+contain the expected statistical data), and (iv) navigation failures (3                functionality, and generating more would cover more expected
+bugs, e.g., a page is unreachable from the drawer). The bugs also                      behaviors.
+cover diverse functionalities (e.g., note management, attachment                          The two bug sets also differ in type. The bugs found by each
+insertion, content display), suggesting that the generated properties                  prior technique are concentrated in the category its oracle targets:
+are not tied to a single type of expected behavior and can capture a                   all bugs found by PBFDroid are data manipulation errors; Genie
+broad range of behavioral constraints. These bugs arise when the                       and Odin mainly expose unexpected wrong behaviors; and Vision-
+actual app behavior deviates from the expected behavior encoded                        Droid mainly exposes display errors. In contrast, the bugs found
+by the properties. For example, Bug 5 in OmniNotes is triggered by                     by PropGen span four categories reported in RQ3. PropGen there-
+the property The captured photo should appear in the note content.                     fore achieves broader coverage without manual effort, but does not
+During testing, it generates a GUI event sequence that first opens                     subsume a specialized oracle within its own niche; combining the
+audio recording and then checks this property. After executing                         two is a promising direction for future work.
+the interaction sequence, the captured photo fails to appear, thus
+violating the property. This bug is difficult to uncover through                       6   Discussion
+manual testing, as testers typically focus on the main interaction                     Impact of pre-existing app faults on generated properties.
+path and may not consider interleavings with other events.                             A pre-existing app fault could in principle corrupt the properties
+                                                                                       PropGen infers or refines. In the generation phase, the risk is limited
+5.5     Results of RQ4                                                                 because PropGen synthesizes properties only from successfully
+Table 5 reports how the 25 new bugs uncovered by PropGen relate                        executed traces, so a fault that blocks a functionality yields no
+to the four prior techniques: only 7 (28%) are within their scope,                     property, and it abstracts the observed behavior into a general
+
+=== [PDF page 11] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                 ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+property rather than copying a concrete trace. In the refinement                   execution [16, 48, 57], and search-based testing [14, 40], mainly aim
+phase, a correct property could be weakened only if a fault-induced                to improve code coverage and expose crashes, but they struggle to
+violation is misjudged as spurious; violations attributed to app faults            produce effective assertions for functional correctness [42, 49]. To
+are reported as bugs instead, and refinement yields only a plausibly               alleviate this oracle problem, one line of work mines likely specifi-
+correct property whose final correctness is confirmed by humans.                   cations from program executions, learning value-based invariants
+                                                                                   (e.g., Daikon [12]), temporal API rules (e.g., Perracotta [73] and
+Threats to validity. First, our evaluation involves manual inspec-
+                                                                                   Texada [27]), or behavioral models and typestates (e.g., TzuYu [68]
+tion to assess the correctness of inferred functionalities and gen-
+                                                                                   and Synoptic [3]). More recently, learning-based and LLM-based
+erated properties, which may introduce subjectivity and potential
+                                                                                   approaches generate unit tests and assertions directly from source
+bias. To mitigate this threat, each case is independently labeled by
+                                                                                   code [4, 8, 10, 13, 15, 23, 26, 47, 58, 62, 74, 76], and LLMs have been
+two experienced graduate students following consistent evaluation
+                                                                                   used to generate specifications or properties in specific domains, e.g.,
+criteria; disagreements are further discussed until agreement is
+                                                                                   postconditions for functions from natural-language comments [11],
+reached. Second, the apps used in our evaluation may not fully
+                                                                                   property-based tests from docstrings for Python libraries [60], and
+represent the diversity of real-world mobile apps. To mitigate this
+                                                                                   properties for smart contracts from a curated property library [32].
+threat, most of the apps are selected from prior relevant studies,
+                                                                                       Like these works, PropGen automatically infers behavioral spec-
+and we further include four additional apps to improve diversity.
+                                                                                   ifications, but differs from all of them in both setting and method-
+In the future, we plan to evaluate PropGen on a larger and broader
+                                                                                   ology. All the above start from a given unit under analysis together
+set of apps. Third, the subject apps are open-source and may appear
+                                                                                   with a structured source of intent, either human-written specifica-
+in GPT-5.2’s training data, which raises the concern that PropGen
+                                                                                   tions such as docstrings, comments, or a curated property library,
+relies on the model’s prior knowledge of these apps rather than
+                                                                                   or white-box execution data such as method entry/exit values and
+genuinely inferring the bugs from the collected runtime evidence.
+                                                                                   API call traces. PropGen has neither: it must first discover which
+To mitigate this threat, we checked each of the 25 bugs against the
+                                                                                   functionalities to specify by exploring a black-box app, and infers
+corresponding app’s issue tracker and confirmed that none had
+                                                                                   their intended behavior from runtime GUI states, screenshots, and
+been previously reported. Moreover, six of the 12 app builds we
+                                                                                   event sequences alone. It further refines the synthesized properties
+tested were released after GPT-5.2’s training cutoff, and PropGen
+                                                                                   against testing feedback, which these works do not.
+still finds bugs in them.
+                                                                                       Beyond test and specification generation, recent work proposes
+                                                                                   agents that automatically perform tasks on mobile apps [43, 44, 65–
+7    Related Work                                                                  67, 75, 78]. These agents focus on executing user-provided tasks,
+Automated mobile app GUI testing. Automated testing for mo-                        whereas PropGen centers on automatically exploring app function-
+bile apps has been extensively studied. Choudhary et al. [5] con-                  alities and generating executable properties for testing.
+ducted a systematic comparison of Android input-generation tools
+and highlighted both the promise and limitations of automated                      8    Conclusion
+mobile testing. Prior work has proposed a variety of techniques                    In this paper, we present PropGen, an automated approach for
+to automatically explore app GUIs and generate event sequences                     constructing properties of mobile apps. By exploring app function-
+for detecting crash bugs [9, 19, 33, 35, 37, 50, 61, 64]. For exam-                alities and deriving properties from behavioral evidence, PropGen
+ple, Sapienz [37] uses multi-objective search to generate event se-                reduces the need for manual property specification. We further
+quences for improving coverage and exposing crashes. To find non-                  propose a feedback-driven refinement technique to refine impre-
+crash functional bugs, most of prior work [1, 45, 51, 53, 54, 63, 72, 77]          cise properties exposed during testing. Experiments on real-world
+designs automated oracles to overcome the oracle problem. How-                     Android apps show that PropGen can effectively generate valid
+ever, these work are limited to specific types of functional bugs                  executable properties. These results demonstrate the practical value
+(e.g., data losses [1, 45, 77]). Some work leverages LLM to analyze                of automated property construction for mobile app property-based
+GUI pages during exploration to find data inconsistency bugs [20],                 testing.
+functional bugs [34], or inconsistencies between app design and
+implementation [31].                                                               9    Data Availability
+   Property-based testing (PBT) is a powerful testing methodology                  We have made all the artifacts publicly available [69].
+and has been adopted into many different software systems to
+find logic bugs [2, 6, 21, 22, 24, 36, 39, 41, 46]. Recent work has                Acknowledgments
+begun to bring property-based testing to mobile apps. Specifically,
+                                                                                   We thank the anonymous ASE reviewers for their valuable feedback.
+PBFDroid [52], PDTDroid [55], and Kea [29, 71] have demonstrated
+                                                                                   This research is supported by the National Research Foundation,
+that PBT can be effectively applied to GUI-driven mobile apps
+                                                                                   Singapore and CyberSG R&D Programme Office under its Transla-
+and can find non-crashing functional bugs that are difficult for
+                                                                                   tion and Innovation Grant (CRPO-GC4-SMU-002). Any opinions,
+traditional automated GUI testing tools to detect. However, these
+                                                                                   findings and conclusions or recommendations expressed in this
+work still assumes that meaningful properties are manually written
+                                                                                   material are those of the author(s) and do not reflect the views of
+by developers or testers. Our work complements these approaches
+                                                                                   the National Research Foundation and CyberSG R&D Programme
+by automating the executable property generation.
+                                                                                   Office. This work was also partially supported by NSFC Project No.
+Automated test and specification generation. Traditional auto-
+                                                                                   62572192 and 62072178.
+mated test generation techniques, such as fuzzing [38], symbolic
+
+=== [PDF page 12] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                        Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie
+
+
+References                                                                                        Conference on Software Engineering: Software Engineering in Practice. 137–146.
+ [1] Christoffer Quist Adamsen, Gianluca Mezzetti, and Anders Møller. 2015. Sys-                  doi:10.1145/3639477.3639748
+     tematic execution of Android test suites in adverse conditions. In Proceedings          [21] John Hughes. 2016. Experiences with QuickCheck: testing the hard stuff and
+     of the 2015 International Symposium on Software Testing and Analysis. 83–93.                 staying sane. In A List of Successes That Can Change the World: Essays Dedicated
+     doi:10.1145/2771783.2771786                                                                  to Philip Wadler on the Occasion of His 60th Birthday. Springer, 169–186. doi:10.
+ [2] Thomas Arts, John Hughes, Joakim Johansson, and Ulf Wiger. 2006. Testing                     1007/978-3-319-30936-1_9
+     telecoms software with Quviq QuickCheck. In Proceedings of the 2006 ACM                 [22] John Hughes, Benjamin C Pierce, Thomas Arts, and Ulf Norell. 2016. Mysteries
+     SIGPLAN Workshop on Erlang. 2–10. doi:10.1145/1159789.1159792                                of dropbox: property-based testing of a distributed synchronization service. In
+ [3] Ivan Beschastnikh, Yuriy Brun, Sigurd Schneider, Michael Sloan, and Michael D                2016 IEEE International Conference on Software Testing, Verification and Validation
+     Ernst. 2011. Leveraging existing instrumentation to automatically infer invariant-           (ICST). IEEE, 135–145. doi:10.1109/ICST.2016.37
+     constrained models. In Proceedings of the 19th ACM SIGSOFT symposium and                [23] Zongze Jiang, Ming Wen, Jialun Cao, Xuanhua Shi, and Hai Jin. 2024. Towards
+     the 13th European conference on Foundations of software engineering. 267–277.                Understanding the Effectiveness of Large Language Models on Directed Test
+     doi:10.1145/2025113.2025151                                                                  Input Generation. In Proceedings of the 39th IEEE/ACM International Conference
+ [4] Yinghao Chen, Zehao Hu, Chen Zhi, Junxiao Han, Shuiguang Deng, and Jianwei                   on Automated Software Engineering. 1408–1420. doi:10.1145/3691620.3695513
+     Yin. 2024. Chatunitest: A framework for llm-based test generation. In Compan-           [24] Stefan Karlsson, Adnan Čaušević, and Daniel Sundmark. 2020. QuickREST:
+     ion Proceedings of the 32nd ACM International Conference on the Foundations of               Property-based test generation of OpenAPI-described RESTful APIs. In 2020
+     Software Engineering. 572–576. doi:10.1145/3663529.3663801                                   IEEE 13th International Conference on Software Testing, Validation and Verification
+ [5] Shauvik Roy Choudhary, Alessandra Gorla, and Alessandro Orso. 2015. Au-                      (ICST). IEEE, 131–141. doi:10.1109/ICST46399.2020.00023
+     tomated test input generation for Android: Are we there yet?(e). In 2015 30th           [25] Pavneet Singh Kochhar, Ferdian Thung, Nachiappan Nagappan, Thomas Zim-
+     IEEE/ACM International Conference on Automated Software Engineering (ASE).                   mermann, and David Lo. 2015. Understanding the test automation culture of
+     IEEE, 429–440. doi:10.1109/ASE.2015.89                                                       app developers. In 2015 IEEE 8th International Conference on Software Testing,
+ [6] Koen Claessen and John Hughes. 2000. QuickCheck: a lightweight tool for random               Verification and Validation (ICST). IEEE, 1–10. doi:10.1109/ICST.2015.7102609
+     testing of Haskell programs. In ICFP’00. 268–279. doi:10.1145/351240.351266             [26] Shuvendu K Lahiri, Sarah Fakhoury, Aaditya Naik, Georgios Sakkas, Saikat
+ [7] Riccardo Coppola and Emil Alégroth. 2022. A taxonomy of metrics for GUI-                     Chakraborty, Madanlal Musuvathi, Piali Choudhury, Curtis von Veh, Jee-
+     based testing research: A systematic literature review. Information and Software             vana Priya Inala, Chenglong Wang, et al. 2022. Interactive code generation
+     Technology 152 (2022), 107062. doi:10.1016/j.infsof.2022.107062                              via test-driven user-intent formalization. arXiv preprint arXiv:2208.05950 (2022).
+ [8] Yinlin Deng, Chunqiu Steven Xia, Haoran Peng, Chenyuan Yang, and Lingming                    doi:10.48550/arXiv.2208.05950
+     Zhang. 2023. Large language models are zero-shot fuzzers: Fuzzing deep-learning         [27] Caroline Lemieux, Dennis Park, and Ivan Beschastnikh. 2015. General LTL speci-
+     libraries via large language models. In Proceedings of the 32nd ACM SIGSOFT                  fication mining (T). In 2015 30th IEEE/ACM international conference on automated
+     international symposium on software testing and analysis. 423–435. doi:10.1145/              software engineering (ASE). IEEE, 81–92. doi:10.1109/ASE.2015.71
+     3597926.3598067                                                                         [28] Yuanchun Li, Ziyue Yang, Yao Guo, and Xiangqun Chen. 2017. Droidbot: a
+ [9] Zhen Dong, Marcel Böhme, Lucia Cojocaru, and Abhik Roychoudhury. 2020.                       lightweight ui-guided test input generator for android. In 2017 IEEE/ACM 39th
+     Time-travel testing of Android apps. In Proceedings of the ACM/IEEE 42nd Interna-            International Conference on Software Engineering Companion (ICSE-C). IEEE, 23–
+     tional Conference on Software Engineering. 481–492. doi:10.1145/3377811.3380402              26. doi:10.1109/ICSE-C.2017.8
+[10] Kohei Dozono, Tiago Espinha Gasiba, and Andrea Stocco. 2024. Large language             [29] Xixian Liang, Cheng Peng, Bo Ma, Xiangchen Shen, Yiheng Xiong, and Ting Su.
+     models for secure code assessment: A multi-language empirical study. arXiv                   2026. Kea2: Practical Property-based Testing for Mobile Apps. In Proceedings of
+     preprint arXiv:2408.06428 (2024). doi:10.48550/arXiv.2408.06428                              the 34th ACM International Conference on the Foundations of Software Engineering.
+[11] Madeline Endres, Sarah Fakhoury, Saikat Chakraborty, and Shuvendu K Lahiri.                  182–186. doi:10.1145/3803437.3806416
+     2024. Can large language models transform natural language intent into formal           [30] Mario Linares-Vásquez, Carlos Bernal-Cárdenas, Kevin Moran, and Denys Poshy-
+     method postconditions? Proceedings of the ACM on Software Engineering 1, FSE                 vanyk. 2017. How do developers test Android applications?. In 2017 IEEE Interna-
+     (2024), 1889–1912. doi:10.1145/3660791                                                       tional Conference on Software Maintenance and Evolution (ICSME). IEEE, 613–622.
+[12] Michael D Ernst, Jake Cockrell, William G Griswold, and David Notkin. 1999.                  doi:10.1109/ICSME.2017.47
+     Dynamically discovering likely program invariants to support program evolution.         [31] Ruofan Liu, Xiwen Teoh, Yun Lin, Guanjie Chen, Ruofei Ren, Denys Poshyvanyk,
+     In Proceedings of the 21st international conference on Software engineering. 213–224.        and Jin Song Dong. 2025. GUIPilot: A Consistency-Based Mobile GUI Testing
+     doi:10.1145/302405.302467                                                                    Approach for Detecting Application-Specific Bugs. Proceedings of the ACM on
+[13] Angela Fan, Beliz Gokkaya, Mark Harman, Mitya Lyubarskiy, Shubho Sengupta,                   Software Engineering 2, ISSTA (2025), 753–776. doi:10.1145/3728909
+     Shin Yoo, and Jie M Zhang. 2023. Large language models for software engineering:        [32] Ye Liu, Yue Xue, Daoyuan Wu, Yuqiang Sun, Yi Li, Miaolei Shi, and Yang Liu.
+     Survey and open problems. In 2023 IEEE/ACM International Conference on Software              2024. Propertygpt: LLM-driven formal verification of smart contracts through
+     Engineering: Future of Software Engineering (ICSE-FoSE). IEEE, 31–53. doi:10.1109/           retrieval-augmented property generation. arXiv preprint arXiv:2405.02580 (2024).
+     ICSE-FoSE59343.2023.00008                                                                    doi:10.14722/ndss.2025.241357
+[14] Gordon Fraser and Andrea Arcuri. 2011. Evosuite: automatic test suite generation        [33] Zhe Liu, Chunyang Chen, Junjie Wang, Mengzhuo Chen, Boyu Wu, Xing Che,
+     for object-oriented software. In Proceedings of the 19th ACM SIGSOFT symposium               Dandan Wang, and Qing Wang. 2024. Make llm a testing expert: Bringing
+     and the 13th European conference on Foundations of software engineering. 416–419.            human-like interaction to mobile gui testing via functionality-aware decisions. In
+     doi:10.1145/2025113.2025179                                                                  Proceedings of the IEEE/ACM 46th International Conference on Software Engineering.
+[15] Cuiyun Gao, Xing Hu, Shan Gao, Xin Xia, and Zhi Jin. 2025. The cur-                          1–13. doi:10.1145/3597503.3639180
+     rent challenges of software engineering in the era of large language models.            [34] Zhe Liu, Cheng Li, Chunyang Chen, Junjie Wang, Mengzhuo Chen, Boyu Wu,
+     ACM Transactions on Software Engineering and Methodology 34, 5 (2025), 1–30.                 Yawen Wang, Jun Hu, and Qing Wang. 2025. Seeing is believing: Vision-driven
+     doi:10.1145/3712005                                                                          non-crash functional bug detection for mobile apps. IEEE Transactions on Software
+[16] Patrice Godefroid, Nils Klarlund, and Koushik Sen. 2005. DART: Directed auto-                Engineering (2025). doi:10.1109/TSE.2025.3614469
+     mated random testing. In Proceedings of the 2005 ACM SIGPLAN conference on              [35] Aravind Machiry, Rohan Tahiliani, and Mayur Naik. 2013. Dynodroid: An input
+     Programming language design and implementation. 213–223. doi:10.1145/1065010.                generation system for Android apps. In Proceedings of the 2013 9th Joint Meeting
+     1065036                                                                                      on Foundations of Software Engineering. 224–234. doi:10.1145/2491411.2491450
+[17] Harrison Goldstein, Joseph W Cutler, Daniel Dickstein, Benjamin C Pierce, and           [36] David R MacIver, Zac Hatfield-Dodds, et al. 2019. Hypothesis: A new approach
+     Andrew Head. 2024. Property-based testing in practice. In Proceedings of the                 to property-based testing. Journal of Open Source Software 4, 43 (2019), 1891.
+     IEEE/ACM 46th International Conference on Software Engineering. 1–13. doi:10.                doi:10.21105/joss.01891
+     1145/3597503.3639581                                                                    [37] Ke Mao, Mark Harman, and Yue Jia. 2016. Sapienz: Multi-objective automated test-
+[18] Harrison Goldstein, Joseph W Cutler, Adam Stein, Benjamin C Pierce, and Andrew               ing for Android applications. In Proceedings of the 25th international symposium
+     Head. 2022. Some problems with properties. In Proc. Workshop on the Human                    on software testing and analysis. 94–105. doi:10.1145/2931037.2931054
+     Aspects of Types and Reasoning Assistants (HATRA), Vol. 1. 3.                           [38] Michał Zalewski. 2016. American Fuzzy Lop - Whitepaper. https://lcamtuf.
+[19] Tianxiao Gu, Chengnian Sun, Xiaoxing Ma, Chun Cao, Chang Xu, Yuan Yao,                       coredump.cx/afl/technical_details.txt
+     Qirun Zhang, Jian Lu, and Zhendong Su. 2019. Practical GUI testing of An-               [39] Liam O’Connor and Oskar Wickström. 2022. Quickstrom: property-based accep-
+     droid applications via model abstraction and refinement. In 2019 IEEE/ACM                    tance testing with LTL specifications. In Proceedings of the 43rd ACM SIGPLAN
+     41st International Conference on Software Engineering (ICSE). IEEE, 269–280.                 International Conference on Programming Language Design and Implementation
+     doi:10.1109/ICSE.2019.00042                                                                  (PLDI). 1025–1038. doi:10.1145/3519939.3523728
+[20] Yongxiang Hu, Hailiang Jin, Xuan Wang, Jiazhen Gu, Shiyu Guo, Chaoyi Chen,              [40] Carlos Pacheco and Michael D Ernst. 2007. Randoop: feedback-directed random
+     Xin Wang, and Yangfan Zhou. 2024. Autoconsis: Automatic gui-driven data                      testing for Java. In Companion to the 22nd ACM SIGPLAN conference on Object-
+     inconsistency detection of mobile apps. In Proceedings of the 46th International             oriented programming systems and applications companion. 815–816. doi:10.1145/
+
+=== [PDF page 13] ===
+
+PropGen: Automated Property Generation for Property-Based Testing of Mobile Apps                                                  ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+     1297846.1297902                                                                          [61] Chenxu Wang, Tianming Liu, Yanjie Zhao, Minghui Yang, and Haoyu Wang.
+[41] Rohan Padhye, Caroline Lemieux, and Koushik Sen. 2019. Jqf: Coverage-guided                   2025. Llmdroid: Enhancing automated mobile app gui testing coverage with
+     property-based testing in java. In Proceedings of the 28th ACM SIGSOFT Interna-               large language model guidance. Proceedings of the ACM on Software Engineering
+     tional Symposium on Software Testing and Analysis. 398–401. doi:10.1145/3293882.              2, FSE (2025), 1001–1022. doi:10.1145/3715763
+     3339002                                                                                  [62] Junjie Wang, Yuchao Huang, Chunyang Chen, Zhe Liu, Song Wang, and Qing
+[42] Annibale Panichella, Sebastiano Panichella, Gordon Fraser, Anand Ashok Sawant,                Wang. 2024. Software testing with large language models: Survey, landscape,
+     and Vincent J Hellendoorn. 2020. Revisiting test smells in automatically generated            and vision. IEEE Transactions on Software Engineering 50, 4 (2024), 911–936.
+     tests: limitations, pitfalls, and opportunities. In 2020 IEEE international conference        doi:10.1109/TSE.2024.3368208
+     on software maintenance and evolution (ICSME). IEEE, 523–533. doi:10.1109/               [63] Jue Wang, Yanyan Jiang, Ting Su, Shaohua Li, Chang Xu, Jian Lu, and Zhendong
+     ICSME46990.2020.00056                                                                         Su. 2022. Detecting non-crashing functional bugs in Android apps via deep-
+[43] Yujia Qin, Yining Ye, Junjie Fang, Haoming Wang, Shihao Liang, Shizuo Tian,                   state differential analysis. In Proceedings of the 30th ACM Joint European Software
+     Junda Zhang, Jiahao Li, Yunxin Li, Shijue Huang, et al. 2025. Ui-tars: Pioneering             Engineering Conference and Symposium on the Foundations of Software Engineering
+     automated gui interaction with native agents. arXiv preprint arXiv:2501.12326                 (ESEC/FSE). 434–446. doi:10.1145/3540250.3549170
+     (2025). doi:10.48550/arXiv.2501.12326                                                    [64] Jue Wang, Yanyan Jiang, Chang Xu, Chun Cao, Xiaoxing Ma, and Jian Lu. 2020.
+[44] Dezhi Ran, Hao Wang, Zihe Song, Mengzhou Wu, Yuan Cao, Ying Zhang, Wei                        Combodroid: generating high-quality test inputs for Android apps via use case
+     Yang, and Tao Xie. 2024. Guardian: A Runtime Framework for LLM-based UI                       combinations. In Proceedings of the ACM/IEEE 42nd International Conference on
+     Exploration. In Proceedings of the 33rd ACM SIGSOFT International Symposium                   Software Engineering. 469–480. doi:10.1145/3377811.3380382
+     on Software Testing and Analysis. doi:10.1145/3650212.3680334                            [65] Junyang Wang, Haiyang Xu, Haitao Jia, Xi Zhang, Ming Yan, Weizhou Shen, Ji
+[45] Oliviero Riganelli, Simone Paolo Mottadelli, Claudio Rota, Daniela Micucci, and               Zhang, Fei Huang, and Jitao Sang. 2024. Mobile-agent-v2: Mobile device operation
+     Leonardo Mariani. 2020. Data loss detector: automatically revealing data loss                 assistant with effective navigation via multi-agent collaboration. arXiv preprint
+     bugs in Android apps. In ISSTA ’20: 29th ACM SIGSOFT International Symposium                  arXiv:2406.01014 (2024). doi:10.48550/arXiv.2406.01014
+     on Software Testing and Analysis. 141–152. doi:10.1145/3395363.3397379                   [66] Hao Wen, Yuanchun Li, Guohong Liu, Shanhui Zhao, Tao Yu, Toby Jia-Jun Li, Shiqi
+[46] André Santos, Alcino Cunha, and Nuno Macedo. 2018. Property-based testing for                 Jiang, Yunhao Liu, Yaqin Zhang, and Yunxin Liu. 2024. Autodroid:LLM-powered
+     the robot operating system. In Proceedings of the 9th ACM SIGSOFT International               task automation in Android. In Proceedings of the 30th Annual International
+     Workshop on Automating TEST Case Design, Selection, and Evaluation. 56–62.                    Conference on Mobile Computing and Networking. 543–557. doi:10.1145/3636534.
+     doi:10.1145/3278186.3278195                                                                   3649379
+[47] Max Schäfer, Sarah Nadi, Aryaz Eghbali, and Frank Tip. 2023. An empirical                [67] Hao Wen, Hongming Wang, Jiaxuan Liu, and Yuanchun Li. 2023. Droidbot-gpt:
+     evaluation of using large language models for automated unit test generation.                 Gpt-powered ui automation for Android. arXiv preprint arXiv:2304.07061 (2023).
+     IEEE Transactions on Software Engineering 50, 1 (2023), 85–105. doi:10.1109/TSE.              doi:10.48550/arXiv.2304.07061
+     2023.3334955                                                                             [68] Hao Xiao, Jun Sun, Yang Liu, Shang-Wei Lin, and Chengnian Sun. 2013. Tzuyu:
+[48] Koushik Sen, Darko Marinov, and Gul Agha. 2005. CUTE: A concolic unit testing                 Learning stateful typestates. In 2013 28th IEEE/ACM International Conference on
+     engine for C. ACM SIGSOFT software engineering notes 30, 5 (2005), 263–272.                   Automated Software Engineering (ASE). IEEE, 432–442. doi:10.1109/ASE.2013.
+     doi:10.1145/1081706.1081750                                                                   6693101
+[49] Sina Shamshiri. 2015. Automated unit test generation for evolving software. In           [69] Yiheng Xiong, Shiwen Song, Bo Ma, Ting Su, and Xiaofei Xie. 2026. PropGen:
+     Proceedings of the 2015 10th Joint Meeting on Foundations of Software Engineering.            Automated Property Generation for Property-Based Testing of Mobile Apps
+     1038–1041. doi:10.1145/2786805.2803196                                                        (Artifact). doi:10.5281/zenodo.21770804
+[50] Ting Su, Guozhu Meng, Yuting Chen, Ke Wu, Weiming Yang, Yao Yao, Geguang Pu,             [70] Yiheng Xiong, Ting Su, Jingling Sun, Jue Wang, Qin Li, Geguang Pu, and Zhen-
+     Yang Liu, and Zhendong Su. 2017. Guided, Stochastic Model-based GUI Testing                   dong Su. 2026. From Natural Language to Executable Properties for Property-
+     of Android Apps. In The joint meeting of the European Software Engineering                    based Testing of Mobile Apps. arXiv:2603.21263 [cs.SE] doi:10.48550/arXiv.2603.
+     Conference and the ACM SIGSOFT Symposium on the Foundations of Software                       21263
+     Engineering (ESEC/FSE). 245–256. doi:10.1145/3106237.3106298                             [71] Yiheng Xiong, Ting Su, Jue Wang, Jingling Sun, Geguang Pu, and Zhendong
+[51] Ting Su, Yichen Yan, Jue Wang, Jingling Sun, Yiheng Xiong, Geguang Pu, Ke                     Su. 2024. General and Practical Property-based Testing for Android Apps. In
+     Wang, and Zhendong Su. 2021. Fully automated functional fuzzing of Android                    Proceedings of the 39th IEEE/ACM International Conference on Automated Software
+     apps for detecting non-crashing logic bugs. Proc. ACM Program. Lang. 5, OOPSLA                Engineering. 53–64. doi:10.1145/3691620.3694986
+     (2021), 1–31. doi:10.1145/3485533                                                        [72] Yiheng Xiong, Mengqian Xu, Ting Su, Jingling Sun, Jue Wang, He Wen, Geguang
+[52] Jingling Sun, Ting Su, Jiayi Jiang, Jue Wang, Geguang Pu, and Zhendong Su. 2023.              Pu, Jifeng He, and Zhendong Su. 2023. An empirical study of functional bugs in
+     Property-Based Fuzzing for Finding Data Manipulation Errors in Android Apps.                  Android apps. In Proceedings of the 32nd ACM SIGSOFT International Symposium
+     In Proceedings of the 31st ACM Joint European Software Engineering Conference                 on Software Testing and Analysis (ISSTA’23). 1319–1331. doi:10.1145/3597926.
+     and Symposium on the Foundations of Software Engineering (ESEC/FSE). 1088–1100.               3598138
+     doi:10.1145/3611643.3616286                                                              [73] Jinlin Yang, David Evans, Deepali Bhardwaj, Thirumalesh Bhat, and Manuvir
+[53] Jingling Sun, Ting Su, Junxin Li, Zhen Dong, Geguang Pu, Tao Xie, and Zhendong                Das. 2006. Perracotta: mining temporal API rules from imperfect traces. In
+     Su. 2021. Understanding and finding system setting-related defects in Android                 Proceedings of the 28th international conference on Software engineering. 282–291.
+     apps. In ISSTA ’21: 30th ACM SIGSOFT International Symposium on Software                      doi:10.1145/1134285.1134325
+     Testing and Analysis. 204–215. doi:10.1145/3460319.3464806                               [74] Lin Yang, Chen Yang, Shutao Gao, Weijing Wang, Bo Wang, Qihao Zhu, Xiao Chu,
+[54] Jingling Sun, Ting Su, Kai Liu, Chao Peng, Zhao Zhang, Geguang Pu, Tao Xie,                   Jianyi Zhou, Guangtai Liang, Qianxiang Wang, et al. 2024. On the evaluation of
+     and Zhendong Su. 2023. Characterizing and Finding System Setting-Related                      large language models in unit test generation. In Proceedings of the 39th IEEE/ACM
+     Defects in Android Apps. IEEE Trans. Software Eng. 49, 4 (2023), 2941–2963.                   International Conference on Automated Software Engineering. 1607–1619. doi:10.
+     doi:10.1109/TSE.2023.3236449                                                                  1145/3691620.3695529
+[55] Jingling Sun, Ting Su, Jun Sun, Jianwen Li, Mengfei Wang, and Geguang Pu.                [75] Juyeon Yoon, Robert Feldt, and Shin Yoo. 2024. Intent-driven mobile gui
+     2024. Property-Based Testing for Validating User Privacy-Related Functionalities              testing with autonomous large language model agents. In 2024 IEEE Confer-
+     in Social Media Apps. In Companion Proceedings of the 32nd ACM International                  ence on Software Testing, Verification and Validation (ICST). IEEE, 129–139.
+     Conference on the Foundations of Software Engineering. 440–451. doi:10.1145/                  doi:10.1109/ICST60714.2024.00020
+     3663529.3663863                                                                          [76] Zhiqiang Yuan, Mingwei Liu, Shiji Ding, Kaixin Wang, Yixuan Chen, Xin Peng,
+[56] Android Team. 2021. Android Debug Bridge (adb). Retrieved 2026-3 from https:                  and Yiling Lou. 2024. Evaluating and improving chatgpt for unit test generation.
+     //developer.android.com/tools/adb                                                             Proceedings of the ACM on Software Engineering 1, FSE (2024), 1703–1726. doi:10.
+[57] Nikolai Tillmann, Jonathan De Halleux, and Tao Xie. 2014. Transferring an                     1145/3660783
+     automated test generation tool to practice: From Pex to Fakes and Code Digger. In        [77] Razieh Nokhbeh Zaeem, Mukul R. Prasad, and Sarfraz Khurshid. 2014. Automated
+     Proceedings of the 29th ACM/IEEE International Conference on Automated Software               Generation of Oracles for Testing User-Interaction Features of Mobile Apps. In
+     Engineering. 385–396. doi:10.1145/2642937.2642941                                             Proceedings of the International Conference on Software Testing, Verification and
+[58] Michele Tufano, Dawn Drain, Alexey Svyatkovskiy, Shao Kun Deng, and Neel                      Validation (ICST). 183–192. doi:10.1109/ICST.2014.31
+     Sundaresan. 2020. Unit test case generation with transformers and focal context.         [78] Chi Zhang, Zhao Yang, Jiaxuan Liu, Yanda Li, Yucheng Han, Xin Chen, Zebiao
+     arXiv preprint arXiv:2009.05617 (2020). doi:10.48550/arXiv.2009.05617                         Huang, Bin Fu, and Gang Yu. 2025. Appagent: Multimodal agents as smartphone
+[59] uiautomator2 Team. 2021. uiautomator2. Retrieved 2026-3 from https://github.                  users. In Proceedings of the 2025 CHI Conference on Human Factors in Computing
+     com/openatx/uiautomator2                                                                      Systems. 1–20. doi:10.1145/3706598.3713600
+[60] Vasudev Vikram, Caroline Lemieux, Joshua Sunshine, and Rohan Padhye. 2023.
+     Can large language models write good property-based tests? arXiv preprint                Received 2026-03-26; accepted 2026-06-18
+     arXiv:2307.04346 (2023). doi:10.48550/arXiv.2307.04346

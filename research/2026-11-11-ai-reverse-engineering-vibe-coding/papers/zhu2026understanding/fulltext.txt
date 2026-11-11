@@ -1,0 +1,722 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                            AI-Generated Smells: An Analysis of Code and Architecture in
+                                                       LLM- and Agent-Driven Development
+                                                                                Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+                                                                                               Department of Computer Science
+                                                                                                  and Software Engineering
+                                                                                                    Concordia University
+                                                                                                  Montréal, Québec, Canada
+                                        Abstract                                                                   specifically audit agent-generated code for architectural design
+                                        The promise of Large Language Models (LLMs) in automated soft-             flaws.
+                                        ware engineering is often measured by functional correctness, over-           This study presents a systematic evaluation of code smells in
+
+
+
+
+arXiv:2605.02741v1 [cs.SE] 4 May 2026
+                                        looking the critical issue of long-term maintainability. This pa-          software produced by single-agent and multi-agent systems. We
+                                        per presents a systematic audit of technical debt in AI-generated          specifically analyze how the transition from simple tasks to complex,
+                                        software, revealing that AI does not eliminate flaws but rather            multi-file architectures influences the density and distribution of
+                                        introduces a distinct "machine signature" of defects. Our multi-           these smells. To guide this investigation, we pose the following
+                                        scale analysis—spanning single-file algorithmic tasks and com-             research questions:
+                                        plex, agent-generated systems—identifies a fundamental Reasoning-             RQ1: To what extent do code-generating agents introduce
+                                        Complexity Trade-off: as models become more capable, they gener-           code smells in standard coding tasks? This question aims to
+                                        ate increasingly bloated and coupled code. This architectural decay        establish a baseline for AI code quality. By quantifying the density
+                                        is so pronounced that we establish a Volume-Quality Inverse Law,           of code smells in standard benchmarks, we determine whether
+                                        where code volume is a near-perfect predictor of structural degrada-       LLM-based agents inherently prioritize functional output at the
+                                        tion. Crucially, we demonstrate that neither functional correctness        expense of code hygiene and readability.
+                                        nor detailed prompting mitigates this decay. These findings chal-             RQ2: What constitutes the taxonomy of code smells most
+                                        lenge the current paradigm of prompt-driven generation, reframing          frequently exhibited by code-generating agents? Not all tech-
+                                        the central problem of AI-based software engineering from one of           nical debt is identical. By categorizing specific types of smells (e.g.,
+                                        code generation to one of architectural complexity management.             Message Chain, Too Many Branches, or Hub-like Dependency),
+                                        We conclude that future progress depends on equipping agents               we identify the specific coding "habits" of LLMs. This taxonomy
+                                        with explicit architectural foresight to ensure the software they          is essential for understanding how agents handle abstraction and
+                                        build is not just functional, but also maintainable.                       responsibility distribution.
+                                                                                                                      RQ3: How does the complexity of the target architecture
+                                                                                                                   impact the prevalence of code smells in agent-generated
+                                                                                                                   code? As agents transition from generating isolated scripts to syn-
+                                        1   Introduction
+                                                                                                                   thesizing multi-module systems, context management becomes
+                                        The advent of Large Language Models (LLMs) has fundamentally               increasingly difficult. We investigate whether this increased archi-
+                                        altered the landscape of automated software engineering, enabling          tectural complexity correlates with a degradation in design patterns,
+                                        agents to autonomously synthesize functional software ranging              and whether specific prompt strategies can mitigate this decay.
+                                        from single-file scripts to complex, multi-file architectures. While          To answer the aforementioned research questions, we conduct
+                                        multi-agent frameworks show increasing proficiency in handling             two experiments. In the first experiment, we ask different LLMs to
+                                        intricate logic, the efficacy of these systems is often evaluated solely   solve coding questions sampled from the CodeContest[11] dataset.
+                                        on functional correctness. This narrow focus risks overlooking             In the second experiment, we create a set of product requirements to
+                                        critical concerns regarding code quality, specifically the presence of     benchmark the code quality of the software repositories generated
+                                        code smells—structural characteristics that, while functionally valid,     by MetaGPT[10].
+                                        indicate deeper problems in design, readability, and maintainability.         Summary of Findings and Contributions. Our empirical
+                                           Previous research has established that human developers fre-            results reveal that AI agents do not merely replicate human er-
+                                        quently introduce code smells under tight constraints, accumulating        rors but exhibit a distinct "machine signature" of technical debt.
+                                        technical debt that degrades maintainability. Conversely, recent           In algorithmic tasks (RQ1), we observe a "Reasoning-Complexity
+                                        studies suggest that LLMs may possess the capacity to generate             Trade-off": while humans struggle with state encapsulation (Tempo-
+                                        code that is statistically more maintainable than human-written            ral Fields), "smarter" LLMs (e.g., Qwen-480b) inadvertently increase
+                                        code. For instance, Santa et al. [17] demonstrated that LLMs pro-          method bloat (Long Method) as they attempt to handle complex
+                                        duced fewer issues detected by SonarQube, resulting in a lower             logic within single procedural blocks. As we scale to complex ar-
+                                        estimated time for remediation. However, these findings often ag-          chitectures (RQ2), a taxonomic shift occurs: the method-level bloat
+                                        gregate superficial code linting issues with deeper structural code        is replaced by "God Class" syndromes (Too Many Branches) and
+                                        smells. Furthermore, the extent to which these positive trends per-        Redundant Implementation (Potential Improper API Usage). Cru-
+                                        sist within autonomous agents constructing complex systems re-             cially, our analysis of architectural complexity (RQ3) establishes
+                                        mains underexplored. Consequently, there is a pressing need to
+
+=== [PDF page 2] ===
+
+                                                                                                     Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+
+
+a "Volume-Quality Inverse Law": code volume (TLoC) acts as a           Both paradigms rely on the fundamental capability of generative
+near-perfect predictor of architectural decay. We further find that    AI to produce executable code without continuous human inter-
+functional correctness is decoupled from quality—running code          vention. Adopting this broad definition allows us to investigate the
+is just as likely to be structurally flawed as failed code—and that    quality of code generated across the full spectrum of autonomous
+increasing requirement specificity in prompts fails to mitigate this   development tools.
+degradation.
+    Based on these insights, this paper makes the following contri-    2.2    LLM-Based Code Generation and
+butions:                                                                      Maintainability
+                                                                       Large Language Models have demonstrated remarkable proficiency
+       1. We present a comparative analysis of technical debt          in code synthesis, achieving high performance on functional cor-
+    in human vs. LLM-generated code, identifying a funda-              rectness benchmarks such as HumanEval and MBPP [4, 22, 23].
+    mental "habit" of LLMs: a preference for high-coupling strate-     However, functional correctness does not guarantee code quality.
+    gies—either through monolithic methods (Long Method)               Recent literature has begun to scrutinize the maintainability of
+    in simple tasks or tight module coupling (Unstable Depen-          AI-generated code. Notably, Santa et al. [17] reported that LLMs are
+    dency) in complex systems—to achieve functional correctness        capable of generating code that is statistically more maintainable
+    at the cost of maintainability.                                    than that of human developers. Their evaluation relied on metrics
+       2. We conduct the first longitudinal study of "architec-        provided by SonarQube [3], specifically the count of detected issues
+    tural rot" in autonomous software agents, demonstrating            and the estimated technical debt remediation time.
+    that as system complexity scales, functionally correct code           We contend, however, that a critical limitation in existing studies,
+    degenerates into unmaintainable structures. Our statistical        including the work of Santa et al. [17], is the conflation of different
+    analysis confirms that this decay is not mitigated by advanced     categories of software defects. The "issues" detected by automated
+    prompting techniques like few-shot examples.                       tools like SonarQube often aggregate superficial code linting vio-
+       3. We establish a taxonomy of AI-specific code smells           lations (e.g., whitespace inconsistencies, missing docstrings) with
+    and introduce the concept of the "Modular Mirage,"                 deeper, structural code smells. While LLMs excel at adhering to syn-
+    where agents achieve superficial structural modularity (file       tax and formatting rules—thereby minimizing linting errors—this
+    separation) but fail to create semantic cohesion. This reframes    does not necessarily imply architectural soundness. Furthermore,
+    the central challenge of LLM-based software engineering from       prior research has predominantly focused on single-file solutions
+    *code generation* to *complexity management*.                      generated for isolated coding problems. Our work aims to address
+                                                                       this limitation by specifically isolating structural code smells from
+                                                                       superficial linting errors and extending the analysis to large-scale
+2     Background and Related Work                                      software artifacts generated by multi-agent systems.
+Recent advancements in Large Language Models (LLMs) have cat-
+alyzed significant research into AI-driven software engineering.       2.3    Multi-Agent Systems and MetaGPT
+A substantial body of work has explored the utility of LLMs for        To address the limitations inherent in single-model generation—such
+tasks such as code smell localization [2] and automated software       as context loss, hallucination, and a lack of self-correction—researchers
+refactoring [5, 12, 14, 20]. Similarly, the emergence of Multi-Agent   have introduced Multi-Agent Systems (MAS). These frameworks
+Systems (MAS) has prompted investigations into agentic refactor-       assign specific roles (e.g., Architect, Engineer, QA Tester) to distinct
+ing workflows [15, 16, 19, 21]. Despite this progress, there remains   agent instances, enabling collaborative problem-solving. MAS is
+a paucity of research dedicated to analyzing the intrinsic quality     capable to generate larger scale software artifacts than single-model
+and maintainability of the code generated by these autonomous          generation.
+agents. While agents are increasingly proficient at producing func-       In this study, we utilize MetaGPT [10] as our primary multi-
+tional code, their tendency to introduce technical debt remains        agent framework in experiment 2 to generate full-scale software
+underexplored. This work aims to bridge this gap. To contextual-       solutions. MetaGPT distinguishes itself by encoding Standard Op-
+ize our empirical study, we first define the scope of autonomous       erating Procedures (SOPs) directly into the agent workflow, effec-
+code-generating agents.                                                tively mimicking a real-world software development company. By
+                                                                       structuring communication and enforcing role-specific constraints,
+2.1     Autonomous Code-Generating Agents                              MetaGPT aims to produce complex, multi-file software projects that
+The landscape of software engineering has been transformed by the      are theoretically more robust than those produced by a single pass
+proliferation of autonomous code generation technologies [8, 9]. In    of an LLM. We investigate whether this structured collaboration
+the context of this research, we define autonomous code-generating     effectively mitigates the introduction of complex design smells in
+agents broadly to encompass a spectrum of workflows, ranging           multi-module architectures.
+from direct interactions with Large Language Model (LLM) APIs
+to sophisticated multi-agent frameworks. This definition includes      2.4    Code Smell Detection with PyExamine
+both atomic workflows—such as prompting a model like Gemini            To systematically evaluate the structural quality of generated code,
+to generate a single function—and complex orchestrations where         we employ PyExamine, a static analysis tool designed to detect
+multiple agents collaborate to synthesize entire software systems.     code smells at the code, structure, and architectural levels [18].
+
+=== [PDF page 3] ===
+
+AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development
+
+
+PyExamine identifies specific patterns that indicate violations of                    second phase (Experiment II), we expand the scope to multi-agent
+fundamental software design principles. We focus on the following                     systems using MetaGPT, challenging the agents to generate com-
+set of code smells detected by the tool.                                              plete, multi-file software repositories based on specific product
+                                                                                      requirements. By contrasting these two scenarios, we aim to isolate
+   Code Level Smell: Code level smells are implementation arti-
+                                                                                      the impact of system complexity on the accumulation of technical
+facts that violate coding best practices within a local scope (intra-
+                                                                                      debt. The remainder of this section details the experimental setup,
+procedural). They typically indicate that a specific piece of logic
+                                                                                      the data generation process, and the specific static analysis tools
+is overly complex, difficult to read, or poorly formatted, making
+                                                                                      employed for smell detection.
+it hard for other developers to understand or modify that specific
+function without introducing bugs [13].
+                                                                                      3.1        Experiment I Setup
+   Structural Code Smell: In contrast to code-level smells which are                 This experiment evaluates the code quality of LLM-generated so-
+localized to individual methods, structural code smells manifest                     lutions across varying levels of prompt guidance. We generated
+at the class or object level, reflecting deeper flaws in the system’s                Python solutions for a curated set of algorithmic problems under
+object-oriented design. These smells arise from the improper orga-                   two distinct conditions: Zero-Shot and Few-Shot. This design mir-
+nization of relationships between entities, often signaling violations               rors the methodology of Santa et al. [17], with the modification that
+of fundamental principles such as encapsulation, coupling, and co-                   we focus exclusively on off-the-shelf models rather than fine-tuned
+hesion. While code-level issues primarily affect the readability of                  variants.
+specific logic blocks, structural smells degrade the software’s main-                   The Zero-Shot condition serves as a baseline, instructing the
+tainability by making classes overly complicated or functions overly                 model to solve the problem with minimal context. The Few-Shot
+coupling with each other. Consequently, the presence of structural                   condition introduces structured guidance, including coding specifi-
+smells indicates a rigid design that is difficult to extend or refactor              cations, best practices, and boilerplate examples. To quantify the
+without causing ripple effects throughout the code base [13].                        quality of the output, we employed PyExamine [18], a static analy-
+   Architectural code smells: Architectural code smells are defined                  sis tool capable of detecting a wide range of Python-specific code
+as recurring architectural design decisions that negatively impact                   smells. By comparing the density and distribution of smells across
+the internal quality, understandability, and maintainability of a soft-              these two conditions, we aim to determine whether explicit prompt
+ware system. While code level smells (e.g., LM) manifest within                      engineering effectively mitigates the introduction of technical debt
+specific implementation blocks and structural code smells charac-                    in algorithmic code generation.
+terize improper coupling between individual classes, architectural
+                                                                                     3.1.1 LLMs In The Analysis. To ensure the generalizability of our
+smells operate at the highest level of abstraction. They describe
+                                                                                     findings, we selected a diverse set of Large Language Models (LLMs)
+problematic dependencies and relationships between large-scale
+                                                                                     spanning different architectures (Dense vs. Mixture-of-Experts),
+system components, packages, or namespaces. Common examples,
+                                                                                     access types (Proprietary vs. Open Source), and parameter scales.
+such as Cyclic Dependencies or God Objects, represent a divergence
+                                                                                     The selected models are:
+between the intended architecture and the actual implementation.
+                                                                                        Gemini 2.5 Pro: A state-of-the-art, proprietary flagship model
+Consequently, whereas code and structural smells can often be mit-
+                                                                                     from Google known for its advanced reasoning and coding capa-
+igated through localized refactoring, architectural smells typically
+                                                                                     bilities. It is designed to handle complex problems and can process
+span the system’s macroscopic structure, necessitating more inva-
+                                                                                     information from various formats, including entire code reposito-
+sive and costly remediation efforts to address technical debt [13].
+                                                                                     ries
+   While code smells are well-studied in human-written software,
+                                                                                        Llama 3.3:70b: A high-performance 70-billion-parameter open-
+the design habits of autonomous coding agents remain largely
+                                                                                     source model from Meta. This model is recognized for its efficiency,
+unexplored. Most current research focuses on whether AI-generated
+                                                                                     offering performance comparable to much larger models, and fea-
+code functions correctly, often overlooking deeper structural issues.
+                                                                                     tures improvements in math and coding.
+This leaves a significant gap in our understanding of how agents
+                                                                                        deepseek-coder-v2:16b: An open-source, code-specialized Mixture-
+manage complexity and technical debt in larger projects. To address
+                                                                                     of-Experts (MoE) model that is highly efficient, with 16 billion total
+this, we conducted a comparative study to analyze the quality
+                                                                                     parameters (2.4 billion active). It is designed to rival the perfor-
+of code produced by both single and multi-agent systems. The
+                                                                                     mance of closed-source models on code-specific tasks and supports
+following section details our methodology and explains how we
+                                                                                     over 338 programming languages.256
+detected and measured these architectural flaws.
+                                                                                        qwen3-coder:30b and qwen3-coder:480b: A series of agentic
+                                                                                     coding models from Alibaba’s Qwen team, built on a Mixture-of-
+3    Methodology                                                                     Experts (MoE) architecture. We include two versions to analyze the
+To comprehensively evaluate the code quality and structural habits                   impact of scale: a 30B parameter model (3.3B active) and a large-
+of autonomous agents, we designed a two-phase experimental                           scale 480B parameter model (35B active). Both are state-of-the-art
+methodology. This dual approach allows us to investigate code                        open models designed for exceptional performance in coding and
+smells across two distinct dimensions: algorithmic logic and ar-                     agentic tasks.
+chitectural design. In the first phase (Experiment I), we utilize the
+CodeContest dataset to analyze how individual Large Language                          3.1.2 Data Curation. We utilized the CodeContest dataset [11], a
+Models (LLMs) handle isolated, algorithmic coding tasks. In the                       comprehensive benchmark comprising competitive programming
+
+=== [PDF page 4] ===
+
+                                                                                                    Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+
+
+problems aggregated from various platforms. To create a represen-     3.1.4 Code Smell Detection and Data Analysis. To perform a quan-
+tative evaluation set for our experiments, we randomly sampled 90     titative and objective assessment of the code quality of the agent-
+unique coding problems from the dataset. These problems encom-        generated code, we implemented a systematic code smell detection
+pass a diverse range of algorithmic challenges and logic require-     process.
+ments, providing a broad basis for evaluating the code generation
+capabilities of the selected LLMs. The code to generate the same         Tool Selection: PyExame. For this task, we leveraged PyExamine[18],
+random sample is provided in the replication package [1].             a robust and un-opinionated static analysis tool specifically de-
+                                                                      signed for detecting code smells in Python source code. PyExamine
+3.1.3 The Prompts. We applied two distinct prompting strategies
+                                                                      was chosen for several key reasons:
+to generate solutions for the selected problems:
+
+   Condition A: Zero-Shot (Baseline). This condition replicates the        • Comprehensive Detection: It supports a wide array of well-
+prompt structure used by Santa et al. [17], providing the model              documented code smells, from simple anti-patterns like
+with the problem description and a minimal instruction to generate           Long Method and Large Class to more complex design
+a solution.                                                                  issues.
+                                                                           • Static Analysis: As a static analysis tool, PyExamine exam-
+                                                                             ines the source code without executing it. This is crucial
+                 Listing 1: Zero-Shot Prompt
+                                                                             for our experiment, as it allows for a safe and consistent
+Generate a Python code (only one solution) to solve                          analysis of all generated code, regardless of its functional
+    this question.                                                           correctness or dependencies.
+                                                                           • Objectivity and Repeatability: By automating the detection
+   Condition B: Few-Shot (Structured). To assess the impact of con-          process with a standardized tool, we ensure that the eval-
+text on code hygiene, the second condition utilizes a structured             uation is objective, consistent, and repeatable across all
+prompt. This prompt explicitly defines coding standards, requests            generated solutions, eliminating the subjectivity of manual
+adherence to best practices, and provides a boilerplate example to           code reviews.
+guide the model’s architectural decisions.
+                                                                         Detection and Analysis Process. Our code smell detection work-
+                  Listing 2: Few-Shot Prompt                          flow was executed as follows for every solution generated by each
+AGENT CONFIGURATION: Python Programmer                                LLM:
+
+                                                                          (1) Code Isolation: The Python code generated by the LLM in
+[ROLE]                                                                        response to a problem prompt was saved as an individual
+You are a highly specialized code generation agent.                           .py source file.
+    \\                                                                    (2) Automated Execution: A script was used to systematically
+Your sole purpose is to solve programming problems by                         run PyExame on each of the generated source files. The
+     writing Python code.                                                     tool parsed the code to apply its detection heuristics and
+                                                                              rules.
+[OUTPUT SPECIFICATION]                                                    (3) Data Extraction: For each analysis, PyExame produced a
+- The response MUST be a single, raw Python code                              structured report detailing every code smell instance it iden-
+                                                                              tified. This report included the specific type of smell (e.g.,
+     block.
+                                                                              Long Method, Feature Envy), its precise location within the
+- DO NOT include any text, markdown formatting,\\
+                                                                              code (line number), and associated metrics.
+  comments, or explanations before or after the code.                     (4) Aggregation and Quantification: The raw data from these
+- The code MUST be runnable as-is.                                            reports was aggregated to build a quantitative profile for
+                                                                              each solution. The primary metrics we collected were the
+[ENTRY POINT DEFINITION]                                                      total count of code smells per solution and the frequency
+- All code MUST be encapsulated within the following                          distribution of each smell type.
+     boilerplate.
+  The core logic resides inside the `solution` method.                   To establish a comparative baseline aligned with the methodol-
+                                                                      ogy of Santa et al. [17], we also subjected human-authored solutions
+                                                                      to the same smell detection pipeline. For each of the 90 problems in
+- The `input` and `output` types are fixed to `str`.
+                                                                      our dataset, we randomly sampled a verified single Python submis-
+  Type conversions must be handled internally.                        sion to serve as a control. We then aggregated the metrics from this
+                                                                      human baseline alongside the results from each LLM and prompting
+[BOILERPLATE]                                                         strategy. This data-driven framework facilitates a rigorous com-
+def solution(self, input: str) -> str:                                parative analysis, enabling us to quantify the quality gap between
+    # --- Your implementation begins here ---                         human and machine-generated code and to isolate the specific
+                                                                      impact of structured prompting on software maintainability.
+
+=== [PDF page 5] ===
+
+AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development
+
+
+3.2      Experiment II Setup                                                              (5) Scenario E: Enterprise Backend (Online Bookstore).
+While Experiment I focuses on algorithmic correctness, Experi-                                The most complex test case, requiring the simulation of a
+ment II evaluates the capacity of multi-agent systems to maintain                             full backend system with relational entities (books, authors,
+architectural integrity in full-scale software projects. We utilized                          customers), inventory management, and sales reporting.
+MetaGPT [10], a multi-agent framework, to synthesize complete
+                                                                                          Prompt Evolution Example. To illustrate the incremental spec-
+Python software repositories based on high-level product require-
+                                                                                      ification strategy, the four developmental stages for Scenario A
+ments.
+                                                                                      are detailed below. Note how requirements for logic, UI, and data
+   Unlike the first experiment, which varied prompting strategies
+                                                                                      structures are layered sequentially:
+(Zero-Shot vs. Few-Shot), this experiment maintains a consistent
+prompting approach while varying the complexity of the require-                             • Stage 1 (Base): make a crossy road game in python using
+ments. Each prompt instructs the multi-agent system to construct                              pygame. Use OOP paradigm, modularize the objects and
+a self-contained application, explicitly requiring the use of Object-                         files
+Oriented Programming (OOP) principles and modular file struc-                               • Stage 2 (+Logic): make a crossy road game in python using
+tures. Following generation, we collected the complete directory                              pygame. Make it become gradually harder. In the beginning
+structures—including source code, configuration files, and docu-                              it must be very easy. Use OOP paradigm, modularize the
+mentation—and analyzed them using PyExamine. In this context,                                 project
+PyExamine is utilized to detect not only low-level code smells but                          • Stage 3 (+UI/State): make a crossy road game in python
+also high-level architectural anomalies, such as improper coupling                            using pygame. Make it become gradually harder. In the
+across modules.                                                                               beginning it must be very easy. I also want a menu that
+   To facilitate future research, we have compiled the generated                              shows different levels, so it’s not one infinite loop game.
+repositories and the corresponding prompt set into a benchmarking                             Use OOP paradigm, modularize the project
+dataset, which will be released alongside this paper.                                       • Stage 4 (+Economy/Complex Integration): make a crossy
+                                                                                              road game in python using pygame. Make it become gradu-
+3.2.1 Test Scenarios and Complexity. For this evaluation, we em-                              ally harder. In the beginning it must be very easy and slow.
+ployed the Qwen-Coder 480B model as the underlying LLM for the                                I also want a menu that shows different levels, so it’s not
+MetaGPT agents. We designed five distinct application scenarios to                            one infinite loop game. Add coins to the game that you
+serve as test cases, spanning domains from interactive gaming to                              can collect, and later use them in menu to buy different
+enterprise-grade data management systems.                                                     skins/colors. Use OOP paradigm, modularize the project
+   Preliminary trials indicated that without explicit architectural                      By diversifying the domain complexity (Games vs. Utilities vs.
+constraints, agents frequently defaulted to creating monolithic                       Systems) and applying this graduated prompting pressure, we
+scripts or "God Classes"—a severe code smell. To mitigate this,                       successfully leveraged MetaGPT to generate full-scale software
+we engineered the prompts to strictly enforce modularization and                      projects with intricate directory structures. The full set of prompts
+separation of concerns. Furthermore, to simulate the realistic lifecy-                for each scenario can be found in the publicly available replication
+cle of software evolution, we adopted an incremental specification                    package [1].
+strategy. For each of the five scenarios, we developed a sequence
+of four prompts with progressively increasing complexity. This                        3.2.2 Code Smell Detection and Metric Collection. To maintain
+longitudinal approach allows us to observe how the agent’s archi-                     methodological consistency, we employed the same static analysis
+tectural decisions degrade or adapt as new features and constraints                   pipeline as Experiment I, utilizing PyExamine [18] to identify code,
+are injected into the system.                                                         structural and architectural smells within the MetaGPT-generated
+   The five test scenarios are defined as follows:                                    repositories. However, given the macroscopic nature of Experiment
+                                                                                      II (full-scale projects versus isolated scripts), we expanded our data
+      (1) Scenario A: Game Development (Crossy Road). Fo-                             collection to include structural and process metrics.
+          cuses on the evolution of game logic, starting from a basic                     For each generated application, we recorded the Total Number
+          prototype and advancing to a complex system with diffi-                     of Files (ToF) and the Total Lines of Code (TLoC) to quantify
+          culty scaling, menu navigation, and an in-game currency                     project size and complexity. TLoC measurements were standardized
+          economy.                                                                    using the open-source utility cloc [6]. Additionally, to correlate code
+      (2) Scenario B: Utility Tool (Flashcard App). Tracks the                        quality with the effort exerted by the multi-agent system, we logged
+          transition of a simple study tool into a robust GUI appli-                  the Agent Action Count (AAC)—defined as the total number
+          cation featuring user profiles, theming (light/dark modes),                 of operational steps executed by MetaGPT to fulfill the prompt
+          and configurable spaced-repetition algorithms.                              requirements. Collecting these metrics allows us to normalize code
+      (3) Scenario C: Arcade Logic (Pacman). Evaluates the agent’s                    smell frequencies against project size, enabling a granular analysis
+          ability to implement collision detection, AI pathfinding, and               of smell density across varying levels of architectural complexity.
+          state management within an Object-Oriented framework.                           In summary, this dual-experiment design provides a holistic view
+      (4) Scenario D: Financial System (Personal Finance). A                          of the coding capabilities of modern AI systems. By synthesizing the
+          high-complexity scenario requiring a dual-interface appli-                  results from the isolated, algorithmic tasks of Experiment I and the
+          cation (CLI and Web Dashboard) for budget tracking, data                    complex, architectural challenges of Experiment II, we construct
+          persistence, and visualization.                                             a comprehensive dataset of agent-generated technical debt. This
+
+=== [PDF page 6] ===
+
+                                                                                                            Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+
+
+data enables us to move beyond simple correctness metrics and                4.1.2 Distinct "Fingerprints" of Technical Debt. Contrary to recent
+rigorously evaluate the maintainability of AI-written code. The              findings suggesting LLMs produce cleaner code [17], our results
+following section, Results and Discussion, presents our findings,            indicate that AI agents do not eliminate technical debt but rather
+detailing the specific patterns of code smells identified across the         shift its form.
+different models, prompting strategies, and architectural scales.               A clear dichotomy emerged: human authors showed a propensity
+                                                                             for state management smells, whereas LLMs introduced procedural
+4     Result and Discussion                                                  ones. The human baseline produced 4 instances of Temporal Field
+                                                                             (TF)—a pattern entirely absent in LLM outputs. A TF occurs when
+In this section, we present a detailed analysis of the code quality
+                                                                             a class-level variable is used by only a subset of methods, reflecting
+and architectural integrity exhibited by autonomous coding agents.
+                                                                             a common practice in competitive programming to define vari-
+We organize our findings to directly address the research questions
+                                                                             ables globally for quick state management at the cost of proper
+posed in the introduction. First, we examine the baseline perfor-
+                                                                             encapsulation.
+mance of LLMs on isolated algorithmic tasks (RQ1), quantifying
+                                                                                In contrast, LLMs—particularly the Qwen series and Gemini-2.5-
+the density of code smells under varying prompting conditions.
+                                                                             pro were prone to the Long Method (LM) smell. Qwen-coder-480B,
+Second, we investigate how the transition to complex, multi-agent
+                                                                             for instance, generated 11 LMs in a zero-shot setting, while the
+system generation impacts architectural health (RQ2), identifying
+                                                                             human baseline produced only one. This reveals a fundamental
+specific degradation patterns in larger codebases. Finally, we con-
+                                                                             trade-off: humans tend to fragment state (TF) while keeping meth-
+struct a taxonomy of the most prevalent smells observed across
+                                                                             ods concise, whereas LLMs encapsulate state correctly but often fail
+both experiments (RQ3), offering insights into the inherent ’coding
+                                                                             to decompose complex procedures into smaller helper functions.
+habits’ of current AI models. The section concludes with a discus-
+sion on the implications of these findings for the future design of          4.1.3 The Inefficacy of Few-Shot Prompting for Decomposition. A
+self-correcting software agents.                                             comparison of Table 1 and Table 2 reveals that structured few-shot
+                                                                             prompting yielded no meaningful improvement in code hygiene.
+4.1      Result From Experiment I                                               After excluding noise from FE and PSS metrics, the prevalence
+                                                                             of LM remained stagnant or even worsened. For Qwen-coder-480B,
+The count of detected code smells is detailed in Table 1 for the
+                                                                             LMs increased from 11 (Zero-Shot) to 13 (Few-Shot), and for Gemini-
+Zero-Shot condition and in Table 2 for the Few-Shot condition.
+                                                                             2.5-pro, they rose from 5 to 8.
+   The detection frequencies presented in Tables 1 and 2 reveal
+                                                                                We hypothesize that this is because it is difficult to demonstrate
+that LLMs and human developers introduce distinct patterns of
+                                                                             the absence of smells through static examples. Without explicit neg-
+code smells. We analyze these findings by examining the validity
+                                                                             ative constraints (e.g., "Do not write functions longer than 20 lines"),
+of our analysis tool, comparing human and AI-generated code, and
+                                                                             the models may interpret the additional context in the prompt
+evaluating the impact of model scale.
+                                                                             as a signal to generate more comprehensive—and thus more ver-
+4.1.1 Validity of Static Analysis in Algorithmic Contexts. Before            bose—solutions, inadvertently exacerbating the LM smell.
+analyzing aggregate trends, we manually audited flagged instances            4.1.4 A Shift From State To Procedural Defects. The analysis above
+to validate the precision of PyExamine for single-file algorithmic           confirms that LLMs do not eliminate technical debt but instead
+solutions.                                                                   introduce a distinct "machine signature" of defects that differs fun-
+   Threshold-based metrics—specifically Long Method (LM) and                 damentally from that of human developers. A clear dichotomy exists
+Long File (LF)—demonstrated high precision, correctly identifying            between human and agent-generated code. The human baseline
+functions and files that violated standard length recommendations.           frequently exhibited Temporal Fields (TF), indicating issues with
+   However, we identified a systematic rate of False Positives (FP)          state encapsulation. In contrast, code-generating agents showed a
+for Feature Envy (FE) and Potential Shotgun Surgery (PSS) in this            strong propensity for the Long Method (LM) smell. This tendency
+experimental context.                                                        scales with model size; for instance, Qwen-Coder-480b generated
+      (1) Feature Envy (FE): PyExamine flags functions making fre-           11 LMs in the zero-shot setting, while the human baseline produced
+          quent calls to an external object. In our algorithmic setting,     only one.
+          where helper objects (e.g., graph structures) are locally in-
+                                                                             4.1.5 The Complexity of Failure in Large Models. Our analysis high-
+          stantiated, the tool misinterpreted legitimate method chain-
+                                                                             lights a nuanced relationship between model scale and the LM smell.
+          ing on these local variables as improper coupling.
+                                                                             When coding tasks proved too difficult for all models, the structural
+      (2) Potential Shotgun Surgery (PSS): The tool flags high-
+                                                                             characteristics of their failed attempts diverged significantly.
+          frequency usage of a callable as a PSS risk. It flagged the
+                                                                                Larger models like Qwen-coder-480B and Gemini-2.5-pro ex-
+          native Python range() function, which is fundamental to
+                                                                             hibited a higher density of LMs in their non-functional solutions.
+          iteration in algorithmic code, creating a false positive. While
+                                                                             Manual inspection reveals this stems from their superior reasoning
+          this heuristic is effective for detecting high coupling in large
+                                                                             capacity; even in failure, they attempt to construct a comprehensive
+          systems, it is not applicable here.
+                                                                             solution with extensive logic for edge cases, resulting in lengthy
+   Consequently, our analysis prioritizes all metrics except FE and          function bodies. In contrast, smaller models like Llama-3-70b tended
+PSS, as they provide the most reliable indicators of maintainability         to generate concise but fundamentally inadequate code. Thus, the
+in this context.                                                             presence of LMs in large models can serve as a proxy for attempted
+
+=== [PDF page 7] ===
+
+AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development
+
+
+Table 1: A comparison of code smell frequencies from the Zero-Shot experiment. The table highlights a fundamental difference
+between AI and human-generated code. While metrics like Feature Envy (FE) and Potential Shotgun Surgery (PSS) were found to
+be unreliable in this algorithmic context, two patterns stand out: a high incidence of Long Method (LM) smells in LLM-generated
+code (e.g., 11 instances for Qwen-Coder-480b) and the exclusive appearance of Temporal Field (TF) smells (4 instances) in the
+human baseline.
+
+                                Model                           LM     FE     PSS     EC     TF     HCC    HFI    LF    TMB
+                                deepseek-coder-v2(16b)          2      6      0       0      0      0      2      0     0
+                                Llama3 (70b)                    0      1      0       0      0      0      0      0     0
+                                Qwen Coder(30b)                 7      3      2       3      0      0      0      2     0
+                                Qwen Coder(480b)                11     9      1       0      0      0      2      0     1
+                                Gemini-2.5-pro                  5      6      0       0      0      1      1      0     1
+                                Human Baseline                  1      4      0       0      4      0      1      0     1
+
+Table 2: Raw counts of detected code smells for each model under the Few-Shot prompting condition. The data indicates that
+the fundamental defect patterns observed in the Zero-Shot experiment persist. The primary conclusion is that the few-shot
+examples failed to reduce the generation of Long Method (LM) smells, demonstrating the limitations of prompting for enforcing
+code quality.
+
+                                Model                           LM     FE     PSS     EC     TF     HCC    HFI    LF    TMB
+                                deepseek-coder-v2(16b)          2      3      0       0      0      0      1      0     0
+                                Llama3 (70b)                    0      2      2       0      0      0      0      0     1
+                                Qwen Coder(30b)                 7      3      0       1      0      0      0      0     0
+                                Qwen Coder(480b)                13     4      1       0      0      0      2      0     1
+                                Gemini-2.5-pro                  8      7      0       0      0      0      1      0     0
+                                Human Baseline                  1      4      0       0      4      0      1      0     1
+
+
+reasoning, while their absence in smaller models may simply indi-                     4.2        Result From Experiment II
+cate a failure to engage with the problem’s complexity.                              4.2.1 Shift in Code Smell Taxonomy. In Figure 1, we plot the distri-
+                                                                                     bution of significant code smells detected in Experiment II.
+4.1.6 The Reasoning-Complexity Paradox. We observed a counter-                          In contrast to Experiment I, where algorithmic tasks primarily in-
+intuitive relationship where greater model capability did not corre-                 duced Long Method (LM) smells, the complex system generation in
+late with cleaner code. Instead, it correlated with method bloat.                    Experiment II triggers a distinct shift towards structural and archi-
+      • High-Capacity Models: Large models (e.g., Qwen-480b,                         tectural defects. As illustrated in Figure 1, the most prevalent smells
+        Gemini-2.5-pro) attempt to handle complex edge cases with                    are now Too Many Branches (TMB), High Response for a Class
+        extensive procedural logic, often consolidating it into a                    (RFC), Potential Improper API Usage (PAU), Scattered Functionality
+        single block and triggering LM alerts.                                       (SF), and Unstable Dependencies (UD). Their consistent appearance
+      • Low-Capacity Models: Smaller models often fail function-                     across all stages and scenarios points to systemic limitations in the
+        ally before generating enough code to violate length-based                   agent’s design capabilities, not isolated errors.
+        smell thresholds.                                                             4.2.2 The "God Class" Syndrome (TMB & RFC). The most preva-
+                                                                                      lent smells were Too Many Branches (TMB) and High Response
+   Therefore, in this context, high code density in LLM-generated
+                                                                                      for a Class (RFC), indicating a systemic failure in responsibility
+solutions is not just a flaw but can also be a proxy for the model’s
+                                                                                      distribution. The agent tends to centralize complex logic into sin-
+attempt at rigorous reasoning, albeit at the cost of readability and
+                                                                                      gular "manager" classes rather than delegating behavior, resulting
+modularity.
+                                                                                      in brittle, tightly coupled components that are difficult to test.
+                                                                                      4.2.3 Redundant Implementation (PAU). Potential Improper API
+   Findings For RQ1: A Shift in Technical Debt Our analysis
+                                                                                      Usage (PAU) appears frequently, revealing a critical lack of local
+   reveals a fundamental dichotomy in technical debt. Human
+                                                                                      abstraction. Instead of encapsulating external interactions into
+   developers introduce state-management defects (e.g., Tem-
+                                                                                      reusable helper methods, the agent repeatedly rewrites invoca-
+   poral Fields), while AI agents shift from state to procedural
+                                                                                      tion logic inline, mirroring a "copy-paste" coding style that inflates
+   defects“ and exhibit a “Reasoning-Complexity Paradox”: more
+                                                                                      code volume and complicates maintenance.
+   capable models introduce procedural bloat (e.g., Long Method)
+   as they attempt to handle complex logic, resulting in denser,                      4.2.4 The Modular Mirage (SF & UD). The co-occurrence of Scat-
+   less maintainable code.                                                            tered Functionality (SF) and Unstable Dependencies (UD) highlights
+                                                                                      a key limitation in agent reasoning. While the agent successfully
+
+=== [PDF page 8] ===
+
+                                                                                                       Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+
+
+
+
+Figure 1: Distribution of Code Smell Counts. This box plot illustrates the distribution of counts for the most prevalent code
+smells, sorted in descending order by their mean value. Each box represents the interquartile range (IQR), with the central line
+denoting the median and the whiskers extending to 1.5 times the IQR. Points beyond the whiskers are plotted as individual
+outliers. The abbreviations for the code smells are as follows: TMB (Too Many Branches), PAU (Potential Improper API Usage),
+UD (Unstable Dependency), SF (Scattered Functionality), RFC (High Response for a Class), HCC (High Cyclomatic Complexity),
+TF (Temporal Field), and LCM (High Lack of Cohesion of Methods).
+
+
+splits code into multiple files (structural modularity), it fails to        Given our sample size, we employed non-parametric statistical
+achieve semantic cohesion. Related behaviors become fragmented           methods to identify key factors to predict existence of code smells.
+across the codebase, creating a "modular mirage" where file separa-      Given our relatively small sample size, the assumptions underlying
+tion does not equate to logical separation.                              traditional parametric tests—such as normal distribution and homo-
+   These findings demonstrate that current agents achieve modu-          geneity of variance—are frequently violated and difficult to robustly
+larity only at a superficial, structural level. The dominance of these   verify. To mitigate the risk of Type I errors and ensure the validity
+smells confirms that quality limitations stem from how agents or-        of our findings, we utilized rank-based, distribution-free techniques.
+ganize responsibilities and control flow, not merely from how they       We used Spearman’s Rank Correlation (𝜌) to assess monotonic re-
+write syntax. Future LLM-based systems must therefore incorporate        lationships between continuous variables (e.g., TLoC and smell
+explicit architectural constraints to mitigate these deficiencies.       counts) and the Kruskal-Wallis H-test for categorical factors (e.g.,
+                                                                         Scenario and Stage). The results are presented in Table 3.
+
+                                                                         4.3.1 The Volume-Quality Inverse Law. Our analysis revealed that
+   Finding for RQ2: A Shift to Architectural Rot. As tasks scale
+                                                                         code volume is the single strongest predictor of quality degrada-
+   from algorithms to systems, the agent’s defect profile shifts
+                                                                         tion. Total Lines of Code (TLoC) showed a moderate positive
+   from procedural bloat to architectural decay. Our analysis
+                                                                         correlation with code-level smells (𝜌 = 0.53, 𝑝 = 0.017), which
+   reveals that the top 5 most frequent defects are now structural
+                                                                         strengthened for structural smells (𝜌 = 0.59, 𝑝 = 0.007). Most sig-
+   and architectural smells, including "God Classes" (TMB & RFC)
+                                                                         nificantly, TLoC exhibited a near-perfect positive correlation with
+   and the "Modular Mirage" (SF & UD), indicating a systemic
+                                                                         architectural smells (𝜌 = 0.94, 𝑝 < 0.001). The Total Number
+   failure to manage complexity.
+                                                                         of Files (ToF) was also a strong predictor of architectural decay
+                                                                         (𝜌 = 0.72, 𝑝 < 0.001). These findings establish a "Volume-Quality
+                                                                         Inverse Law": as the agent generates more code and files, its ability
+                                                                         to maintain a coherent architectural vision collapses.
+4.3    Identifying the Drivers of Architectural
+       Decay                                                             4.3.2 The Impact of Domain and Prompt Specificity. The applica-
+To validate our qualitative observations, we performed a statistical     tion domain (Scenario) also significantly impacted architectural
+analysis to identify the key factors driving quality degradation. We     quality (𝐻 = 9.86, 𝑝 = 0.043), confirming that certain problem types
+measured code complexity using the Total Number of Files (ToF)           are inherently more prone to architectural failure when handled by
+and Total Lines of Code (TLoC), and categorized defects into code-,      the agent. Counter-intuitively, the specificity of requirements
+structural-, and architectural-level smells.                             (Stage) had no statistical impact on any smell category (𝑝 > 0.8).
+
+=== [PDF page 9] ===
+
+AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development
+
+
+Table 3: Statistical Analysis of Factors Affecting Code Smell                        than the complete corpus. While we ensured a balanced distribution
+Counts.                                                                              across difficulty levels (Easy, Medium, Hard), a smaller sample size
+For Categorical factors (Scenario, Stage), values represent                          may not fully capture the long-tail distribution of algorithmic edge
+Kruskal-Wallis 𝐻 statistic (𝑝-value).                                                cases. Consequently, there may be specific problem types where
+For Continuous factors, values represent Spearman’s Rank                             model performance diverges from our observed trends. We intend
+Correlation 𝜌 (𝑝-value).                                                             to scale this analysis to the full dataset in future work to verify the
+Bold values indicate statistical significance (𝑝 < 0.05).                            statistical significance of these findings.
+                                                                                        Generalizability of Agent Frameworks: Experiment II fo-
+     Factor                Code        Structural       Architectural                cuses exclusively on MetaGPT as the representative multi-agent
+                                                                                     framework, because it is a state-of-the-art fully automated code
+     Categorical Factors (Kruskal-Wallis H-test)
+                                                                                     generating AI system at the time we conduct this research. The
+     Scenario       6.83 (0.145)       8.51 (0.075)       9.86 (0.043)*              landscape of AI software generation is rapidly evolving with the
+     Stage          0.33 (0.955)       0.62 (0.892)         0.84 (0.840)             emergence of new tools such as SpecKit [7] and Cursor Composer.
+                                                                                     These systems may employ different orchestration logic or context-
+     Continuous Factors (Spearman Correlation 𝜌)
+                                                                                     management strategies that could influence the architectural quality
+     ToF            0.33 (0.153)       0.06 (0.804)     0.72 (<0.001)*               of the generated software. Therefore, our findings regarding archi-
+     TLoC         0.53 (0.017)*      0.59 (0.007)*      0.94 (<0.001)*               tectural degradation in multi-agent systems should be interpreted
+     ALpF           0.23 (0.329)     0.57 (0.009)*          0.30 (0.201)             as specific to the MetaGPT paradigm, though likely indicative of
+                                                                                     broader challenges in current agentic workflows. Extending this
+                                                                                     benchmark to cover these emerging platforms remains a critical
+This critical finding implies that simply providing more detailed                    direction for future research.
+prompts is insufficient to mitigate architectural decay, pointing to
+a bottleneck in the agent’s internal reasoning capacity rather than
+the external specification.                                                           6     Conclusion and Remarks
+                                                                                     This study investigated the structural quality of AI-generated soft-
+    Finding for RQ3: Volume is the Primary Driver of Architectural                   ware, moving beyond functional correctness to audit the technical
+    Decay. Architectural complexity is the primary driver of qual-                   debt introduced by both single LLMs and autonomous multi-agent
+    ity degradation, governed by a “Volume-Quality Inverse Law.”                     systems. Our empirical analysis reveals that AI agents do not elimi-
+    We found a near-perfect correlation between Total Lines of                       nate code smells but rather introduce a distinct “machine signature”
+    Code and architectural smells (𝜌 = 0.94), while observing                        of defects that evolves with task complexity. In simple algorith-
+    that more detailed prompts had no statistical effect on quality                  mic tasks, we identified a Reasoning-Complexity Trade-off,
+    (𝑝 > 0.8).                                                                       where more capable models generate bloated procedural logic (Long
+                                                                                     Method) in their pursuit of comprehensive solutions. As complexity
+                                                                                     scales to multi-file system generation, this defect pattern shifts to
+5     Threats to Validity                                                            severe architectural flaws, including “God Classes” and a “Mod-
+                                                                                     ular Mirage”—a superficial structural modularity that lacks true
+We identify several potential threats to the validity of our study                   semantic cohesion.
+and discuss the mitigation strategies employed to address them.                         We established a Volume-Quality Inverse Law, demonstrating
+                                                                                     that code volume is a near-perfect predictor of architectural decay,
+5.1     Internal Validity                                                            a trend that better prompting fails to mitigate. These findings lead
+A potential limitation in Experiment I is the absence of an iterative                us to conclude that current agents operate as proficient “junior
+"validate and correct" execution loop. Due to computational budget                   developers”: they follow instructions with syntactic precision but
+constraints, we evaluated the code quality of the initial solutions                  lack the “senior architect” foresight needed to manage system-wide
+generated by the LLMs without providing them an opportunity to                       dependencies and maintain a coherent architectural vision.
+debug functional errors based on test case feedback. It is possible
+that an iterative process could lead to structural changes in the code.
+However, we argue that this design decision does not compromise                       6.1        Remarks on the Study
+our core conclusions. Our research objective is to characterize the                  The primary strength of this paper lies in its dual-experiment
+inherent coding habits and structural tendencies of the models. The                  methodology, which allows for a multi-scale analysis of techni-
+presence of code smells—such as Long Method or Temporal Fields—in                    cal debt. By contrasting isolated algorithmic tasks with complex
+the initial output serves as a direct indicator of the model’s training              system generation, we successfully isolated how the nature of AI-
+bias and architectural capability, regardless of whether the solution                generated defects shifts with architectural complexity. Furthermore,
+passes all functional test cases immediately.                                        our focus on a well-defined taxonomy of code smells, rather than
+                                                                                     aggregate quality scores, provides a granular and interpretable view
+5.2     External Validity                                                            of the specific design “habits” of autonomous agents.
+Dataset Size and Diversity: In Experiment I, we utilized a strat-                       However, our study has limitations. The analysis in Experiment
+ified sample of 90 problems from the CodeContest dataset rather                      I was conducted without an iterative debugging loop, meaning
+
+=== [PDF page 10] ===
+
+                                                                                                               Yue Cai Zhu, Nikolaos Tsantalis, Peter C. Rigby
+
+
+the results reflect the models’ inherent biases at first-pass gener-      LLMs. We also include the prompts for experiment II, as well as
+ation. While this design choice was intentional to capture initial        the script to process the generated code and report the results. A
+coding tendencies, it does not account for the potential of agents        README file is provided in the package to instruct users how to
+to self-correct structural flaws when provided with test feedback.        use the package to replicate the experiments.
+In Experiment II, our findings are based on a single multi-agent
+framework (MetaGPT). Although MetaGPT[10] is a state-of-the-art
+representative at the time we conduct the research, the architectural
+                                                                          References
+                                                                           [1] Annonymous. 2026. Replication Package. https://doi.org/10.5281/zenodo.
+patterns we observed may be specific to its Standard-Operating-                19245562.
+Procedure-based paradigm. The rapidly evolving landscape of agen-          [2] Fraol Batole, David OBrien, Tien Nguyen, Robert Dyer, and Hridesh Rajan.
+tic workflows warrants caution when generalizing these findings                2025. An LLM-Based Agent-Oriented Approach for Automated Code Design
+                                                                               Issue Localization. In 2025 IEEE/ACM 47th International Conference on Software
+to all multi-agent systems.                                                    Engineering (ICSE). IEEE Computer Society, 637–637.
+                                                                           [3] G Ann Campbell and Patroklos P Papapetrou. 2013. SonarQube in action. Manning
+6.2    Future Research Directions                                              Publications Co.
+                                                                           [4] Mark Chen. 2021. Evaluating large language models trained on code. arXiv
+Our findings open several critical avenues for future research. The            preprint arXiv:2107.03374 (2021).
+                                                                           [5] Jonathan Cordeiro, Shayan Noei, and Ying Zou. 2024. An empirical study
+central challenge identified is no longer code generation but auto-            on the code refactoring capability of large language models. arXiv preprint
+mated complexity management. We encourage the community to                     arXiv:2411.02320 (2024).
+explore the following directions:                                          [6] Albert Danial. 2021. cloc: v1.92. doi:10.5281/zenodo.5760077
+                                                                           [7] Den Delimarsky. 2025. Diving Into Spec-Driven Development With GitHub Spec
+     • Development of Architecturally-Aware Agents: The                        Kit. developer.microsoft.com/ (September 2025). https://developer.microsoft.com/
+        inefficacy of prompting suggests a need for new agent ar-              blog/spec-driven-development-spec-kit
+                                                                           [8] Yihong Dong, Xue Jiang, Jiaru Qian, Tian Wang, Kechi Zhang, Zhi Jin, and Ge
+        chitectures. Future systems could incorporate an explicit              Li. 2025. A Survey on Code Generation with LLM-based Agents. arXiv preprint
+        “Architect” agent role, responsible for defining and enforc-           arXiv:2508.00083 (2025).
+        ing design constraints, or leverage techniques like constitu-      [9] Junda He, Christoph Treude, and David Lo. 2025. LLM-Based Multi-Agent
+                                                                               Systems for Software Engineering: Literature Review, Vision, and the Road
+        tional AI to instill design principles directly into the model.        Ahead. ACM Transactions on Software Engineering and Methodology 34, 5 (2025),
+     • Automated Refactoring and Architectural Self-Healing:                   1–30.
+                                                                          [10] Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu Zheng, Yuheng Cheng,
+        Our work highlights the need for automated tools that                  Ceyao Zhang, Jinlin Wang, Zili Wang, Steven Ka Shing Yau, Zijuan Lin, et al.
+        can detect and remediate AI-specific smells. Research into             2024. MetaGPT: Meta programming for a multi-agent collaborative framework.
+        “Refactoring Agents” that can identify issues like the “Mod-           International Conference on Learning Representations, ICLR.
+                                                                          [11] Yujia Li, David Choi, Junyoung Chung, Nate Kushman, Julian Schrittwieser, Rémi
+        ular Mirage” and propose large-scale refactoring operations            Leblond, Tom Eccles, James Keeling, Felix Gimeno, Agustin Dal Lago, Thomas
+        would be a significant contribution.                                   Hubert, Peter Choy, Cyprien de Masson d’Autume, Igor Babuschkin, Xinyun
+     • Longitudinal Benchmarking of Software Evolution:                        Chen, Po-Sen Huang, Johannes Welbl, Sven Gowal, Alexey Cherepanov, James
+                                                                               Molloy, Daniel Mankowitz, Esme Sutherland Robson, Pushmeet Kohli, Nando de
+        This study analyzed architectural decay across predefined              Freitas, Koray Kavukcuoglu, and Oriol Vinyals. 2022. Competition-Level Code
+        stages. A valuable next step would be to create benchmarks             Generation with AlphaCode. arXiv preprint arXiv:2203.07814 (2022).
+                                                                          [12] Bo Liu, Yanjie Jiang, Yuxia Zhang, Nan Niu, Guangjie Li, and Hui Liu. 2025. Ex-
+        that simulate continuous, open-ended software evolution,               ploring the potential of general purpose LLMs in automated software refactoring:
+        allowing researchers to study architectural rot over much              an empirical study. Automated Software Engineering 32, 1 (2025), 26.
+        longer timescales and under more dynamic conditions.              [13] Ran Mo, Yuanfang Cai, Rick Kazman, Lu Xiao, and Qiong Feng. 2019. Architecture
+                                                                               anti-patterns: Automatically detectable violations of design principles. IEEE
+     • Metrics for Semantic Cohesion: Our finding that agents                  Transactions on Software Engineering 47, 5 (2019), 1008–1028.
+        produce structurally modular but semantically fragmented          [14] Arpita Naik and RITHIKA RAJAN SHYLAJA. 2024. Enhancing Code Refac-
+        code underscores the need for new metrics. The develop-                toring in Python: Leveraging Large Language Models.                odr.chalmers.se
+                                                                               (2024). https://odr.chalmers.se/server/api/core/bitstreams/85d14e4b-13dc-40c7-
+        ment of automated measures that can quantify the semantic              bcea-1fe230875b45/content
+        cohesion of a codebase would be invaluable for evaluating         [15] Alexander Puma Pucho, Alexandre Mello Ferreira, Elder José Reioli Cirilo, and
+                                                                               Bruno BP Cafeo. 2025. Refactoring Python Code with LLM-Based Multi-Agent
+        the true quality of AI-generated architectures.                        Systems: An Empirical Study in ML Software Projects. In Simpósio Brasileiro de
+   Ultimately, bridging the gap between mere executability and                 Engenharia de Software (SBES). SBC, 678–684.
+                                                                          [16] Vasanth Rajendran, Dinesh Besiahgari, Sachin C Patil, Manjunath Chan-
+long-term maintainability is essential for the successful integra-             drashekaraiah, and Vishnu Challagulla. 2025. A Multi-Agent LLM Environment
+tion of autonomous agents into real-world software engineering                 for Software Design and Refactoring: A Conceptual Framework. In SoutheastCon
+practices.                                                                     2025. IEEE, 488–493.
+                                                                          [17] Alfred Santa Molison, Marcia Moraes, Glaucia Melo, Fabio Santos, and Wesley KG
+                                                                               Assunçao. 2025. Is LLM-Generated Code More Maintainable & Reliable than
+Acknowledgments                                                                Human-Written Code? arXiv e-prints (2025), arXiv–2508.
+                                                                          [18] Karthik Shivashankar and Antonio Martini. 2025. PyExamine: A Comprehen-
+Gemini 3.1 was used for editorial purposes.                                    sive, Un-Opinionated Smell Detection Tool for Python. In 2025 IEEE/ACM 22nd
+                                                                               International Conference on Mining Software Repositories (MSR). IEEE, 763–774.
+Data Availability Statement                                               [19] Shahbaz Siddeeq, Muhammad Waseem, Zeeshan Rasheed, Md Mahade Hasan,
+                                                                               Jussi Rasku, Mika Saari, Henri Terho, Kalle Makela, Kai-Kristian Kemell, and
+To facilitate reproducibility for future researchers who wish to               Pekka Abrahamsson. 2025. LLM-based Multi-Agent System for Intelligent Refac-
+                                                                               toring of Haskell Code. arXiv preprint arXiv:2506.19481 (2025).
+replicate or extend our results in this study, we provide the dataset     [20] Nalin Wadhwa, Jui Pradhan, Atharv Sonwane, Surya Prakash Sahu, Nagarajan
+and scripts in our replication package[1] at this url https://doi.org/         Natarajan, Aditya Kanade, Suresh Parthasarathy, and Sriram Rajamani. 2024.
+10.5281/zenodo.19245562. In this package, we include the Python                Core: Resolving code quality issues using llms. Proceedings of the ACM on
+                                                                               Software Engineering 1, FSE (2024), 789–811.
+scripts that download and preprocess the CodeContest dataset, as          [21] Yisen Xu, Feng Lin, Jinqiu Yang, Nikolaos Tsantalis, et al. 2025. Mantra: Enhanc-
+well as the scripts that replicate the experiment 1 with different             ing automated method-level refactoring with contextual rag and multi-agent llm
+
+=== [PDF page 11] ===
+
+AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development
+
+
+     collaboration. arXiv preprint arXiv:2503.14340 (2025).                                Foundations of Software Engineering. 695–707.
+[22] Jiyang Zhang, Pengyu Nie, Junyi Jessy Li, and Milos Gligoric. 2023. Multilin-    [23] Zibin Zheng, Kaiwen Ning, Yanlin Wang, Jingwen Zhang, Dewu Zheng, Mingxi
+     gual code co-evolution using large language models. In Proceedings of the 31st        Ye, and Jiachi Chen. 2023. A survey of large language models for code: Evolution,
+     ACM Joint European Software Engineering Conference and Symposium on the               benchmarking, and future trends. arXiv preprint arXiv:2311.10372 (2023).

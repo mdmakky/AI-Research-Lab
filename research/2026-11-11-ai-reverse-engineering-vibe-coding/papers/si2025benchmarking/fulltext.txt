@@ -1,0 +1,1120 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+               Design2Code: Benchmarking Multimodal Code Generation for Automated
+                                    Front-End Engineering
+
+                   Chenglei Si* 1 , Yanzhe Zhang∗2 , Ryan Li1 , Zhengyuan Yang3 , Ruibo Liu4 , Diyi Yang1
+                            1
+                              Stanford University, 2 Georgia Tech, 3 Microsoft, 4 Google DeepMind
+                                        clsi@stanford.edu, z_yanzhe@gatech.edu
+
+
+
+                                          Abstract                            the potential to democratize the development of
+                                                                              front-end web applications (Nguyen and Csallner,
+                       Generative AI has made rapid advancements
+                       in recent years, achieving unprecedented capa-         2015), allowing non-experts to build applications
+                       bilities in multimodal understanding and code          easily and quickly.
+                       generation. This can enable a new paradigm                While code generation from natural language
+                       of front-end development in which multimodal           instructions has advanced rapidly in recent years
+                       large language models (MLLMs) directly con-            (Yin and Neubig, 2017; Le et al., 2020; Li et al.,
+                       vert visual designs into code implementations.         2023), generating code implementation from user
+                       In this work, we construct Design2Code – the
+                                                                              interface (UI) design has not received much at-
+                       first real-world benchmark for this task. Specif-
+                       ically, we manually curate 484 diverse real-
+                                                                              tention due to a wide range of challenges, such
+                       world webpages as test cases and develop a set         as diversity in visual and text signals on the user
+                       of automatic evaluation metrics to assess how          interface and the vast search space in the result-
+                       well current multimodal LLMs can generate the          ing code. Beltramelli (2018) made a notable at-
+                       code implementations that directly render into         tempt back in 2017 with CNN and RNN models
+                       the given reference webpages, given the screen-        on a narrow set of simplistic UI designs. Over the
+                       shots as input. We also complement automatic           years, despite many follow-up attempts along this
+                       metrics with comprehensive human evaluations
+                                                                              quest (Robinson, 2019; Soselia et al., 2023), they
+                       to validate the performance ranking. To rigor-
+                       ously benchmark MLLMs, we test various mul-            are all constrained to simplistic or synthetic exam-
+                       timodal prompting methods on frontier models           ples with a narrow set of layout designs, hardly
+                       such as GPT-4o, GPT-4V, Gemini, and Claude.            useful for real-world front-end development appli-
+                       Our fine-grained break-down metrics indicate           cations. Until recently, the development of multi-
+                       that models mostly lag in recalling visual ele-        modal LLMs has entered a new era where large-
+                       ments from the input webpages and generating           scale pretrained models can process both visual and
+                       correct layout designs.
+                                                                              text input and generate text output for various visu-
+               1       Introduction                                           ally grounded tasks, with representative examples
+                                                                              like Flamingo (Alayrac et al., 2022), GPT-4V (Ope-
+               Implementing visual designs of websites into func-             nAI, 2023), and Gemini (Google, 2023). Such ad-
+               tional code is a challenging task as it requires un-           vancement has unlocked a brand new paradigm for
+               derstanding visual elements and their layouts and              this long-standing unsolved task: give the user’s
+               then translating them into structured code. Such de-           website design as an image input to the system to
+               pendencies on sophisticated skills have prevented              obtain the full code implementation that can render
+               many laypeople from building their own web ap-                 into the desired webpage in an end-to-end man-
+               plications, even when they have concrete ideas for             ner. To systematically and rigorously benchmark
+               what to build. Furthermore, the requirement for                current MLLMs on this task, we construct the first-
+               domain expertise complicates the whole webpage                 ever real-world benchmark Design2Code.
+               production pipeline, requiring collaboration among                To best reflect realistic use cases, we use real-
+               people with different skill sets and potentially caus-         world webpages (examples in Figure 1) in the wild
+               ing discrepancies between the intended design and              as our test examples rather than synthetically gen-
+               actual implementation. Effective automatic gener-              erated ones as in prior works (Soselia et al., 2023;
+               ation of functional code from visual designs has               Laurençon et al., 2024). We scrape webpages in
+                   *    Equal contribution.                                   the C4 (Raffel et al., 2019) validation set and per-
+                                                                           3956
+Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies
+                                                        (Volume 1: Long Papers), pages 3956–3974
+                                         April 29 - May 4, 2025 ©2025 Association for Computational Linguistics
+
+=== [PDF page 2] ===
+
+Figure 1: Examples from the prior WebSight v0.1 dataset (first row) and our new Design2Code benchmark (last
+two rows). We use real-world webpages for benchmarking to ensure they are realistic, diverse, and complex, while
+WebSight uses synthetically generated simple webpages for scalability.
+
+
+form careful manual curation to obtain a set of 484       from text-augmented prompting on most models,
+high-quality, challenging, and diverse webpages           while few can self-revise their generation. Addi-
+representing a wide variety of real-world use cases       tionally, we also construct Design2Code-HARD, a
+with different levels of complexities. We show both       separate set of 80 hard examples, to compare state-
+quantitatively and qualitatively that our benchmark       of-the-art commercial models (GPT-4o, Claude 3.5
+covers a wide spectrum of HTML tag uses, do-              Sonnet) on these challenging cases.
+mains, and complexity levels. To facilitate efficient
+evaluation and model development, we also de-             2     The Design2Code Benchmark
+velop automatic metrics for this task that measure        In this section, we describe the curation and pro-
+the visual design similarity between the generated        cessing of our benchmark data. We first scrape all
+webpage’s screenshot and the given screenshot in-         website links in the C4 (Raffel et al., 2019) vali-
+put. Our metrics consider a comprehensive set of          dation set. We then embed all CSS code into the
+dimensions, including bounding box matches, text          HTML file to obtain one single code implementa-
+content, position, and color of all matched visual        tion file for each webpage. This results in a total
+elements on the webpages, which we later show             of 127.9k webpages, which we perform further
+highly correlate with human judgment.                     filtering and processing as described below.
+   We then investigate how current MLLMs per-
+form on this task, by testing a variety of prompting      2.1    Test Set Curation
+methods, including our text-augmented prompt-             Our overall goal is to obtain a set of well-formed
+ing that complements visual input with extracted          webpages that represent diverse real-world use
+text elements from the webpage to reduce the              cases. We follow the following steps for automatic
+load on OCR, as well as a self-revision prompt-           processing and manual filtering: First, we auto-
+ing method that asks the model to compare its             matically filter out webpages that are too long or
+previous generation and the input webpage for             too simple (only contain images or texts) and run
+self-improvement. We see significant improvement          deduplication, which results in 14k webpages re-
+                                                     3957
+
+=== [PDF page 3] ===
+
+                               information                       in our benchmark are much more challenging and
+              others                      forum
+                                              news
+                                                                 cover a wider spectrum of complexities than prior
+    product                10.8%                                 efforts like WebSight.
+                      9.6%        3.6%
+                                     4.8%                        Domain Distribution To get a sense of the range
+                   4.8%
+                                                   homepage      of domains covered in our benchmark, we ran-
+                                        13.3%
+                                                                 domly sample 25% examples (N=120) from the
+                 25.3%                                           benchmark and manually annotate what type of
+     blog                                                        webpages they are based on their functions. We
+                                27.7%                            present the pie chart of the most frequent domains
+                                                                 in Figure 2. The most prominent genres are web-
+                                        company/org              sites of companies or organizations, personal blogs
+                                                                 (including technical blogs), and personal home-
+Figure 2: Main topics of the webpages in the De-                 pages. Other genres include information-sharing
+sign2Code benchmark.                                             sites (e.g., Wikipedia pages, FAQ pages, tax policy
+                                                                 pages, online dictionaries), online forums, news
+                                                                 article pages, and product description pages. Sam-
+maining. We then remove external dependencies
+                                                                 pled examples are shown in Figure 1.
+and replace multimedia content with placeholders.
+Finally, the first two authors conduct manual cura-              2.3     Automatic Metrics
+tion to check the independence from external files,
+the absence of sensitive content, and proper for-                Previously, auto-generated HTML code is usually
+matting. This quality filtering narrows down the                 evaluated by text-based similarity metrics, such as
+samples to 484 high-quality webpages, which are                  Normalized Edit Distance (Lv et al., 2023) and
+used for our benchmark. More data processing                     htmlBLEU (Soselia et al., 2023). However, such
+details are described in Appendix Sec B.                         metrics cannot directly assess whether the visual
+                                                                 design of the original screenshot is correctly gener-
+2.2 Data Statistics and Diversity                                ated as there can be many different ways of imple-
+                                                                 menting the same webpage, and minor differences
+Quantitative Metrics To provide an estimate of
+                                                                 in generated code could result in major visual dif-
+the difficulty levels of the test examples, we pro-
+                                                                 ferences in the rendered output. To this end, we
+vide some quantitative measures. (1) Length: We
+                                                                 propose to automatically evaluate generated web-
+tokenize the scraped code files with the GPT-2 to-
+                                                                 pages by calculating the similarity between the
+kenizer. The average number of tokens per file is
+                                                                 screenshots of reference webpages IR and the ren-
+31216 (min=784, max=98637, std=23903). This
+                                                                 dered screenshots of generated webpages IG . We
+is much longer than the typical max output length
+                                                                 break down the evaluation into both high-level vi-
+of modern language models, posing a unique chal-
+                                                                 sual similarity and low-level element matching.
+lenge. (2) Total number of tags: We count the to-
+                                                                 High-level Visual Similarity To evaluate the vi-
+tal number of HTML tags involved, which is 158 on
+                                                                 sual similarity of IR and IG , we use the similarity
+average (min=12, max=528, std=100). The exam-
+                                                                 of their CLIP (Radford et al., 2021) embedding, de-
+ples in our benchmark cover 84 types of standard
+                                                                 noted as CLIP(IR , IG ). Specifically, we extract
+HTML5 tags. We present a chart of the most fre-
+                                                                 features by CLIP-ViT-B/32 after resizing screen-
+quently used tags in Appendix Table 5. (3) DOM
+                                                                 shots to squares. To rule out the texts in the screen-
+tree depth: We measure the depth of the Docu-
+                                                                 shots, we use the inpainting algorithm from Telea
+ment Object Model (DOM) tree as another measure
+                                                                 (2004) to mask all detected text boxes using their
+of complexity. The average depth is 13 (min=4,
+                                                                 bounding box coordinates. 1
+max=32, std=5). (4) Number of unique tags:
+                                                                 Low-level Element Matching Metrics like CLIP
+Lastly, we compute the number of unique HTML
+                                                                 similarity only capture the similarity of the overall
+tags in each example, and the mean is 22 (min=8,
+                                                                 images rather than the matching of all the details
+max=45, std=6), suggesting that our benchmark
+                                                                 like text. Moreover, the metric itself does not of-
+covers a wide range of HTML tags. We compare
+                                                                 fer any fine-grained breakdown to help diagnose
+these metrics with the most recent and most simi-
+lar existing dataset – WebSight (Laurençon et al.,                   1
+                                                                     https://docs.opencv.org/4.3.0/df/d3d/
+2024) in Appendix Table 4. Overall, the examples                 tutorial_py_inpainting.html
+
+                                                              3958
+
+=== [PDF page 4] ===
+
+model weaknesses. To complement that, we intro-              ∗ Color: We use the CIEDE2000 color difference
+duce a suite of element-matching metrics. Specifi-           formula (Luo et al., 2001) to assess the percep-
+cally, we consider whether the generated webpages            tual difference between the colors of the generated
+manage to recall all visual elements, and whether            text in block gq and the reference text in block rp ,
+the corresponding visual elements in the reference           denoted as simcolor (rp , gq )), where the formula
+and generated webpages have aligned text content,            considers the complexities of human color vision.
+position, and color (Cao, 2015; Still, 2018).                The overall score is averaged across all matched
+   Given a reference webpage screenshot IR and               pairs.
+a generated webpage screenshot IG , we use a text               These low-level matching scores are designed as
+detection module to output a set of detected visual          fine-grained diagnostic scores to complement the
+element blocks for each: R = {r1 , r2 , ..., rm } and        CLIP score. Ideally, models and methods should
+G = {g1 , g2 , ..., gn }, where each block contains          score well along all these dimensions.
+its textual content and bounding box coordinates.
+See Appendix C for the details of implementing               3     Benchmarking: Prompting and
+the block detection module. Based on the two sets                  Finetuning
+of detected blocks, we use the Jonker-Volgenant
+algorithm (Crouse, 2016) to get the optimal match-           We benchmark a variety of models and methods
+ing M between R and G based on text similarity,              to compare their performance on our benchmark,
+where (p, q) ∈ M indicates rp is matched with gq .           including commercial API models, open-source
+Given R, G, and matched pairs in M , we evaluate             models, and finetuned models.
+similarity along the following aspects:
+                                                             3.1    Prompting Methods
+∗ Block-Match: The first desideratum of the task is
+that all visual elements from the reference webpage          We test a suite of multimodal prompting methods
+should be reproduced in the generated webpage,               for our benchmark. We assume access to a model
+and the generated webpage should not hallucinate             that can take both image input and text prompts
+non-existent new elements. We measure this by                and produce code as output.
+computing the total sizes of all matched blocks              Direct Prompting We provide the reference web-
+divided by the total sizes of all blocks (Equation           page screenshot, along with the instruction to gen-
+(1)(2) in Figure 3), including unmatched ones (ei-           erate the HTML and CSS code (full prompt in
+ther because the generated webpages missed them              Appendix D).
+or because the generated webpages contain halluci-           Text-Augmented Prompting Direct prompting
+nated blocks). S(·) returns the size of the blocks,          asks the model to do everything at once: recognize
+UR and UG denotes the unmatched blocks in R                  all the text and layout elements and generate the
+and G. The intuition is that unmatched blocks will           corresponding code. In reality, users often know
+lower the score as they indicate missing original            what content they want to put on their webpage.
+blocks or generating hallucinated blocks; the larger         Instead, they only seek expertise in converting the
+the unmatched blocks are, the lower this score is.           design into code implementation. To reflect such a
+∗ Text: Given two strings from two matched blocks            setting, we also explore a text-augmented prompt-
+rp and gq , the text similarity simtext (rp , gq ) is cal-   ing method, where we extract all text elements
+culated as twice the number of overlapping char-             from the original webpage first and append these
+acters divided by the total number of characters             texts after the instruction prompt along with the
+in the two strings (character-level Sørensen-Dice            screenshot input. In this setting, we mitigate the
+similarity). The overall score is averaged across all        difficulty of performing OCR and instead allow the
+matched pairs.                                               model to focus more on layout design, where the
+∗ Position: The position of the blocks largely               model could copy text content from the prompt and
+impacts the overall layout. For each matched                 insert it into the correct positions.
+pair (p, q), we calculate the position similar-              Self-Revision Prompting To test whether the mod-
+ity simpos (rp , gq ) = 1 − max(abs(xq −                     els can visually contrast the websites rendered by
+xp ), abs(yq − yp )), where (xp , yp ) and (xq , yq ) are    their generated code and the reference websites to
+normalized coordinates (in [0, 1]) of rp and gq ’s           further improve the code generation, we develop a
+centers. The overall score is averaged across all            self-revision prompt where we provide the follow-
+matched pairs.                                               ing as input: (1) the screenshot of the input web-
+                                                         3959
+
+=== [PDF page 5] ===
+
+                                                         S(rp ) + S(gq )
+         matchblock (rp , gq ) = P                               P              P             ,        (1)
+                                    (i,j)∈M (S(ri ) + S(gj )) + ( i∈UR S(ri ) +  j∈UG S(gj ))
+                                    X
+         matchblock (R, G) =              matchblock (rp , gq ).                                       (2)
+                                  (p,q)∈M
+
+
+
+                           Figure 3: Equations to calculate the Block-Match metric.
+
+
+page, (2) the screenshot of the generated webpage       ments. (3) Self-revision has some minor improve-
+from text-augmented prompting, (3) the generated        ment on block-match and position similarity for
+code from text-augmented prompting as the initial       GPT-4V and Claude 3, but brings no improvement
+solution; then we ask the model to improve the gen-     on Gemini Pro Vision and all other open-source
+erated implementation code so that the result can       models, potentially due to the limited capabilities
+look closer to the reference webpage (full prompt       of LLMs to do self-revision (Huang et al., 2023).
+is in Appendix D).                                      We provide an in-depth analysis of the learning
+                                                        process of our finetuned model in Section H.
+3.2 Model Setup
+We test the three prompting methods on the fol-          4.2   Human Evaluation
+lowing commercial models: GPT-4o , GPT-4V
+                                                        While the above automatic metrics provide a fine-
+(OpenAI, 2023), Claude 3 Opus (Anthropic, 2024),
+                                                        grained breakdown of model performance, it is also
+Gemini 1.0 Pro Vision , as well as the following
+                                                        crucial to ask what users, the ultimate audience of
+open models: LLaVA-V1.6-Mixtral-7B (Liu et al.,
+                                                        these webpages, think of the generated webpages.
+2024), DeepSeek-VL-7B (Lu et al., 2024), Idefics2-
+                                                        By recruiting human annotators (paid at the rate
+8B (Laurenccon et al., 2024). For finetuned mod-
+                                                        of $16/hour) from Prolific, we conducted a series
+els, we test WebSight VLM-8B, which is fine-
+                                                        of human evaluations to compare across models
+tuned from Idefics2-8B on the full WebSight v0.1
+                                                        and methods, as well as to assess the quality of
+dataset (Laurençon et al., 2024), and our own fine-
+                                                        AI-generated webpages directly. We sample 100
+tuned Design2Code-18B, a finetuned CogAgent-
+                                                        examples from our benchmark for the human eval-
+18B (Hong et al., 2023) on a random subset (20%)
+                                                        uations. In all human evaluations, each question
+of the WebSight (technical finetuning details are in
+                                                        is annotated by 5 human annotators, and we de-
+Appendix Sec E).
+                                                        rive the results by majority voting. We provide
+4   Results and Analysis                                all instructions that we provided to annotators in
+                                                        Appendix F and we outline the main protocols and
+4.1 Automatic Evaluation                                results below.
+We present all automatic evaluation results in Ta-      Pairwise Model Comparison Following the
+ble 1. Note that the comparisons here are not           conventional practice of evaluating instruction-
+apple-to-apple comparisons, given the differences       following LLMs (e.g., (Zhou et al., 2023; Dubois
+in model sizes and training data. We compare            et al., 2023)), we ask human annotators to rank a
+them as they are the most relevant and accessi-         pair of generated webpages (one from the baseline,
+ble baselines for our benchmark. We observe that        the other from the tested method) to decide which
+(1) GPT-4o is the best on all dimensions, while         one is more similar to the reference. We use Gem-
+LLaVA 1.6-7B leads open-source models without           ini Pro Vision Direct Prompting as the baseline
+specific finetuning. With specific finetuning, the      and collect the other seven methods’ Win/Tie/Lose
+performance of open-source models can approach          rates against this baseline (we randomly shuffle
+that of commercial models like Gemini 1.0 Pro Vi-       the ordering to avoid position biases). Each pair
+sion. (2) Text-augmented prompting successfully         will count as Win (Lose) only when Win (Lose)
+increases the block-match score and text similarity     receives the majority vote (≥ 3). All other cases
+score on most tested models, especially those that      are considered Tie.
+are suboptimal in terms of text recognition, indicat-      Based on the human evaluation in Figure 4,
+ing the usefulness of providing extracted text ele-     we find that: (1) GPT-4o is substantially better
+                                                    3960
+
+=== [PDF page 6] ===
+
+                        Block Text Position Color CLIP           aging text augmentation and thus might require
+                           GPT-4o                                more advanced model capabilities. (4) WebSight
+  Direct                 93.0 98.2     85.5    84.1 90.4         VLM-8B and our model Design2Code-18B match
+  Text-Augmented         92.4 98.6     84.5    83.1 89.9         Gemini direct prompting, suggesting that finetun-
+  Self-Revision          92.7 98.6     84.9    83.3 90.1         ing on a large amount of data can match commer-
+                          GPT-4V                                 cial models in specific domains.
+  Direct                 85.8 97.4     80.5    73.3 86.9         Direct Assessment While the automatic and hu-
+  Text-Augmented         87.6 98.2     80.2    73.0 87.2         man evaluation offer a comparison among different
+  Self-Revision          88.8 98.1     81.1    72.9 87.2
+                                                                 models and methods, readers might still wonder
+                       Claude 3 Opus                             how good are the best-performing models on this
+  Direct                 90.2 97.5     77.9    71.4 87.0         task. To offer a more intuitive answer to this ques-
+  Text-Augmented         89.8 98.0     75.9    69.3 86.6
+  Self-Revision          90.3 98.1     78.1    69.7 86.6
+                                                                 tion, we further ask human annotators to compare
+                                                                 each reference webpage with the AI-generated web-
+                   Gemini 1.0 Pro Vision
+                                                                 page (using GPT-4V self-revision prompting) and
+  Direct                 80.2 94.6     72.3    66.2 84.4
+  Text-Augmented         84.8 96.9     70.4    66.3 84.4
+                                                                 directly assess the quality of the generated web-
+  Self-Revision          84.1 96.6     70.1    66.2 84.3         page. Concretely, we perform direct assessment
+                       LLaVA 1.6-7B                              from two perspectives (all examples are annotated
+                                                                 by 5 annotators, and we take the majority vote; full
+  Direct                 50.4 87.9     69.1    63.4 84.6
+  Text-Augmented         68.4 93.0     68.7    64.0 84.5         instructions given to the annotators can be found
+  Self-Revision          62.6 91.0     64.7    62.6 83.8         in Appendix F): (I) Can the AI-generated webpage
+                     DeepSeek-VL-7B                              replace the original webpage? We shuffle the or-
+  Direct                 39.7 77.0     64.6    63.8 84.5         dering of all examples and ask annotators to judge
+  Text-Augmented         66.1 93.4     69.2    67.9 84.3         whether the two webpages are similar enough in
+  Self-Revision          30.1 38.9     28.9    28.1 79.9         terms of appearance and content so that they can
+                         Idefics2-8B                             be deployed interchangeably. We find that 49%
+  Direct                 46.7 80.3     55.9    58.9 81.7         of the AI-generated webpages are considered ex-
+  Text-Augmented         23.6 55.6     35.7    36.3 78.7         changeable with the reference webpages. (II) Is
+  Self-Revision          12.3 22.6     13.2    14.5 78.4
+                                                                 the reference webpage or AI generation better? We
+                     Finetuned Models
+                                                                 then ask a different question, where we shuffle the
+  WebSight VLM-8B 55.9 86.6            77.3    79.4 87.6         example ordering and ask annotators which web-
+  Design2Code-18B 78.5 96.4            74.3    67.0 85.8
+                                                                 page is better designed (annotators do not know
+Table 1: Automatic evaluation results of the four fine-grained   which one is the reference and which one is AI-
+similarity measures and the high-level visual similarity with    generated). Perhaps surprisingly, webpages gener-
+CLIP. The best result per dimension is highlighted in bold.      ated by GPT-4V are preferred in 64% cases, i.e.,
+                                                                 they are considered better designed than even the
+                                                                 original reference webpages. We hypothesize it is
+than other baselines, while neither text-augmented               possible that the model has more access to modern
+prompting nor self-revision prompting brings sub-                and popular webpage design principles (Ivory and
+stantial improvement, probably due to the fact                   Megraw, 2005; Beaird et al., 2020), such that it can
+that direct prompting already correctly generates                automatically improve the original design based on
+most of the text content and layout. (2) GPT-4V                  these best practices. This also opens up many new
+is the second strongest model, while both text-                  opportunities for future work on website design
+augmented prompting and self-revision prompting                  improvement tools. We provide some case study
+can further improve over direct prompting. (3)                   examples in Appendix I.
+Text-augmented prompting can slightly improve
+the Gemini direct prompting baseline, but further                4.3   Automatic Evaluation vs Human
+adding self-revision is not helpful. Intuitively, self-                Evaluation
+revision needs the model to understand the differ-               It is worth noting that there are some interesting dis-
+ences between the two given images (the reference                crepancies between the automatic evaluation results
+screenshot and the screenshot of the initial model               and human evaluation results. For example, human
+generation) and reflect them correspondingly in the              evaluation ranks GPT-4V self-revision prompting
+modified HTML code, which is harder than lever-                  better than text-augmented prompting, while the
+                                                             3961
+
+=== [PDF page 7] ===
+
+                                                                          Win           Tie            Lose
+             GPT-4o Direct                                                       92%                                                   4% 4%
+   GPT-4o Text-Augmented                                                        90%                                                   6% 4%
+      GPT-4o Self-Revision                                                      90%                                                   7% 3%
+            GPT-4V Direct                                       63%                                       11%                 26%
+   GPT-4V Text-Augmented                                          68%                                           14%                 18%
+      GPT-4V Self-Revision                                              76%                                            9%            15%
+   Gemini Text-Augmented                          45%                                    16%                          39%
+      Gemini Self-Revision                 34%                                    26%                                 40%
+        WebSight VLM-8B                                   54%                                    11%                    35%
+        Design2Code-18B                     38%                                        25%                             37%
+                             0                   20                       40                      60                   80                       100
+                                                                                Percentage (%)
+
+Figure 4: Human pairwise preference evaluation results with Gemini Pro Vision Direct Prompting as the baseline (this method
+itself is not shown in the table since it serves as the baseline for pairwise comparison). We sample 100 examples, ask 5 annotators
+for each pair of comparisons, and take the majority vote on each example. A higher win rate and lower loss rate suggest better
+quality as judged by human annotators.
+
+
+
+
+            Reference Webpage                   GPT-4o Direct Prompting                  Reference Webpage            GPT-4o Direct Prompting
+
+                                       Figure 5: Example of GPT-4o direct prompting.
+
+
+                                 coef std err         p                        only consider Win/Lose) for both training and test-
+           Block-Match 0.7429          0.142 0.000                             ing. Given one reference R and two candidates
+           Text        -0.3541         0.153 0.021                             G1 , G2 , we use the difference of each dimension
+           Position     0.7605         0.139 0.000
+           Color        0.3461         0.107 0.001
+                                                                               (e.g., matchblock (R, G1 )−matchblock (R, G2 ))
+           CLIP         0.4929         0.134 0.000                             as features and predict Win (1) or Lose (0) by lo-
+                                                                               gistic regression 2 . The derived logistic regression
+Table 2: Results on predicting human annotations (Win/Lose)                    model achieves 79.9% accuracy on the test set, and
+via logistic regression using different metrics as features.
+                                                                               the features’ coefficients and significance are in
+                                                                               Table 2. Interestingly, we find that text similar-
+automatic metrics show mixed results. Moreover,                                ity has a negative and least significant association
+even though humans rank WebSight VLM-8B as                                     with human judgment. In contrast, all other sim-
+better than Design2Code-18B, it has much worse                                 ilarity measures show positive and significant as-
+block-match and text similarity as measured by the                             sociations with human judgment. This suggests
+automatic metrics. In this part, we take a closer                              that humans usually pay more attention to high-
+look at such discrepancy and discuss why such                                  level visual effects like layouts, colors, and the ex-
+discrepancy is a feature rather than a bug.                                    istence of contents rather than the detailed content,
+   Human annotation replies only on high-level                                 reflecting the top-down processing (Gilbert and Li,
+features. We study whether we can predict hu-                                  2013) of humans. We argue that human evalua-
+man pairwise preferences using automatic metrics.                              tion should not be blindly trusted as the oracle here
+Specifically, we randomly split the 100 annotated                              due to their cognitive bias to only consider “prin-
+examples into a 50% training set and a 50% test                                   2
+                                                                                   We normalize the feature before calculating the differ-
+set, leading to 435 pairwise human annotations (we                             ences and add a constant term before logistic regression.
+
+                                                                        3962
+
+=== [PDF page 8] ===
+
+           Reference Webpage                    GPT-4V Direct Prompting             GPT-4V Text-Augmented Prompting
+
+Figure 6: Example of text-augmented prompting improving over the direct prompting baseline, where missing texts
+are successfully generated.
+
+
+                     Block Text Position Color CLIP            call, especially for texts, as seen in Figure 6, where
+                          GPT-4o                               it raises the block-match score from 0.25 to 0.84.
+    Direct         56.6 89.8       78.6   81.9 87.1            We then analyze self-revision’s impact on text-
+    Text-Augmented 67.7 95.2       77.5   81.5 87.5            augmented prompting. In Figure 7, self-revision
+    Self-Revision  72.1 96.4       81.1   82.4 88.2            recovers missing webpage elements, increasing the
+                       GPT-4o Mini                             block-match score from 0.48 to 1.00 and CLIP sim-
+    Direct         57.7 90.7       77.9   77.5 86.3            ilarity from 0.87 to 0.91. It also corrects layout
+    Text-Augmented 69.5 97.0       77.9   79.1 86.1            errors, boosting CLIP similarity from 0.85 to 0.91.
+    Self-Revision  70.3 96.9       77.9   78.6 86.0
+                    Claude 3.5 Sonnet                           4.5 Design2Code-HARD
+    Direct         61.7 91.1       83.0   84.4 89.5            To understand what makes a webpage difficult to
+    Text-Augmented 75.1 97.6       83.4   84.9 89.0
+    Self-Revision  71.9 96.5       82.6   83.0 88.8
+                                                               generate, we compute the correlation between au-
+                                                               tomatic metrics and various difficulty indicators,
+                      Claude 3 Opus
+                                                               including (1) the total number of tags in the refer-
+    Direct         57.1 88.7       74.2   72.4 85.8            ence implementation, (2) the number of unique tags
+    Text-Augmented 73.6 97.0       75.6   72.6 85.7
+    Self-Revision  73.3 95.9       76.6   70.0 85.6            in the reference implementation, and (3) DOM tree
+                      Gemini 1.5 Pro
+                                                               depth of the reference implementation. Appendix
+                                                               Table 7 shows that the total number of tags is a
+    Direct         72.3 95.4       80.9   80.5 87.5
+    Text-Augmented 73.7 95.9       79.8   79.1 88.2            strong indicator of difficulty. We also find that non-
+    Self-Revision  71.2 96.6       80.9   78.4 87.9            English webpages are usually harder to generate,
+                     Gemini 1.5 Flash                          probably due to the limited pretraining data.
+    Direct         69.2 96.6       78.0   80.2 87.3               To this end, we introduce a more difficult version
+    Text-Augmented 72.7 97.4       79.4   78.2 87.6            of our benchmark using the same filtering process,
+    Self-Revision  72.2 97.5       79.4   77.9 87.6            named Design2Code-HARD, containing 80 hard ex-
+                                                               amples with unique challenges like being extremely
+Table 3: Evaluation results for Design2Code-HARD. We show
+the results for flagship commercial models.                    long (26% examples have more than 500 HTML
+                                                               tags) and non-English content (19% examples). In
+                                                               table 3, we observe a significant performance drop
+ciple components” of the webpages. Instead, both               on GPT-4o compared to the “easy” version of our
+high-level similarity (human pairwise preference               dataset, and state-of-the-art models fail to generate
+and CLIP similarity) and low-level elements (fine-             30% - 40% of the block elements (Block-Match).
+trained block-wise similarity) should be considered            Interestingly, GPT-4o can steadily improve perfor-
+when evaluating new models and methods.                        mance through text augmentation and self-revision,
+4.4 Case Study                                                 while Gemini 1.5 Pro cannot.
+Figure 5 shows examples from GPT-4o, which
+                                                                5    Related Work
+generates similar layouts and color styles without
+prompting techniques. For weaker models like                   UI Automation Nguyen and Csallner (2015) re-
+GPT-4V, text-augmented prompting improves re-                  verse engineer mobile UI by identifying elements
+                                                          3963
+
+=== [PDF page 9] ===
+
+Figure 7: Examples of self-revision prompting improving over text-augmented prompting. The self-revision can
+either add the missing texts or fix layout errors.
+
+
+through classic text recognition and computer            gramming support applications such as automatic
+vision techniques (OCR, edge detection, etc).            code completion and infilling, and allowing users
+Pix2Code (Beltramelli, 2018) builds an end-to-           to chat with a codebase. This also leads to a
+end system for UI-to-code transformation based on        new wave of HCI studies on designing better pro-
+CNN and RNN, which cannot deal with complex              gramming tools to facilitate human-AI collabora-
+visual encoding and long text decoding. Robin-           tion (Kalliamvakou, 2022; Vasconcelos et al., 2023;
+son (2019); Aşıroğlu et al. (2019) further incor-      Liang et al., 2023). Our benchmark offers realis-
+porate neural network-based object detection and         tic evaluation for code LLMs and aims to enable
+semantic segmentation into the pipeline. Recently,       more powerful programming support to front-end
+Soselia et al. (2023) utilize more advanced visual       designers who do not have to code by themselves
+encoders (e.g., ViT, Dosovitskiy et al., 2020) and       and can just collaborate with LLMs.
+language decoders (e.g., LLaMA, Touvron et al.,
+2023a,b) and finetune the pipeline using visual sim-     6   Conclusion
+ilarity. Jiang et al. (2024b) use Graph Neural Net-      This work introduced the Design2Code(-HARD)
+works to represent UI elements and designers by          benchmark consisting of diverse and challenging
+autocompleting partially completed GUI designs.          real-world webpages as test examples. We devel-
+We advance this thread by offering the first UI au-      oped comprehensive automatic metrics and con-
+tomation benchmark with real-world webpages and          ducted human evaluations to compare various mul-
+benchmarking state-of-the-art MLLMs.                     timodal LLMs. We showed that state-of-the-art
+Code LLMs and Programming Support Tools                  models can generate well-formed websites on some
+Our work also connects to code language models           easy examples but still struggle with more complex
+and programming support tools. LLMs trained              examples, while open-source models are far behind
+on code, such as Codex (Chen et al., 2021), Star-        commercial models, leaving ample room for future
+Coder (Li et al., 2023), InCoder (Fried et al., 2022),   improvement. For future work, a promising direc-
+CodeLlama (Rozière et al., 2023), and DeepSeek-          tion is to generate UIs that support dynamic user
+Coder (Guo et al., 2024), enable a wave of pro-          interactions.
+                                                     3964
+
+=== [PDF page 10] ===
+
+Limitations                                             Dora Zhao, Rose Wang, Caleb Ziems, Michael
+                                                        Ryan, Camille Harris, Harshit Joshi, Yijia Shao, Ji-
+We believe Design2Code can serve as a useful
+                                                        aao Chen, Omar Shaikh, Julie Kallini, Lucia Zheng,
+benchmark to power many future research direc-
+                                                        Julia Kruk, Yanchen Liu, Tianyu Gao and Tristan
+tions. We highlight a few current limitations of
+                                                        Thrush for their helpful comments and discussion.
+Design2Code and how future work could address
+                                                        This work is supported in part by a grant from
+them:
+                                                        Google and ONR to DY.
+  1. Better prompting techniques for multimodal
+     LLMs, especially in handling complex web-
+                                                        References
+     pages, for example, by incrementally generat-
+     ing different parts of the webpage.                Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, An-
+                                                           toine Miech, Iain Barr, Yana Hasson, Karel Lenc,
+  2. Our preliminary experiments showed the dif-          Arthur Mensch, Katie Millican, Malcolm Reynolds,
+                                                           Roman Ring, Eliza Rutherford, Serkan Cabi, Tengda
+     ficulty of directly training on real webpages         Han, Zhitao Gong, Sina Samangooei, Marianne
+     since they are too long and noisy, future work        Monteiro, Jacob Menick, Sebastian Borgeaud, Andy
+     could explore data cleaning pipelines to make         Brock, Aida Nematzadeh, Sahand Sharifzadeh, Miko-
+     such training stable.                                 laj Binkowski, Ricardo Barreira, Oriol Vinyals,
+                                                          Andrew Zisserman, and Karen Simonyan. 2022.
+  3. Extending beyond screenshot-only inputs, for          Flamingo: a visual language model for few-shot
+                                                           learning. ArXiv, abs/2204.14198.
+     example, to collect Figma frames or sketch
+     designs from front-end designers as the test       Anthropic. 2024. The claude 3 model family: Opus,
+     input. Such extension also requires careful          sonnet, haiku.
+     re-design of the evaluation paradigm.              Batuhan Aşıroğlu, Büşta Rümeysa Mete, Eyyüp Yıldız,
+                                                          Yağız Nalçakan, Alper Sezen, Mustafa Dağtekin, and
+  4. Extending from static webpages to also in-           Tolga Ensari. 2019. Automatic html code genera-
+     clude dynamic webpages. This also requires           tion from mock-up images using machine learning
+     the evaluation to consider interactive func-         techniques. In 2019 Scientific Meeting on Electrical-
+     tions beyond just visual similarity.                 Electronics & Biomedical Engineering and Computer
+                                                          Science (EBBT), pages 1–4.
+Ethical Considerations                                  Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang,
+                                                           Sinan Tan, Peng Wang, Junyang Lin, Chang Zhou,
+Privacy We used the dataset C4 which is released           and Jingren Zhou. 2023. Qwen-vl: A versatile vision-
+under ODC-By license, allowing free share, modi-           language model for understanding, localization, text
+fication, and use subject to the attribution require-      reading, and beyond. Preprint, arXiv:2308.12966.
+ments. We release our dataset under the same li-        Jason Beaird, Alex Walker, and James George. 2020.
+cense. Moreover, when performing manual filter-           The principles of beautiful web design. SitePoint Pty
+ing, we explicitly filtered out webpages containing        Ltd.
+private or sensitive information (e.g., dating web-
+                                                        Tony Beltramelli. 2018. pix2code: Generating code
+site profiles).                                           from a graphical user interface screenshot. In Pro-
+                                                          ceedings of the ACM SIGCHI Symposium on Engi-
+Dual Use Despite our intention of democratizing           neering Interactive Computing Systems, pages 1–6.
+webpage building, we recognize the potential dual
+use danger of Design2Code technologies, such as         Lukas Blecher, Guillem Cucurull, Thomas Scialom,
+                                                          and Robert Stojnic. 2023. Nougat: Neural optical
+automated generation of malicious websites, or            understanding for academic documents. Preprint,
+even generating code for licensed websites. We            arXiv:2308.13418.
+emphasize is intended for research purposes and
+                                                        Minwoo Byeon, Beomhee Park, Haecheon Kim,
+for the community to better understand multimodal         Sungjun Lee, Woonhyuk Baek, and Saehoon Kim.
+LLM capabilities. We will provide clear ethical use       2022. Coyo-700m: Image-text pair dataset. https:
+guidelines for all data, code, and model releases to     //github.com/kakaobrain/coyo-dataset.
+define acceptable and unacceptable use cases.
+                                                        J Cao. 2015. The 5 pillars of visual hierarchy in web
+                                                           design.
+Acknowledgement
+                                                        Mark Chen, Jerry Tworek, Heewoo Jun, Qiming
+We thank Aryaman Arora, Jihyeon Je, Irena Gao,           Yuan, Henrique Ponde, Jared Kaplan, Harrison Ed-
+Will Held, Ryan Louie, Weiyan Shi, Yutong Zhang,         wards, Yura Burda, Nicholas Joseph, Greg Brockman,
+                                                    3965
+
+=== [PDF page 11] ===
+
+  Alex Ray, Raul Puri, Gretchen Krueger, Michael         Jie Huang, Xinyun Chen, Swaroop Mishra,
+  Petrov, Heidy Khlaaf, Girish Sastry, Pamela Mishkin,      Huaixiu Steven Zheng, Adams Wei Yu, Xiny-
+  Brooke Chan, Scott Gray, Nick Ryder, Mikhail              ing Song, and Denny Zhou. 2023. Large language
+  Pavlov, Alethea Power, Lukasz Kaiser, Moham-              models cannot self-correct reasoning yet. ArXiv,
+  mad Bavarian, Clemens Winter, Philippe Tillet, Fe-        abs/2310.01798.
+  lipe Petroski Such, David W. Cummings, Matthias
+  Plappert, Fotios Chantzis, Elizabeth Barnes, Ariel     Melody Y Ivory and Rodrick Megraw. 2005. Evolution
+  Herbert-Voss, William H. Guss, Alex Nichol, Igor        of web site design patterns. ACM Transactions on
+  Babuschkin, Suchir Balaji, Shantanu Jain, Andrew        Information Systems (TOIS), 23(4):463–497.
+  Carr, Jan Leike, Joshua Achiam, Vedant Misra, Evan
+  Morikawa, Alec Radford, Matthew M. Knight, Miles       Dongfu Jiang, Xuan He, Huaye Zeng, Cong Wei, Max
+  Brundage, Mira Murati, Katie Mayer, Peter Welinder,      Ku, Qian Liu, and Wenhu Chen. 2024a. Mantis:
+  Bob McGrew, Dario Amodei, Sam McCandlish, Ilya           Interleaved multi-image instruction tuning. Preprint,
+  Sutskever, and Wojciech Zaremba. 2021. Evaluat-          arXiv:2405.01483.
+  ing large language models trained on code. ArXiv,      Yue Jiang, Changkong Zhou, Vikas Garg, and Antti
+  abs/2107.03374.                                          Oulasvirta. 2024b. Graph4gui: Graph neural net-
+David F. Crouse. 2016. On implementing 2d rectan-          works for representing graphical user interfaces. In
+  gular assignment algorithms. IEEE Transactions on        International Conference on Human Factors in Com-
+  Aerospace and Electronic Systems, 52(4):1679–1696.       puting Systems.
+
+Alexey Dosovitskiy, Lucas Beyer, Alexander               Eirini Kalliamvakou. 2022. Quantifying github copi-
+  Kolesnikov, Dirk Weissenborn, Xiaohua Zhai,               lot’s impact on developer productivity and happiness.
+  Thomas Unterthiner, Mostafa Dehghani, Matthias         Geewook Kim, Teakgyu Hong, Moonbin Yim,
+  Minderer, Georg Heigold, Sylvain Gelly, Jakob            JeongYeon Nam, Jinyoung Park, Jinyeong Yim, Won-
+  Uszkoreit, and Neil Houlsby. 2020. An image              seok Hwang, Sangdoo Yun, Dongyoon Han, and
+  is worth 16x16 words: Transformers for image             Seunghyun Park. 2022. Ocr-free document under-
+  recognition at scale. Preprint, arXiv:2010.11929.        standing transformer. In European Conference on
+Yann Dubois, Xuechen Li, Rohan Taori, Tianyi Zhang,        Computer Vision, pages 498–517. Springer.
+  Ishaan Gulrajani, Jimmy Ba, Carlos Guestrin, Percy     Hugo Laurenccon, Léo Tronchon, Matthieu Cord, and
+  Liang, and Tatsunori Hashimoto. 2023. Alpacafarm:        Victor Sanh. 2024. What matters when building
+  A simulation framework for methods that learn from       vision-language models?
+  human feedback. ArXiv, abs/2305.14387.
+                                                         Hugo Laurençon, Léo Tronchon, and Victor Sanh. 2024.
+Daniel Fried, Armen Aghajanyan, Jessy Lin, Sida I.         Unlocking the conversion of web screenshots into
+  Wang, Eric Wallace, Freda Shi, Ruiqi Zhong, Wen          html code with the websight dataset. Preprint,
+  tau Yih, Luke Zettlemoyer, and Mike Lewis. 2022.         arXiv:2403.09029.
+  Incoder: A generative model for code infilling and
+  synthesis. ArXiv, abs/2204.05999.                      Triet HM Le, Hao Chen, and Muhammad Ali Babar.
+                                                            2020. Deep learning for source code modeling and
+Charles D Gilbert and Wu Li. 2013. Top-down influ-          generation: Models, applications, and challenges.
+  ences on visual processing. Nature Reviews Neuro-        ACM Computing Surveys (CSUR), 53(3):1–38.
+  science, 14(5):350–363.
+                                                         Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas
+Google. 2023. Gemini: A family of highly capable           Muennighoff, Denis Kocetkov, Chenghao Mou, Marc
+  multimodal models. ArXiv, abs/2312.11805.                Marone, Christopher Akiki, Jia Li, Jenny Chim,
+Daya Guo, Qihao Zhu, Dejian Yang, Zhenda Xie, Kai          Qian Liu, Evgenii Zheltonozhskii, Terry Yue Zhuo,
+  Dong, Wentao Zhang, Guanting Chen, Xiao Bi,              Thomas Wang, Olivier Dehaene, Mishig Davaadorj,
+  Y. Wu, Y. K. Li, Fuli Luo, Yingfei Xiong, and Wen-       Joel Lamy-Poirier, João Monteiro, Oleh Shliazhko,
+  feng Liang. 2024. Deepseek-coder: When the large         Nicolas Gontier, Nicholas Meade, Armel Zebaze,
+  language model meets programming – the rise of           Ming-Ho Yee, Logesh Kumar Umapathi, Jian Zhu,
+  code intelligence. Preprint, arXiv:2401.14196.           Benjamin Lipkin, Muhtasham Oblokulov, Zhiruo
+                                                           Wang, Rudra Murthy, Jason Stillerman, Siva Sankalp
+Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng             Patel, Dmitry Abulkhanov, Marco Zocca, Manan
+ Xu, Wenmeng Yu, Junhui Ji, Yan Wang, Zihan                Dey, Zhihan Zhang, Nourhan Fahmy, Urvashi Bhat-
+ Wang, Yuxuan Zhang, Juanzi Li, Bin Xu, Yuxiao             tacharyya, W. Yu, Swayam Singh, Sasha Luccioni,
+ Dong, Ming Ding, and Jie Tang. 2023. Cogagent:            Paulo Villegas, Maxim Kunakov, Fedor Zhdanov,
+ A visual language model for gui agents. Preprint,         Manuel Romero, Tony Lee, Nadav Timor, Jennifer
+ arXiv:2312.08914.                                         Ding, Claire Schlesinger, Hailey Schoelkopf, Jana
+                                                           Ebert, Tri Dao, Mayank Mishra, Alexander Gu,
+Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan          Jennifer Robinson, Carolyn Jane Anderson, Bren-
+  Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and          dan Dolan-Gavitt, Danish Contractor, Siva Reddy,
+  Weizhu Chen. 2021. Lora: Low-rank adaptation of          Daniel Fried, Dzmitry Bahdanau, Yacine Jernite, Car-
+  large language models. Preprint, arXiv:2106.09685.       los Muñoz Ferrandis, Sean M. Hughes, Thomas Wolf,
+                                                     3966
+
+=== [PDF page 12] ===
+
+  Arjun Guha, Leandro von Werra, and Harm de Vries.         Baptiste Rozière, Jonas Gehring, Fabian Gloeckle,
+  2023. Starcoder: may the source be with you! ArXiv,         Sten Sootla, Itai Gat, Xiaoqing Tan, Yossi Adi,
+  abs/2305.06161.                                             Jingyu Liu, Tal Remez, Jérémy Rapin, Artyom
+                                                              Kozhevnikov, I. Evtimov, Joanna Bitton, Manish P
+Jenny T Liang, Chenyang Yang, and Brad A. Myers.              Bhatt, Cristian Cantón Ferrer, Aaron Grattafiori, Wen-
+  2023. A large-scale survey on the usability of ai pro-      han Xiong, Alexandre D’efossez, Jade Copet, Faisal
+  gramming assistants: Successes and challenges. In           Azhar, Hugo Touvron, Louis Martin, Nicolas Usunier,
+  International Conference on Software Engineering.           Thomas Scialom, and Gabriel Synnaeve. 2023. Code
+                                                              llama: Open foundation models for code. ArXiv,
+Haotian Liu, Chunyuan Li, Yuheng Li, Bo Li, Yuanhan           abs/2308.12950.
+  Zhang, Sheng Shen, and Yong Jae Lee. 2024. Llava-
+  next: Improved reasoning, ocr, and world knowledge.       Christoph Schuhmann, Romain Beaumont, Richard
+                                                              Vencu, Cade Gordon, Ross Wightman, Mehdi
+Haoyu Lu, Wen Liu, Bo Zhang, Bingxuan Wang, Kai               Cherti, Theo Coombes, Aarush Katta, Clayton
+  Dong, Bo Liu, Jingxiang Sun, Tongzheng Ren, Zhu-            Mullis, Mitchell Wortsman, Patrick Schramowski,
+  oshu Li, Hao Yang, Yaofeng Sun, Chengqi Deng,               Srivatsa Kundurthy, Katherine Crowson, Ludwig
+  Hanwei Xu, Zhenda Xie, and Chong Ruan. 2024.                Schmidt, Robert Kaczmarczyk, and Jenia Jitsev.
+  Deepseek-vl: Towards real-world vision-language             2022. Laion-5b: An open large-scale dataset for
+  understanding. Preprint, arXiv:2403.05525.                  training next generation image-text models. Preprint,
+                                                              arXiv:2210.08402.
+M Ronnier Luo, Guihua Cui, and Bryan Rigg. 2001.
+ The development of the cie 2000 colour-difference          Davit Soselia, Khalid Saifullah, and Tianyi Zhou. 2023.
+  formula: Ciede2000. Color Research & Applica-               Learning ui-to-code reverse generator using visual
+  tion: Endorsed by Inter-Society Color Council, The          critic without rendering.
+ Colour Group (Great Britain), Canadian Society for         Jeremiah D Still. 2018. Web page visual hierarchy: Ex-
+ Color, Color Science Association of Japan, Dutch              amining faraday’s guidelines for entry points. Com-
+ Society for the Study of Color, The Swedish Colour            puters in Human Behavior, 84:352–359.
+ Centre Foundation, Colour Society of Australia, Cen-
+  tre Français de la Couleur, 26(5):340–350.                Alexandru Telea. 2004. An image inpainting technique
+                                                              based on the fast marching method. Journal of graph-
+Tengchao Lv, Yupan Huang, Jingye Chen, Lei Cui,               ics tools, 9(1):23–34.
+  Shuming Ma, Yaoyao Chang, Shaohan Huang, Wen-
+  hui Wang, Li Dong, Weiyao Luo, Shaoxiang Wu,              Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier
+  Guoxin Wang, Cha Zhang, and Furu Wei. 2023.                 Martinet, Marie-Anne Lachaux, Timothée Lacroix,
+  Kosmos-2.5: A multimodal literate model. Preprint,          Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal
+  arXiv:2309.11419.                                           Azhar, Aurelien Rodriguez, Armand Joulin, Edouard
+                                                              Grave, and Guillaume Lample. 2023a. Llama: Open
+Shunji Mori, Ching Y Suen, and Kazuhiko Yamamoto.             and efficient foundation language models. Preprint,
+  1992. Historical review of ocr research and develop-        arXiv:2302.13971.
+  ment. Proceedings of the IEEE, 80(7):1029–1058.
+                                                            Hugo Touvron, Louis Martin, Kevin Stone, Peter Al-
+Tuan Anh Nguyen and Christoph Csallner. 2015. Re-             bert, Amjad Almahairi, Yasmine Babaei, Nikolay
+  verse engineering mobile application user interfaces        Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti
+  with remaui (t). In 2015 30th IEEE/ACM Interna-             Bhosale, et al. 2023b. Llama 2: Open founda-
+  tional Conference on Automated Software Engineer-           tion and fine-tuned chat models. arXiv preprint
+  ing (ASE), pages 248–259. IEEE Computer Society.            arXiv:2307.09288.
+
+OpenAI. 2023. Gpt-4v(ision) system card.                    Helena Vasconcelos, Gagan Bansal, Adam Fourney,
+                                                              Qingzi Vera Liao, and Jennifer Wortman Vaughan.
+Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya            2023. Generation probabilities are not enough:
+  Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sas-          Exploring the effectiveness of uncertainty high-
+  try, Amanda Askell, Pamela Mishkin, Jack Clark,             lighting in ai-powered code completions. ArXiv,
+  Gretchen Krueger, and Ilya Sutskever. 2021. Learn-          abs/2302.07248.
+  ing transferable visual models from natural language
+                                                            Pengcheng Yin and Graham Neubig. 2017. A syntactic
+  supervision. Preprint, arXiv:2103.00020.
+                                                              neural model for general-purpose code generation.
+                                                              arXiv preprint arXiv:1704.01696.
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine
+  Lee, Sharan Narang, Michael Matena, Yanqi Zhou,           Chunting Zhou, Pengfei Liu, Puxin Xu, Srini Iyer, Jiao
+  Wei Li, and Peter J. Liu. 2019. Exploring the limits        Sun, Yuning Mao, Xuezhe Ma, Avia Efrat, Ping Yu,
+  of transfer learning with a unified text-to-text trans-     Lili Yu, Susan Zhang, Gargi Ghosh, Mike Lewis,
+  former. arXiv e-prints.                                     Luke Zettlemoyer, and Omer Levy. 2023. Lima: Less
+                                                              is more for alignment. Preprint, arXiv:2305.11206.
+Alex Robinson. 2019. Sketch2code: Generating a web-
+  site from a paper mockup. ArXiv, abs/1905.13750.
+                                                        3967
+
+=== [PDF page 13] ===
+
+A    Additional Dataset Statistics                      first two authors of this paper performed this cura-
+                                                        tion step by checking every single example from
+We present the table of most frequent HTML tags
+                                                        the sampled 7k examples. They first annotated 200
+in Table 5.
+                                                        examples together to reach an 75% agreement, then
+B   Test Set Curation                                   split the annotation work on 7k randomly sampled
+                                                        examples from the filtered set of 14k examples
+Our overall goal is to obtain a set of well-formed      above. This entire manual curation process took
+webpages that represent diverse real-world use          approximately one week. We try to keep the se-
+cases. We follow the following steps for automatic      lected high-quality webpages as diverse as possible
+processing and manual filtering.                        while adding new ones. In the end, we obtained
+Automatic Length and Layout Filtering We first          484 test examples that we use as our benchmark.
+apply a round of automatic filtering. We strip all
+comments from the code files and then apply a           C     Text Detection and Merging Details
+length filter to exclude examples where the source
+                                                        The common approach to detect the texts in a
+code file has over 100k tokens (based on the GPT-2
+                                                        given screenshot is to use OCR tools (Mori et al.,
+tokenizer), as a way to avoid excessively long web-
+                                                        1992), which returns a list of text segments with
+pages that current multimodal LLMs cannot pro-
+                                                        their bounding boxes. However, in our case, we
+cess as input or cannot decode such long outputs.
+                                                        find that open-source OCR tools usually output
+Next, we filter all webpages whose layout consists
+                                                        noisy outputs, which may affect the stability of
+of only images or only texts, in which cases the
+                                                        downstream evaluation. Since we already have the
+layout designs tend to be too simplistic to be in-
+                                                        source HTML codes for reference webpage screen-
+teresting for benchmarking. This results in 14k
+                                                        shots, we apply an alternative approach: we alter
+webpages after filtering and deduplication.
+                                                        the color differently for different text segments in
+Making Webpages Stand-alone We assume a set-
+                                                        the source HTML code and detect text segments in
+ting where we will only provide the screenshot of
+                                                        the webpage by taking two extra screenshots and
+the webpage for the model, without providing all
+                                                        tracking pixels with different colors. This helps us
+the external dependencies such as multimedia files
+                                                        locate text segments from the HTML source code
+(images, audio, videos, etc.). To make this possible,
+                                                        in the screenshots without text recognition errors.
+we strip all such external file dependencies to make
+                                                           Based on the two sets of detected blocks, we use
+all the webpages stand-alone, this includes: remov-
+                                                        the Jonker-Volgenant algorithm (Crouse, 2016) (im-
+ing all <script><audio><iframe><map><svg>
+                                                        plemented in Scipy 3 ) to get the optimal matching
+tags, removing all <link> tags that link to external
+                                                        M between R and G, where (p, q) ∈ M indicates
+sites, removing all href links in <a> tags, and re-
+                                                        rp is matched with gq . Specifically, we use the neg-
+moving all external files in <object> elements. For
+                                                        ative sequence similarity between textual contents
+all the image and video files, we replace them with
+                                                        (−simtext (, )) to initialize the cost matrix and ig-
+a placeholder file, and during benchmarking we
+                                                        nore the matched pairs with a sequence similarity
+will instruct the models to insert this placeholder
+                                                        lower than 0.5. Since detected text blocks might be
+file wherever applicable to preserve the original
+                                                        in different granularity, we also enumerate merg-
+layout.
+                                                        ing neighbor text blocks to search for matching
+Manual Curation After the above processing, we
+                                                        with the highest similarity. However, the matching
+perform a final round of manual curation to filter
+                                                        may still not be perfect, especially when there are
+examples based on the following criteria: (1) The
+                                                        large granularity differences (our search does not
+webpage has no external file dependency and can
+                                                        consider merging non-contiguous blocks).
+render in a stand-alone manner from the processed
+code file and provided placeholder image file. (2)      D     Prompting details
+The webpage does not contain any private, sensi-
+tive, or potentially harmful information (e.g., we      We use the following prompt for direct prompting:
+removed profile pages from dating websites). (3)            You are an expert web developer who specializes
+The rendered webpage is well-formatted (e.g., there     in HTML and CSS. A user will provide you with
+should not be overlaps between different layout el-        3
+                                                             https://docs.scipy.org/doc/scipy/reference/
+ements and the automatic processing above should        generated/scipy.optimize.linear_sum_assignment.
+not disrupt any part of the webpage design). The        html
+
+                                                    3968
+
+=== [PDF page 14] ===
+
+                            WebSight (Huggingface)      Design2Code (Ours)     Design2Code-HARD (Ours)
+         Purpose                     Training                 Testing                    Testing
+         Source            Synthetic (Deepseek-Coder)     Real-World (C4)          Real-World (GitHub)
+         Size                         823K                      484                        80
+         Avg Tag Count                19±8                   158±100                    251±232
+         Avg DOM Depth                 5±1                     13±5                       10±4
+         Avg Unique Tags              10±3                     22±6                       22±5
+
+
+Table 4: Comparison of datasets statistics between the WebSight dataset and our new Design2Code benchmark.
+WebSight only provides the training set while Design2Code only provides the test set. Examples in our Design2Code
+benchmark are much more complex on all measures and have a wider variety of difficulty levels as indicated by the
+bigger standard deviations.
+
+               Tag           Frequency      Tag           Frequency      Tag            Frequency
+               <div>           17790        <style>            1181      <head>             486
+               <a>             13309        <td>                997      <body>             486
+               <li>            6883         <input>             995      <tr>               436
+               <span>          6813         <h3>                759      <b>                429
+               <meta>          4629         <h2>                709      <nav>              416
+               <p>             3413         <strong>            595      <i>                400
+               <br>            2453         <h1>                536      <section>          381
+               <ul>            2078         <button>            525      <label>            339
+               <img>           1870         <title>             492      <form>             292
+               <option>        1194         <html>              486      <h4>               289
+
+     Table 5: The most frequent HTML tags in the reference implementations of our benchmark examples.
+
+
+a screenshot of a webpage.       You need to return        here: [extracted texts from the original webpage].
+a single html file that uses HTML and CSS to               Please compare the two webpages and refer to the
+reproduce the given website. Include all CSS code          provided text elements to be included, and revise
+in the HTML file itself. If it involves any images,        the original HTML implementation to make it look
+use "rick.jpg" as the placeholder. Some images on          exactly like the reference webpage. Make sure the
+the webpage are replaced with a blue rectangle as          code is syntactically correct and can render into a
+the placeholder, use "rick.jpg" for those as well.         well-formed webpage. You can use "rick.jpg" as the
+Do not hallucinate any dependencies to external            placeholder image file. Pay attention to things
+files.     You do not need to include JavaScript           like size, text, position, and color of all the
+scripts for dynamic interactions. Pay attention            elements, as well as the overall layout. Respond
+to things like size, text, position, and color of          directly with the content of the new revised and
+all the elements, as well as the overall layout.           improved HTML file without any extra explanations.
+Respond with the content of the HTML+CSS file.                Details    of     tested     models:      GPT-
+                                                           4o:           gpt-4o-2024-05-13,         GPT-4V:
+  We use the following prompt for self-revision            gpt-4-1106-vision-preview, Claude 3 Opus:
+prompting: You are an expert web developer who             claude-3-opus-20240229, Gemini 1.0 Pro
+specializes in HTML and CSS. I have an HTML file for
+                                                           Vision gemini-1.0-pro-vision 4 .          For all
+implementing a webpage but it has some missing or
+                                                           commercial models, we use greedy decoding and
+wrong elements that are different from the original
+                                                           set maximum new tokens to 4096.
+webpage.    The current implementation I have is:
+                                                              For open-source models, we found that they tend
+[generated code from text-augmented prompting]. I
+                                                           to generate repetitive content for HTML/CSS in our
+will provide the reference webpage that I want
+                                                           preliminary experiments. We use a temperature of
+to build as well as the rendered webpage of the
+current implementation.     I also provide you all              4
+                                                               We keep getting empty responses with unexplained errors
+the texts that I want to include in the webpage            while testing Gemini 1.5.
+
+                                                        3969
+
+=== [PDF page 15] ===
+
+                                                       coef    std err         p
+                                 const               0.5540     0.139     0.000
+                                 Block-Match         0.6238     0.131     0.000
+                                 Position            0.7504     0.141     0.000
+                                 Color               0.3443     0.107     0.001
+                                 CLIP                0.4630     0.132     0.000
+
+                Table 6: Coefficients for the learned linear regression model to simulate win rate.
+
+                  Total Num of Tags          Num of Unique Tags            DOM Tree Depth
+                Metric             Corr     Metric             Corr      Metric            Corr
+                Block-Match       -0.28*    Block-Match        -0.16*    Block-Match       -0.04
+                Text              -0.13*    Text                -0.08    Text              0.01
+                Position          -0.19*    Position           -0.15*    Position         -0.10*
+                Color             -0.13*    Color               -0.09    Color             -0.04
+                CLIP               -0.12    CLIP                -0.02    CLIP              0.03
+
+Table 7: Correlation between automatic metrics and three proxy difficulty indicator variables on GPT-4V self-
+revision prompting. The total number of tags is the strongest indicator, where webpages with more tags tend to be
+more challenging for the model. * indicates p-value < 0.05.
+
+
+0.5 and a repetition penalty of 1.1 during sampling,       and difficult because real-world code implemen-
+the same as testing the finetuned models. Note             tation data tend to be extremely long and noisy,
+that other open-source models like Qwen-VL-Chat            resulting in even lower performance than training
+(Bai et al., 2023) and Mantis (Jiang et al., 2024a)        on synthetic data. We thus leave such exploration
+fail to generate HTML format in more than 80%              to future work. Specifically, We use LoRA (Hu
+cases, which are not reported here. Since most of          et al., 2021) to fine-tune the base model, where
+the open-source models only support single-image           the LoRA modules are added to the language de-
+input, we concatenate the reference screenshot and         coder with LoRA rank 8. Using a batch size of 32
+the generated screenshot into one image before             and a learning rate of 1e-5, we fine-tune the model
+prompting, following Jiang et al. (2024a).                 for 5000 steps with 100 steps warmup. Using 4×
+                                                           NVIDIA A6000, this takes about 2 days of train-
+E    Finetuning details of Design2Code-18B                 ing. We use a temperature of 0.5 and a repetition
+We use CogAgent-18B (Hong et al., 2023) as our             penalty of 1.1 during inference and select the best
+base model, which supports high-resolution input           checkpoint based on the average of all automatic
+(1120 × 1120) and is pretrained on intensive text-         metrics on a small dev set (20 examples).
+image pairs (Byeon et al., 2022; Schuhmann et al.,
+                                                           F    Human Annotation Details
+2022), synthetic documents (Kim et al., 2022), La-
+TeX papers (Blecher et al., 2023), and a small             We restrict the annotators to people in the U.S. who
+amount of website data. We then finetune the base          have completed 2,500 surveys with a pass rate of
+model with the WebSight dataset. While the origi-          98% or higher. In total, there are 60 participants. In
+nal WebSight dataset has 823K examples, we only            the instructions, the annotators are asked to check
+randomly sample 20% for training due to the lim-           the pair following the order of priority (content >
+ited computation resources. We also reverse the            layout > style). This priority list is based on two
+order of HTML style and body as we find that it            intuitions: (i) Layout comparison is only mean-
+leads to a lower loss in our preliminary experiment.       ingful when the content is (almost) complete. (ii)
+Note that we have also experimented with training          The style of independent elements is easier to fix
+on real-world webpage data scraped from the C4             than the layout of multiple elements. The detailed
+training set. Such training is extremely unstable          instructions are below:
+                                                       3970
+
+=== [PDF page 16] ===
+
+Task Overview                                                judgment on which example (Example 1 or Ex-
+In this survey, you will be given a reference                ample 2) is more similar to the reference web-
+webpage’s screenshot, as well as two candidate               page.
+webpages (Example 1 and Example 2) that try                  Judgment Options
+to replicate the reference webpage. Your task is             1. Select "Example 1 better" if Example 1 is
+to judge which of the two candidates is closer to            closer to the reference.
+the reference.                                               2. Select "Example 2 better" if Example 2 is
+Each (Reference, Example 1, Example 2) is pre-               closer to the reference.
+sented in a row, where the original boundary of              3. Opt for "Tie" only if both examples are simi-
+screenshot is marked by black.                               larly accurate or equally distant from the refer-
+Comparison Guide                                             ence.
+Initial Step: Content Check                                  Additional Tips
+    • Text Content: Examine if the text on the               1. Use zoom-in for detailed inspection.
+      candidate webpages matches the reference.              2. Focus on major discrepancies in each step
+      Pay special attention to missing or extra              before moving to the next.
+      content, especially key elements like titles.          3. Your judgment should be based on a cumula-
+                                                             tive assessment of content, layout, and style.
+   • Image Content: Assess the placement of
+     the blue placeholder blocks (for images).
+                                                            We also provide 8 examples after the instruc-
+  • Primary Judgment Criterion: If one exam-             tion. The UI of the annotation question is Figure
+    ple has significant missing or additional            8. Fleiss’ kappa for pairwise model comparison is
+    content compared to the other, it should be          0.46 (5 annotators).
+    considered less similar to the reference.               Furthermore, we provide the instructions for di-
+Second Step: Layout Check                                rect assessment (comparing the reference and web-
+                                                         pages generated by GPT-4V self-revision prompt-
+   • Element Arrangement: If the content (text
+                                                         ing). The Fleiss’ kappa is 0.32 (5 annotators) for
+     and images) of both examples is similarly
+                                                         the first question and 0.26 (5 annotators) for the
+     good or bad, proceed to evaluate the ar-
+                                                         second question.
+     rangement of these elements. Check if their
+                                                            Can the AI-generated webpage replace the
+     organization, order, and hierarchy match
+                                                         original webpage?
+     the reference.
+
+   • Secondary Judgment Criterion: If differ-                Task Overview
+     ences in layout are observed, the example               In each question, you will be given two webpage
+     with the layout most similar to the refer-              screenshots.
+     ence should be rated higher.                            By comparing the two webpages, you need to
+                                                             decide whether they are exchangeable.
+Final Step: Style Check
+                                                             Please zoom in to take a closer look at the
+   • Style Attributes: Only if Example 1 and                 screenshots if necessary.
+     Example 2 are comparable in content and                 You should answer "Yes", if:
+     layout, examine the style elements like font            1. They look roughly similar.
+     style, color, and size.                                 2. They have similar content.
+                                                             3. They can serve the same functions.
+   • Tertiary Judgment Criterion: In cases                   (Minor details don’t matter that much)
+     where content and layout are equally                    Otherwise, you should answer "No".
+     matched, preference should be given to the
+     example with style attributes closer to the
+                                                           Is the reference webpage or AI generation
+     reference.
+                                                         better?
+Overall Judgment
+Based on the criteria in the order of priority               Task Overview
+(Content > Layout > Style), make an overall                  In each question, you will be given two webpage
+
+                                                      3971
+
+=== [PDF page 17] ===
+
+                           Figure 8: User Interface for pairwise model comparison.
+
+                                                             Model                      Simulated Annotated
+ screenshots.                                                GPT-4o Direct                 96.1        96.0
+ By comparing the two webpages, you need to                  GPT-4o Text-Augmented         94.8        96.0
+                                                             GPT-4o Self-Revision          95.0        97.0
+ decide which one is better.                                 GPT-4V Direct                 81.0        74.0
+ Please zoom in to take a closer look at the                 GPT-4V Text-Augmented         81.4        82.0
+ screenshots if necessary.                                   GPT-4V Self-Revision          85.7        85.0
+                                                             Gemini Text-Augmented         51.9        61.0
+ To decide which one is better, you might con-               Gemini Self-Revision          50.4        60.0
+ sider the following aspects:                                WebSight VLM-8B               58.3        65.0
+ 1. More readable                                            Design2Code-18B               58.3        63.0
+ 2. Better layout
+                                                        Table 8: Comparison of simulated win rates (%) and human
+ 3. Better style                                        annotated “win + tie” rates (%) across models (Pearson r =
+                                                        0.975, Kendall τ = 0.931). The simulated win rates refer to
+                                                        the win rate predicted by the learned linear model on all 484
+                                                        examples. The annotated “win + tie” rates refer to the human
+G    Simulated Win Rate                                 annotation on 100 examples from Figure 4.
+Since we’ve shown that we can predict human judg-
+ment based on automatic metrics and achieve rea-
+sonable accuracy, we can also provide a simulated
+win rate using the learned coefficients and inter-      win rates with the annotated “win + tie” rates for
+cept. In practice, we remove the text similarity        fair comparison and observe a strong correlation
+dimension and rerun the linear regression model         between them, suggesting that our automatic met-
+on the same training examples (details provided in      rics can also be aggregated into simulated win rates
+Appendix Table 6). Using all 484 examples, we           to facilitate model comparison. For models with-
+use the learned model to simulate the win rate and      out annotated “win + tie” rates, we also provide
+report the result in Table 8. Since the learned model   the simulated win rate in Appendix Table 9 for
+only predicts win/lose, we compare the simulated        reference.
+                                                    3972
+
+=== [PDF page 18] ===
+
+                                         Block-Match                     Position           CLIP
+                                         Text                            Color
+
+                            1.0
+                            0.9
+                    Ratio   0.8
+                            0.7
+                            0.6
+                            0.4
+                                  0         1000          2000           3000       4000      5000
+                                                                 Steps
+Figure 9: Learning process for different automatic evaluation dimensions, where we plot the performance for the
+base model checkpoint and all training checkpoints. For each dimension, the score is re-scaled so that it is 0 before
+training (0 steps) and 1 after training (5000 steps). The y-axis is rescaled to highlight the differences for bigger
+values.
+
+
+
+
+Figure 10: Comparison of WebSight VLM-8B and Design2Code-18B. WebSight VLM-8B excels at color recogni-
+tion but hallucinates text contents.
+
+
+    Model                                  Simulated(%)           ences in Table 1. Specifically, we show the normal-
+    Claude 3 Opus Direct                        77.5              ized performance of each aspect (so that 0 before
+    Claude 3 Opus Text-Augmented                72.9              training and 1 after training) for the base model
+    Claude 3 Opus Self-Revision                 76.3
+    LLaVA 1.6-7B Direct                         27.9
+                                                                  checkpoint and all training checkpoints. On the
+    LLaVA 1.6-7B Text-Augmented                 34.5              one hand, performance on block-match, text, and
+    LLaVA 1.6-7B Self-Revision                  32.9              position quickly saturate after training for 2000
+    DeepSeek-VL-7B Direct                       25.8
+    DeepSeek-VL-7B Text-Augmented               37.4              steps and remain stable afterward, possibly because
+    DeepSeek-VL-7B Self-Revision                18.8              these are the most transferable capabilities from the
+    Idefics2-8B Direct                          19.8              base model. On the other hand, the color similar-
+    Idefics2-8B Text-Augmented                   7.6
+    Idefics2-8B Self-Revision                    3.3              ity and the CLIP similarity steadily increase until
+                                                                  4000 − 5000 steps. We assume that generating the
+                                                                  correct color codes for texts and backgrounds ben-
+Table 9: Simulated win rates for models that are not annotated
+by human, which are predicted by the learned linear model on      efits more from the HTML training data than other
+all 484 examples.                                                 aspects and might be further improved by using the
+                                                                  full Websight dataset and fully fine-tuning.
+H     What is the Learning Process of
+      Different Dimensions?                                       I   More Case Study Examples
+
+We further plot the learning process of different                 By comparing WebSight VLM-8B vs
+automatic evaluation dimensions in Figure 9 to                    Design2Code-18B, we show a representative
+help us better understand the performance differ-                 example in Figure 10, where WebSight VLM-8B
+                                                             3973
+
+=== [PDF page 19] ===
+
+is much better in coloring than Design2Code-18B
+(color score 0.99 vs 0.66) and overall layout (posi-
+tion score 0.91 vs 0.63 and CLIP similarity 0.90
+vs 0.83). However, WebSight VLM-8B tends to
+hallucinate texts and results in lower block-match
+(0.85 vs 0.99) and text similarity scores (0.98 vs
+1.0). In general, we find that WebSight VLM-8B
+tends to have lower precision and recall than our
+model in terms of text matching.
+
+
+
+
+                                                   3974

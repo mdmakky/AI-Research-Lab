@@ -1,0 +1,942 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                                       Toward Functional and Non-Functional Evaluation of
+                                                               Application-Level Code Generation
+                                               Ruwei Pan1,2             Yakun Zhang3                Qingyuan Liang2 Yueheng Zhu1,2                         Chao Liu1          Lu Zhang2
+                                                                                                         Hongyu Zhang1 ∗
+                                         Abstract                                                                           still fail during installation or execution. Such failures are usually
+                                         Large language models (LLMs) have achieved strong performance                      not exposed by snippet-level evaluation.
+                                         on code generation. However, most prior evaluations focus on                          Recent code LLMs have made strong progress on snippet-level
+                                         snippet-level outputs, such as function generation or repository                   tasks, and much of this progress has been established on widely
+                                         completion. These settings do not fully evaluate application-level                 used code generation benchmarks [5, 28, 40]. These benchmarks
+
+
+
+
+arXiv:2602.03462v2 [cs.SE] 30 Mar 2026
+                                         code generation, where the goal is to produce a runnable repository                mainly study function-level, contest-level, repo-level, or feature-
+                                         with coherent multi-file structure, dependency support, and end-to-                level generation, and most of them evaluate functional correctness
+                                         end executability. In addition, real-world software quality depends                with unit tests [2, 7, 10, 16, 20, 27, 44]. While useful for measuring
+                                         not only on functional correctness but also on non-functional qual-                snippet-level ability, they do not fully evaluate application-level gen-
+                                         ity attributes, such as maintainability and security. In this paper,               eration. At the application level, an LLM must produce a runnable
+                                         we present RAL-Bench, a benchmark and evaluation framework                         repository that can be installed, executed, and checked end to end.
+                                         for application-level code generation. For each task, RAL-Bench                    This setting also requires evaluation beyond functional correctness,
+                                         derives a concise natural-language requirement from a high-quality                 because a usable application must satisfy basic non-functional qual-
+                                         reference project, constructs black-box system tests for both func-                ity attributes. Figure 1 illustrates this difference. This gap leads to
+                                         tional correctness and non-functional quality attributes. It also                  two limitations in current benchmarks.
+                                         retains only the candidate tests that pass on the reference reposi-                    • Lack of application-level evaluation. Most benchmarks
+                                         tory. Under this unified evaluation protocol, functional correctness                     do not test whether an LLM can generate an executable
+                                         is measured by the system test pass rate, while non-functional qual-                     application from a natural-language requirement.
+                                         ity is evaluated along five ISO/IEC 25010-inspired dimensions, with                    • Limited end-to-end non-functional evaluation. Most
+                                         per-dimension diagnostics and reference-normalized scoring. We                           benchmarks do not assess non-functional quality for com-
+                                         evaluate 16 frontier LLMs under a controlled zero-shot setting with                      plete applications. Some recent work considers a single at-
+                                         greedy decoding. The results show that functional correctness re-                        tribute, such as efficiency or security, on isolated snippets.
+                                         mains the primary bottleneck in application-level code generation,                       This is still different from evaluating multi-attribute quality
+                                         while non-functional quality also remains challenging. Under our                         for end-to-end applications.
+                                         evaluation protocol, no model exceeds a 45% functional score. These
+                                         findings suggest that strong performance on existing code gener-                      These limitations leave an important evaluation gap. Current
+                                         ation benchmarks does not yet translate to strong performance                      benchmark results do not tell us how well LLMs support application-
+                                         on application-level repository generation. This result highlights                 level code generation. This paper studies a focused question: Can
+                                         the need for evaluation settings that directly assess end-to-end                   current LLMs generate application-level repositories that satisfy both
+                                         repository generation rather than relying only on snippet-level                    functional correctness and non-functional quality attributes?
+                                         success.                                                                              Benchmark overview. Our goal is to introduce a benchmark for
+                                                                                                                            studying application-level code generation. Specifically, we intro-
+                                         Keywords                                                                           duce RAL-Bench (Real-World Application-Level Code Generation
+                                                                                                                            Bench), a benchmark and evaluation framework for application-
+                                         Code Generation, End-to-End Application Generation
+                                                                                                                            level code generation. For each task, we derive a concise require-
+                                                                                                                            ment from a real GitHub project, build black-box system tests for
+                                         1    Introduction                                                                  functional and non-functional evaluation. We then validate the
+                                         In practice, software needs are often expressed as short natural-                  candidate tests on the reference repository before applying them
+                                         language requests, such as "implement a pure Python steganography                  to generated code. This design keeps the benchmark close to real
+                                         library". Turning such a request into a runnable application requires              software usage while maintaining a controlled evaluation protocol.
+                                         not only implementing functions, but also making decisions about                      Contributions. This paper makes three contributions.
+                                         project structure, dependencies, interfaces, and runtime behavior                      • We define application-level code generation as a benchmark
+                                         [4, 12, 23, 37, 39]. A repository may therefore look complete but                        setting that requires executable repositories under end-to-
+                                         ∗1 Chongqing University   2 Peking University   3 Harbin Institute of Technology
+                                                                                                                                  end evaluation, rather than snippet-level outputs under unit
+                                         (Shenzhen)
+                                                                                                                                  tests.
+                                                                                                                                • We present RAL-Bench, which uses real GitHub projects,
+                                                                                                                                  reference-validated black-box system tests, and multiple di-
+                                         Conference’17, Washington, DC, USA
+                                         2026. ACM ISBN 978-x-xxxx-xxxx-x/YYYY/MM                                                 mensional non-functional evaluation for application-level
+                                         https://doi.org/10.1145/nnnnnnn.nnnnnnn                                                  code generation.
+
+=== [PDF page 2] ===
+
+Conference’17, July 2017, Washington, DC, USA               Ruwei Pan1,2         Yakun Zhang3   Qingyuan Liang2               Yueheng Zhu1,2        Chao Liu1        Lu Zhang2        Hongyu Zhang1
+
+
+            Snippet-Level                                                                       Table 1: Repository manifest grouped by the seven real-world
+        Functional-Level Code Generation                                                        usage scenarios. Pinned commit SHA fixes the exact reposi-
+                                                                                                tory snapshot for reproducible evaluation.
+         Contest-Level Code Generation
+                                                                 Functional
+                                                Unit Test
+                                                                 Correctness
+             Repo-Level Completion                                                               Scenario        Repository                    Commit (40-hex SHA)                        #Files    LoC
+                                                                                                                 astanin/python-tabulate       74885be915e2ac611585f5398f23c402532c1059       1      2.4k
+         Feature-Level Code Generation                                                                           martinblech/xmltodict         f7d76c96fc0141238947abcc5fa925d3ffd9eb78       3      1.4k
+                                                                                                                 mkaz/termgraph                b86ccfddf55eda83bb2c3b9afe4c74478559bcb1       8      1.0k
+                                                                                                 Tooling
+         Application-Level                                                                                       pallets/click
+                                                                                                                 pygments/pygments
+                                                                                                                                               cdab890e57a30a9f437b88ce9652f7bfce980c1f
+                                                                                                                                               28ec10c5e154ee27201997feb573a0b065f74082
+                                                                                                                                                                                             16
+                                                                                                                                                                                            339
+                                                                                                                                                                                                     7.7k
+                                                                                                                                                                                                   109.5k
+                                                                 Functional                                      python-cmd2/cmd2              926636a38156e4a7e07dc1cee04bca7b019776ec      21      9.1k
+                                                                 Correctness                                     CamDavidsonPilon/lifelines    47afb1c1a272b0f03e0c8ca00e63df27eb2a0560      47     20.8k
+        Application-Level Code Generation   System Test                                                          dateutil/dateutil             e081f6725fbb49cae6eedab7010f517e8490859b      37     14.4k
+                                                                                                                 jazzband/tablib               7d6c58a574782b2525af17225e93bdf4efa0f376      31      5.0k
+                                                                Non-functional                   Data
+                                                                                                                 petl-developers/petl          482fc04fd2589ac9404a8e6a21601b956aa64a2f     124     27.0k
+                                                                   Quality                                       pudo/dataset                  b2ab09e58c6f17334e4286009b20887b6a8a8fac       6      1.1k
+                                                                                                                 python-pendulum/pendulum      754ed58a6c232b2335a967d5e266fc48c448b8f3     172     19.6k
+                                                                                                                 Python-Markdown/markdown      e5fa5b86e8ec380cbc520cfc637d72c779e5c601      33      5.7k
+                                                                                                                 fastapi/sqlmodel              1e4bf5c190e849e5d070f437a061667776788013      12      2.3k
+                                                                                                 Web
+Figure 1: Scope comparison between snippet-level and                                                             psf/requests
+                                                                                                                 python-visualization/folium
+                                                                                                                                               70298332899f25826e35e42f8d83425124f755a5
+                                                                                                                                               0ff5d993bf2c60dbf8f56c12bbc67f104b97687c
+                                                                                                                                                                                             35
+                                                                                                                                                                                             48
+                                                                                                                                                                                                     8.4k
+                                                                                                                                                                                                     8.2k
+application-level code generation.                                                                               cedricbonhomme/Stegano        3ffac4782b8e4e5893c3919e1eabb921867220cb      18      1.1k
+                                                                                                                 fail2ban/fail2ban             9887ee441215a2a1f889b0e1baaa43cd3a956d26      78     24.9k
+                                                                                                 Security        jpadilla/pyjwt                04947d75dc45ba1a4a66eaa2b24fbb0eb512ceab      12      2.1k
+                                                                                                                 mitmproxy/mitmproxy           a7621021191011de7c95771459688de3ecd67c10     242     39.1k
+      • We provide a controlled empirical study of 16 frontier LLMs                                              sqlmapproject/sqlmap          876f14199ecb33ee16ed09b40f9ebe5225a1cd74     102     27.6k
+
+        under a zero-shot setting. The results show that functional                                              celery/celery                 4d068b5667b75e21844f0748d13627e70d5a42ac     156     32.2k
+                                                                                                                 dbader/schedule               82a43db1b938d8fdf60103bd41f329e06c8d3651       1      0.7k
+        correctness remains the main bottleneck in application-level                             Automation
+                                                                                                                 fastapi/typer                 a8c425b613aeb645553a418b4aa6e3b7f4a8db77      16      4.1k
+                                                                                                                 msiemens/tinydb               2283a2b556d5ef361b61bae8ed89c0ce0730d7c8      10      1.4k
+        code generation.                                                                                         nvbn/thefuck                  c7e7e1d884d3bb241ea6448f72a989434c2a35ec     206      4.8k
+                                                                                                                 tkem/cachetools               9983ef8bd76758707ab9d197d4bd9fa47b4fb8bd       5      1.0k
+                                                                                                                 Delgan/loguru                 764cd30d4b285ca01718ab3162a9f1a022bc49c6      19      4.0k
+
+2 RAL-Bench                                                                                      Observability
+                                                                                                                 Textualize/rich
+                                                                                                                 gorakhargosh/watchdog
+                                                                                                                                               36fe3f7ca9becca4777861d5e6e625f5a4a37545
+                                                                                                                                               3f8a12f9cf6d9f8091e05b61952409ed9623257d
+                                                                                                                                                                                             78
+                                                                                                                                                                                             54
+                                                                                                                                                                                                    23.2k
+                                                                                                                                                                                                     8.2k
+                                                                                                                 nicolargo/glances             7cd3eeb1a67c8a1623887e0d8b7de70797a9696e     129     18.7k
+2.1 Overview                                                                                                     python-humanize/humanize      c2b096a96fa8850399a84401267d5c174e57e7e3      12      2.6k
+                                                                                                                 imageio/imageio               761929cc6ae6503f93f2431e0b47d504837ba77a      49     26.4k
+We introduce RAL-Bench as a benchmark and evaluation protocol                                                    mailpile/Mailpile             741e610f3e765f03bd0c452c92c6758280e7f99f     130     43.2k
+                                                                                                                 py-pdf/pypdf                  19735763b856cccf0f69630d0f582a448ec5d8bb      56     37.3k
+for application-level code generation. Our goal is controlled com-                               Content
+                                                                                                                 quodlibet/mutagen             905e8152d57efc1eb80ae3cb2b557735ede8d070      56     14.5k
+                                                                                                                 sffjunkie/astral              ac23ab5c0c69837d8fa1a5bb184c2d6d125b26b3      36      4.9k
+parison of LLMs under a unified generation and testing setting,                                                  un33k/python-slugify          7b6d5d96c1995e6dccb39a19a13ba78d7d0a3ee4       5      0.3k
+rather than best-case performance under task-specific prompting
+or agent design. RAL-Bench contains 38 real projects, more than 450                             we pin one commit and use that snapshot throughout benchmark
+evaluation points, and seven application scenarios, as summarized                               construction and evaluation.
+in Table 1. These projects are sourced from actively maintained                                    Natural-Language Requirement Distillation. Given a refer-
+GitHub repositories with an average popularity of more than 1,000                               ence repository, we draft one concise natural-language requirement
+stars, ensuring that they have documented functionality and real                                from its README, public API surface, usage examples, and source
+usage. We exclude repositories that are already used in public code                             code. README and examples provide the high-level task descrip-
+generation benchmarks or evaluation suites, which reduces bench-                                tion, while the source code is used only to verify scope and expected
+mark contamination. However, because the repositories are public,                               usage patterns. We then manually revise the draft to remove im-
+we do not claim that pretraining exposure can be fully ruled out.                               plementation details, file-layout hints, and project-specific names
+We therefore interpret the benchmark as measuring application-                                  that would reveal the answer. The final requirement states what
+level generation under realistic public-repository exposure condi-                              the application should do and how it is expected to be used, but
+tions. For each task, the requirement and test suite are manually                               does not prescribe the internal implementation. The requirement
+reviewed to reduce ambiguity. We remove project-specific wording                                itself remains compressed. During evaluation, we additionally pro-
+that reveals implementation details, and verify that all retained                               vide the expected module and package surface of the reference
+tests execute successfully on the pinned reference repository.                                  repository. This interface specification is not intended to reveal im-
+                                                                                                plementation logic. Its role is to reduce evaluation artifacts caused
+2.2     Benchmark Construction                                                                  by mismatched entry points or module paths.
+We build RAL-Bench through four steps: repository selection,                                       System Test Generation. We construct black-box system tests
+requirement drafting, system test construction, and refer-                                      from documented behaviors, public APIs, usage examples, and
+ence baseline collection. The goal of this pipeline is to produce                               expected input-output patterns of the reference project. Functional
+tasks that are executable, comparable, and close to real software us-                           tests cover core behaviors, common usage paths, and representative
+age, while keeping the evaluation process reproducible. The whole                               error cases. Non-functional tests assess maintainability, security,
+workflow is shown in Fig. 2.                                                                    robustness, efficiency, and resource usage through static analysis
+   Reference Repository Selection. We select reference reposito-                                or controlled runtime measurement. Each candidate test is first
+ries using three criteria: clear documented functionality, stable                               executed on the pinned reference repository. Tests that fail, depend
+public interfaces that support end-to-end testing, and active                                   on unstable external conditions, or rely on undocumented behavior
+real-world usage. We exclude repositories that are already used in                              are removed. We retain only tests that execute successfully and
+public code generation benchmarks. For each selected repository,                                produce consistent expected outcomes on the reference snapshot.
+
+=== [PDF page 3] ===
+
+          Toward Functional and Non-Functional Evaluation of Application-Level Code Generation                                                        Conference’17, July 2017, Washington, DC, USA
+
+ts                                                                                Pytest fails on reference repo: tests
+                                                                                  invalid, redesign required
+
+                                    Codebase                      Reference Repo                        System Test                                 Reference Repo
+                                    lsb
+                                                                 NL Requirements                             Functional Test
+                                          __init__.py                                                                                                Terminal
+
+                                       lsb.py                 Implement a pure Python                                                       $env:CACHETOOLS_TARGET = "reference"
+                                         ...                  steganography library that
+                                                                                                                                            pytest tests\Stegano\functional_test.py
+                                                                                                          Non-functional Test               pytest tests\Stegano\efficiency_test.py
+                                    tool.py                   is API-compatible with the                                                    pytest tests\Stegano\resource_test.py
+Results
+                                                              core parts of the Stegano
+                                                              project...                                                                     Validate tests on reference
+                                          README                                                                                             repo (must all pass)
+
+                                RAL-Bench                              Baseline Metric Collection
+                                                                                Terminal - measure_reference.py                          Terminal
+                                    evaluation                                                                                   ================ test session starts ================
+                                                                        Measured baseline_metrics:
+                                    repositories                        {'efficiency': {'elapsed_time_s': 0.725171},             collected 10 items
+                                                                                                                                 tests\Stegano\functional_test.py ..........    [100%]
+                                    tasks                               'resource': {'resource_suite_time_s': 0.917932}}
+                                                                        Updated baseline_metrics in tasks\Stegano\stegano.yaml   ================ 10 passed in 2.26s =================
+                                    tests                                                                                        collected 1 item
+                                                                                                                                 tests\Stegano\resource_test.py .               [100%]
+                                        Stegano                                                                                  ================= 1 passed in 0.96s =================
+                                                                                                                                 collected 1 item
+                                           functional_test.py                                                                    tests\Stegano\efficiency_test.py .            [100%]
+                                             ...                                          Final System Test                      ================= 1 passed in 0.49s =================
+
+
+
+
+                                                          Figure 2: Overall construction pipeline of RAL-Bench.
+
+          This step supports oracle validity, but does not by itself guarantee                              software security, because static analysis may still produce false
+          full behavioral coverage. We therefore also report test statistics and                            positives or miss domain-specific issues. Let 𝑔 and 𝑏 denote the
+          coverage-oriented evidence in Section 2.5.                                                        number of high-risk findings in the generated code and the refer-
+             Baseline Metric Collection. We run the same non-functional                                     ence implementation, respectively. We compute a reference-aligned
+          measurement pipeline on the reference repository and store the re-                                inverse ratio with smoothing:
+          sulting per-task baselines. These baselines are used as task-specific                                                                     
+          anchors for cross-project comparison. They are not treated as glob-                                                                   𝑏+1
+                                                                                                                                  S = min 1,           .                   (2)
+          ally optimal targets.                                                                                                                 𝑔+1
+
+                                                                                                             3 Robustness is evaluated using a dedicated robustness test suite
+          2.3     Metric Design
+                                                                                                            targeting invalid, boundary, and unexpected inputs. This choice
+          We evaluate application-level code generation using two comple-                                   reflects runtime stability under black-box execution rather than
+          mentary metrics: functional correctness and non-functional quality                                static robustness properties. Let passed and total denote the num-
+          attributes.                                                                                       ber of passed tests and the total number of robustness tests. The
+              Functional correctness. Functional correctness is measured by                                 robustness score is defined as:
+          the pass rate of the functional system tests for each task. This
+          score captures whether the generated repository satisfies the tested                                                                                  passed
+                                                                                                                                                    Rb =               .                        (3)
+          end-to-end behaviors of the target application.                                                                                                        total
+              Non-functional quality attributes. Following ISO/IEC 25010 [13],
+                                                                                                             4 Efficiency is measured by the elapsed runtime of a dedicated
+          we evaluate five non-functional dimensions: maintainability, se-                                  efficiency suite under a fixed environment. Our goal is not fine-
+          curity, robustness, efficiency, and resource usage. We use these                                  grained performance profiling, but a reproducible end-to-end effi-
+          dimensions as scalable operational proxies for practical software                                 ciency signal that can be compared across generated and reference
+          quality, rather than exhaustive measurements of all quality con-                                  repositories. Let 𝑇gen and 𝑇ref denote the efficiency-suite execution
+          cerns.                                                                                            times of the generated code and the reference implementation, re-
+           1 Maintainability is measured by the lower-bound Maintainabil-
+                                                                                                            spectively. If the efficiency suite fails to execute successfully (e.g.,
+          ity Index (MI) from static analysis. MI does not capture all aspects of                           failed tests), we set E = 0; otherwise:
+          maintainability, such as naming quality or architectural clarity, but
+                                                                                                                                                         
+          it provides a low-cost and reproducible signal of structural complex-                                                                      𝑇ref
+          ity across projects. Higher MI generally reflects lower structural                                                          E = min 1,            .                   (4)
+                                                                                                                                                    𝑇gen
+          complexity and therefore improved maintainability. Let 𝑔 and 𝑏
+          denote the MI lower bounds of the generated code and the refer-                                    5 Resource usage is measured using a dedicated resource suite.
+          ence implementation, respectively. To avoid hard saturation when                                  During execution, we sample resident set size (RSS) memory usage
+          directly using 𝑔/𝑏, we apply a smooth compression function:                                       and CPU utilization of the pytest subprocess and its child pro-
+                                                                                                            cesses. We then compute the average memory (MB) and average
+                                                   𝑔/𝑏
+                                          M =            .                                   (1)            CPU utilization (%) over the run. Let 𝑀gen, 𝐶 gen and 𝑀ref, 𝐶 ref denote
+                                                 1 + 𝑔/𝑏                                                    the corresponding averages for the generated code and the refer-
+           2 Security is quantified by the number of high-risk issues re-                                   ence implementation. These measurements provide a comparative
+          ported by static security analysis. We use only high-risk issues to                               runtime signal under a fixed environment. If the resource suite fails
+          reduce noise from low-severity issues. This metric should be read                                 to execute successfully (e.g., failed tests), we set Ru = 0. Otherwise,
+          as a conservative risk signal rather than a complete measure of                                   we compute reference-aligned ratios and average memory and CPU
+
+=== [PDF page 4] ===
+
+Conference’17, July 2017, Washington, DC, USA          Ruwei Pan1,2   Yakun Zhang3   Qingyuan Liang2   Yueheng Zhu1,2        Chao Liu1                   Lu Zhang2         Hongyu Zhang1
+
+
+when both are available:                                                                          NL Requirements                 Generated Code                          +770
+                 
+                       𝑀ref
+                                    
+                                          𝐶 ref
+                                                                                             Implement a pure Python               lsb
+          1
+                               +
+        
+              min   1,           min   1,          ,   CPU available,                          steganography library that                               __init__.py
+        
+        
+        2             𝑀gen               𝐶 gen
+                                                                                               is API-compatible with the
+        
+  Ru =                                                                  (5)                  core parts of the Stegano                                lsb.py
+                    𝑀ref
+                                                                                                                                     red
+        
+         min 1, 𝑀gen
+                          ,                           memory only.                            project...
+                                                                                                                                    steganalysis
+                                                                                                                                     wav
+We aggregate the five normalized dimensions with AHP-derived
+                                                                                                                                     tool.py
+weights. We use AHP to provide a transparent and reproducible                                       Language Model
+
+aggregation rule for multi-dimensional quality, not to claim a uni-
+versal weighting scheme for all software domains. To avoid over-
+                                                                                                   Evaluation
+reliance on a single aggregate score, we also report the full per-                              Functional Test：                                                 OUTPUT
+
+dimension breakdown. We ground the relative importance ordering                                  4 failed, 8 passed                                          Functional
+                                                                                                                                                               score:
+on Botchway et al., who apply AHP to expert questionnaires and                                  Non-Functional Test:                                           0.6667
+                                                                                                                                                           Non-functional
+report maintainability and security as the highest-priority quality                              Efficiency:                                                   score:
+                                                                                                 elapsed_time_s: 2.011236                                      0.7194
+
+
+
+
+                                                                                                                                   Reference Baseline
+attributes, followed by robustness and efficiency [3]. Based on this                             1 failed, 0 passed                                       maintainability:
+                                                                                                 Resource:                                                     0.5566
+ordering, we construct a pairwise comparison matrix using the                                        avg_memory_mb: 36.49                                     security:
+                                                                                                     avg_cpu_percent: 98.0                                     1.0000
+standard Saaty scale [14]. We compute the normalized principal                                   0 failed, 1 passed                                          robustness:
+                                                                                                 Robustness:                                                   1.0000
+eigenvector to obtain the weight vector and verify consistency us-                               0 failed, 4 passed                                          efficiency:
+                                                                                                 Security:                                                     0.0000
+ing the AHP consistency ratio (CR). In our setting, CR = 0.030                                       high_risk_count: 0.0                                     resource:
+                                                                                                 0 failed, 1 passed                                            0.9918
+(< 0.1), indicating an acceptable level of consistency. The full                                 Maintainability:
+                                                                                                     mi_min: 28.1755
+                                                                                                 0 failed, 1 passed                                              AHP
+AHP derivation (matrix, eigenvector solution, CI/RI/CR) is doc-
+umented in our anonymous repository for reproducibility. The
+non-functional score aggregates five normalized quality dimensions
+using a weighted sum. Here, 𝑀, 𝑆, 𝑅𝑏, 𝐸, and 𝑅𝑢 denote the normal-                               Figure 3: Evaluation pipeline overview.
+ized scores of maintainability, security, robustness, efficiency, and                   Functional Correctness via System Tests. We then evaluate
+resource usage, respectively:                                                        functional correctness using system test suites. Specifically, we
+                                                                                     execute functional tests against the generated repository and com-
+         NF = 0.36 M + 0.24 S + 0.16 Rb + 0.12 E + 0.12 Ru.               (6)        pute the functional score as the pass ratio across all functional
+                                                                                     test cases, which directly measures whether the generated appli-
+   This non-functional score provides a compact summary of multi-                    cation behavior matches the reference implementation’s intended
+dimensional software quality and is reported together with the                       functionality.
+five per-dimension scores. In Section 3.2, we show that it is both                      The Role of Interface Constraints. On Stegano with GPT-
+discriminative across LLMs and stable under reruns.                                  5.2, omitting the interface specification yields a functional score of
+   Metric limitations. These metrics are operational proxies de-                     0.1667. Providing the interface specification increases the score to
+signed for scalable benchmark evaluation. They do not replace                        0.6667. Inspecting the corresponding failure cases shows that this
+expert audit or domain-specific quality assessment. In particular,                   improvement primarily stems from alleviating test-interface mis-
+static-analysis-based measures may produce false positives or false                  matches (e.g., incorrect entry points or module paths) rather than
+negatives, and runtime measures are environment-dependent. We                        from failing to satisfy the task requirements. This example shows
+therefore use them as comparative signals under a fixed protocol.                    why interface constraints are included in the protocol. They reduce
+                                                                                     mismatches in entry points and module paths, so that the bench-
+2.4     Evaluation Pipeline                                                          mark better measures application behavior rather than avoidable
+We evaluate application-level code generation under a controlled                     interface mismatches.
+end-to-end pipeline. The purpose of this setup is standardized com-                     Non-functional Measurement. Beyond functional correctness,
+parison across models under a fixed generation and testing budget.                   we run the non-functional measurement pipeline defined in Sec-
+It is not intended to represent all practical development workflows.                 tion 2.3. This pipeline collects runtime and static-analysis signals
+The evaluation workflow is illustrated in Fig. 3.                                    for the five quality dimensions and converts them into comparable
+    Input. First, for each target project, we provide the LLM with a                 per-dimension scores.
+concise natural-language requirement that captures the core func-                       Reference-normalized Scoring. Because different projects
+tionality to be implemented. To ensure strict interface alignment                    have very different scales, we compute a per-project baseline by run-
+and avoid evaluation artifacts caused by mismatched entry points,                    ning the non-functional suite on the reference repository. We then
+we also provide the reference repository’s expected module and                       score each generated repository by comparing its non-functional
+package surface, guiding the model to generate a repository that                     metrics against this baseline, making results comparable across
+conforms to the same API boundary. Given the requirement and the                     projects. Concretely, for efficiency, resource usage, security, and
+interface constraints, the LLM generates a complete repository in a                  maintainability, we first run the same measurement pipeline on
+single controlled pass. We use this setup to isolate base repository-                the reference repository to obtain a task-specific baseline for each
+generation ability without adding confounding factors from agent                     dimension. We then evaluate the generated repository under the
+design, iterative repair policy, or tool-use budget.                                 same environment and normalize each raw measurement against
+
+=== [PDF page 5] ===
+
+Toward Functional and Non-Functional Evaluation of Application-Level Code Generation                                 Conference’17, July 2017, Washington, DC, USA
+
+
+      Table 2: Summary statistics of executable test suites.                                 Table 3: Defect-detection sanity check on all tasks.
+
+  Metric                                                       Value                                    Metric                         Value
+  # Tasks                                                         38                                    # Tasks                         38
+  Functional tests (mean / median / min / max)          11.03 / 11.5 / 10 / 19                          # Injected defects               76
+  Robustness tests (mean)                                        4.03                                   Functional detection rate      1.00
+  Efficiency tests (mean)                                        1.21                                   Robustness detection rate      0.375
+  Resource tests (mean)                                          1.39                                   Union detection rate           1.00
+  Executable suite count (mean / median)                    17.66 / 18.0
+                                                                                       3     Benchmarking on RAL-Bench
+                                                                                       We evaluate the performance of state-of-the-art (SOTA) LLMs on
+                                                                                       application-level code generation with RAL-Bench. Specifically, we
+                                                                                       aim to address the following research questions (RQs):
+its baseline using fixed, dimension-specific rules, yielding a score
+                                                                                             • RQ1: What is the performance of current LLMs in application-
+in [0, 1]. The reference repository serves as a task-specific anchor
+                                                                                               level code generation?
+for comparison, not as a claim of global optimality. We cap normal-
+                                                                                             • RQ2: Where do LLMs fail in application-level code genera-
+ized scores at 1 so that reaching or exceeding the reference level is
+                                                                                               tion?
+rewarded, while preventing one unusually favorable raw measure-
+                                                                                             • RQ3: What is the cost of application-level code generation
+ment from dominating the aggregate score. The exact scoring rules
+                                                                                               with current LLMs?
+and normalization functions are defined in Section 2.3.
+                                                                                             • RQ4: Are mainstream code generation strategies effective
+   Aggregation and Outputs. Finally, we aggregate the five non-
+                                                                                               for application-level code generation?
+functional dimension scores into an overall non-functional index
+using an AHP-derived weight vector [3]. We report both the ag-
+gregate non-functional score and the five per-dimension scores.
+                                                                                       3.1     Evaluation Setup
+This design supports comparison at the benchmark level while                           Benchmark Models. We comprehensively evaluate 16 LLMs across
+preserving diagnostic detail for later analysis.                                       diverse model families. For standard LLMs, we consider Gemini-2.5-
+   Protocol Boundary. Although many real development work-                             Pro [9], Gemini-3-Pro-Preview, GPT-3.5-Turbo, GPT-4o-2024-11-
+flows are iterative or agent-based, we keep the main benchmark                         20 [18], GPT-4-Turbo [1], GPT-5 [25], GPT-5.2, Claude-Haiku-4.5,
+setting single-turn and zero-shot to maintain comparability across                     Claude-4.5-Sonnet, DeepSeek-V3-0324 [31], and DeepSeek-V3.2
+models. Studying multi-turn or agentic generation under the same                       [32]. For thinking LLMs, we evaluate Gemini-2.5-Pro-Thinking,
+benchmark is an important next step, but requires additional proto-                    GPT-o1 [19], GPT-o3-2025-04-16, Claude-3.7-Sonnet-Thinking, and
+col design.                                                                            DeepSeek-R1 [15]. All evaluations are conducted in a zero-shot
+                                                                                       setting using each model’s default prompt template. For each task,
+                                                                                       LLMs output the entire repository in one pass, within the LLM’s
+2.5     Benchmark Validation                                                           context-window limits. To ensure reproducibility, we repeat each
+Test statistics and behavioral coverage. To further validate the                       evaluation three times under identical settings and report the mean
+benchmark construction, we summarize the executable test suites                        score across runs for all metrics.
+for all 38 tasks. As shown in Table 2, the benchmark does not rely
+on only a few checks per task. When robustness, efficiency, and                        3.2     RQ1: Capability Assessment
+resource suites are included, the executable suite count reaches                       Table 4 and Table 5 summarize model performance on RAL-Bench.
+mean/median of 17.66/18.0 per task. We also inspect representative                     We make four observations.
+tasks from different scenarios and find that their functional suites                      Functional correctness is the main bottleneck. Across stan-
+cover multiple behavior categories rather than a single shallow                        dard LLMs, the average functional score is 33.98%. For thinking
+invocation path. These results provide additional evidence that                        LLMs, the average is 30.23%. No model exceeds a 45% functional
+RAL-Bench uses task-specific black-box suites with multi-category                      score. These results show that current LLMs still struggle to com-
+behavioral coverage.                                                                   plete end-to-end application logic under our evaluation protocol.
+   Defect-detection sanity check. Beyond reference-repository                             Non-functional scores are generally higher, but they do
+validation, we perform a defect-detection sanity check to assess                       not offset functional failures. The average non-functional score
+whether the black-box suites can detect representative application-                    is 52.25% for standard LLMs and 49.57% for thinking LLMs. This
+level failures. We evaluate all tasks in RAL-Bench and inject two                      suggests that some generated repositories behave reasonably once
+defects per task, yielding 76 injected defects in total. As shown in                   they can run, but many still fail to satisfy the core functional re-
+Table 3, the functional suites detect all injected defects, while the                  quirements. At the same time, non-functional scores provide useful
+robustness suites additionally detect a subset of runtime-stability                    additional discrimination. For example, Gemini-2.5-Pro and GPT-
+defects. The union detection rate is 1.00. The results provide addi-                   4o-2024-11-20 have similar functional scores (27.63% vs. 27.48%), but
+tional evidence that the suites have meaningful defect-detection                       their non-functional scores differ substantially (35.15% vs. 57.59%).
+power for representative application-level failures.                                   This difference is reflected in the per-dimension breakdown. These
+
+=== [PDF page 6] ===
+
+Conference’17, July 2017, Washington, DC, USA   Ruwei Pan1,2   Yakun Zhang3     Qingyuan Liang2    Yueheng Zhu1,2       Chao Liu1    Lu Zhang2   Hongyu Zhang1
+
+
+             Table 4: Evaluation scores reported as percentages (higher is better). Best values per column are in bold.
+
+
+                                                                                                  Scores (%)
+                                LLM              Provider
+                                                                 Func.    Non-func. Maint.           Sec.      Robust.       Eff.       Res.
+
+                          Gemini-2.5-Pro            Google       27.63        35.15     26.27       54.39       41.39        24.84      25.28
+                      Gemini-3-Pro-Preview          Google       43.86        50.57     31.50       76.75       66.36       43.69       41.23
+
+                          GPT-3.5-Turbo            OpenAI        29.76        55.08     36.92       97.37       79.62        29.80      17.57
+                        GPT-4o-2024-11-20          OpenAI        27.48        57.59    37.50        96.05      84.07         35.54      27.71
+                           GPT-4-Turbo             OpenAI        36.42        58.13     34.90       97.37       78.32        42.24      38.31
+                         GPT-5-2025-08-07          OpenAI        38.50        57.51     33.84       94.74       77.02        41.81      43.73
+                              GPT-5.2              OpenAI        41.81        57.05     33.90       92.11       77.19        42.79      43.83
+
+                   Claude-Haiku-4.5-20251001      Anthropic      34.74        56.40     34.52       97.37       79.66        37.19      28.32
+                        Claude-4.5-Sonnet         Anthropic      39.32        49.64     30.19       84.21       66.93        31.50      33.94
+
+                        DeepSeek-V3-0324          DeepSeek       24.37        46.34     32.29       81.58       65.89        22.90      15.36
+                          DeepSeek-V3.2           DeepSeek       29.92        51.26     36.07       89.47       63.49        26.91      28.46
+
+                              Average                –           33.98        52.25     33.45       87.40       70.90        34.47      31.25
+
+
+Table 5: Evaluation scores for thinking models reported as percentages (higher is better). Best values per column are in bold.
+
+
+                                                                                                  Scores (%)
+                                 LLM              Provider
+                                                                  Func.       Non-func.Maint.        Sec.      Robust.        Eff.       Res.
+
+                     Gemini-2.5-Pro-Thinking         Google       43.44       56.09     34.80        89.47      75.16        42.68      41.15
+
+                               GPT-o1               OpenAI        33.88        55.44    37.44        92.11      74.07        36.35      30.37
+                         GPT-o3-2025-04-16          OpenAI        30.27        55.44    35.01       96.05       73.60        35.89      30.80
+
+                   Claude-3.7-Sonnet-Thinking      Anthropic      27.34        52.94    37.29        92.11      63.34        30.65      29.95
+
+                            DeepSeek-R1             DeepSeek      16.23        27.95    12.36        56.84      38.42        18.57      12.36
+
+                               Average                –           30.23        49.57    31.38        85.32      64.92        32.83      28.92
+
+
+
+results show that non-functional evaluation adds information that              the results over all 38 projects using the median (med) and 95th
+functional pass rate alone does not capture.                                   percentile (p95). Table 6 shows that the benchmark is stable. First,
+   Efficiency and resource usage still vary across models. Even                functional scores are fully reproducible: Std and CV are both 0
+when models achieve similar functional scores, their runtime behav-            for all evaluated projects and models. Second, the aggregated non-
+ior can differ noticeably. This suggests that producing a runnable             functional score is also highly stable, with an overall Std of 0.0003
+repository is not the same as producing an efficient or resource-              (med) and 0.0012 (p95), and an overall CV of 0.0007 (med) and
+aware one.                                                                     0.0028 (p95). Third, runtime metrics show small variation across
+   Thinking does not provide consistent gains. Gemini-2.5-Pro-                 reruns, which is expected under normal execution noise such as
+Thinking improves substantially over Gemini-2.5-Pro, including                 OS scheduling and caching effects. Across projects, the overall
+a functional score increase from 27.63% to 43.44%. However, this               CV is 0.0224 (med) and 0.0557 (p95) for runtime, 0.0075 (med) and
+pattern is not consistent across providers. On average, thinking               0.0138 (p95) for memory, and 0.0127 (med) and 0.0270 (p95) for CPU.
+LLMs remain slightly below standard LLMs on both functional and                Because each non-functional dimension is normalized against a
+non-functional scores. This indicates that additional deliberation             fixed reference baseline before aggregation, these small fluctuations
+alone is not yet a reliable way to improve application-level code              do not change the model-level conclusions.
+generation.
+   Rerun Stability. We assess metric stability by rerunning the
+full benchmark pipeline five times for three representative models:
+GPT-5.2, Gemini-3-Pro-Preview, and Claude-4.5-Sonnet. For each
+model, we compute the standard deviation (Std) and coefficient of
+variation (CV) across reruns for each project, and then summarize
+
+=== [PDF page 7] ===
+
+Toward Functional and Non-Functional Evaluation of Application-Level Code Generation                                                        Conference’17, July 2017, Washington, DC, USA
+
+
+Table 6: Rerun stability (𝐾 = 5 full reruns). For each LLM, we compute the standard deviation (Std) and coefficient of variation
+(CV) over 𝐾 reruns per project, then summarize across 38 projects using median (med) and 95th percentile (p95). Runtime
+metrics are reported using CV.
+
+                                                   Functional Score Stability                      Non-functional Score Stability                 Runtime Metrics (CV)
+ Model                           𝐾 Proj.
+                                                           Std                      CV                 Std               CV              Time            Memory              CPU
+                                                   med           p95       med           p95       med       p95   med        p95     med      p95      med      p95     med      p95
+ Claude-4.5-Sonnet    5                 38         0.0000 0.0000 0.0000 0.0000 0.0003 0.0009 0.0007                         0.0026   0.0208 0.0501 0.0072 0.0134 0.0111 0.0270
+ Gemini-3-Pro-Preview 5                 38         0.0000 0.0000 0.0000 0.0000 0.0003 0.0017 0.0010                         0.0050   0.0319 0.0795 0.0080 0.0136 0.0137 0.0353
+ GPT-5.2              5                 38         0.0000 0.0000 0.0000 0.0000 0.0002 0.0006 0.0005                         0.0017   0.0198 0.0468 0.0074 0.0138 0.0098 0.0214
+ Overall                         5      38         0.0000 0.0000 0.0000 0.0000 0.0003 0.0012 0.0007                         0.0028   0.0224 0.0557 0.0075 0.0138 0.0127 0.0270
+
+                  Failure Pattern by Model                   Overall Failure Composition
+                                                                                                             3. Non-functional Quality Failures. Execution reaches the run-
+                                                                               44.2%
+                                                                                                             time stage, but the repository fails because of instability or ineffi-
+                                                                                                             ciency, such as exceptions, hangs, or timeouts. These failures reflect
+                                                                   17.2%
+                                                                                                             problems in robustness, liveness, or performance.
+                                                                            38.6%                                Main Results. Fig. 4 shows the distribution of these three fail-
+                                                                                                             ure patterns. At the aggregate level, requirement–implementation
+                                                             Executability & Dependency Failures             mismatches and non-functional quality failures account for 82.8%
+                                                             Requirement Implementation Mismatch
+                                                             Non-functional Quality Failures                 of all cases, while executability and dependency failures account
+           0    20%     40%      60%         80%    100%                                                     for 17.2%. This indicates that most failures occur after basic exe-
+                                                                                                             cutability has been reached.
+Figure 4: Failure-pattern distribution for application-level                                                     At the model level, Fig. 4 (left) shows clear cross-model varia-
+code generation.                                                                                             tion. Executability and dependency failures are consistently the
+                                                                                                             smallest share, usually around 15% to 20%. By contrast, requirement–
+                                                                                                             implementation mismatches and non-functional quality failures
+                                                                                                             dominate for every model. However, models differ in which failure
+      Answer to RQ1: Current LLMs remain limited in application-
+                                                                                                             pattern is most common. Some are mainly limited by requirement–
+      level code generation under our evaluation protocol, primarily
+                                                                                                             implementation mismatches after reaching executability, while oth-
+      because of weak functional correctness in end-to-end execu-
+                                                                                                             ers fail more often because of runtime instability or timeouts.
+      tion. Non-functional metrics offer additional discrimination
+                                                                                                                 Case Studies. Fig. 5 presents three representative failures, one
+      across models, but do not alter this conclusion. Thinking mod-
+                                                                                                             for each category. Together, these examples show that application-
+      els help in some cases, but their gains are not consistent across
+                                                                                                             level generation can fail before testing starts, during functional
+      providers.
+                                                                                                             verification, or during runtime robustness evaluation.
+                                                                                                                 In the executability and dependency failure case, the Celery
+                                                                                                             repository generated by Claude-3.7-Sonnet-Thinking fails during
+3.3      RQ2: Failure Analysis                                                                               pytest collection. The code imports celery.utils.threads.LocalStack,
+Setup. We analyze 446 generated repositories together with more                                              but the referenced submodule is missing, which raises a ModuleNot-
+than 4,500 test-case execution logs. For each failed case, we inspect                                        FoundError. This is an executability failure. The repository does not
+the generated repository and its execution evidence, and assign                                              expose a complete importable dependency surface, so functional
+one primary failure category. Based on this process, we construct a                                          verification cannot begin.
+failure-pattern dataset for application-level code generation.                                                   In the requirement–implementation mismatch case, the
+   Failure Taxonomy. To characterize where LLMs fail in application-                                         Markdown repository generated by DeepSeek-V3-0324 runs the
+level code generation, we assign one primary failure category to                                             tests but fails on assertions. Its HTML escaping routine produces
+each failed case. The taxonomy separates failures that prevent test-                                         escaped tags such as &lt;b&gt;, while the tests expect raw <b> to
+ing from those that arise during functional or runtime evaluation.                                           be preserved in specific contexts. The repository is executable, but
+1. Executability & Dependency Failures. The generated repos-                                                 its behavior does not match the tested requirement. As a result, it
+itory cannot be built, imported, or collected for testing. Typical                                           runs successfully but produces incorrect outputs.
+causes include missing dependencies, broken module paths, and                                                    In the non-functional quality failure case, the Folium repos-
+malformed code structure. In this case, functional evaluation cannot                                         itory generated by GPT-4o-2024-11-20 reaches runtime but breaks
+start.                                                                                                       under robustness-oriented execution paths. Missing defensive checks
+2. Requirement–Implementation Mismatches. The tests ex-                                                      and incomplete compositional interfaces, such as omitting add_to,
+ecute, but the implementation does not satisfy the required ap-                                              lead to runtime exceptions including AttributeError. This is a
+plication behavior. The repository is runnable, yet its outputs or
+behaviors do not match the tested requirements.
+
+=== [PDF page 8] ===
+
+Conference’17, July 2017, Washington, DC, USA             Ruwei Pan1,2    Yakun Zhang3   Qingyuan Liang2     Yueheng Zhu1,2     Chao Liu1   Lu Zhang2    Hongyu Zhang1
+
+
+Table 7: Average per-run generation cost (USD) for standard                              Table 8: Impact of automated generation strategies on
+and thinking LLMs.                                                                       application-level quality (GPT-5.2). Scores are reported as
+                                                                                         percentages (%).
+                               Standard LLMs
+                                                                                          Strat. Func.       Non-func.        Maint.    Sec.    Rob.     Eff.     Res.
+          LLM                           Provider               Avg. ($)
+                                                                                          S1         37.70      46.10          35.30    78.90    63.70    15.00   20.40
+          Gemini-2.5-Pro                    Google               12.11
+                                                                                          S2         40.20      49.90          36.10    84.20    67.60    21.00   28.00
+          Gemini-3-Pro-Preview              Google                 8.14
+                                                                                          S3         41.20      49.60          35.60    86.80    69.60    14.40   25.30
+          GPT-3.5-Turbo                     OpenAI                 0.54
+                                                                                          Baseline 41.80        57.10          33.90    92.10    77.20    42.80   43.80
+          GPT-4o-2024-11-20                 OpenAI                 0.42
+          GPT-4-Turbo                       OpenAI                 2.89
+                                                                                         difference of more than 100×. This shows that application-level
+          GPT-5-2025-08-07                  OpenAI                 4.04                  generation cost varies substantially across models.
+          GPT-5.2                           OpenAI                 2.67                     Standard vs. thinking cost. On average, thinking LLMs are
+          Claude-Haiku-4.5                  Anthropic              0.95                  more expensive per run than standard LLMs ($11.00 vs. $4.10).
+          Claude-4.5-Sonnet                 Anthropic             11.84                  However, this pattern is not uniform across providers. For exam-
+          DeepSeek-V3-0324                  DeepSeek               1.34                  ple, Gemini-2.5-Pro-Thinking costs less than Gemini-2.5-Pro. This
+          DeepSeek-V3.2                     DeepSeek               0.15                  suggests that observed cost depends on both provider pricing and
+                                                                                         realized token usage.
+          Average                       —                          4.10                     Cost–performance mismatch. Higher generation cost does
+                                                                                         not translate into consistent gains in functional correctness. As
+                                                                                         shown in Tables 4 and 5, more expensive models do not reliably
+                              Thinking LLMs                                              achieve higher application-level functional scores. This pattern is
+          LLM                                Provider          Avg. ($)                  especially visible for thinking models, which often use more tokens
+                                                                                         but do not consistently outperform standard models.
+          Gemini-2.5-Pro-Thinking                Google            8.07
+          GPT-o1                                 OpenAI           14.05
+                                                                                               Answer to RQ3: Application-level code generation shows
+          GPT-o3-2025-04-16                      OpenAI            7.72
+                                                                                               a clear cost–performance mismatch. Per-run generation cost
+          Claude-3.7-Sonnet-Thinking             Anthropic       16.63                         varies by more than 100× across models, but higher cost does
+          DeepSeek-R1                            DeepSeek          8.52                        not reliably lead to better functional performance. Thinking
+          Average                            —                   11.00                         models are usually more expensive, yet they do not provide
+                                                                                               consistent gains under our evaluation protocol.
+
+
+non-functional quality failure: the repository reaches runtime, but                      3.5     RQ4: Strategy Evaluation
+breaks under robustness-oriented execution paths.
+                                                                                         Setup. To examine whether common automated code generation
+                                                                                         strategies help in application-level generation, we conduct a con-
+      Answer to RQ2: Most failures in application-level code gen-                        trolled comparison on GPT-5.2 under the same evaluation pipeline.
+      eration occur after basic executability has been reached. The                      This experiment is intended as a single-model controlled study
+      main difficulty is no longer dependency resolution, but satis-                     rather than a universal ranking of all strategy families. We use GPT-
+      fying end-to-end functional requirements and maintaining                           5.2 as the base model because it shows strong baseline performance
+      stable runtime behavior. Models differ mainly in which of                          at moderate cost, which makes repeated controlled comparison
+      these two post-executability bottlenecks appears first.                            practical. We evaluate three representative one-shot strategies: (S1)
+                                                                                         feedback-driven self-repair, which performs one repair step using
+                                                                                         generated tests; (S2) automated environment repair, which patches
+3.4     RQ3: Cost Analysis                                                               missing dependencies and build artifacts; and (S3) planning-driven
+To measure the generation cost of application-level code genera-                         generation, which adds an explicit plan before staged implementa-
+tion, we use a single-round generation setting without iterative                         tion. Fig. 6 summarizes their end-to-end workflows.
+refinement. We estimate monetary cost from provider-reported in-                            Results. Table 8 shows that the evaluated one-shot strategies do
+put and output token pricing, and report the mean generation cost                        not yield reliable gains over the baseline in our controlled setting.
+over three independent benchmark runs. These numbers reflect                             The baseline remains the strongest overall, with 41.80% functional
+model-generation cost only, not downstream test execution cost.                          correctness and 57.10% non-functional quality. The most consis-
+Table 7 reports the average per-run generation cost of each LLM                          tent pattern is the drop in non-functional quality: all three strate-
+on RAL-Bench. We make three observations.                                                gies score substantially below the baseline on the aggregate non-
+   Cost variability. Per-run generation cost ranges from $0.15                           functional metric. S1: Feedback-driven self-repair. S1 reduces
+for DeepSeek-V3.2 to $16.63 for Claude-3.7-Sonnet-Thinking, a                            the functional score to 37.70% and also lowers the non-functional
+
+=== [PDF page 9] ===
+
+Toward Functional and Non-Functional Evaluation of Application-Level Code Generation                                                                    Conference’17, July 2017, Washington, DC, USA
+
+
+
+                                 Executability & Dependency Failures                                                  Non-functional Quality Failures
+                       From: Celery project (Model: Claude-3.7)                                        From: Folium project (Model: GPT-4o-2024-11-20)
+
+                       Error code snippet                                                              Error code snippet
+                                 celery\celery\_state.py                                                           folium/map.py
+                                                                                                       class Map:
+                        from celery.local import Proxy                                                     def __init__(self, location=None, zoom_start=10, tiles="OpenStreetMap"):
+                        from celery.utils.threads import LocalStack    <- missing submodule                    self.location = location or [0, 0]    <- no type/shape validation
+
+                       Error log                                                                                   folium/map.py
+
+                                 Terminal                                                               class MarkerCluster:
+                                                                                                            def __init__(self):
+                        repositories\celery\celery\_state.py:15: ModuleNotFoundError                            self.markers = []
+                                                                                                            def add_child(self, marker):
+                       Analysis                                                                                 self.markers.append(marker)
+                                                                                                             <- no add_to(self, map) wrapper, so runtime composition breaks
+                       The generated implementation contains an internal dependency reference
+                       (celery.utils.threads) consistent with upstream Celery internals, yet the       Error log
+                       repository does not provide the corresponding module, indicating an
+                       incomplete dependency surface / package skeleton.                                           Terminal
+                                                                                                        tests\Folium\robustness_test.py:74: AttributeError
+
+                                                                                                        Analysis
+                                                                                                        These failures characterize robustness deficiencies: the implementation
+                              Requirement–Implementation Mismatch                                       lacks defensive checks (invalid location does not raise/handle) and omits
+                                                                                                        critical glue methods (add_to) required for safe object composition.
+                       From: Markdown project (Model: deepseek-v3-0324)
+
+                       Error code snippet                                                                             Error log
+                                  markdown/core.py                                                                             Terminal
+                        def _escape_html(self, text: str) -> str:                                                      tests\Markdown\functional_test.py:209: AssertionError
+                            if self.in_code_block:                                                                     FAILED tests/Markdown/functional_test.py::test
+                                return text                                                                            _html_escaping_in_text_but_not_in_code
+                            replacements = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}
+                                                                                                                       Analysis
+                              for char, replacement in replacements.items():                                           The artifact is executable, but violates the test-implied
+                                  text = text.replace(char, replacement)                                               semantic contract regarding HTML handling. The output contains
+                              return text                                                                              escaped tags (&lt;b&gt;) where the test expects raw <b> to
+                                                                                                                       survive normalization, demonstrating a runs-but-wrong pattern.
+
+
+
+
+                  Figure 5: Case studies of three representative failure modes in application-level code generation.
+                      (S1) Feedback-driven self-repair                         (S2) Automated environment repair (S3) Planning-driven generation
+
+
+
+                       Task           LLMs     Generated Application                                          Generated                   Task                      Generated Plan
+                                                                                  Task        LLMs                                                        LLMs
+                                                with Generated Tests                                         Application
+                                             Feedback                                                Install
+
+
+
+                       Final          LLMs              Execution                         Environment           Final                                    Final             LLMs
+                    Application                                                               File           Environment                              Application
+
+
+
+                               Figure 6: Overview of the three automated generation strategies evaluated in RQ4.
+
+score to 46.10%. This suggests that one-step repair based on gener-
+                                                                                                                   Answer to RQ4: In our controlled GPT-5.2 study, the eval-
+ated tests is not well aligned with application-level failures, where
+                                                                                                                   uated one-shot strategies do not provide reliable gains over
+behaviors are distributed across modules and execution conditions.
+                                                                                                                   the baseline. Their main limitation is not only weak improve-
+In this setting, the repair target can be incomplete or biased, which
+                                                                                                                   ment in functional correctness, but also a clear drop in non-
+may introduce regressions. S2: Automated environment repair.
+                                                                                                                   functional quality. This suggests that isolated one-step inter-
+S2 reaches 40.20% functional correctness and 49.90% non-functional
+                                                                                                                   ventions are not sufficient for application-level generation.
+quality. This suggests that patching dependencies or build artifacts
+alone is not enough. As shown in RQ2, many remaining failures
+occur after executability has already been reached. Environment
+repair does not address missing end-to-end behaviors or unstable
+runtime interactions. S3: Planning-driven generation. S3 does
+                                                                                                          3.6         Robustness Analyses
+not improve functional correctness over the baseline (41.20% vs.                                          Prompt sensitivity. We conduct a targeted prompt-sensitivity
+41.80%) and substantially reduces non-functional quality (49.60% vs.                                      study on GPT-5.2 over 38 tasks, using three requirement variants
+57.10%). This suggests that an upfront one-shot plan is not enough                                        with three repeats each. Prompt wording affects application-level
+to capture the distributed constraints of application-level tasks, such                                   performance, but the aggregate differences are small. The mean
+as cross-module interactions, configuration, and runtime behavior.                                        functional scores are 0.4181 for the baseline, 0.4972 for the clarified
+                                                                                                          variant, and 0.4919 for the paraphrased variant. These results sug-
+                                                                                                          gest that prompt variation does not change the main finding that
+                                                                                                          functional correctness remains the dominant bottleneck.
+                                                                                                             Metric robustness. We test the robustness of the non-functional
+                                                                                                          aggregate under alternative weighting and normalization choices.
+
+=== [PDF page 10] ===
+
+Conference’17, July 2017, Washington, DC, USA     Ruwei Pan1,2   Yakun Zhang3   Qingyuan Liang2   Yueheng Zhu1,2   Chao Liu1   Lu Zhang2   Hongyu Zhang1
+
+
+Table 9: Robustness of non-functional aggregation under                         Quality-aware generation. Future systems may also treat ro-
+alternative settings.                                                           bustness, efficiency, resource usage, maintainability, and security
+                                                                                as explicit constraints during generation. This may help detect
+     Variant                         Spearman 𝜌   Top-3 Overlap                 quality regressions earlier, especially at module boundaries and
+                                                                                under runtime execution. Such a direction is relevant because non-
+     Equal weights                      0.9765           3
+                                                                                functional quality remains weak even when basic executability has
+     No-cap perf./resource              0.9882           3
+                                                                                been reached.
+     Leave out maintainability          0.9294           2
+     Leave out security                 0.9941           3
+     Leave out robustness               0.9500           3
+     Leave out performance              0.9676           3                      5   Related Work
+     Leave out resource                 0.9029           3                      LLMs for code. Code generation has been long studied with recent
+     Rank-based aggregate               0.6441           1                      approaches focused on pretrained LLMs for code, prompt engineer-
+                                                                                ing, retrieval-augmented generation, and agents [21, 22]. Firstly,
+                                                                                powerful foundation models for code (e.g., CodeX [5], Code Llama
+As shown in Table 9, the model ranking remains highly stable                    [40], StarCoder [28]) are built by pretraining on large-scale code
+for reasonable variants, including equal weights, uncapped per-                 and natural language corpora, sometimes followed by instruction
+formance/resource normalization, and leave-one-dimension-out                    or domain-specific fine-tuning. On top of these models, prompt
+settings. Only a substantially different rank-based aggregate leads             engineering techniques such as CodeChain [24], SCoT [26] and
+to a noticeably lower rank correlation. Overall, these results sug-             MoT [38] aim to improve functional correctness without chang-
+gest that the main findings are not driven by a fragile choice of               ing model parameters. To support repository-level understanding,
+non-functional aggregation.                                                     retrieval-augmented methods like REPOFUSE [30], DraCo [8] and
+                                                                                GraphCode [41] retrieve relevant files or snippets and feed them as
+4    Discussion                                                                 additional context so that generated code better aligns with existing
+                                                                                projects. More recently, agentic frameworks embed LLMs into in-
+Application-level generation is different from snippet-level
+                                                                                teractive development environments where models can iteratively
+generation. Our results show that strong snippet-level genera-
+                                                                                plan, edit code, run tests and incorporate execution feedback, with
+tion does not directly transfer to application-level generation. In
+                                                                                multi-agent variants assigning specialized roles to further improve
+RAL-Bench, the main difficulty is not producing locally plausible
+                                                                                robustness and code quality [33, 42, 43].
+code, but producing a repository that works end to end. This re-
+                                                                                   Coding benchmarks for LLMs. Benchmarks for code genera-
+quires consistent interfaces across modules, correct dependency
+                                                                                tion are the primary tools for measuring and comparing the coding
+setup, stable runtime behavior, and satisfaction of application-level
+                                                                                abilities of LLMs. For functional requirements, researchers have
+functional requirements.
+                                                                                proposed function-level (e.g., HumanEval [7], MBPP [2], EvalPlus
+   One-shot interventions have limited effect in our con-
+                                                                                [34]), contest-level (e.g., APPS [16], LiveCodeBench [20]), class-
+trolled setting. Our controlled GPT-5.2 study in Section 3.5 shows
+                                                                                level (e.g., ClassEval [11]), repository-level (e.g., RepoEval [36],
+that the evaluated one-shot strategies do not provide reliable gains
+                                                                                CoderEval [44], DevEval [27]), and feature-level (e.g., FEA-Bench
+over the baseline. In particular, they often reduce non-functional
+                                                                                [29], NoCodeBench [10], FeatBench [6]) benchmarks, all of which
+quality even when functional scores change little. This result is
+                                                                                rely on execution-based metrics such as pass@k. Beyond func-
+consistent with our failure analysis: many failures occur after exe-
+                                                                                tional correctness, several benchmarks, such as EvalPerf [35] and
+cutability has been reached, at the stage of requirement satisfaction
+                                                                                EffiBench [17], begin to assess the efficiency of LLM-generated code
+or runtime robustness. A single repair, environment patch, or up-
+                                                                                by additionally measuring runtime and resource usage. However,
+front plan is therefore often not enough.
+                                                                                these benchmarks still operate mostly at the function or contest
+   Possible next steps. These findings suggest that future work
+                                                                                level, or focus on modifying existing repositories, and thus do
+may benefit from workflows that make requirements more explicit,
+                                                                                not evaluate end-to-end application generation. In contrast, our
+coordinate changes across modules, and monitor non-functional
+                                                                                work targets application-level code generation, where LLMs must
+quality during generation. We highlight three possible directions.
+                                                                                synthesize complete multi-file projects from scratch given only
+ 1 Application-level requirement analysis. Future systems may
+                                                                                natural-language requirements. We further evaluate the generated
+benefit from turning a short natural-language requirements into
+                                                                                programs using black-box system tests that simultaneously cap-
+a clearer task specification before generation. This specification
+                                                                                ture functional correctness and non-functional properties against
+can include expected behaviors, outputs, and important edge cases.
+                                                                                real-world reference repositories.
+A more explicit requirement representation may help reduce later
+requirement–implementation mismatches. 2 Cross-module re-
+pair. Many application-level failures involve more than one file or
+module. Future work can therefore study repair methods that use                 6   Conclusion and Future Work
+application-level feedback to update related files together, rather             We introduce RAL-Bench, an application-level benchmark grounded
+than patching one local issue at a time. This may be especially                 in widely used GitHub projects that evaluates end-to-end functional
+useful when the failure comes from interface mismatch, missing                  correctness and ISO/IEC 25010-inspired non-functional quality at-
+coordination across modules, or unstable runtime interactions. 3                tributes with reference-validated oracles. Our evaluation across
+
+=== [PDF page 11] ===
+
+Toward Functional and Non-Functional Evaluation of Application-Level Code Generation                                           Conference’17, July 2017, Washington, DC, USA
+
+
+16 frontier LLMs reveals a consistent capability gap between cur-                         [15] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin
+rent LLMs and real-world application-level code generation. Func-                              Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. 2025. Deepseek-r1:
+                                                                                               Incentivizing reasoning capability in llms via reinforcement learning. arXiv
+tional correctness remains the dominant bottleneck. No LLM ex-                                 preprint arXiv:2501.12948 (2025).
+ceeds a 45% functional score. By analyzing 446 generated repos-                           [16] Dan Hendrycks, Steven Basart, Saurav Kadavath, Mantas Mazeika, Akul Arora,
+                                                                                               Ethan Guo, Collin Burns, Samir Puranik, Horace He, Dawn Song, et al. 2021. Mea-
+itories and over 4,500 execution logs, we further quantify that                                suring coding challenge competence with apps. arXiv preprint arXiv:2105.09938
+requirement–implementation mismatch and non-functional qual-                                   (2021).
+ity failures account for 82.8% of failures, while executability and                       [17] Dong Huang, Yuhao Qing, Weiyi Shang, Heming Cui, and Jie M Zhang. 2024. Ef-
+                                                                                               fibench: Benchmarking the efficiency of automatically generated code. Advances
+dependency failures contribute 17.2%. We find that higher-cost                                 in Neural Information Processing Systems 37 (2024), 11506–11544.
+reasoning variants and common code generation strategies do                               [18] Aaron Hurst, Adam Lerer, Adam P Goucher, Adam Perelman, Aditya Ramesh,
+not reliably improve application-level generation and often de-                                Aidan Clark, AJ Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, et al. 2024.
+                                                                                               Gpt-4o system card. arXiv preprint arXiv:2410.21276 (2024).
+grade non-functional quality attributes. Going forward, we will                           [19] Aaron Jaech, Adam Kalai, Adam Lerer, Adam Richardson, Ahmed El-Kishky,
+expand RAL-Bench to broader projects and settings. Also, we will                               Aiden Low, Alec Helyar, Aleksander Madry, Alex Beutel, Alex Carney, et al. 2024.
+                                                                                               Openai o1 system card. arXiv preprint arXiv:2412.16720 (2024).
+develop more effective workflows to better align generation with                          [20] Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia Yan, Tianjun Zhang, Sida
+application-level functional requirements and non-functional qual-                             Wang, Armando Solar-Lezama, Koushik Sen, and Ion Stoica. 2024. Livecodebench:
+ity attributes.                                                                                Holistic and contamination free evaluation of large language models for code.
+                                                                                               arXiv preprint arXiv:2403.07974 (2024).
+                                                                                          [21] Juyong Jiang, Fan Wang, Jiasi Shen, Sungju Kim, and Sunghun Kim. 2024. A survey
+7    Data Availability                                                                         on large language models for code generation. arXiv preprint arXiv:2406.00515
+                                                                                               (2024).
+To ensure the reproducibility of our results and to provide trans-                        [22] Zhonghao Jiang, David Lo, and Zhongxin Liu. 2025. Agentic Software Issue Res-
+parency in our research, we have made all related scripts and data                             olution with Large Language Models: A Survey. arXiv preprint arXiv:2512.22256
+publicly available. All resources are available at https://github.c                            (2025).
+                                                                                          [23] Rick Kazman, Yuanfang Cai, Ran Mo, Qiong Feng, Lu Xiao, Serge Haziyev,
+om/Wwstarry/RAL-Bench.                                                                         Volodymyr Fedak, and Andriy Shapochka. 2015. A case study in locating the
+                                                                                               architectural roots of technical debt. In 2015 IEEE/ACM 37th IEEE international
+References                                                                                     conference on software engineering, Vol. 2. IEEE, 179–188.
+                                                                                          [24] Hung Le, Hailin Chen, Amrita Saha, Akash Gokul, Doyen Sahoo, and Shafiq
+ [1] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Floren-             Joty. 2023. Codechain: Towards modular code generation through chain of
+     cia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal                  self-revisions with representative sub-modules. arXiv preprint arXiv:2310.08992
+     Anadkat, et al. 2023. Gpt-4 technical report. arXiv preprint arXiv:2303.08774             (2023).
+     (2023).                                                                              [25] Maikel Leon. 2025. GPT-5 and open-weight large language models: Advances in
+ [2] Jacob Austin, Augustus Odena, Maxwell Nye, Maarten Bosma, Henryk                          reasoning, transparency, and control. Information Systems (2025), 102620.
+     Michalewski, David Dohan, Ellen Jiang, Carrie Cai, Michael Terry, Quoc Le,           [26] Jia Li, Ge Li, Yongmin Li, and Zhi Jin. 2025. Structured chain-of-thought prompt-
+     et al. 2021. Program synthesis with large language models. arXiv preprint                 ing for code generation. ACM Transactions on Software Engineering and Method-
+     arXiv:2108.07732 (2021).                                                                  ology 34, 2 (2025), 1–23.
+ [3] Ivy Belinda Botchway, Akinwonmi Akintoba Emmanuel, Nunoo Solomon, and                [27] Jia Li, Ge Li, Yunfei Zhao, Yongmin Li, Huanyu Liu, Hao Zhu, Lecheng Wang,
+     Alese Boniface Kayode. 2021. Evaluating software quality attributes using analytic        Kaibo Liu, Zheng Fang, Lanshen Wang, et al. 2024. Deveval: A manually-
+     hierarchy process (AHP). International Journal of Advanced Computer Science               annotated code generation benchmark aligned with real-world code repositories.
+     and Applications 12, 3 (2021).                                                            In Findings of the Association for Computational Linguistics: ACL 2024. 3603–3614.
+ [4] Marcelo Cataldo, Audris Mockus, Jeffrey A Roberts, and James D Herbsleb. 2009.       [28] Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov,
+     Software dependencies, work dependencies, and their impact on failures. IEEE              Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, et al. 2023.
+     Transactions on Software Engineering 35, 6 (2009), 864–878.                               Starcoder: may the source be with you! arXiv preprint arXiv:2305.06161 (2023).
+ [5] Bei Chen, Fengji Zhang, Anh Nguyen, Daoguang Zan, Zeqi Lin, Jian-Guang Lou,          [29] Wei Li, Xin Zhang, Zhongxin Guo, Shaoguang Mao, Wen Luo, Guangyue Peng,
+     and Weizhu Chen. 2022. Codet: Code generation with generated tests. arXiv                 Yangyu Huang, Houfeng Wang, and Scarlett Li. 2025. Fea-bench: A benchmark
+     preprint arXiv:2207.10397 (2022).                                                         for evaluating repository-level code generation for feature implementation. arXiv
+ [6] Haorui Chen, Chengze Li, and Jia Li. 2025. FeatBench: Evaluating Coding Agents            preprint arXiv:2503.06680 (2025).
+     on Feature Implementation for Vibe Coding. arXiv preprint arXiv:2509.22237           [30] Ming Liang, Xiaoheng Xie, Gehao Zhang, Xunjin Zheng, Peng Di, Hongwei
+     (2025).                                                                                   Chen, Chengpeng Wang, Gang Fan, et al. 2024. Repofuse: Repository-level code
+ [7] Mark Chen. 2021. Evaluating large language models trained on code. arXiv                  completion with fused dual context. arXiv preprint arXiv:2402.14323 (2024).
+     preprint arXiv:2107.03374 (2021).                                                    [31] Aixin Liu, Bei Feng, Bing Xue, Bingxuan Wang, Bochao Wu, Chengda Lu, Cheng-
+ [8] Wei Cheng, Yuhan Wu, and Wei Hu. 2024. Dataflow-guided retrieval augmen-                  gang Zhao, Chengqi Deng, Chenyu Zhang, Chong Ruan, et al. 2024. Deepseek-v3
+     tation for repository-level code completion. arXiv preprint arXiv:2405.19782              technical report. arXiv preprint arXiv:2412.19437 (2024).
+     (2024).                                                                              [32] Aixin Liu, Aoxue Mei, Bangcai Lin, Bing Xue, Bingxuan Wang, Bingzheng Xu,
+ [9] Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen                    Bochao Wu, Bowei Zhang, Chaofan Lin, Chen Dong, et al. 2025. Deepseek-
+     Sachdeva, Inderjit Dhillon, Marcel Blistein, Ori Ram, Dan Zhang, Evan Rosen,              v3. 2: Pushing the frontier of open large language models. arXiv preprint
+     et al. 2025. Gemini 2.5: Pushing the frontier with advanced reasoning, multi-             arXiv:2512.02556 (2025).
+     modality, long context, and next generation agentic capabilities. arXiv preprint     [33] Junwei Liu, Kaixin Wang, Yixuan Chen, Xin Peng, Zhenpeng Chen, Lingming
+     arXiv:2507.06261 (2025).                                                                  Zhang, and Yiling Lou. 2024. Large language model-based agents for software
+[10] Le Deng, Zhonghao Jiang, Jialun Cao, Michael Pradel, and Zhongxin Liu. 2025.              engineering: A survey. arXiv preprint arXiv:2409.02977 (2024).
+     Nocode-bench: A benchmark for evaluating natural language-driven feature             [34] Jiawei Liu, Chunqiu Steven Xia, Yuyao Wang, and Lingming Zhang. 2023. Is your
+     addition. arXiv preprint arXiv:2507.18130 (2025).                                         code generated by chatgpt really correct? rigorous evaluation of large language
+[11] Xueying Du, Mingwei Liu, Kaixin Wang, Hanlin Wang, Junwei Liu, Yixuan Chen,               models for code generation. Advances in Neural Information Processing Systems
+     Jiayi Feng, Chaofeng Sha, Xin Peng, and Yiling Lou. 2023. Classeval: A manually-          36 (2023), 21558–21572.
+     crafted benchmark for evaluating llms on class-level code generation. arXiv          [35] Jiawei Liu, Songrun Xie, Junhao Wang, Yuxiang Wei, Yifeng Ding, and Lingming
+     preprint arXiv:2308.01861 (2023).                                                         Zhang. 2024. Evaluating language models for efficient code generation. arXiv
+[12] Jonas Eckhardt, Andreas Vogelsang, and Daniel Méndez Fernández. 2016. Are"                preprint arXiv:2408.06450 (2024).
+     non-functional" requirements really non-functional? an investigation of non-         [36] Anton Lozhkov, Raymond Li, Loubna Ben Allal, Federico Cassano, Joel Lamy-
+     functional requirements in practice. In Proceedings of the 38th international con-        Poirier, Nouamane Tazi, Ao Tang, Dmytro Pykhtar, Jiawei Liu, Yuxiang Wei,
+     ference on software engineering. 832–842.                                                 et al. 2024. Starcoder 2 and the stack v2: The next generation. arXiv preprint
+[13] John Estdale and Elli Georgiadou. 2018. Applying the ISO/IEC 25010 quality mod-           arXiv:2402.19173 (2024).
+     els to software product. In European Conference on Software Process Improvement.     [37] Suchita Mukherjee, Abigail Almanza, and Cindy Rubio-González. 2021. Fixing
+     Springer, 492–503.                                                                        dependency errors for Python build reproducibility. In Proceedings of the 30th
+[14] Jiří Franek and Aleš Kresta. 2014. Judgment scales and consistency measure in
+     AHP. Procedia economics and finance 12 (2014), 164–173.
+
+=== [PDF page 12] ===
+
+Conference’17, July 2017, Washington, DC, USA                Ruwei Pan1,2    Yakun Zhang3   Qingyuan Liang2      Yueheng Zhu1,2     Chao Liu1    Lu Zhang2     Hongyu Zhang1
+
+
+     ACM SIGSOFT international symposium on software testing and analysis. 439–451.              Information Processing Systems 37 (2024), 41103–41131.
+[38] Ruwei Pan and Hongyu Zhang. 2025. Modularization is Better: Effective Code             [42] Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and
+     Generation with Modular Prompting. arXiv preprint arXiv:2503.12483 (2025).                  Shunyu Yao. 2023. Reflexion: Language agents with verbal reinforcement learning.
+[39] Thomas Rausch, Waldemar Hummer, Philipp Leitner, and Stefan Schulte. 2017.                  Advances in Neural Information Processing Systems 36 (2023), 8634–8652.
+     An empirical analysis of build failures in the continuous integration workflows of     [43] Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan,
+     java-based open-source software. In 2017 IEEE/ACM 14th International Conference             and Yuan Cao. 2022. React: Synergizing reasoning and acting in language models.
+     on Mining Software Repositories (MSR). IEEE, 345–355.                                       In The eleventh international conference on learning representations.
+[40] Baptiste Roziere, Jonas Gehring, Fabian Gloeckle, Sten Sootla, Itai Gat, Xiao-         [44] Hao Yu, Bo Shen, Dezhi Ran, Jiaxin Zhang, Qi Zhang, Yuchi Ma, Guangtai Liang,
+     qing Ellen Tan, Yossi Adi, Jingyu Liu, Romain Sauvestre, Tal Remez, et al. 2023.            Ying Li, Qianxiang Wang, and Tao Xie. 2024. Codereval: A benchmark of prag-
+     Code llama: Open foundation models for code. arXiv preprint arXiv:2308.12950                matic code generation with generative pre-trained models. In Proceedings of the
+     (2023).                                                                                     46th IEEE/ACM International Conference on Software Engineering. 1–12.
+[41] Florian Russold and Michael Kerber. 2024. Graphcode: Learning from multipa-
+     rameter persistent homology using graph neural networks. Advances in Neural

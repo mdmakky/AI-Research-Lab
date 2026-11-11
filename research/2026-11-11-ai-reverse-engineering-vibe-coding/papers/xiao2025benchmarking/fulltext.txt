@@ -1,0 +1,1055 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                              Interaction2Code: Benchmarking MLLM-based
+                                                Interactive Webpage Code Generation from
+                                                           Interactive Prototyping
+                                                       Jingyu Xiao1 , Yuxuan Wan1 , Yintong Huo2∗ , Zixin Wang1 , Xinyi Xu1 , Wenxuan Wang3 ,
+                                                                            Zhiyao Xu4 , Yuhang Wang5 , Michael R. Lyu1
+                                                           1
+                                                       The Chinese University of Hong Kong, China 2 Singapore Management University, Singapore
+                                                       3
+                                                      Renmin University of China, China 4 Tsinghua University, China 5 Southwest University, China
+                                          {jyxiao, yxwan}@link.cuhk.edu.hk, ythuo@smu.edu.sg, {zixinwang, xinyixu}@link.cuhk.edu.hk, jwxwang@gmail.com,
+                                                         xu-zy25@mails.tsinghua.edu.cn, wyh20030323@email.swu.edu.cn, lyu@cse.cuhk.edu.hk
+
+
+
+
+arXiv:2411.03292v3 [cs.SE] 1 Mar 2026
+                                           Abstract—Multimodal Large Language Models (MLLMs) have              Learning-based methods like Pix2code [8] use CNNs and
+                                        demonstrated remarkable performance on the design-to-code task,        LSTMs to reverse-engineer GUI code from images, while Chen
+                                        i.e., generating UI code from UI mock-ups. However, existing           et al. [9] present a neural machine translator for encoding
+                                        benchmarks only contain static web pages for evaluation and
+                                        ignore the dynamic interaction, limiting the practicality, usability   UI features and generating GUI skeletons. However, these
+                                        and user engagement of the generated webpages.                         methods struggle with generalizing to diverse web elements.
+                                           To bridge these gaps, we present the first systematic investiga-    Recent advances in Multimodal Large Language Models
+                                        tion of MLLMs in generating interactive webpages. Specifically,        (MLLMs), such as GPT-4o [10], Claude-3.5 [11], and Gemini-
+                                        we formulate the Interaction-to-Code task and establish the            1.5 [12], have improved visual understanding tasks [13]–[15]
+                                        Interaction2Code benchmark, encompassing 127 unique webpages
+                                        and 374 distinct interactions across 15 webpage types and              and shown remarkable performance in code generation [16]–
+                                        31 interaction categories. Through comprehensive experiments           [21]. These advances open new possibilities for the Design-to-
+                                        utilizing state-of-the-art (SOTA) MLLMs, evaluated via both            Code task, where MLLMs generate code from screenshots to
+                                        automatic metrics and human assessments, we identify four              replicate web elements, layout, text, and colors. For instance,
+                                        critical limitations of MLLM on Interaction-to-Code task: (1)          Design2Code [22] uses prompts to guide MLLMs in web
+                                        inadequate generation of interaction compared with full page,
+                                        (2) prone to ten types of failure, (3) poor performance on             content understanding and code generation, while DCGen
+                                        visually subtle interactions, and (4) insufficient undestanding on     [23] proposes a divide-and-conquer approach to improve the
+                                        interaction when limited to single-modality visual descriptions. To    accuracy of generated webpage elements.
+                                        address these limitations, we propose four enhancement strategies:        However, existing research only focuses on the static
+                                        Interactive Element Highlighting, Failure-aware Prompting (FAP),       appearance of a webpage (e.g., color, layouts) [22], [24]–[27],
+                                        Visual Saliency Enhancement, and Visual-Textual Descriptions
+                                        Combination, all aiming at improving MLLMs’ performance on
+                                                                                                               ignoring the dynamic interactive properties and functionality of
+                                        the Interaction-to-Code task. Our data and code are available in       such elements, like size selection list, and quantity adjustment
+                                        https://github.com/WebPAI/Interaction2Code.                            button shown in Figure 1(a). Additionally, we observe that
+                                           Index Terms—Multimodal Large Language Models, Code                  such interactive elements account for a large proportion of the
+                                        Generation, Web Development.                                           webpage in real-world software practices. We randomly select
+                                                                                                               10 real-world webpages with different topics to analyze the
+                                                                 I. I NTRODUCTION                              ratio of interactive           elements, the results in Figure 1(b) indicate
+                                                                                                                   https://www.fun.com/adult-cakeworthy-never-land-denim-jacket.html
+
+                                           As of 2025, the digital landscape consists of approximately         that interactive elements take up more than 50% cases.
+                                        1.09 billion websites [1], supporting a wide range of applica-                                                                    Interactive Elements     Static Elements
+                                                                                                                                                           blog              53%                     47%
+                                        tions in daily life. The design and development of Graphical                                                       code             50%                     50%
+                                                                                                                                                         music                            96%                        4%
+                                        User Interfaces (GUIs) play a critical role in shaping a website’s                                                news                   68%                      32%
+                                                                                                                                                 search engine                         88%                      12%
+                                        aesthetics and functionality, improving user satisfaction through                                             shopping                          91%                      9%
+                                                                                                                                                         sports               59%                        41%
+                                                                                                                                                    technology                     74%                       26%
+                                        effective layout, colors, and typography [2], [3]. However,                                                       video               60%                        40%
+                                                                                                                                                  social media                61%                        39%
+                                        translating these designs into functional code is complex and                                                          0          20         40        60         80      100
+                                                                                                                                                                   Percentage of interactive and static elements(%)
+                                        time-consuming, often leading to discrepancies between the
+                                        design and final implementation [2], [4]–[7]. To address this,             (a) Interactive elements.              (b) Interactive and static ratio.
+                                        automated GUI code generation methods have been proposed,              Fig. 1. Interaction example and interactive elements ratio of different types
+                                        categorized into learning-based and LLM-based approaches.              of webpages.
+
+                                          ∗ Yintong Huo is the corresponding author.                              Static webpages limit user interaction with web elements,
+
+=== [PDF page 2] ===
+
+hindering access to new content (such as browsing images via                                         TABLE I
+carousel buttons) or impeding task completion (like selecting C OMPARISONS BETWEEN I NTERACTION 2C ODE AND EXISTING UI2C ODE
+                                                                                                   BENCHMARKS .
+clothing sizes from drop-down menus), thereby impairing over-
+all user experience. Therefore, we argue that a benchmark for
+                                                                                                          Real Failure
+interactive webpages is essential to enhance the practicality,         Benchmark                                              Interactive
+                                                                                                         World Annotation
+usability, and user engagement of studies on auto-generated
+GUI code. To this end, we provide the first systematic analysis        WebSight [37]                        ✗           ✗           ✗
+of MLLMs’ capability in generating interactive webpages. Our           Vision2UI [25]                      ✓            ✗           ✗
+contributions are summarized as follows:                               Design2Code [22]                    ✓            ✗           ✗
+• Task formulation. We are the first to formulate the                  DesignBench       [26]              ✓            ✗           ✗
+   Interaction-to-Code task and present a systematic study             Interaction2Code        (Ours)      ✓            ✓          ✓
+   on the code generation capabilities of MLLMs for dynamic
+   interaction of webpages.
+• Benchmark. We build the first real-world webpage interac- submodules separately before assembling them. DeclarUI [35]
+   tion datasets Interaction2Code containing 127 webpages uses element segmentation and page transition graphs to guide
+   and 374 interactions, spanning 15 webpage topics and 31 MLLMs in generating mobile app UI with jump logic. While
+   interaction types. We also provide failure annotations for these approaches show strong performance, none focus on
+   the MLLM-generated webpages.                                     generating interactive elements. EfficientUICoder [36] applies
+• Key Findings. Our in-depth analysis reveals four main             token compression method to accelerate UI code generation.
+   limitations: (1) MLLMs struggle to generate interactive part Although the above works achieve decent performance on
+   compared with full static webpage generation; (2) MLLMs the UI2Code task, none of them consider the generation
+   are prone to make 10 types of failures; (3) MLLMs perform of interactive webpages.
+   poorly on interactions that are not visually obvious; (4) Single
+                                                                    B. Problem Definition
+   visual modality description is not enough for MLLMs to
+   understand the interaction.                                         UI-Mockup [38] is a visual representation of a user interface,
+• Improvements. We propose four methods to improve the              essentially   a static image showing the look and feel of a
+   performance of MLLMs on the Interaction-to-Code task.            webpage.     Figure   2 shows that the UI2Code task takes the
+   (1) Interactive element highlighting, i.e., applying visual      static UI-Mockup       S as input and generates a static webpage.
+   markers for interactive elements can improve MLLMs’              Interactive    Prototyping      [39] is a functional model of that
+   performance by forcing MLLMs to focus on the Interaction.        design,   allowing    users  to  simulate interactions and navigate
+   (2) Failure-aware prompting (FAP) can make MLLMs                 through   the interface   to  test usability and functionality before
+   avoid potential failures by incorporating the failure example    full  development.     An   interactive  behavior is represented as
+   into prompts. (3) Visual saliency enhancement (VSE)              an  interactive  prototype     IP  =  {S o , SI }, where So is the UI-
+   allows the model to better perceive the interaction area,        Mockup     of original   webpage     and  S  I is the UI-Mockup after
+   thereby improving the performance of interaction generation.     the  interaction  I.
+   (4) Visual and textual description combination can makes            Interaction2Code task takes the interactive prototyping IP
+   MLLMs understand the interaction better.                         as  input and generates an interactive webpage as shown in
+                                                                    Figure 3.
+                        II. BACKGROUND                                       III. T HE I NTERACTION 2C ODE B ENCHMARK
+A. Related Work                                                       A. Dataset Collection
+   UI code generation techniques fall into three categories:      We follow these steps for constructing benchmark that
+Deep Learning (DL)-based, Computer Vision (CV)-based, and represent a variety of real-world use cases (i.e., diverse
+Multimodal Large Language Model (MLLM)-based methods. webpages and interactions).
+(1) DL-based methods: [2], [28]–[31] use CNNs to prototype        Webpage Selection. We collect webpages from Common-
+GUIs automatically. Pix2code [8] combines CNNs and LSTM Crawl (C4 validation set [40]) and GitHub. (1) CommonCrawl:
+to generate a domain-specific language (DSL) from GUI images. Following the Design2Code approach [22], we automatically
+[32] uses an encoder-decoder framework with attention mech- filter out webpages that are either too long or too simple
+anisms to generate DSL. (2) CV-based methods: Sketch2Code (containing only images or text) and perform deduplication. We
+[33] feeds hand-drawn sketches into object detection models to then select 15 common web topics and randomly sample 1,000
+generate code. REMAUI [34] uses OCR to identify UI elements webpages related to these topics. Four PhD students majoring in
+and generate corresponding source code. (3) MLLM-based computer science, each with front-end development experience,
+methods: Design2Code [22] leverages MLLMs for UI code are tasked with selecting approximately 25 webpages each,
+generation using text-augmented and self-revision prompting. resulting in 100 webpages from C4. The selection criteria are: 1)
+To address issues like element omission and misarrangement, complexity: each webpage must include at least one meaningful
+DCGen [23] adopts a divide-and-conquer approach, generating interaction; 2) diversity: the selection aims to cover a broad
+
+=== [PDF page 3] ===
+
+                                        WebpageSelection
+                                       Webpage  Selection                             InteractionAnnotation
+                                                                                    Interaction   Annotation                                                Evaluation
+                                                                                                                                                           Evaluation
+         UI2CodeTask
+        UI2Code  Task
+                                                                         Interact
+                                                                       Interact
+
+                           UIUI             Filtering
+                                           Filtering                                                      Annotation
+                                                                                                         Annotation
+                          Mockup                                       Capture
+                                                                      Capture
+                         Mockup                                                                                                                                        Model
+                                                                                                                                                                     Model
+                                      Githuband
+                                             and     Webpage                                                        Interaction2Code
+                                                                                                                  Interaction2Code
+                                     Github         Webpage                       Interactive
+                                                                                Interactive                                            Interaction
+                                                                                                                                     Interaction                     Evaluation
+                                                                                                                                                                   Evaluation
+                                    CommonCrawl      Candidate                                                           Dataset
+                                                                                                                        Dataset
+                                   CommonCrawl      Candidate                    Prototyping
+                                                                                Prototyping                                             Extraction
+                                                                                                                                      Extraction
+              Createa awebpage
+             Create     webpage                                         Interaction2CodeTask
+                                                                                         Task
+                basedononthe
+                          the
+                                                                      Interaction2Code
+               based
+                 UI-mockup
+                UI-mockup                                                                           Prompts:You
+                                                                                                  Prompts:     Youarearea aweb
+                                                                                                                             webdeveloper
+                                                                                                                                 developerproficient
+                                                                                                                                            proficient in in HTML,
+                                                                                                                                                           HTML,    CSS
+                                                                                                                                                                  CSS   and
+                                                                                                                                                                      and
+                                                                                Image
+                                                                              Image                 JavaScript.You
+                                                                                                  JavaScript.    Youare
+                                                                                                                      aretasked
+                                                                                                                            taskedwith
+                                                                                                                                   withcreating
+                                                                                                                                         creatinga ainteractive
+                                                                                                                                                      interactivewebpage
+                                                                                                                                                                   webpage
+                                                                                 input
+                                                                               input                basedononthe
+                                                                                                  based        theinteractive
+                                                                                                                    interactive  prototyping.
+                                                                                                                               prototyping.
+     OK,here
+    OK,  hereisisthe
+                  the
+     webpagecode
+    webpage    code ..                                                                     Generated
+                                                                                          Generated               Automatic
+                                                                                                           Automatic            Metric
+                                                                                                                           Metric               Human
+                                                                                                                                              Human        Evaluation
+                                                                                                                                                        Evaluation
+                                                                                           Codes
+                                                                                          Codes : :                 CLIPSSIM
+                                                                                                                 CLIP       SSIM Position             Usability
+                                                                                                                                                    Usability    Rate
+                                                                                                                                                               Rate
+                                                                                                                 Text       Widget Match
+                                                                                                                    TextPosition                      Failure
+                                                                                                                                                   Failure     Type
+                                                                                                                                                             Type
+                                                                                                                   Implementation
+                                                                                                          Implementation       Rate Rate              Comparison
+                                                                                                                                                    Comparison
+
+
+      Fig. 2. UI2Code.                                           Fig. 3. The construction of Interaction2Code benchmark.
+
+
+                                                                                                        shop
+range of webpages with different interaction types. Since most                                                                                                            next.js
+                                                                                            blog           11%                      Other
+C4 websites are traditional and do not use UI frameworks,                                                                                                           11%
+                                                                                                    8%                      29%
+we also collect webpages from GitHub projects that use                                                                                                                              angular
+                                                                                     business      6%                                                                        11%
+UI frameworks. (2) GitHub projects: We search for “open-                                        (1) Failure
+                                                                                                  (1)
+                                                                                                   6%
+                                                                                                      FailureType
+                                                                                                              Type
+                                                                                        news                           3%
+production-web-projects” and感觉可以做一个python的package
+                                 感觉可以做一个python的packageon
+                                “awesome-opensource-apps”                                           6%                3%      technology          react   56%
+                                                                                                      4%             3%     video                                            22%
+GitHub to compile a list of web来衡量两个网页的差异
+                                     来衡量两个网页的差异
+                                      projects, from which we                              book                    3%
+                                                                                                        4% 4% 4%3%3%      product                                                   vue
+                                                                                          homepage                               sport
+identify 27 popular projects with deployed links and high star                                    hotel
+                                                                                                          form
+                                                                                                                              encyclopedia
+                                                                                                                     food study
+counts. These projects, averaging 13k stars, represent various
+                                                                                                           (a) Topic.                                      (b) Framework.
+real-world website uses, ranging from commercial product
+frontends to blogs, demonstrating their quality and popularity.                                                Fig. 4. Topic and framework distribution.
+Ultimately, we compile a dataset of 127 webpages. Detailed
+selection guidelines are provided in our artifact.                                                                      TABLE II
+   Interaction Annotation. (1) Interactive Prototyping Con-                                              TAG AND VISUAL CATEGORIES DISTRIBUTION .
+struction. In real-world webpages, there are many trivial
+                                                                                                               Tag Categories                             Visual Categories
+interactions, like underlining texts when hovering. To preserve
+meaningful interactions and ensure the complexity and diversity                        Element Number Element Number Type                                                 Number
+of interactions, the four PhD students are employed to interact                        button                  235        summary            15    text                        162
+with webpages and select complex and meaningful interactions                           input                    52        form               13    new component               161
+to capture the pre- and post-interaction screenshots to build                          span                     37        detail             12    color                        85
+interactive prototyping (the guideline is shown in our artifact).                      link                     36        video              11    position                     45
+                                                                                       select                   35        area               9     switch                       41
+Finally, 1-10 important and functional interactions are retained                       textarea                 35        output              9    new page                     37
+on one webpage and we get 374 interactions. (2) Annotation.                            option                   31        datalist            8    new window                   34
+The four PhD students manually annotate the topics of the web                          iframe                   28        dialog              6    size                         20
+pages, the development framework, and the types of interactions                        text                     24        audio               5    -                             -
+for benchmark diversity analysis.                                                      progress                 22        template           3     -                             -
+                                                                                       image                    21        table               1    -                             -
+B. Data Statistics and Diversity                                                       label                    16        -                   -    -                             -
+   Topic and Framework Distribution. Figure 4(a) shows
+that our benchmark covers a diverse range of web topics
+with more than 15 types, including business, shop, technology,                  involve changes in color, size, position, text, etc. Note that
+entertainment, and so on. Figure 4(b) shows that the benchmark                  one interaction may belong to multiple tag categories and
+includes mainstream front-end open source frameworks such                       visual categories. Table II demonstrates that Interaction2Code
+as react, next.js, vue, and angular.                                            benchmark has a rich set of interaction types, including 23 tag
+   Interaction Type Distribution. We manually annotate the                      categories and 8 visual categories.
+type of interactions based on their element tag and the visual
+effect perspective. Tag categories come from HTML tags such                     C. Evaluation
+as button, image, and link. Buttons, input boxes, and links                        Automated Interaction When generating web pages, we
+are the most frequent types as shown in Table II and play                       prompt MLLMs to encode the id of the interactive elements
+a great role in human-website interaction. Visual categories                    (for example, id="interact1"). During evaluation, we apply
+
+=== [PDF page 4] ===
+
+selenium webdriver [41] to locate the interactive elements by (UR). Human annotators are asked to interact with the
+id and automatically interact with the generated webpage and generated webpage and judge the usability. We can calculate
+                                                                                      N (usable)
+take screenshots to construct the interactive prototyping.         as U R = N (usable)+N     (unusable) . We also employ human
+    Interaction Extraction. After obtaining the interactive annotators to conduct pair-wise comparison and failure type
+prototyping (i.e., screenshots before and after the interaction), analysis in Section V-A2 and Section V-B.
+we automatically extract the interactive part for evaluation. For
+interactions that preserve webpage dimensions, we identify                               IV. S TUDY S ETUP
+affected areas through pixel-wise subtraction. For interactions A. Evaluation Models
+that alter webpage dimensions (e.g., showing details), we             To understand the MLLMs’ performance on Interaction-
+employ the Git diff tool [42] to locate modified rows and to-Code task and identify the gap between open-source and
+columns, with their intersections marking the affected regions. closed-source models, we conduct experiments on three popular
+The algorithm is shown in Algorithm 1.                             commercial models: Gemini-1.5-flash [12], GPT-4o-20240806
+                                                                   [10] and Claude-3.5-Sonnet-20240620 [11]. Interaction-to-
+Algorithm 1 Interaction Part Extraction Algorithm                  Code task takes multiple images as input, and many
+Require:
+ 1: Webpage screenshot A (Before interaction)
+                                                                   open source MLLMs do not support that (e.g., llava [48],
+ 2: Webpage screenshot B (After interaction)                       llama-3.2-vision [49]), so we select Qwen2.5-vl-instruct (3B,
+Ensure:                                                            7B, 72B) [50] for assessment. In configuring the MLLM
+ 3: Coordinates (xmin , ymin , xmax , ymax ) of interaction region
+ 4: if dim(A) = dim(B) then
+                                                                   models, we set the temperature to 0 and the maximum number
+ 5:     D ← |A − B|;                                               of tokens output for Gemini-1.5-flash, GPT-4o, and Claude-
+ 6:     C ← {(x, y)|D(x, y) ̸= 0};                                 3.5-Sonnect as 4096. The maximum output token for the
+ 7:     xmin ← min{x|(x, y) ∈ C};
+ 8:     xmax ← max{x|(x, y) ∈ C};
+                                                                   Qwen series models is set to 2048. All other parameters were
+ 9:     ymin ← min{y|(x, y) ∈ C};                                  kept at their default settings as outlined in the relevant API
+10:     ymax ← max{y|(x, y) ∈ C};                                  documentation [12], [50]–[52].
+11: else
+12:    dif f _rows ← DiffTool(A, B);                                B. Prompt Design
+13:    dif f _cols ← DiffTool(AT , B T );
+14:    xmin ← min(dif f _cols);                                          The prompts are shown in Figure 5. In the Direct prompt,
+15:    xmax ← max(dif f _cols);
+16:    ymin ← min(dif f _rows);
+                                                                      the first screenshot represents the original webpage state, while
+17:    ymax ← max(dif f _rows);                                       subsequent screenshots depict states after specific interactions.
+18: end if                                                            Requirements are applied to guide MLLMs in replicating the
+19:
+20: return (xmin , ymin , xmax , ymax )
+                                                                      webpage design and interaction. Requirement 3 allows MLLM
+                                                                      to number the interactions when generating code, so that in the
+                                                                      automated testing phase, webdriver 1 can locate the interactive
+   Full Page Metrics. We measure the quality of generated elements through the interaction ID (e.g., interact1) and perform
+webpages from the following perspectives: (1) Visual Similar- the interaction automatically.
+ity. We use CLIP score [43] to measure the visual similarity. (2)        To achieve Interactive element highlighting, we design CoT
+Structure Similarity. SSIM [44] (Structural Similarity Index and Mark prompt to let MLLM focus on the interactive part.
+Measure) score is applied to calculate the structure similarity. For the CoT prompt [53], we use the instruction “let’s think
+(3) Text Similarity. We apply OCR tools to recognize the text step by step” and design three intermediate steps: analyze
+in the webpages, and then use the BLEU score [45] to measure the interaction effects, locate the interactive elements, and
+the text similarity between the two webpages. (4) Widget implement the interaction. For the Mark prompt, we use red
+Match. Widget match [46], [47] measures the widget-level bounding boxes to highlight the interaction area, prompting
+consistency between the original UI and the generated UI. We MLLMs to focus on the interactive parts.
+calculate the Widget Similarity (WS) and Widget Match Rate               To enable MLLM to avoid potential errors as much as
+(WMS) based on the method proposed by GUIPilot [46].                  possible when generating interactions, we design Failure-
+   Interaction Part Metrics. We also evaluate the interactive aware prompt to put the failure types in the prompt to guide
+parts of webpages from the perspective of the position and MLLM to avoid corresponding failures.
+function of the interaction.(1) Position Similarity. The position
+similarity between original interaction Io and generated interac- C. Data Contamination Check
+tion Ig is defined as P (Io , Ig ) = 1 − max(|xo − xg |, |yo − yg |),    Although the C4 dataset is widely used for training large
+where (xo , yo ) and (xg , yg ) are normalized coordinates (in models, it is unlikely that our test set was seen by MLLMs
+[0, 1]) of the interactive area center. (2) Implement Rate during training. The C4 dataset contains only text data, without
+(IR) measures the ratio of interactions successfully imple- HTML/CSS/JavaScript code, and current MLLM training
+mented by MLLM. An interaction is considered implemented datasets, like Qwen [50], do not include interactive prototyping
+if detectable by webdriver, and unimplemented otherwise. data. Additionally, many existing benchmarks [22], [25] derived
+Let N (·) denote the quantity, we can calculate the IR as
+                  N (implemented)
+IR = N (implemented)+N     (unimplemented) . (3) Usability Rate
+                                                                        1 https://selenium-python.readthedocs.io/
+
+=== [PDF page 5] ===
+
+                                                                                      Direct Prompt
+    [Instruction]:
+    You are a web developer proficient in HTML, CSS and JavaScript. The user provides some screenshots of a webpage. The first screenshot [image1] shows the webpage in its original
+    state, while the second screenshot [image2] shows the webpage after the user has interacted with certain element. You are tasked with creating a webpage that replicates the
+    design and interaction observed in screenshots.
+    [Requirements]:
+    1. Design Replication: Pay attention to layout, color and so on to make the webpage look identical to the first screenshot .
+    2. Interaction Replication : Implement the changes shown in screenshots caused by interactions (e.g., clicks).
+    3. Number Interactions: You need to encode the interact id in the interactive element. For example, if the button is clicked in the second screenshot, the id of the button is set to
+    interact1: "<button id="interact1">Click Me!</button>"
+    …
+    Combine HTML, CSS and JavaScript codes into one file and respond the codes only:
+
+
+
+           Chain-of-Thought (CoT) Prompt                                            Mark Prompt                                               Failure-aware Prompt (FAP)
+   [Instruction]                                                   [Instruction]                                                [Instruction]
+   [Requirements]                                                  [Requirements]                                               [Requirements]
+   [CoT]                                                           [Mark]                                                       [Failure Type Example]
+   You should think step by step:                                  In the first screenshot, the interactive elements            There are ten types of errors you should avoid:
+   Step 1: Understand the interaction effects by analyzing         are highlighted with red bounding boxes. In other            (a) Interactive element missing: MLLMs do not generate
+   the difference between the first and other screenshots.         screenshots, the interaction effects are                     interactive elements…
+   Step 2: Locate interactive elements.                            highlighted with red bounding boxes. Pay                     (b) No interaction: There is no interaction in the generated
+   Step 3: Implement the interaction: the interaction              attention to the position of the red bounding                webpage…
+   function should cause the difference you analyze in Step        boxes, which mark the position of interaction. But           (c) Wrong interactive element: MLLMs implement the
+   1 and be implemented the interactive element you                do not generate the red bounding box, which is               interactive function on the wrong element…
+   locate from step 2.                                             just used for marking the interaction area.                  (d) (e) (f) (g) (h) (i) (j)…
+
+   Combine HTML, CSS and JavaScript codes into one file            Combine HTML, CSS and JavaScript codes into                  Combine HTML, CSS and JavaScript codes into one file and
+   and respond the codes only:                                     one file and respond the codes only:                         respond the codes only:
+
+
+
+                                                                 Fig. 5. The four kinds of prompts for MLLMs.
+
+
+
+from the C4 dataset still present challenges for MLLMs. To                                             Improvement 1: Interactive element highlighting.
+confirm that MLLMs are not “cheating” by recognizing and                                               To improve the performance of generated interaction,
+reciting the original webpage code, we compute the BLEU [45]                                           we further propose Chain-of-Thought (CoT) and Mark
+score between the generated and original webpage HTML. The                                             prompts to force models to focus on the interaction.
+very low BLEU score (Table III) indicates that the model
+generates the code based on the interactive prototype, not by
+directly copying the original webpage.                                                              For the CoT prompt [53], we design three thinking steps:
+                                                                                                 analyze the interaction effects, locate the interactive elements,
+                              TABLE III                                                          and implement the interaction. For the Mark prompt, we
+          M ODEL C ODE S IMILARITY WITH O RIGINAL W EBSITE .                                     highlight the interaction area with red bounding boxes to direct
+                                                                                                 MLLMs’ focus on the interaction.
+                        Model                      BLEU Sim.
+                                                                                                    Both CoT and Mark prompts improve model perfor-
+                        Qwen2.5-vl-72B                0.1274
+                        Gemini-1.5-flash              0.1368                                     mance compared to direct prompting, with the Mark
+                        GPT-4o                        0.1214                                     prompt showing superior results. For Gemini-1.5-flash, the
+                        Claude-3.5-Sonnet             0.1294                                     metrics (CLIP, SSIM, text, position, IR) for the interaction
+                                                                                                 part improve from the direct prompt scores (0.4737, 0.3616,
+                                                                                                 0.2809, 0.4302, 0.6738) to (0.5093, 0.3854, 0.3217, 0.4511,
+                              V. E XPERIMENTS
+                                                                                                 0.7112) with CoT, and further to (0.5194, 0.3898, 0.3454,
+A. Model Performance                                                                             0.4612, 0.7326) with the Mark prompt.
+   1) Automatic Evaluation: We evaluate the performance of                                          The widget similarity scores demonstrate consistently
+MLLMs on the Interaction2Code task using the metrics outlined                                    poor performance. This finding underscores fundamental
+in Section III-C. The results are presented in Table IV. Our                                     limitations in the model’s capacity to accurately interpret widget
+observations are as follows: (1) GPT-4o and Claude-3.5-Sonnet                                    characteristics and hierarchical layout structures. Furthermore,
+outperform other models on average. (2) Among open-source                                        analysis of GUIPilot’s [46] output reveals significant omissions
+models, Qwen2.5-vl-72B achieves the best performance, compa-                                     of web page elements. This stems from the fact that existing
+rable to the commercial model Gemini-1.5-flash. Performance                                      design consistency methodologies [46], [47] are primarily
+improves as model size increases. (3) MLLMs perform worse                                        developed for mobile UI contexts, where interface images
+on the interactive part compared to the full page (Limitation                                    are relatively compact and uniform. In contrast, web UI
+1). This limitation arises from the MLLMs’ insufficient focus                                    images typically exhibit greater complexity and scale, thereby
+on the interactive component, motivating our proposed solution                                   presenting substantial challenges to widget detection algorithms,
+to prioritize the interaction part.                                                              thus designing the widget-level consistency detection algorithm
+
+=== [PDF page 6] ===
+
+                                                             TABLE IV
+   P ERFORMANCE OF DIFFERENT MLLM S UNDER DIFFERENT PROMPTS ON I NTERACTION - TO -C ODE TASK . B OLD VALUES INDICATE THE OPTIMAL
+PERFORMANCE , AND UNDERLINED VALUES INDICATE THE SECOND - BEST PERFORMANCE . T HE RED VALUE IS THE HIGHEST VALUE AMONG THE AVERAGES .
+         WS DENOTES THE W IDGET S IMILARITY, WMR DENOTES THE WIDGET MATCH RATE AND THE IR DENOTE THE IMPLEMENT RATE .
+
+                                                                                                                                                                               Full Page                                   Interaction Part
+                                             Model                                               Prompt
+                                                                                                                                 CLIP                 SSIM                        Text      WS      WMR       CLIP     SSIM     Text    Position    IR
+                                                                                                  Direct                    0.3220 0.1932 0.1510 0.0203 0.3462                                               0.2100 0.1531 0.0415        0.2090    0.3449
+                                                                                                  CoT                       0.2031 0.1085 0.0800 0.0185 0.3302                                               0.1219 0.0894 0.0352        0.1212    0.1979
+               Qwen2.5-vl-3B-instruct
+                                                                                                  Mark                      0.2752 0.1503 0.1200 0.0190 0.3418                                               0.1706 0.1188 0.0514        0.1706    0.2647
+                                                                                                 Average                    0.2668 0.1507 0.1170 0.0193 0.3394                                               0.1675 0.1204 0.0427        0.1669    0.2692
+                                                                                                  Direct                    0.4169 0.2886 0.2519 0.0222 0.3887                                               0.3230 0.2177 0.0952        0.2529    0.4786
+                                                                                                  CoT                       0.3895 0.2529 0.2207 0.0286 0.3909                                               0.2806 0.1981 0.0744        0.2259    0.4305
+               Qwen2.5-vl-7B-instruct
+                                                                                                  Mark                      0.4586 0.3282 0.2703 0.0234 0.3666                                               0.3541 0.2468 0.1348        0.2798    0.5267
+                                                                                                 Average                    0.4217 0.2899 0.2477 0.0247 0.3821                                               0.3192 0.2209 0.1015        0.2529    0.4786
+                                                                                                  Direct                    0.6430 0.4234 0.4197 0.0371 0.4285                                               0.4624 0.3207 0.2450        0.3950    0.6524
+                                                                                                  CoT                       0.6335 0.4785 0.4585 0.0369 0.4395                                               0.5090 0.3692 0.2376        0.4385    0.7380
+             Qwen2.5-vl-72B-instruct
+                                                                                                  Mark                      0.6954 0.4569 0.4586 0.0401 0.4430                                               0.4992 0.3621 0.2995        0.4541    0.7112
+                                                                                                 Average                    0.6573 0.4529 0.4456 0.0380 0.4370                                               0.4902 0.3507 0.2607        0.4292    0.7005
+                                                                                                  Direct                    0.5967 0.4526 0.4749 0.0330 0.4964                                               0.4737 0.3616 0.2809        0.4320    0.6738
+                                                                                                  CoT                       0.6166 0.4810 0.4775 0.0332 0.4783                                               0.5093 0.3854 0.3217        0.4511    0.7112
+                           Gemini-1.5-flash
+                                                                                                  Mark                      0.6321 0.4946 0.4878 0.0322 0.4826                                               0.5194 0.3898 0.3454        0.4612    0.7326
+                                                                                                 Average                    0.6151 0.4761 0.4801 0.0328 0.4858                                               0.5008 0.3789 0.3160        0.4481    0.7059
+                                                                                                  Direct                    0.7114 0.5277 0.5147 0.0440 0.4645                                               0.5605 0.4149 0.3590        0.4888    0.7754
+                                                                                                  CoT                       0.6905 0.4962 0.4761 0.0435 0.4674                                               0.5234 0.4013 0.3663        0.4668    0.7273
+                                            GPT-4o
+                                                                                                  Mark                      0.7160 0.5539 0.5112 0.0414 0.4418                                               0.5955 0.4488 0.4474        0.5225    0.8128
+                                                                                                 Average                    0.7059 0.5259 0.5007 0.0430 0.4579                                               0.5598 0.4217 0.3909        0.4927    0.7718
+                                                                                                  Direct                    0.7172 0.5318 0.6003 0.0533 0.5284                                               0.5674 0.4209 0.3833        0.5123    0.7914
+                                                                                                  CoT                       0.6961 0.5110 0.5603 0.0451 0.5099                                               0.5606 0.4005 0.3662        0.5085    0.7727
+                          Claude-3.5-Sonnet
+                                                                                                  Mark                      0.7258 0.5299 0.5899 0.0486 0.5111                                               0.5944 0.4282 0.4319        0.5149    0.7968
+                                                                                                 Average                    0.7130 0.5242 0.5835 0.0490 0.5165                                               0.5742 0.4165 0.3938        0.5119    0.7870
+
+
+                                                                                                                                         Win          Tie                Lose
+
+  Qwen-3B (Direct)        17%
+                                            Usable
+
+                                                           83%
+                                                               Unusable
+                                                                              baseline, the other from the tested methods) to decide which
+                                                                                                   Qwen-3B (Direct) 9%                  36%                        55%
+    Qwen-3B (CoT)
+   Qwen-3B (Mark)
+  Qwen-7B (Direct)
+                          19%
+                          18%
+                            30%
+                                                            81%
+                                                            82%
+                                                               70%
+                                                                              one implements the reference interaction function better. We
+                                                                                                     Qwen-3B (CoT) 8%
+                                                                                                    Qwen-3B (Mark) 9%
+                                                                                                                                        39%
+                                                                                                                                        37%
+                                                                                                                                                                   53%
+                                                                                                                                                                   54%
+                                                                                                   Qwen-7B (Direct)         20%                39%                       41%
+    Qwen-7B (CoT)
+   Qwen-7B (Mark)
+                           22%
+                                32%
+                                                             78%
+                                                                   68%        use Gemini-1.5-flash with direct prompt as the baseline and
+                                                                                                     Qwen-7B (CoT)
+                                                                                                    Qwen-7B (Mark)
+                                                                                                                           15%
+                                                                                                                            21%
+                                                                                                                                               52%
+                                                                                                                                                46%
+                                                                                                                                                                          33%
+                                                                                                                                                                          33%
+ Qwen-72B (Direct)               41%                                59%
+                                                                                                  Qwen-72B (Direct)         21%                       64%                       15%
+  Qwen-72B (CoT)
+ Qwen-72B (Mark)
+                                  43%
+                                       54%
+                                                                     57%
+                                                                          46%
+                                                                              collect the other 17 methods’ Win/Tie/Lose rates against this
+                                                                                                   Qwen-72B (CoT)
+                                                                                                  Qwen-72B (Mark)
+                                                                                                                             29%
+                                                                                                                                 30%
+                                                                                                                                                         60%
+                                                                                                                                                            63%
+                                                                                                                                                                                 11%
+                                                                                                                                                                                  7%
+   Gemini (Direct)                    47%                                53%
+      Gemini (CoT)
+    Gemini (Mark)
+                                       53%
+                                            64%
+                                                                          47% baseline. Each pair will count as Win (Lose) only when Win
+                                                                               36%
+                                                                                                       Gemini (CoT)
+                                                                                                     Gemini (Mark)
+                                                                                                                                 32%
+                                                                                                                                 32%
+                                                                                                                                                        51%
+                                                                                                                                                        53%
+                                                                                                                                                                                17%
+                                                                                                                                                                                15%
+                                                                                                     GPT-4o (Direct)                    54%                       31%           15%
+    GPT-4o (Direct)
+      GPT-4o (CoT)
+     GPT-4o (Mark)
+                                             73%
+                                              74%
+                                                  81%
+                                                                              (Lose) receives the majority vote (≥ 3). All other cases are
+                                                                                    27%
+                                                                                    26%
+                                                                                     19%
+                                                                                                       GPT-4o (CoT)
+                                                                                                      GPT-4o (Mark)
+                                                                                                                                         58%
+                                                                                                                                         58%
+                                                                                                                                                                   28%
+                                                                                                                                                                  27%
+                                                                                                                                                                                14%
+                                                                                                                                                                                15%
+
+    Claude (Direct)
+      Claude (CoT)
+                                            66%
+                                             69%                              considered a Tie. The results are shown in Figure 6(b), where
+                                                                               34%
+                                                                                31%
+                                                                                                     Claude (Direct)
+                                                                                                       Claude (CoT)
+                                                                                                                                       47%
+                                                                                                                                       46%
+                                                                                                                                                                  48%
+                                                                                                                                                                  50%
+                                                                                                                                                                                  5%
+                                                                                                                                                                                      4%
+     Claude (Mark)                            77%                                   23%               Claude (Mark)                     53%                         44%               3%
+
+
+                      0           20              40          60
+                                                  Percentage (%)
+                                                                              a higher win rate and lower loss rate suggest better quality as
+                                                                               80          100                         0           20          40          60
+                                                                                                                                               Percentage (%)
+                                                                                                                                                                         80           100
+
+
+
+                                                                              judged by human annotators.
+       (a) Usability evaluation.            (b) Pairwise comparision.
+                                                                                Results. (1) Our human evaluation reveals that GPT-4o
+Fig. 6. Human evaluation, a higher usable rate indicates better functionality and Claude-3.5-Sonnet consistently outperform other baseline
+and a higher win rate indicates better quality.                               models. (2) Both CoT and Mark prompting strategies can
+                                                                              enhance model performance beyond direct prompting, showing
+                                                                              higher win rates and usability rates across most models (except
+suitable for webpage is necessary.                                            Qwen-vl-7B-instruct’s CoT prompt). (3) Mark prompting yields
+   2) Human Evaluation:                                                       the most significant improvements in usability, with Claude-
+      a) Functionality Evaluation: In addition to automatic 3.5-Sonnet showing 11% and 8% increases compared to Direct
+metrics, we conduct a functionality evaluation with four PhD and CoT prompts, respectively (Figure 6(a)). (4) These human
+students, each with three years of front-end development evaluation results are consistent with Section V-A, confirming
+experience, to assess the usability of the generated interactions. the validity of our automatic evaluation metrics. Detailed
+An interaction is considered usable if its implementation instructions for human evaluations are available in our artifact.
+precisely matches the behavior specified in the interactive
+prototype. The usability rate results are shown in Figure 6(a). B. Failure Type Analysis
+    b) Pairwise Model Comparison: We ask five human                                                                                                                                            To analyze the differences between the generated and original
+annotators to rank a pair of generated interactions (one from the                                                                                                                           interactions, categorize the failure types, and assess their impact
+
+=== [PDF page 7] ===
+
+                                                                          TABLE V
+                FAILURE TYPES AND THEIR INFLUENCES , WHERE               REPRESENTS FULL IMPACT AND       REPRESENTS PARTIAL IMPACT.
+
+
+                    Failure                                                                               User
+                                                  Failure Type                     Content Function                Usability Rate
+                    Object                                                                              Experience
+                                       (a) Interactive element missing                                                       0%
+                  Interactive                 (b) No interaction                                                           6.93%
+                   element              (c) Wrong interactive element                                                     92.31%
+                                   (d) Wrong type of interactive element                                                  96.82%
+                                 (e) Wrong position of interactive element                                                98.41%
+                                       (f) Wrong position after interaction                                               96.17%
+                  Interaction         (g) Wrong type of interaction effects                                               57.14%
+                    effects                (h) Effect on wrong element                                                    44.44%
+                                            (i) Partial Implementation                                                    89.20%
+                                                (j) Wrong function                                                          0%
+
+
+             Reference                         Reference                      Reference                  Reference                   Reference
+
+
+
+
+             Generated                          Generated                       Generated                  Generated                  Generated
+
+
+
+
+                                                                                                         (d) Wrong Types of        (e) Wrong Position of
+    (a) Interactive Element Missing           (b) No Interaction         (c)Wrong Interactive Element    Interactive Element       Interactive Element
+
+
+                                                            Fig. 7. Failure on interactive elements.
+
+
+
+on content, functionality, and user experience, we employ                             behavior. For instance, in Figure 7(b), clicking the "M"
+four PhD students with three years of front-end development                           button on the reference webpage changes the displayed
+experience. We first randomly select 25% interactions for                             size, but clicking it in the generated page produces no
+analysis and then discuss, revise, and refine the failure type                        change.
+until everyone reaches a consensus. During annotation, if the                     (c) Wrong interactive element: MLLMs implement the inter-
+annotators encounter a new failure type, they will communicate                        active function on the wrong element. For instance, in
+and update the failure types in time to guide subsequent                              Figure 7(c), the original webpage displays input boxes
+annotations (the detailed instructions are available in our                           after clicking "I’m donating on behalf of a company," but
+artifact). The results are in Table V, which shows that MLLMs                         the generated webpage shows them only after clicking a
+are prone to make 10 types of failure (Limitation 2). Figure 7                        different element.
+and Figure 8 demonstrate examples of these failures, where                        (d) Wrong type of interactive element: MLLMs generate
+the first row shows the reference interaction, and the second                         the wrong type of interactive element. For example, in
+row shows the generated interaction by MLLMs. The failures                            Figure 7(d), the price adjustment element in the original
+are illustrated as follows:                                                           page is an input field, while in the generated page, it is a
+   1) Failure on Interactive Elements:                                                progress bar.
+                                                                                  (e) Wrong position of interactive element: MLLMs place
+(a) Missing interactive element: MLLMs fail to generate                               interactive elements in the wrong position. In Figure 7(e),
+    interactive elements. For example, in Figure 7(a), the                            the button on the reference webpage is in the upper-right
+    reference webpage has a chat button that opens a chat                             corner, but in the generated page, it is positioned below
+    window when clicked, but the generated webpage lacks                              the image.
+    this button, preventing any interaction.
+(b) No interaction: The generated webpage lacks interactive                         2) Failure on Interactive Effects:
+
+=== [PDF page 8] ===
+
+             Reference                 Reference                     Reference                                                  Reference
+                                                                                                      Reference
+
+
+
+
+             Generated                   Generated                   Generated                          Generated               Generated
+
+
+
+
+        (f) Wrong Position of    (g) Wrong type of
+                                                              (h) Effect on Wrong Element       (i) Partial Implementation   (j) Wrong Function
+        Interaction Effect       interaction Effect
+
+                                                      Fig. 8. Failure of interaction effects.
+
+
+
+  (f) Wrong position after interaction: The interaction effects plementation”, “Interactive element missing”, and “Wrong
+      appear in the wrong position. For example, in Figure 8(f), function”.
+      the reference webpage shows a pop-up window in the                 Additionally, the most critical failures are “Interactive
+      lower-left corner after clicking the dialogue button, but element missing”, “Wrong function”, “No interaction” and
+      the generated webpage displays it in the center.                “Effect on wrong element”. The severity of these failures is
+ (g) Wrong type of interaction effects: In Figure 8(g), the determined by the usability rate (UR), where a higher UR
+      reference webpage shows an option-type element after indicates lower severity, and a lower UR indicates higher
+      clicking select, while the generated page shows a text-type severity. As illustrated in Table V, failures (a), (b), and
+      element.                                                        (j) exhibit a UR lower than 10%, rendering the generated
+ (h) Effect on wrong element: MLLMs apply the interaction interactions completely ineffective.
+      effect to the wrong element. As seen in Figure 8(h), in the
+      reference webpage, clicking the "dark" button changes the            Improvement 2: Failure-aware Prompt (FAP). Based
+      background color to black, but in the generated page, only           on failure types, we propose FAP to stimulate the self-
+      a block turns black, leaving the background unchanged.               criticism ability of MLLM, thereby avoiding problems
+  (i) Partial Implementation: MLLMs only implement part of                 that may occur in the Interaction-to-Code task.
+      the interactive functionality. For instance, in Figure 8(i),
+      the reference webpage allows a button to be selected and
+      unselected, but the generated webpage only allows the              FAP incorporates the failure example into the prompt and
+      button to be selected, not unselected.                          tell  MLLMs to avoid these types of failures (as shown in
+  (j) Wrong function: MLLMs implement the wrong function.             Figure   5 ). We use 23 of the dataset to annotate failure types
+                                                                            1
+      As shown in Figure 8(j), in the original webpage, clicking and 3 of the dataset to test. Table VI shows the results of the
+      the button opens a date selection box, but in the generated FAP methods, we can find that Failure-aware Prompt can
+      webpage, it opens a date display box instead.                   improve the performance of the Interaction-to-Code task
+                                                                      on all models.
+   Failure reason analysis. Specifically, we cluster 10 failure
+types into three main symptoms that all related to the above
+                                                                      C. The Impact of Interaction Visual Saliency
+limitation:(1) Spatial failures (Failures a, c, e, f) – the model
+cannot accurately locate the element linked to the interaction.          The visual perception limitations of MLLMs affect their
+(2) Type failures (Failures d, g) – it misclassifies the widget type performance on visual understanding tasks, especially when
+(e.g., slider vs. input), resulting in incorrect HTML elements in facing small low-resolution objects [54]. We examine the
+the output code. (3) Behavioral failures (Failures b, h, i, j) – it impact of interaction area ratio (i.e., visual saliency) on
+fails to infer the correct state-change logic (e.g., toggle vs. open- generation outcomes. Let I denote interaction, SI denote the
+modal), leading to missing or incorrect code implementation. screenshot of the webpage after interaction I, we define the
+                                                                                                  area(I)
+   Based on the failure distribution in Figure 9, we find that, visual saliency V S(I) = area(S         I)
+                                                                                                           , where area() calculates the
+the main failure modes are “No interaction”, “Partial im- size (in pixels) of a component. A higher VS score indicates a
+
+=== [PDF page 9] ===
+
+            (a) Qwen2.5-vl-3B.                               (b) Qwen2.5-vl-7B.                                (c) Qwen2.5-vl-72B.
+
+
+
+
+            (d) Gemini-1.5-flash.                               (e) GPT-4o.                                   (f) Claude-3.5-Sonnet.
+
+                                                    Fig. 9. Failure distribution of MLLMs.
+
+                                                              TABLE VI
+                                              C OMPARISON BETWEEN DIRECT PROMPT AND FAP.
+
+
+              Model                 Method             Full Page                                    Interaction Part
+                                             CLIP       SSIM        Text          CLIP       SSIM      Text          Position IR
+                                    Direct 0.6276 0.4984 0.5231       0.5403 0.4494 0.3602 0.5802 0.7636
+         Gemini-1.5-flash            FAP 0.6580 0.5337 0.5311         0.5886 0.4584 0.4394 0.6032 0.8182
+                                      ∆    ↑ 0.0304 ↑ 0.0353 ↑ 0.0080 ↑ 0.0483 ↑ 0.0090 ↑ 0.0792 ↑ 0.0230 ↑ 0.0546
+                                    Direct 0.6660 0.5480 0.4995       0.5700 0.4891 0.3652 0.5803 0.7636
+              GPT-4o                 FAP 0.7047 0.5976 0.6045         0.6072 0.5405 0.4580 0.6452 0.8364
+                                      ∆    ↑ 0.0387 ↑ 0.0496 ↑ 0.1050 ↑ 0.0372 ↑ 0.0514 ↑ 0.0928 ↑ 0.0649 ↑ 0.0728
+                                    Direct 0.5747 0.3950 0.4611       0.4582 0.3771 0.3086 0.4927 0.6364
+        Claude-3.5-Sonnet            FAP 0.6080 0.4500 0.4810         0.4921 0.4035 0.3822 0.5154 0.6545
+                                      ∆    ↑ 0.0333 ↑ 0.0550 ↑ 0.0199 ↑ 0.0339 ↑ 0.0264 ↑ 0.0736 ↑ 0.0227 ↑ 0.0181
+                                    Direct 0.4284 0.2466 0.1674       0.2777 0.2180 0.0285 0.3020 0.4727
+     Qwen2.5-vl-3B-instruct          FAP 0.3647 0.2076 0.1146         0.2375 0.1867 0.0328 0.2213 0.3818
+                                      ∆    ↓ 0.0637 ↓ 0.0390 ↓ 0.0528 ↓ 0.0402 ↓ 0.0313 ↑ 0.0043 ↓ 0.0807 ↓ 0.0909
+                                    Direct 0.3596 0.1981 0.1758       0.2802 0.1894 0.0854 0.2580 0.4000
+     Qwen2.5-vl-7B-instruct          FAP 0.3828 0.1642 0.1948         0.2603 0.1747 0.0746 0.2419 0.4182
+                                      ∆    ↑ 0.0232 ↓ 0.0339 ↑ 0.0190 ↓ 0.0199 ↓ 0.0147 ↓ 0.0108 ↓ 0.0161 ↑ 0.0182
+                                    Direct 0.6169 0.3967 0.4060       0.4741 0.3612 0.3275 0.5022 0.6545
+    Qwen2.5-vl-72B-instruct          FAP 0.6194 0.4208 0.4426         0.5144 0.3750 0.3286 0.5376 0.7636
+                                      ∆    ↑ 0.0025 ↑ 0.0241 ↑ 0.0366 ↑ 0.0403 ↑ 0.0138 ↑ 0.0011 ↑ 0.0354 ↑ 0.1091
+
+
+larger area influenced by the interaction and, consequently, a          as the visual saliency increases. As shown in Figure 10(c),
+higher visual saliency.                                                 the group [0.2, 1) shows the highest metrics, while the group
+   We first calculate the visual saliency for all interactions and      [0, 0.025) shows the lowest metrics. This demonstrates that
+plot the distribution, as shown in Figure 10(a). We then divide         MLLMs are more likely to capture structural and positional
+the samples into five groups based on the distribution results,         features for samples with high visual saliency.
+keeping the number of samples in each group roughly balanced.
+The VS ranges for the five groups are as follows: [0, 0.025),
+                                                                              Improvement 3: Visual Saliency Enhancement
+[0.025, 0.05), [0.05, 0.1], [0.1, 0.2), [0.2, 1). Figure 10 shows
+                                                                              (VSE). By cropping the image to increase the pro-
+the box plot distribution of metrics for Gemini-1.5 across these
+                                                                              portion of the interactive part, VSE makes the model
+five groups, we can find that the group with lower visual
+                                                                              to better perceive the interaction area.
+saliency has lower SSIM and position similarity (Limitation
+3). Although the clip and text similarity fluctuates among
+different groups, as shown in Figure 10(b), Figure 10(c) shows            We then randomly sample 10 webpages from failure cases
+that the SSIM and position similarity significantly increases           and crop the screenshots to increase the visual saliency of
+
+=== [PDF page 10] ===
+
+       (a) Visual saliency distribution.                             (b) CLIP and Text.                                 (c) SSIM and Position.
+
+                          Fig. 10. Visual saliency and interaction part metrics distribution of different groups of Gemini-1.5-flash.
+
+
+
+the interactions in the webpages (for example, if the webpage                                              TABLE VIII
+is cropped to 12 of the original, the visual saliency of the                      P ERFORMANCE OF GPT-4 O WITH DIFFERENT MODALITY INPUTS . B OLD
+                                                                                   VALUES ARE THE BEST PERFORMANCE AND UNDERLINED VALUES ARE
+interaction will be doubled). Figure 11 shows the relationship                                    THE SECOND - BEST PERFORMANCE .
+between the magnification factor and the metrics of generation
+results. We observe that: when the magnification factor is set                       Prompt      Modality       CLIP       SSIM          Text    Position
+to 1, all evaluation metrics yield values of 0, indicating the                                       V         0.3737      0.1793       0.2539   0.3951
+unsuccessful interaction generation. Upon increasing VS by                            Direct         T         0.4174      0.4067       0.2316   0.4293
+1.2 times, the model is able to reproduce interactions, but                                         V+T        0.6735      0.5612       0.3919   0.7157
+with relatively low metric scores. As the magnification factor                                       V         0.3871      0.3101       0.2433   0.4461
+increases from 1.2 to 3, we observe substantial improvements in                        CoT           T         0.5579      0.1828       0.3045   0.5465
+performance metrics: the CLIP and SSIM similarities approach                                        V+T        0.6440      0.4800       0.4287   0.7080
+0.8, while text and position similarities reach approximately                                        V         0.5015      0.4520       0.3389   0.5025
+0.6. This suggests that models overcome the original failures.                        Mark           T         0.4613      0.4454       0.2805   0.4810
+                                                                                                    V+T        0.6923      0.4336       0.4248   0.7469
+           1.0
+                      CLIP
+           0.8
+                      SSIM
+           0.6        Text
+                                                                                 D. The Impact of Different Modalities
+           0.4        Position
+                                                                  MLLMs’ UI code generation effectiveness hinges on in-
+           0.2
+                                                               teraction comprehension, with complex or visually subtle
+            0.0
+                  1.0      1.5       2.0
+                                   Scale
+                                               2.5        3.0  interactions being particularly challenging when using images
+                                                               alone. Natural language descriptions can complement visual
+             Fig. 11. Metrics under different magnification.   inputs. To investigate the impact of different input signals, we
+                                                               conduct experiments on GPT-4o using 10 randomly selected
+   Although increasing magnification may result in some UI     webpages    from failure cases. Human annotators provide textual
+areas being cut off, this can be effectively addressed through descriptions  for each interaction (e.g., "clicking the login button
+a two-step generation approach:(1) Step 1: Generate the        triggers  a  new  window with two input boxes"). We evaluate
+interactive components within the magnified, focused area. (2) three  settings: visual input only (V), textual description only
+Step 2: Generate the remaining cut-off UI portions separately. (T), and  combined   visual-textual input (V+T). Table VIII shows
+(3) Step 3: Combine both parts to produce the complete         that  visual-only  (V) and   text-only (T) inputs exhibits unsat-
+webpage.                                                       isfactory   performance   (Limitation   4), the combined approach
+                                                               (V+T) consistently outperforms single-modality inputs across
+   Using the above method, we sampled 10 webpages with
+                                                               all prompt types, indicating complementary benefits.
+magnification factors ranging from 1x to 3x and observe the
+performance. Table VII shows that full-page similarity scores
+remain consistent. So we believe the models’ performance            Improvement 4: Visual and Textual Description
+on the full UI page remains stable with the increased               Combination. Combined visual and textual inputs can
+magnification factor.                                               optimize MLLMs’ Interaction-to-Code performance.
+
+                                                                                 E. Ablation Study
+                                 TABLE VII
+  T HE FULL PAGE PERFORMANCE UNDER DIFFERENT MAGNIFICATION                         To investigate whether the improvement methods address
+                                                                                 complementary weaknesses or have overlapping benefits, we
+      Magnification         1       1.5       2       2.5        3               conducte the ablation experiments on GPT4o, which evaluates
+      CLIP               0.826     0.842    0.838    0.843    0.836              the combinations of all proposed enhancement strategies.
+      SSIM               0.652     0.657    0.643    0.654    0.653              The results in Table IX show that combining Interactive
+      Text               0.657     0.659    0.649    0.665    0.659
+                                                                                 Element Highlighting (IEH), Failure-aware Prompt (FAP),
+                                                                                 Visual Saliency Enhancement (VSE) and Textual Description
+
+=== [PDF page 11] ===
+
+(TD) can achieve the best performance, and removing any one                                     TABLE X
+of them leads to a decrease in performance (✗ denotes "without      TASK T IME AND S IMILARITY W ITH AND W ITHOUT I NTERACTION 2C ODE .
+                                                                     W. DENOTES RESULTS WITH I NTERACTION 2C ODE TOOL , W / O DENOTES
+the module", ✓indicates "with the module".)                                             RESULTS WITHOUT THE TOOL .
+
+
+                          TABLE IX                                   Task        Time (w.)    Time (w/o)     Similarity (w.)   Similarity (w/o)
+  C OMBINATIONS OF PROPOSED IMPROVEMENTS AND CORRESPODING
+                                                                     Task 1         323s          487s             5                  4
+                        PERFORMANCE .
+                                                                     Task 2         182s          319s             4                  4
+                                                                     Task 3         125s          189s             5                  4
+   IEH   FAP    VSE    TD    CLIP    SSIM      Text    Position      Task 4         486s          657s             4                 3.5
+   ✗      ✗      ✗     ✗    0.5700   0.4891   0.3652   0.5802        Average        279s          413s             4.5              3.875
+   ✓      ✗      ✗     ✗    0.5968   0.5456   0.4508   0.6408
+   ✗      ✓      ✗     ✗    0.6072   0.5405   0.4580   0.6452
+   ✗      ✗      ✓     ✗    0.6328   0.5723   0.4629   0.6874
+   ✗      ✗      ✗     ✓    0.6547   0.5681   0.4732   0.7024       be mitigated by employing iterative generation, progressively
+   ✗      ✓      ✓     ✓    0.6584   0.5938   0.4852   0.7027
+   ✓      ✗      ✓     ✓    0.6627   0.5987   0.4764   0.7128       producing interactions for a webpage over multiple rounds.
+   ✓      ✓      ✗     ✓    0.6737   0.6136   0.4828   0.7269          Model selection. This study utilizes three prominent Mul-
+   ✓      ✓      ✓     ✗    0.6532   0.5823   0.4621   0.6987       timodal Large Language Models (MLLMs) to conduct ex-
+   ✓      ✓      ✓     ✓    0.6937   0.6251   0.5187   0.7371
+                                                                    periments. There are some MLLMs such as Pixtral [55] we
+                                                                    don’t test, we will test the performance of these models on
+F. Human Evaluation of Interaction2Code Tool                        Interaction-to-Code task in the future work.
+                                                                       Unable to handle interactions that require back-end. Some
+   To demonstrate the practical use of the Interaction2Code
+                                                                    complex functional interactions (e.g., login, search, etc.) are
+paradigm, we conduct a user study to asses the impact of our
+                                                                    implemented by server-side scripting languages like Python.
+task on dynamic website developers.
+                                                                    The benchmark we collect does not include back-end code;
+   Participant and preparation. We hired four PhD students
+                                                                    we cannot verify the generation effect of such interactions, but
+with similar front-end development experience to complete
+                                                                    we believe our work is an important step toward generating
+four interaction tasks within 30 mins. Of these participants,
+                                                                    interactive websites.
+two utilized our Interaction2Code tool (described in Appendix
+H), while the other two used LLMs but did not access the                              VII. C ONCLUSION
+Interaction2Code tool.
+   Study setting. We recorded the time taken to complete           We present the first systematic study of MLLMs’ capabil-
+tasks. We also invite other two front-end development experts ities in generating interactive webpages. We formulate the
+evaluate their implementations on a scale of 1 to 5, with higher Interaction-to-Code task and establish the Interaction2Code
+scores indicating better implementations.                        benchmark. Through comprehensive experiments, we identify
+   Result. Table X presents the time costs and performance four critical limitations: (1) inadequate generation of interaction
+metrics. Our results demonstrate substantial improvements in compared with full page, (2) susceptibility to ten types of
+both development efficiency (over 32.4%) and implementation failures, (3) poor performance on visually subtle interactions,
+quality (over 16.1%) when using the Interaction2Code Tool. and (4) insufficient comprehension when limited to single-
+Our user studies demonstrate that Interaction2Code task pro- modality visual descriptions. To address these limitations,
+vides substantial assistance for dynamic webpage developers. we propose four enhancement strategies: interactive element
+   Speed-up Mechanism. Interaction2Code accelerates devel- highlighting, failure-aware prompting (FAP), visual saliency
+opment by shifting the workflow from "generate-from-scratch" enhancement, and the integration of visual-textual descriptions.
+to "review-and-refine": (1) Ready-to-use draft: the tool emits
+a fully functional webpage that already contains the correct                     VIII. ACKNOWLEDGMENT
+HTML structure, CSS layout, and JavaScript event handlers for      The work described in this paper was supported by two grants
+the specified interaction. The developer do not need to write from the Research Grants Council of the Hong Kong Special
+code from scratch. (2) Reduced lookup time: developers no Administrative Region, China: (1) No. CUHK 14209124 of the
+longer spend minutes searching docs for the api usage like General Research Fund, and (2) No. SRFS2425-4S03 of the
+“onClick” signature, event attributes, etc. (3) Faster iteration Senior Research Fellow Scheme. The work was also supported
+loop: developers skip writing many lines of codes and jump by the Singapore Ministry of Education (MOE) Academic
+straight to testing the generated interaction: either approve it Research Fund (AcRF) Tier 1 grant and the Jingyu Xiao’s
+or apply minor adjustments.                                      Hong Kong PhD Fellowship Scheme (No. PF23-87650) under
+                                                                 the Research Grants Council of Hong Kong.
+                  VI. T HREATS TO VALIDITY
+   Limited context length. As webpages become more complex                                       R EFERENCES
+with numerous interactions, the input context expands, poten-
+                                                                     [1] “Top website statistics for 2024,” Forbes Advisor, 2024, accessed:
+tially exceeding the context window constraints of MLLMs                 2024-10-06. [Online]. Available: https://www.forbes.com/advisor/busines
+(e.g., 128K tokens for GPT-4o). Nevertheless, this limitation can        s/software/website-statistics/
+
+=== [PDF page 12] ===
+
+ [2] C. Chen, T. Su, G. Meng, Z. Xing, and Y. Liu, “From ui design image           [22] C. Si, Y. Zhang, Z. Yang, R. Liu, and D. Yang, “Design2code: How
+     to gui skeleton: a neural machine translator to bootstrap mobile gui               far are we from automating front-end engineering?” arXiv preprint
+     implementation,” in Proceedings of the 40th International Conference               arXiv:2403.03163, 2024.
+     on Software Engineering, 2018, pp. 665–676.                                   [23] Y. Wan, C. Wang, Y. Dong, W. Wang, S. Li, Y. Huo, and M. R. Lyu,
+ [3] K. Kuusinen and T. Mikkonen, “Designing user experience for mobile                 “Automatically generating ui code from screenshot: A divide-and-conquer-
+     apps: Long-term product owner perspective,” 2013 20th Asia-Pacific                 based approach,” Proceedings of the ACM on Software Engineering (FSE),
+     Software Engineering Conference (APSEC), vol. 1, pp. 535–540, 2013.                vol. 1, no. FSE, pp. 1–24, 2025.
+     [Online]. Available: https://api.semanticscholar.org/CorpusID:18632493        [24] S. Yun, H. Lin, R. Thushara, M. Q. Bhat, Y. Wang, Z. Jiang, M. Deng,
+ [4] T. A. Nguyen and C. Csallner, “Reverse engineering mobile application              J. Wang, T. Tao, J. Li et al., “Web2code: A large-scale webpage-to-code
+     user interfaces with remaui (t),” in 2015 30th IEEE/ACM International              dataset and evaluation framework for multimodal llms,” arXiv preprint
+     Conference on Automated Software Engineering (ASE), 2015, pp. 248–                 arXiv:2406.20098, 2024.
+     259.                                                                          [25] Y. Gui, Z. Li, Y. Wan, Y. Shi, H. Zhang, B. Chen, Y. Su, D. Chen, S. Wu,
+ [5] V. Lelli, A. Blouin, and B. Baudry, “Classifying and qualifying gui                X. Zhou et al., “Webcode2m: A real-world dataset for code generation
+     defects,” 2015 IEEE 8th International Conference on Software Testing,              from webpage designs,” in Proceedings of the ACM on Web Conference
+     Verification and Validation (ICST), pp. 1–10, 2015. [Online]. Available:           (WWW), 2025, pp. 1834–1845.
+     https://api.semanticscholar.org/CorpusID:2288032                              [26] J. Xiao, M. Wang, M. H. Lam, Y. Wan, J. Liu, Y. Huo, and M. R. Lyu,
+ [6] K. Moran, B. Li, C. Bernal-Cárdenas, D. Jelf, and D. Poshyvanyk,                   “Designbench: A comprehensive benchmark for mllm-based front-end
+     “Automated reporting of gui design violations for mobile apps,” 2018               code generation,” arXiv preprint arXiv:2506.06251, 2025.
+     IEEE/ACM 40th International Conference on Software Engineering                [27] Y. Wan, Y. Dong, J. Xiao, Y. Huo, W. Wang, and M. R. Lyu, “Mrweb:
+     (ICSE), pp. 165–175, 2018. [Online]. Available: https://api.semanticscho           An exploration of generating multi-page resource-aware web code from
+     lar.org/CorpusID:3634687                                                           ui designs,” arXiv preprint arXiv:2412.15310, 2024.
+ [7] C. Zeidler, C. Lutteroth, W. Stuerzlinger, and G. Weber, “Evaluating          [28] B. Aşıroğlu, B. R. Mete, E. Yıldız, Y. Nalçakan, A. Sezen, M. Dağtekin,
+     direct manipulation operations for constraint-based layout,” in IFIP               and T. Ensari, “Automatic html code generation from mock-up images
+     TC13 International Conference on Human-Computer Interaction, 2013.                 using machine learning techniques,” in 2019 Scientific Meeting on
+     [Online]. Available: https://api.semanticscholar.org/CorpusID:8243987              Electrical-Electronics & Biomedical Engineering and Computer Science
+ [8] T. Beltramelli, “pix2code: Generating code from a graphical user                   (EBBT). Ieee, 2019, pp. 1–4.
+     interface screenshot,” in Proceedings of the ACM SIGCHI symposium             [29] A. A. J. Cizotto, R. C. T. de Souza, V. C. Mariani, and L. dos
+     on engineering interactive computing systems, 2018, pp. 1–6.                       Santos Coelho, “Web pages from mockup design based on convolutional
+ [9] C. Chen, T. Su, G. Meng, Z. Xing, and Y. Liu, “From ui design image                neural network and class activation mapping,” Multimedia Tools and
+     to gui skeleton: a neural machine translator to bootstrap mobile gui               Applications, vol. 82, no. 25, pp. 38 771–38 797, 2023.
+     implementation,” in Proceedings of the 40th International Conference          [30] K. Moran, C. Bernal-Cárdenas, M. Curcio, R. Bonett, and D. Poshyvanyk,
+     on Software Engineering (ICSE), 2018, pp. 665–676.                                 “Machine learning-based prototyping of graphical user interfaces for
+                                                                                        mobile apps,” IEEE Transactions on Software Engineering (TSE), vol. 46,
+[10] OpenAI, “Hello gpt-4o,” 2024, accessed: 2024-10-06. [Online]. Available:
+                                                                                        no. 2, pp. 196–221, 2018.
+     https://openai.com/index/hello-gpt-4o/
+                                                                                   [31] Y. Xu, L. Bo, X. Sun, B. Li, J. Jiang, and W. Zhou, “image2emmet:
+[11] Anthropic, “Introducing claude 3.5 sonnet,” 2024, accessed: 2024-09-29.
+                                                                                        Automatic code generation from web user interface image,” Journal of
+     [Online]. Available: https://www.anthropic.com/news/claude-3-5-sonnet
+                                                                                        Software: Evolution and Process, vol. 33, no. 8, p. e2369, 2021.
+[12] Google, “Gemini api,” 2024, accessed: 2024-10-06. [Online]. Available:        [32] W.-Y. Chen, P. Podstreleny, W.-H. Cheng, Y.-Y. Chen, and K.-L. Hua,
+     https://ai.google.dev/gemini-api                                                   “Code generation from a graphical user interface via attention-based
+[13] Z. Yang, L. Li, K. Lin, J. Wang, C.-C. Lin, Z. Liu, and                            encoder–decoder model,” Multimedia Systems, vol. 28, no. 1, pp. 121–
+     L. Wang, “The dawn of lmms: Preliminary explorations with                          130, 2022.
+     gpt-4v(ision),” ArXiv, vol. abs/2309.17421, 2023. [Online]. Available:        [33] V. Jain, P. Agrawal, S. Banga, R. Kapoor, and S. Gulyani, “Sketch2code:
+     https://api.semanticscholar.org/CorpusID:263310951                                 transformation of sketches to ui in real-time using deep neural network,”
+[14] W. Dai, J. Li, D. Li, A. M. H. Tiong, J. Zhao, W. Wang, B. A. Li, P. Fung,         arXiv preprint arXiv:1910.08930, 2019.
+     and S. C. H. Hoi, “Instructblip: Towards general-purpose vision-language      [34] T. A. Nguyen and C. Csallner, “Reverse engineering mobile application
+     models with instruction tuning,” ArXiv, vol. abs/2305.06500, 2023.                 user interfaces with remaui (t),” in 2015 30th IEEE/ACM International
+     [Online]. Available: https://api.semanticscholar.org/CorpusID:258615266            Conference on Automated Software Engineering (ASE). IEEE, 2015,
+[15] J. Liu, J. Xiao, W. Tang, W. Wang, Z. Wang, M. Zhang, and S. Yu,                   pp. 248–259.
+     “Benchmarking mllm-based web understanding: Reasoning, robustness             [35] T. Zhou, Y. Zhao, X. Hou, X. Sun, K. Chen, and H. Wang, “Bridging
+     and safety,” 2025. [Online]. Available: https://arxiv.org/abs/2509.21782           design and development with automated declarative ui code generation,”
+[16] H. Yu, B. Shen, D. Ran, J. Zhang, Q. Zhang, Y. Ma, G. Liang,                       Proceedings of the ACM on Software Engineering (FSE), vol. 1, no. FSE,
+     Y. Li, T. Xie, and Q. Wang, “Codereval: A benchmark of pragmatic                   pp. 1–24, 2025.
+     code generation with generative pre-trained models,” in International         [36] J. Xiao, Z. Zhang, Y. Wan, Y. Huo, Y. Liu, and M. R. Lyu, “Efficien-
+     Conference on Software Engineering (ICSE), 2023. [Online]. Available:              tuicoder: Efficient mllm-based ui code generation via input and output
+     https://api.semanticscholar.org/CorpusID:256459413                                 token compression,” arXiv preprint arXiv:2509.12159, 2025.
+[17] J. Li, G. Li, Y. Li, and Z. Jin, “Enabling programming thinking in large      [37] H. Laurençon, L. Tronchon, and V. Sanh, “Unlocking the conversion of
+     language models toward code generation,” ArXiv, vol. abs/2305.06599,               web screenshots into html code with the websight dataset,” 2024.
+     2023. [Online]. Available: https://api.semanticscholar.org/CorpusID:          [38] UI-Mockup, “Ui mockups,” January 2025. [Online]. Available:
+     263896057                                                                          https://www.uxpin.com/studio/blog/what-is-a-mockup-the-final-layer-o
+[18] X. Du, M. Liu, K. Wang, H. Wang, J. Liu, Y. Chen, J. Feng, C. Sha,                 f-ui-design/
+     X. Peng, and Y. Lou, “Classeval: A manually-crafted benchmark                 [39] Interactive, “Ui mockups,” January 2025. [Online]. Available:
+     for evaluating llms on class-level code generation,” ArXiv, vol.                   https://www.uxpin.com/studio/blog/interactive-prototype-setting-user-i
+     abs/2308.01861, 2023. [Online]. Available: https://api.semanticscholar.or          nteractions-without-coding/
+     g/CorpusID:260439062                                                          [40] C. Raffel, N. Shazeer, A. Roberts, K. Lee, S. Narang, M. Matena, Y. Zhou,
+[19] R. Lu, Y. Li, and Y. Huo, “Exploring autonomous agents: A closer look at           W. Li, and P. J. Liu, “Exploring the limits of transfer learning with a
+     why they fail when completing tasks,” arXiv preprint arXiv:2508.13143,             unified text-to-text transformer,” Journal of machine learning research,
+     2025.                                                                              vol. 21, no. 140, pp. 1–67, 2020.
+[20] R. Lu, Y. Huo, M. Zhang, Y. Li, and M. R. Lyu, “Next edit prediction:         [41] Selenium, “Selenium,” January 2025. [Online]. Available: https:
+     Learning to predict code edits from context and interaction history,” arXiv        //selenium-python.readthedocs.io/
+     preprint arXiv:2508.10074, 2025.                                              [42] Git, “Git difference tool,” January 2025. [Online]. Available:
+[21] W. Tang, J. Xiao, W. Jiang, X. Xiao, Y. Wang, X. Tang, Q. Li, Y. Ma,               https://git-scm.com/docs/git-difftool
+     J. Liu, S. Tang et al., “Slidecoder: Layout-aware rag-enhanced hierarchical   [43] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal,
+     slide generation from design,” arXiv preprint arXiv:2506.07964, 2025.              G. Sastry, A. Askell, P. Mishkin, J. Clark et al., “Learning transferable
+
+=== [PDF page 13] ===
+
+     visual models from natural language supervision,” in International
+     conference on machine learning. PMLR, 2021, pp. 8748–8763.
+[44] Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, “Image
+     quality assessment: from error visibility to structural similarity,” IEEE
+     transactions on image processing, vol. 13, no. 4, pp. 600–612, 2004.
+[45] K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, “Bleu: a method for
+     automatic evaluation of machine translation,” in Proceedings of the 40th
+     annual meeting of the Association for Computational Linguistics (ACL),
+     2002, pp. 311–318.
+[46] R. Liu, X. Teoh, Y. Lin, G. Chen, R. Ren, D. Poshyvanyk, and J. S.
+     Dong, “Guipilot: A consistency-based mobile gui testing approach for
+     detecting application-specific bugs,” Proc. ACM Softw. Eng., vol. 2, no.
+     ISSTA, Jun. 2025. [Online]. Available: https://doi.org/10.1145/3728909
+[47] K. Moran, B. Li, C. Bernal-Cárdenas, D. Jelf, and D. Poshyvanyk,
+     “Automated reporting of gui design violations for mobile apps,”
+     in Proceedings of the 40th International Conference on Software
+     Engineering (ICSE). New York, NY, USA: Association for
+     Computing Machinery, 2018, p. 165–175. [Online]. Available:
+     https://doi.org/10.1145/3180155.3180246
+[48] H. Liu, C. Li, Y. Li, B. Li, Y. Zhang, S. Shen, and Y. J. Lee, “Llava-next:
+     Improved reasoning, ocr, and world knowledge,” January 2024. [Online].
+     Available: https://llava-vl.github.io/blog/2024-01-30-llava-next/
+[49] Meta, “Llama 3.2 vision,” 2024, accessed: 2025-02-06. [Online].
+     Available: https://huggingface.co/meta-llama/Llama-3.2-90B-Vision-Ins
+     truct
+[50] Qwen, “Qwen2.5-vl,” January 2025. [Online]. Available: https:
+     //qwenlm.github.io/blog/qwen2.5-vl/
+[51] OpenAI, “Vision guide,” 2024, accessed: 2024-10-18. [Online]. Available:
+     https://platform.openai.com/docs/guides/vision
+[52] Anthropic, “Vision documentation,” 2024, accessed: 2024-10-18.
+     [Online]. Available: https://docs.anthropic.com/en/docs/vision
+[53] J. Wei, X. Wang, D. Schuurmans, M. Bosma, F. Xia, E. Chi, Q. V. Le,
+     D. Zhou et al., “Chain-of-thought prompting elicits reasoning in large
+     language models,” Advances in neural information processing systems
+     (NeurIPS), vol. 35, pp. 24 824–24 837, 2022.
+[54] J. Zhang, J. Hu, M. Khayatkhoei, F. Ilievski, and M. Sun, “Exploring
+     perceptual limitation of multimodal large language models,” arXiv
+     preprint arXiv:2402.07384, 2024.
+[55] P. Agrawal, S. Antoniak, E. B. Hanna, B. Bout, D. Chaplot, J. Chud-
+     novsky, D. Costa, B. De Monicault, S. Garg, T. Gervet et al., “Pixtral
+     12b,” arXiv preprint arXiv:2410.07073, 2024.

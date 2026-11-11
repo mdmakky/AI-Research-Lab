@@ -1,0 +1,1145 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                        Looks Right, Works Right:
+    A Project-Level Benchmark for Multi-Screen Mobile App Generation
+
+        Fan Wu1 , Cuiyun Gao1 * , Yiming Huang1 , Yang Xiao2 , Yujia Chen1 , Qing Liao1
+                             1
+                               Harbin Institute of Technology, Shenzhen
+             2
+               Institute of Information Engineering, Chinese Academy of Sciences
+                                        Correspondence: codenobuge@163.com
+
+
+
+
+                        Abstract                             2025; Laurençon et al., 2024; Gui et al., 2025). Re-
+                                                             cent work on single-page design-to-code with rich
+     Recent multimodal large language models can             design-tool metadata further reflects this continued
+     convert visual designs directly into executable
+                                                             focus on individual pages (Gui et al., 2026).
+     code, but real mobile products require multi-
+     ple screenshots to become a buildable codebase             A real product, however, is never a single screen.
+     with shared components and working naviga-              It is a folder of screenshots that must collectively
+     tion. This project-level setting exposes three          become a buildable codebase with shared compo-
+     limits of existing design-to-code benchmarks:           nents, consistent design tokens, working routing,
+     they focus on single-page generation rather             and a navigable user experience. Existing design-
+     than complete codebases, cannot evaluate cross-         to-code benchmarks fall short in three ways ex-
+     page navigation, and do not measure project-            posed by this project-level setting. (1) Single-page
+     wide maintainability. We introduce Mobile-
+                                                             focus. They target one webpage at a time and do
+     Forge, the first benchmark for project-level
+     multi-screen mobile app generation, compris-            not evaluate a multi-screen project as a whole, leav-
+     ing 29 real mobile apps, 309 human-reviewed             ing cross-page coherence and shared-component
+     screens, structured page-relationship annota-           reuse out of scope. (2) No evaluation of inter-
+     tions, and 701 navigation test specifications.          active navigation. They cannot test whether the
+     MobileForge supports five-axis evaluation of            generated app’s global routing correctly connects
+     build, navigation, visual fidelity, code maintain-      tab transitions and parent–child transitions to the
+     ability, and efficiency. We also propose state-
+                                                             intended targets, even though navigation correct-
+     isolated navigation testing to avoid cascading
+     failures in navigation evaluation and an anchor-        ness is a basic functional requirement of a usable
+     referenced list-wise visual evaluation proto-           app. (3) No measure of project-wide code main-
+     col to improve visual-judge reliability. Across         tainability. They omit indicators such as compo-
+     174 end-to-end runs on six frontier multimodal          nent reuse, dead-component prevalence, and cross-
+     LLMs, current models can build mobile-app               page design-token consistency, which directly af-
+     projects that compile and reach the correct             fect downstream engineering cost when a generated
+     pages, but interactive navigation remains un-           project is handed off to a team.
+     reliable and visual fidelity and maintainability
+                                                                To address these gaps, we introduce Mobile-
+     still lag. The benchmark and supporting ma-
+     terials are available at https://github.com/            Forge, the first project-level multi-screen mobile
+     anoa12159-hue/mobileforge_eval.                         app generation benchmark, together with a five-
+                                                             axis evaluation framework for multi-screen projects
+1    Introduction                                            (Figure 1). Our experiments on six frontier mul-
+                                                             timodal LLMs across 174 end-to-end runs show
+Can a multimodal LLM read a folder of mobile-app             clear gaps between current models and the require-
+screenshots and generate the source code for that            ments of project-level interactive code generation,
+app? The idea of turning a designer’s screenshots            gaps that single-page benchmarks cannot expose.
+directly into a running application has motivated a
+decade of research, from pix2code’s CNN-LSTM                 Key Contributions
+screen-to-DSL pipeline (Beltramelli, 2018) to mul-                • Task and Benchmark. We formulate project-
+timodal LLMs that take a webpage screenshot as in-                  level multi-screen mobile app generation as a
+put and generate HTML+CSS in one shot (Si et al.,                   new task and release MobileForge, the first
+    * Corresponding authors.                                        benchmark for this setting, comprising 29
+                                                          60294
+      Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing, pages 60294–60319
+                           October 24-29, 2026 ©2026 Association for Computational Linguistics
+
+=== [PDF page 2] ===
+
+                                                               2   Related Work
+                                                               Screenshot-to-code          and     design-to-code.
+                                                               Pix2code (Beltramelli, 2018) introduced neural
+                                                               code generation from a single GUI screenshot.
+                                                               The modern wave, including Design2Code (Si
+                                                               et al., 2025), WebSight (Laurençon et al., 2024),
+                                                               WebCode2M (Gui et al., 2025), and recent
+                                                               VLM-centric efforts (Ge et al., 2025; Jiang et al.,
+                                                               2025; Yang et al., 2025), reframes the task as
+                                                               multimodal prompting over web screenshots.
+                                                               However, they still treat each example as a
+                                                               single webpage. Figma2Code (Gui et al., 2026)
+                                                               studies a complementary setting based on Figma
+                                                               design files, in which structural component
+                                                               definitions are available to the model. A concurrent
+Figure 1: Prior design-to-code benchmarks take a single        submission by a partially overlapping author
+screenshot as input and score the resulting HTML page          set (Anonymous, 2026) benchmarks MLLMs
+by visual similarity alone (top). MobileForge takes the        on interactive single-file HTML/CSS/JavaScript
+full set of screenshots of a real mobile app and a page-       webpages and explicitly scopes out component
+relationship description as input, asks an agentic harness     frameworks, multi-file projects, and multi-page
+to produce a runnable multi-page project, and scores it        navigation, which are the regimes MobileForge
+on five orthogonal axes: build, navigation, visual fidelity,
+                                                               targets. MobileForge differs from all the above in
+code maintainability, and efficiency (bottom).
+                                                               two ways. First, it uses only screenshots and does
+                                                               not assume any structural prior. Second, it targets
+     in-market consumer apps with 309 human-                   generation at the project level across multiple
+     reviewed screens, structured page-relationship            screens rather than single page generation.
+     descriptions, and 701 navigation test specifi-            Mobile UI corpora, agents, and code-generation
+     cations.                                                  benchmarks. A large body of work targets static-
+   • Evaluation Framework. We develop a five-                  UI perception, including Rico (Deka et al., 2017)
+     axis evaluation framework covering build,                 and downstream understanding work (Wang et al.,
+     navigation, visual fidelity, code maintainabil-           2021; Li et al., 2020; Baechler et al., 2024; You
+     ity, and efficiency. Two new evaluation tech-             et al., 2024; Hong et al., 2024b; Lu et al., 2024),
+     niques anchor the framework: state-isolated               or trains agents to operate running apps (Zhang
+     navigation testing, which runs each naviga-               et al., 2025a; Wang et al., 2024a; Cheng et al.,
+     tion specification from a fixed source-page               2024; Xie et al., 2024). MobileForge inverts both
+     route rather than a chained walkthrough, and              directions and asks models to generate the project.
+     an anchor-reference list-wise visual evalua-              On the code side, benchmarks have moved from
+     tion protocol, calibrated against human raters            function-level (HumanEval (Chen et al., 2021),
+     and motivated by the documented reliability               MBPP (Austin et al., 2021)) to repository-level
+     issues of point-wise VLM judging.                         (SWE-bench and variants (Jimenez et al., 2024;
+                                                               Yang et al., 2024; Deng et al., 2024; Tian et al.,
+   • Large-Scale Empirical Study. We evaluate                  2026)) and broader agentic suites (Liu et al., 2024b;
+     six frontier multimodal LLMs across 174 end-              Ma et al., 2024), but none takes a visual design
+     to-end runs and find that current models can              as input. Our single-agent harness draws on the
+     build mobile-app projects that compile and                iterative tool-use paradigm (Yao et al., 2023b,a;
+     reach the correct pages, yet interactive nav-             Madaan et al., 2023; Schick et al., 2023; Wang
+     igation is unreliable and visual fidelity and             et al., 2024b; Xia et al., 2025; Wang et al., 2025;
+     code maintainability leave substantial room               Liu et al., 2024a); we deliberately fix a single-agent
+     for improvement. We release MobileForge,                  setup so that observed differences are attributable
+     the evaluation harness, and all run artifacts to          to the model rather than the orchestration (Hong
+     support reproducibility.                                  et al., 2024a; Qian et al., 2024; Chen et al., 2024;
+                                                          60295
+
+=== [PDF page 3] ===
+
+Zhang et al., 2025b).                                      “Screen X is a sub-page of Screen Y, triggered by
+                                                           tapping the search icon.” This is the structural
+VLM-as-a-Judge. Vision-language judges have
+                                                           information the model needs to plan multi-page
+become standard evaluators when no gold output
+                                                           routing. The second is a set of navigation test
+exists (Lee et al., 2024; Li et al., 2026; Feizi et al.,
+                                                           specifications used only at evaluation time. Each
+2025), and the literature documents two failure
+                                                           specification belongs to one of three categories:
+modes of point-wise scoring: scale drift across
+                                                           page existence (is a given screen reachable at the
+sessions and ties-in-the-middle compression. Pair-
+                                                           expected route), tab navigation (does tapping a tab
+wise and list-wise protocols are more reliable, with
+                                                           item route to the correct screen), and parent–child
+list-wise producing a full ranking at O(N ) rather
+                                                           navigation (does triggering a known affordance on
+than O(N 2 ) call cost. Our anchor-reference list-
+                                                           a parent screen transition to the expected child).
+wise protocol (§4.3) extends list-wise judging with
+                                                           Each test records a starting screen, an action with
+an in-evaluation sanity check, and we substan-
+                                                           strategy hints (DOM selectors, text matches, tab
+tiate the choice with empirical comparison (Ap-
+                                                           positions), and the expected target screen. The full
+pendix C).
+                                                           benchmark contains 701 such specifications across
+3   The MobileForge Benchmark                              29 apps (mean 24.2, range 11–41 per app), dis-
+                                                           tributed as 120 page-existence, 392 tab-navigation,
+Figure 2 summarizes the four stages of Mobile-             and 189 parent–child cases.
+Forge: dataset construction, annotation, generation,
+and five-axis evaluation. The remainder of this            3.4    Annotation Pipeline and Quality
+section and §4 describe them in detail.
+                                                           Annotation follows a two-stage pipeline: a vision-
+3.1 Design Principles                                      language model drafts the schema entries of §3.3,
+                                                           and human annotators then review every field in a
+MobileForge is shaped by three principles: (i) real-
+                                                           labelling interface (Figure 4) and may edit, add, or
+ism, where every instance is an in-market consumer
+                                                           remove entries before producing the final ground
+app rather than a synthetic mockup; (ii) project
+                                                           truth. Three properties anchor the dataset’s reliabil-
+granularity, where each instance is a folder of
+                                                           ity. (i) Data quality: every retained annotation has
+screens so that cross-page consistency and routing
+                                                           passed human review. (ii) Annotation-framework
+are exercised; and (iii) runnable evaluation, where
+                                                           accuracy: against the post-review ground truth, the
+ground truth is the combination of building, nav-
+                                                           auto-drafts achieve 96.8% recall and 94.3% preci-
+igating, and visually matching, not pixel-perfect
+                                                           sion at the page level, and 74.1% recall and 83.9%
+reproduction, which is brittle and underspecified.
+                                                           precision at the test-case level. (iii) Low edit rate:
+3.2 App Selection and Capture                              64.7% of drafted page annotations and 76.5% of
+                                                           test cases are accepted unchanged, confirming that
+We sampled 29 apps spanning 14 category buckets            the auto-drafting stage produces candidates that the
+(media, finance, social, navigation, e-commerce,           human reviewer only lightly edits.
+productivity, communication, etc.), prioritizing
+broad cultural recognition. For each app, we cap-          3.5    Benchmark Statistics
+tured a coherent screenshot set covering the pri-
+mary tab structure plus key sub-screens, totaling          The benchmark spans 309 screens, 701 test cases,
+309 screens (mean 10.7, std 3.8, range 5–21 per            10.7 avg. screens per app, and a long-tail distri-
+app). The full app list and per-app statistics are in      bution of complexity (Khan Academy: 5 screens
+Appendix B (Table 5).                                      / 11 tests; Klook: 21 screens / 41 tests). Table 1
+                                                           contrasts MobileForge with prior design-to-code
+3.3 Annotation Schema                                      benchmarks along the dimensions that matter for
+Each app’s annotation comprises two parts. The             project-level evaluation.
+first is a page-relationship description that enters
+the generation pipeline as model input. It specifies       4     Evaluation Protocol
+the application’s tab structure, namely the main
+                                                           4.1    The Five Axes
+navigation tabs visible at the application root, and
+the parent–child relationships between screens, en-        We evaluate each project along five axes. Three
+coded as natural-language statements of the form           use standard measurements, summarized below,
+                                                      60296
+
+=== [PDF page 4] ===
+
+Figure 2: MobileForge pipeline. (1) Dataset construction starts from three design principles: realism, project
+granularity, and runnable evaluation. It collects 29 in-market apps across 14 category buckets with coherent
+multi-page screenshot sets (309 screens, mean 10.7 per app). (2) Annotation runs a VLM auto-draft over the
+screenshots, and then a human reviewer edits the page-relationship description and the navigation test specifications.
+(3) Generation hands the reviewed screenshots and page-relationship description to a single-agent harness (8 tools,
+pre-scaffolded directory, verify-repair loop). (4) Evaluation scores the resulting project on five axes, namely build,
+navigation, visual fidelity, code maintainability, and efficiency, using state-isolated navigation testing (§4.2) and an
+anchor-reference list-wise visual judge (§4.3).
+
+                                                                                      Evaluation Axes
+        Benchmark                           Unit of evaluation
+                                                                           Build   Nav.   Visual   Maint.   Eff.
+        Design2Code (Si et al., 2025)       484 real webpages               –       –       ✓           –    –
+        WebSight (Laurençon et al., 2024)   2M synth. webpages              –       –       ✓           –    –
+        WebCode2M (Gui et al., 2025)        2.56M real webpages             –       –       ✓           –    –
+        Figma2Code (Gui et al., 2026)       real Figma files                –       –       ✓           ✓    –
+        MobileForge (ours)                  29 real apps / 309 screens      ✓       ✓       ✓           ✓    ✓
+
+Table 1: Positioning of MobileForge among design-to-code benchmarks. Prior work evaluates single webpages,
+primarily along visual similarity; MobileForge introduces project-level evaluation along five axes. Inputs are
+screenshots throughout, except Figma2Code, which takes Figma metadata. ✓indicates that the axis is evaluated.
+
+
+and two rest on the new evaluation techniques of                    Code Maintainability. Five indicators cap-
+§4.2–§4.3.                                                       ture post-generation engineering upkeep: total
+  Build Success. Each project is shipped to a clean              LoC; mean LoC/file (conciseness); ReuseRate,
+Vite scaffold (React 19 + TypeScript + Tailwind).                the average import count per shared com-
+We run npx tsc –noEmit and vite build; a                         ponent; DeadCompRate, the fraction of de-
+run builds only if both pass with zero errors. We                clared components that are never imported; and
+additionally report route count, page-file count, and            ColorConsistency, the fraction of Tailwind color
+route coverage.                                                  tokens from a small recurring palette versus one-
+                                                                 off shades. We use the term code maintainability
+   Navigation Correctness. NavPassRate: the
+                                                                 rather than code quality because the former clearly
+fraction of the 701 navigation specifications (page-
+                                                                 excludes correctness, which is already captured by
+existence, tab-navigation, parent–child) passed un-
+                                                                 Build, and keeps the indicators focused on engi-
+der state-isolated execution (§4.2).
+                                                                 neering handoff.
+   Visual Fidelity. A per-model Borda score in
+[0, 1] aggregated from anchor-reference list-wise                   Efficiency. For each run, we log input and output
+ranking by a fixed vision-language judge; a 4-                   tokens, LLM call count, wall-clock LLM time, and
+dimension point-wise rubric is retained as an au-                a dollar-cost estimate from the model card list price.
+ditable reference baseline (§4.3).                               Efficiency is reported as a first-class axis rather than
+                                                        60297
+
+=== [PDF page 5] ===
+
+a footnote, since cost–quality trade-offs surface a       4.3   Anchor-Reference List-Wise Visual
+distinct finding (§6.3).                                        Evaluation
+                                                          Cross-model visual evaluation is structurally hard
+                                                          for VLM-as-Judge. Point-wise scoring, the default
+4.2 State-Isolated Navigation Testing                     in prior design-to-code work, asks the judge to as-
+                                                          sign a 1–5 score to a single candidate, ignoring
+Evaluating multi-screen navigation under the stan-        how it compares with the alternatives. This pro-
+dard chained-walkthrough protocol suffers from            duces two well-documented failure modes: scale
+error cascading. Under this protocol, the test agent      drift across sessions, where the same image re-
+navigates from the home screen and exercises the          ceives different scores at different times, and ties-
+entire app as a sequence of clicks. If the bottom-tab     in-the-middle compression, where close candidates
+routing is broken at step 3, every downstream test        collapse to the same integer score. Pair-wise judg-
+on the same chain fails too, and the cause of each        ing adds a relative anchor but costs O(N 2 ) com-
+later failure becomes ambiguous: is it the screen         parisons per scenario, where N is the number of
+itself, or the upstream tab? In a project with 20+        candidate models compared per scenario. Our em-
+test cases per app, a single early break can invali-      pirical study (Appendix C) further finds that it suf-
+date half of the chain. This protocol cannot tell us      fers from 23.3% position bias that requires swap-
+which failure mode dominates, and that is precisely       augmented re-runs. Standard list-wise judging is
+the question we want to answer.                           cheaper (O(N ) calls) and produces a full ranking,
+                                                          but it provides no signal on whether the judge actu-
+   We propose state-isolated navigation testing:
+                                                          ally performed the comparison or simply guessed.
+each test case begins from a fixed source-page route
+provided to the Playwright driver before the ac-             We add a small but consequential modifica-
+tion is executed, rather than from a chained se-          tion: we mix the original design screenshot itself,
+quence starting at the home screen. Concretely,           anonymized, into the candidate set as a hidden an-
+the driver navigates the browser directly to the          chor. The judge ranks N +1 candidates (N model
+route of the source page (e.g., /search rather than       outputs plus the anchor) from most to least visually
+/ → /search), waits for content to settle, executes       faithful. A ranking is valid only when the anchor
+the action under test, and observes the post-action       is placed first, since the anchor is pixel-identical
+page. The starting state of every test is therefore       to the reference and any judge that correctly sees
+independent of every other test.                          the candidates must rank it first. If the anchor is
+                                                          misplaced, the ranking is discarded and the call is
+   State isolation produces three benefits. (i) Statis-   re-run.
+tical independence: failures are independent events,         This anchor mechanism functions on two levels.
+so per-model failure rates can be compared without           (i) In-evaluation sanity check. Every individ-
+inflating denominators on chained failure cascades.       ual judge call is self-validating, and we discard
+(ii) Fine-grained attribution: a failure observed on      rankings that fail anchor placement rather than in-
+test N is genuinely caused by interaction N , which       cluding them in the Borda aggregation. The per-
+is the prerequisite for the C1–C4 user-perception         call anchor pass rate is itself a quality indicator we
+failure taxonomy we develop in §7. (iii) Reacha-          report alongside the Borda scores.
+bility decoupled from operability: tests of the form
+                                                             (ii) Judge-model selection criterion. The same
+“does the target page render at its route?” (page-
+                                                          mechanism becomes a selection criterion for VLM
+existence cases) are separated from tests of the
+                                                          judges. A candidate judge that cannot consistently
+form “does the trigger fire?” (parent–child and tab-
+                                                          place the anchor first on a screening set is not eli-
+navigation cases), so reachability and operability
+                                                          gible to score the benchmark. In our experiments,
+can be diagnosed separately.
+                                                          Gemini 2.5 Pro achieves ∼ 100% anchor pass on a
+  We render the built project in a headless Play-         33-scenario screening set; Claude Sonnet 4.5 also
+wright browser (375×812 viewport, simulating an           achieves ∼ 100%; GPT-5.1 fails at ∼ 35% because
+iPhone X) and execute the 701 test specifications.        it explicitly reasons that the reference “is not an
+A target is reached if the URL matches the expected       independent candidate” and ranks it last, disqualify-
+page or, for same-route overlays, the page content        ing it under this criterion. Appendix D reports the
+hash changes meaningfully.                                full cross-judge robustness analysis and a method-
+                                                     60298
+
+=== [PDF page 6] ===
+
+ological note on the GPT-5.1 failure.                   5.3    Judge Selection
+   The judge produces a per-scenario ranking,           The vision-language judge for visual fidelity is
+which we aggregate to a per-model Borda score           fixed across all runs as Gemini 2.5 Pro. The se-
+in [0, 1] via the 701-scenario corpus. Borda is         lection criterion is that the candidate judge must
+the primary visual metric. We additionally retain       reliably pass the anchor sanity check on a screening
+the per-pair point-wise protocol, a 4-dimension         set: when the reference design is mixed into the
+rubric (Layout 30%, Style 25%, Content 25%, Con-        candidate ranking, a competent judge places it first.
+sistency 20%, each 1–5), as an auditable refer-         Models that fail this check are not eligible. A cross-
+ence baseline. This baseline supplies the absolute-     judge robustness check with Claude Sonnet 4.5 is
+ceiling reading (“no model exceeds 3.0/5”) that         reported in Appendix D.
+Borda’s ordinal scale cannot. Full justification com-
+bining theoretical analysis, literature support, and    6     Results
+the three-way (point-wise / pair-wise / list-wise)
+                                                        6.1    Visual Fidelity Has Not Saturated
+empirical comparison is in Appendices C and D.
+                                                        Table 2 reports per-model means across all 29 apps.
+5   Experimental Setup                                  List-wise Borda is the primary visual metric, and
+                                                        point-wise visual scores are reported alongside as
+5.1 Agentic Harness                                     an auditable absolute-ceiling reference.
+                                                           Build success has saturated at 100%, but visual
+We deliberately fix the prompting strategy
+                                                        fidelity has not. List-wise judging shows substan-
+across models to isolate model capability
+                                                        tial between-model differences: Claude Opus 4.6
+rather than prompt engineering. All models
+                                                        ranks first in 26 of 29 apps, the bottom model wins
+share an identical agentic pipeline: a single
+                                                        zero apps, and the global Borda scores span the
+tool-augmented agent receives the design
+                                                        full [0.13, 0.91] range. Point-wise scoring further
+screenshots and the page-relationship descrip-
+                                                        shows that even the leader does not approach ab-
+tion from §3.3, and a system prompt instructs
+                                                        solute visual faithfulness: the top mean is 2.99/5
+it to produce a React+TypeScript+Tailwind
+                                                        (Opus), with all six models falling in [1.60, 2.99].
+project under a pre-scaffolded directory.
+                                                        The gap is concentrated in the cross-page Consis-
+The agent has eight tools:            write_file,
+                                                        tency dimension. Models routinely re-implement
+read_file, str_replace, batch_str_replace,
+                                                        navigation chrome inline on each page rather than
+list_files, delete_file, run_command (for
+                                                        sharing a single component, which produces sub-
+tsc/build), and task_done. The agent follows a
+                                                        tle color and sizing drift across screens. Cross-
+soft six-phase plan (analyse, foundation, compo-
+                                                        page consistency, not single-screen rendering, is
+nents, pages, assembly, verify) and may iterate up
+                                                        the dominant remaining bottleneck, and it is invisi-
+to 50 times. On task_done, the harness triggers
+                                                        ble to single-page benchmarks.
+an automated tsc+vite build; build errors are
+returned to the agent, which may continue iterating.    6.2    Code Maintainability Is Orthogonal to
+Smaller models reach the same endpoint by writing              Visual Fidelity
+files in many small edits and self-repairing more
+                                                        Table 3 reveals a sharp dissociation between vi-
+often; the per-phase token attribution accounts for
+                                                        sual leadership and code maintainability leadership.
+18–35% of total tokens in the verify phase, with
+                                                        Claude Opus 4.6, the visual leader, writes 2.2×
+the smaller models at the high end.
+                                                        the lines of code of GPT-5 (1,441 versus 668) at
+                                                        2.5× the average file size (82 versus 33 LoC/file).
+5.2 Models
+                                                        GPT-5 also achieves higher component reuse (4.23
+We evaluate six closed-weight frontier LLMs avail-      versus 3.83 imports per shared component) and
+able with multimodal input as of April 2026:            2.5× fewer dead components (7.8% versus 19.9%).
+Claude Opus 4.6 and Claude Haiku 4.5 (Anthropic),       Design-token color consistency has largely satu-
+GPT-5 and GPT-5 Mini (OpenAI), and Gemini 2.5           rated across all models (0.74–0.85, a 15% spread),
+Pro and Gemini 2.5 Flash (Google). For each             whereas the structural engineering metrics differen-
+app–model cell, we run a single trial, totalling        tiate sharply.
+29 × 6 = 174 runs, all of which completed and              The visual leader ranks third on component
+were evaluated end-to-end.                              reuse, fifth on dead-component rate, and last on
+                                                   60299
+
+=== [PDF page 7] ===
+
+           Model              Tok.(K)       $     Calls    Build%                                     NavPass↑      Borda↑       Vis(pt)↑      LoC
+           Claude Opus 4.6         488   2.90     14.7       100                                             92%    0.906           2.99      1,441
+           Claude Haiku 4.5      1,308   1.40     38.5       100                                             85%     0.339          2.37      1,290
+           GPT-5                   304   0.50     14.7       100                                             89%     0.542          2.64        668
+           GPT-5 Mini              542   0.15     23.9       100                                             58%     0.130          1.60        436
+           Gemini 2.5 Pro          336   0.64     16.0       100                                             82%     0.513          2.56        920
+           Gemini 2.5 Flash        839   0.33     34.5       100                                             62%     0.186          2.00      1,176
+
+Table 2: Per-model results aggregated over all 29 apps (174 runs). Borda: list-wise Borda score on the 701-scenario
+judge run, normalised to [0, 1] and used as the primary visual metric. Vis(pt): point-wise visual mean (1–5 scale;
+reference baseline). Tok.: input and output token mean. Calls: mean LLM tool-call iteration count. Token
+differences are dominated by iteration count: Haiku averages 38.5 iterations versus 14.7 for Opus and GPT-5, with
+smaller models writing many small edits and self-repairing more often. Best per column in bold.
+
+                         Model                  LoC   LoC/file                   Reuse↑                         Dead%↓    Color↑
+                         Claude Opus 4.6    1,441           82                                        3.83         19.9      0.81
+                         Claude Haiku 4.5   1,290           68                                        3.04         12.9      0.85
+                         GPT-5                668           33                                        4.23          7.8      0.80
+                         GPT-5 Mini           436           26                                        3.49         12.8      0.74
+                         Gemini 2.5 Pro       920           41                                        2.98         21.4      0.80
+                         Gemini 2.5 Flash   1,176           52                                        2.84         17.6      0.78
+
+Table 3: Code maintainability metrics per model (means over 29 apps). LoC/file: mean lines per source file, used
+as a conciseness proxy. Reuse: mean import count per shared component. Dead%: fraction of declared shared
+components never imported. Color: fraction of Tailwind color tokens from a small recurring palette. Full per-model
+breakdown including file count, shared-component count, and type utilization is in Appendix J.
+
+
+code conciseness. A team optimizing for designer
+
+
+
+
+                                                                 VisBefore (1--5, higher is better)
+                                                                                                      3.5
+fidelity at hand-off would choose Opus; a team op-                                                                                                    Opus 4.6
+timizing for downstream code maintenance would                                                        3.0
+                                                                                                                                 GPT5
+choose GPT-5. Existing single-axis benchmarks
+                                                                                                      2.5                      G2.5 Pro
+conflate these two operating points.
+                                                                                                                          G2.5 Flash    Haiku 4.5
+                                                                                                      2.0
+                                                                                                                     GPT5 Mini
+6.3 Capability-Cost Pareto Frontier                                                                   1.5
+
+                                                                                                      1.0
+Plotting list-wise Borda against per-app dollar cost                                                     10 1                           100
+(Figure 3) yields a Pareto frontier where GPT-5                                                         Estimated cost per project ($ USD, log scale)
+dominates two mid-tier models on cost and qual-
+ity jointly. GPT-5 ($0.50/app, Borda 0.542, Nav-              Figure 3: Capability-cost frontier on MobileForge. Each
+Pass 89%) sits strictly inside the dominance region           point is a model’s mean list-wise Borda score versus
+of both Claude Haiku 4.5 ($1.40, Borda 0.339, Nav-            mean dollar cost across 29 apps; error bars are ±1 stan-
+                                                              dard deviation across apps.
+Pass 85%) and Gemini 2.5 Pro ($0.64, Borda 0.513,
+NavPass 82%). The 19× cost spread between the
+cheapest ($0.15) and most expensive ($2.90) model
+                                                              6.4                                     Per-App Variance
+does not translate into a proportional quality spread
+in the relative ranking, and two mid-tier models              Difficulty varies sharply across apps. The easi-
+are dominated. We also observe content fabrica-               est apps, Notion (3.62), Khan Academy (3.50),
+tion, where models fill otherwise complete UI slots           and WhatsApp (3.33), are visually clean with com-
+with Lorem ipsum text or stock-photo imagery in-              pact tab structures. The hardest apps, Apple News
+stead of the screenshot’s actual content, predomi-            (2.01), Airbnb (2.02), and Coinbase (2.07), com-
+nantly in the lowest-cost models (GPT-5 Mini and              bine dense data presentation with custom typog-
+Gemini 2.5 Flash); we treat this as part of the cost-         raphy and information-rich imagery. Klook (21
+quality picture rather than as a separate navigation          screens, 0.48 NavPass) and Medium (10 screens,
+failure mode.                                                 0.45 NavPass) illustrate the cross-page consistency
+                                                          60300
+
+=== [PDF page 8] ===
+
+    Code Description                p̂     95% CI         the global routing table simply maps the navigation
+    C1     Blank starting page  7.8% [3.0, 18.3]          action to the wrong page.
+    C2     Route mapping error 10.9% [5.4, 20.9]
+    C3     Target unreachable  32.8% [22.6, 45.0]         C3: target unreachable or occluded (32.8%).
+    C4     Click has no effect 48.4% [36.6, 60.4]         The action target is not present in the rendered
+                                                          viewport, either because the layout omits it entirely
+Table 4: Distribution of interactive navigation failure
+                                                          or because another element covers it (Figures 10,
+modes from a stratified sample of n=64.
+                                                          11, 12). This is structurally distinct from C4: in
+                                                          C3 the page is malformed, whereas in C4 it is well-
+penalty: many screens magnify per-screen weak-            formed but inert. C3 dominates the smaller models,
+nesses and stress component-sharing decisions.            where layout sparsity is the recurring failure mode.
+The full per-app table is in Appendix B; we read
+                                                          C4: target clickable but unresponsive (48.4%).
+this distribution as evidence that the 29-app pool
+                                                          The page renders, the affordance is in the right
+covers a wide spread of project-level difficulty.
+                                                          place, but the click registers no effect (Figures 13,
+                                                          14, 15). This is consistent with a missing or mis-
+7   Failure Analysis                                      wired onClick handler. Build verification catches
+We focus our failure analysis on interactive naviga-      type errors but not silent event-handler bugs; this is
+tion, namely the 581 test specifications for tab nav-     the dominant failure mode for the stronger models.
+igation and parent–child navigation, which directly       Per-model headline observations. The failure-
+test the model’s overall routing structure. Across all    mode distribution differs sharply across models
+174 runs (6 models × 29 apps), these specifications       (per-model n=8–12; we read the per-model pro-
+generate 3,486 test-case executions. We hand-label        portions as descriptive signatures rather than pre-
+a stratified sample of 64 failures under a four-class     cise point estimates). Claude Opus 4.6 and GPT-5
+user-perception schema (C1–C4) and project the            show identical signatures: 75% C4 in our labelled
+sample proportions to the population with Wilson          sample (Table 10), indicating that their failures con-
+95% confidence intervals. State-isolated testing          centrate on broken interaction wiring rather than
+(§4.2) makes this fine-grained attribution possible:      missing UI. Gemini 2.5 Pro is similar but less ex-
+a failure observed on a given test cannot be blamed       treme (55% C4, 45% C3). GPT-5 Mini reverses
+on an upstream chained interaction.                       the pattern: 67% C3, so when GPT-5 Mini fails, it
+   Three modes account for roughly 90% of inter-          most often produces a layout that simply lacks the
+active navigation failures (Table 4).                     target affordance. Gemini 2.5 Flash is the C1 out-
+                                                          lier (42%). Claude Haiku 4.5’s failures are more
+C1: blank starting page (7.8%). The source
+                                                          uniformly spread across C2–C4, consistent with
+page renders empty or as a stub placeholder without
+                                                          its higher route-mapping error contribution. Practi-
+substantive content or interaction targets, so no
+                                                          cally, the remaining failures are not subtle: handlers
+navigation action can be dispatched (Figures 7–
+                                                          that do not fire and targets that are not drawn, both
+8). This is distinct from the filled-but-fake content
+                                                          diagnosable from the generated component tree be-
+fabrication discussed in §6.3: in C1 the relevant
+                                                          fore runtime. Full per-model and per-scenario-type
+affordances are absent, whereas in fabrication the
+                                                          tables are in Tables 10 and 11.
+UI structure is present but its text or imagery is
+placeholder content. C1 is the distinctive failure        8   Conclusion
+mode for Gemini 2.5 Flash, which alone accounts
+for an outsized share of C1 occurrences: 42% of           We introduce MobileForge, the first project-level
+its labelled failures are C1, versus 0% for the four      benchmark for multi-screen mobile app generation,
+next-best models. Flash’s high iteration count (34.5      and evaluate six frontier LLMs end-to-end on 174
+on average) does not translate into substantive page      runs along a five-axis protocol. The answer to our
+content for failed cases.                                 opening question is partly yes: every model pro-
+                                                          duces a buildable project and the strongest reaches
+C2: route mapping error (10.9%). The agent                92% navigation correctness, yet visual fidelity has
+declared the route, but the URL resolves to a differ-     not saturated, maintainability is uncorrelated with
+ent page than the one referenced by the test (Fig-        visual fidelity, and roughly 90% of navigation fail-
+ure 9). The model has correctly produced the page;        ures concentrate in three predictable modes.
+                                                     60301
+
+=== [PDF page 9] ===
+
+Limitations                                               Human annotators. The page-relationship de-
+                                                          scriptions and navigation test specifications were
+Single trial per cell. Each (app, model) pair runs        authored by members of our research team rather
+once. We chose 29 × 6 apps over fewer apps with           than crowdworkers. Annotators were fully in-
+more trials to maximise diversity; a multi-trial repli-   formed about the purpose and intended release of
+cation is left to future work.                            the dataset, participated voluntarily, and were com-
+                                                          pensated above the local minimum wage standard
+Vision-language judge. Visual scores are pro-
+                                                          of their region.
+duced by Gemini 2.5 Pro, a competitor model
+class. We fix the judge across all runs, so all           Use of pre-trained LLMs and compute. Our
+models share the same judge bias, calibrate the           experiments rely on publicly available commer-
+judge against human ratings on 55 scenarios (strict       cial LLM inference APIs and a publicly available
+Kendall τ =0.716, top-1 accuracy 83.6%), and              VLM judge. API usage conforms to the respec-
+cross-check with Claude Sonnet 4.5 on 139 sce-            tive providers’ Terms of Service. Because agen-
+narios (inter-judge τ =0.867). No self-preference         tic code generation with frontier LLMs is energy-
+bias toward either judge family is observed.              intensive, our pipeline runs each (app, model) cell
+                                                          exactly once and caches all intermediate artifacts
+Web-rendering proxy. The output target is web             so that downstream metric recomputation does not
+(React+Tailwind), not native iOS/Android. We              re-trigger generation or browser automation. To-
+chose web for evaluability, including browser au-         ken consumption and wall-clock time per app are
+tomation and deterministic builds, at the cost of not     reported transparently as part of the efficiency axis
+exercising native APIs. Cross-platform extension          (§4.1).
+is a natural follow-up.
+                                                          Potential misuse and mitigation. A capable
+Ethical Considerations                                    design-to-code model could in principle be mis-
+                                                          used to clone legitimate apps for phishing, imper-
+Data sources and licensing. The 29 apps in Mo-            sonation, or counterfeit distribution. We mitigate
+bileForge are widely distributed consumer apps            this risk in several ways. MobileForge is a bench-
+obtained through their official public distribution       mark, not a generator or a fine-tuning corpus, and
+channels, and screenshots were captured manually          it does not lower the barrier to producing mali-
+from default-state or demo-mode screens without           cious clones beyond what off-the-shelf multimodal
+bypassing paywalls, login walls, or rate-limit pro-       LLMs already provide. The five-axis evaluation re-
+tections. To respect the intellectual property of         wards build, navigation correctness, visual fidelity,
+the source apps, our public release contains the          maintainability, and efficiency, none of which is
+captured screenshot set together with the struc-          informative for malicious intent. The research-only
+tured page-relationship annotations and navigation        license further forbids commercial use, ruling out
+test specifications, framed as a research benchmark       the most plausible misuse vectors such as deploy-
+rather than a verbatim re-distribution of any app’s       ing re-skins of the source apps for profit.
+UI assets. The benchmark and the accompanying
+harness and evaluator are released under a research-      AI writing and coding assistance. Per the ACL
+only license that prohibits commercial reuse of the       policy on AI writing assistance, we disclose that
+screenshot artifacts and any derivative product that      general-purpose AI assistants were used solely for
+re-skins them.                                            language polishing and for low-level coding as-
+                                                          sistance during the implementation of the agentic
+Privacy and PII. MobileForge focuses on UI-               harness and the evaluator. All scientific claims, ex-
+level structure and navigation on the public surfaces     perimental design, data analysis, and conclusions
+of consumer apps. Annotators captured screens             are the work of the human authors, who take full
+without logging into real user accounts, and no per-      responsibility for the correctness of the content.
+sonal profiles, payment information, private mes-
+sages, or location histories were accessed or col-        Reproducibility Statement
+lected. We manually inspected every screenshot
+and redacted incidental content that could disclose       The benchmark, the agentic harness, and the five-
+third-party PII before release.                           axis evaluator are released as a single repository,
+                                                     60302
+
+=== [PDF page 10] ===
+
+together with the 174 run artifacts. Each run in-            SeeClick: Harnessing GUI grounding for advanced
+cludes the generated source tree, the build log, the         visual GUI agents. In Annual Meeting of the Associ-
+                                                             ation for Computational Linguistics (ACL).
+navigation-test screenshots, the VLM judge ratio-
+nales, and a structured run-summary record. A             Biplab Deka, Zifeng Huang, Chad Franzen, Joshua Hi-
+one-command replay reproduces the comparison                bschman, Daniel Afergan, Yang Li, Jeffrey Nichols,
+table verbatim.                                             and Ranjitha Kumar. 2017. Rico: A mobile app
+                                                            dataset for building data-driven design applications.
+Acknowledgments                                             In Proceedings of the 30th Annual ACM Symposium
+                                                            on User Interface Software and Technology (UIST),
+This research is supported by National Natural              pages 845–854.
+Science Foundation of China under project No.             Xiang Deng, Jeff Da, Edwin Pan, Yannis Yiming He,
+62472126, Shenzhen Natural Science Foundation               Charles Ide, Kanak Garg, Niklas Lauffer, Andrew
+Youth Program No. QNXMB20250701092047022,                   Park, Nitin Pasari, Chetan Rane, Karmini Sam-
+Youth Science and Technology Talent Cultiva-                path, Maya Krishnan, Srivatsa Kundurthy, Sean
+                                                            Hendryx, Zifan Wang, Vijay Bharadwaj, Jeff Holm,
+tion Program of Shenzhen AST No. 0832-
+                                                            Raja Aluri, Chen Bo Calvin Zhang, and 3 others.
+SFCX25FSC235 (2026XHXS03), and CCF-                         2024. SWE-bench Pro: Can AI agents solve long-
+Huawei Populus Grove Fund.                                  horizon software engineering tasks? arXiv preprint
+                                                            arXiv:2509.16941.
+
+References                                                Aarash Feizi, Sai Rajeswar, Adriana Romero-Soriano,
+                                                            Reihaneh Rabbany, Valentina Zantedeschi, Spandana
+Anonymous. 2026. Benchmarking multimodal LLMs               Gella, and João Monteiro. 2025. PairBench: Are
+  on code generation for complex interactive webpages.      vision-language models reliable at comparing what
+  Under review.                                             they see? arXiv preprint arXiv:2502.15210.
+Jacob Austin, Augustus Odena, Maxwell Nye, Maarten        Tong Ge, Yashu Liu, Jieping Ye, Tianyi Li, and Chao
+   Bosma, Henryk Michalewski, David Dohan, Ellen            Wang. 2025. Flame: Advancing vision-language
+   Jiang, Carrie Cai, Michael Terry, Quoc Le, and           models in front-end development via data synthesis.
+   Charles Sutton. 2021. Program synthesis with large       arXiv preprint arXiv:2503.01619.
+   language models. arXiv preprint arXiv:2108.07732.
+                                                          Yi Gui, Zhen Li, Yao Wan, Yemin Shi, Hongyu Zhang,
+Gilles Baechler, Srinivas Sunkara, Maria Wang, Fedir         Bohua Chen, Yi Su, Dongping Chen, Siyuan Wu,
+  Zubach, Hassan Mansoor, Vincent Etter, Victor             Xing Zhou, Wenbin Jiang, Hai Jin, and Xiangliang
+  Cărbune, Jason Lin, Jindong Chen, and Abhanshu            Zhang. 2025. WebCode2M: A real-world dataset
+  Sharma. 2024. ScreenAI: A vision-language model            for code generation from webpage designs. In Pro-
+  for UI and infographics understanding. In Proceed-         ceedings of the ACM Web Conference (WWW), pages
+  ings of the International Joint Conference on Artifi-     1834–1845.
+  cial Intelligence (IJCAI), pages 3058–3068.
+                                                          Yi Gui, Jiawan Zhang, Yina Wang, Tianran Ma, Yao
+Tony Beltramelli. 2018. pix2code: Generating code
+                                                            Wan, Shilin He, Dongping Chen, Zhou Zhao, Wenbin
+  from a graphical user interface screenshot. In Pro-
+                                                            Jiang, Xuanhua Shi, Hai Jin, and Philip S. Yu. 2026.
+  ceedings of the ACM SIGCHI Symposium on Engi-
+                                                            Figma2Code: Automating multimodal design to code
+  neering Interactive Computing Systems (EICS).
+                                                            in the wild. In International Conference on Learning
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan,           Representations (ICLR).
+ Henrique Ponde de Oliveira Pinto, Jared Kaplan, Har-
+ rison Edwards, Yuri Burda, Nicholas Joseph, Greg         Sirui Hong, Mingchen Zhuge, Jiaqi Chen, Xiawu Zheng,
+ Brockman, and 1 others. 2021. Evaluating large              Yuheng Cheng, Ceyao Zhang, Jinlin Wang, Zili
+ language models trained on code. arXiv preprint             Wang, Steven Ka Shing Yau, Zijuan Lin, Liyang
+ arXiv:2107.03374.                                           Zhou, Chenyu Ran, Lingfeng Xiao, Chenglin Wu,
+                                                             and Jürgen Schmidhuber. 2024a. MetaGPT: Meta
+Weize Chen, Yusheng Su, Jingwei Zuo, Cheng Yang,             programming for a multi-agent collaborative frame-
+ Chenfei Yuan, Chi-Min Chan, Heyang Yu, Yaxi Lu,             work. In International Conference on Learning Rep-
+ Yi-Hsin Hung, Chen Qian, Yujia Qin, Xin Cong,               resentations (ICLR).
+ Ruobing Xie, Zhiyuan Liu, Maosong Sun, and Jie
+ Zhou. 2024. AgentVerse: Facilitating multi-agent         Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng
+ collaboration and exploring emergent behaviors. In        Xu, Wenmeng Yu, Junhui Ji, Yan Wang, Zihan Wang,
+ International Conference on Learning Representa-          Yuxuan Zhang, Juanzi Li, Bin Xu, Yuxiao Dong,
+ tions (ICLR).                                             Ming Ding, and Jie Tang. 2024b. CogAgent: A vi-
+                                                           sual language model for GUI agents. In IEEE/CVF
+Kanzhi Cheng, Qiushi Sun, Yougang Chu, Fangzhi Xu,         Conference on Computer Vision and Pattern Recog-
+  Yantao Li, Jianbing Zhang, and Zhiyong Wu. 2024.         nition (CVPR).
+                                                     60303
+
+=== [PDF page 11] ===
+
+Yilei Jiang, Yaozhi Zheng, Yuxuan Wan, Jiaming Han,            Shashank Gupta, Bodhisattwa Prasad Majumder,
+   Qunzhong Wang, Michael R. Lyu, and Xiangyu Yue.             Katherine Hermann, Sean Welleck, Amir Yazdan-
+   2025. ScreenCoder: Advancing visual-to-code gen-            bakhsh, and Peter Clark. 2023. Self-refine: Iterative
+   eration for front-end automation via modular multi-         refinement with self-feedback. In Advances in Neu-
+   modal agents. arXiv preprint arXiv:2507.22827.              ral Information Processing Systems (NeurIPS).
+Carlos E. Jimenez, John Yang, Alexander Wettig,             Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan
+  Shunyu Yao, Kexin Pei, Ofir Press, and Karthik              Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng
+  Narasimhan. 2024. SWE-bench: Can language mod-              Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu,
+  els resolve real-world github issues? In International      and Maosong Sun. 2024. ChatDev: Communicative
+  Conference on Learning Representations (ICLR).              agents for software development. In Annual Meet-
+                                                              ing of the Association for Computational Linguistics
+Hugo Laurençon, Léo Tronchon, and Victor Sanh. 2024.          (ACL).
+  Unlocking the conversion of web screenshots into
+  html code with the WebSight dataset. arXiv preprint       Timo Schick, Jane Dwivedi-Yu, Roberto Dessì, Roberta
+  arXiv:2403.09029.                                           Raileanu, Maria Lomeli, Luke Zettlemoyer, Nicola
+                                                              Cancedda, and Thomas Scialom. 2023. Toolformer:
+Seongyun Lee, Seungone Kim, Sue Hyun Park, Gee-               Language models can teach themselves to use tools.
+  wook Kim, and Minjoon Seo. 2024. Prometheus-                In Advances in Neural Information Processing Sys-
+  Vision: Vision-language model as a judge for fine-          tems (NeurIPS).
+  grained evaluation. In Findings of the Association
+  for Computational Linguistics (ACL Findings), pages       Chenglei Si, Yanzhe Zhang, Zhengyuan Yang, Ruibo
+  11286–11315.                                                Liu, and Diyi Yang. 2025. Design2code: Bench-
+                                                              marking multimodal code generation for automated
+Chunyang Li, Yilun Zheng, Xinting Huang, Tianqing
+                                                              front-end engineering. In Annual Meeting of the As-
+  Fang, Jiahao Xu, Yangqiu Song, Lihui Chen, and
+                                                              sociation for Computational Linguistics (ACL).
+  Han Hu. 2026. WebDevJudge: Evaluating (M)LLMs
+  as critiques for web development quality. In Inter-       Muxin Tian, Zhe Wang, Blair Yang, Zhenwei Tang,
+  national Conference on Learning Representations            Kunlun Zhu, Honghua Dong, Hanchen Li, Xinni Xie,
+  (ICLR).                                                    Guangjing Wang, and Jiaxuan You. 2026. SWE-
+Yang Li, Gang Li, Luheng He, Jingjie Zheng, Hong Li,         Bench Mobile: Can large language model agents
+  and Zhiwei Guan. 2020. Widget captioning: Generat-         develop industry-level mobile applications? arXiv
+  ing natural language description for mobile user inter-    preprint arXiv:2602.09540.
+  face elements. In Conference on Empirical Methods         Bryan Wang, Gang Li, Xin Zhou, Zhourong Chen, Tovi
+  in Natural Language Processing (EMNLP).                     Grossman, and Yang Li. 2021. Screen2words: Au-
+Junpeng Liu, Yifan Song, Bill Yuchen Lin, Wai Lam,            tomatic mobile UI summarization with multimodal
+  Graham Neubig, Yuanzhi Li, and Xiang Yue. 2024a.            learning. In Proceedings of the 34th Annual ACM
+  VisualWebBench: How far have multimodal LLMs                Symposium on User Interface Software and Technol-
+  evolved in web page understanding and grounding?            ogy (UIST), pages 498–510.
+  In Conference on Language Modeling (COLM).
+                                                            Junyang Wang, Haiyang Xu, Jiabo Ye, Ming Yan,
+Xiao Liu, Hao Yu, Hanchen Zhang, Yifan Xu, Xuanyu             Weizhou Shen, Ji Zhang, Fei Huang, and Jitao Sang.
+  Lei, Hanyu Lai, Yu Gu, Hangliang Ding, Kaiwen               2024a. Mobile-agent: Autonomous multi-modal
+  Men, Kejuan Yang, Shudan Zhang, Xiang Deng, Ao-             mobile device agent with visual perception. arXiv
+  han Zeng, Zhengxiao Du, Chenhui Zhang, Sheng                preprint arXiv:2401.16158.
+  Shen, Tianjun Zhang, Yu Su, Huan Sun, and 3 others.
+  2024b. AgentBench: Evaluating LLMs as agents. In          Xingyao Wang, Yangyi Chen, Lifan Yuan, Yizhe
+  International Conference on Learning Representa-            Zhang, Yunzhu Li, Hao Peng, and Heng Ji. 2024b.
+  tions (ICLR).                                               Executable code actions elicit better LLM agents.
+                                                              In International Conference on Machine Learning
+Yadong Lu, Jianwei Yang, Yelong Shen, and Ahmed               (ICML).
+  Awadallah. 2024. OmniParser for pure vision based
+  GUI agent. arXiv preprint arXiv:2408.00203.               Xingyao Wang, Boxuan Li, Yufan Song, Frank F. Xu,
+                                                              Xiangru Tang, Mingchen Zhuge, Jiayi Pan, Yueqi
+Chang Ma, Junlei Zhang, Zhihao Zhu, Cheng Yang,               Song, Bowen Li, Jaskirat Singh, Hoang H. Tran,
+  Yujiu Yang, Yaohui Jin, Zhenzhong Lan, Lingpeng             Fuqiang Li, Ren Ma, Mingzhang Zheng, Bill Qian,
+  Kong, and Junxian He. 2024. AgentBoard: An ana-             Yanjun Shao, Niklas Muennighoff, Yizhe Zhang,
+  lytical evaluation board of multi-turn LLM agents. In       Binyuan Hui, and 5 others. 2025. OpenHands: An
+  Advances in Neural Information Processing Systems           open platform for AI software developers as general-
+  (NeurIPS).                                                  ist agents. In International Conference on Learning
+                                                              Representations (ICLR).
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+ Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,             Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+ Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,                 Bosma, Brian Ichter, Fei Xia, Ed H. Chi, Quoc V. Le,
+                                                       60304
+
+=== [PDF page 12] ===
+
+  and Denny Zhou. 2022. Chain-of-thought prompt-           A    Discussion Note
+  ing elicits reasoning in large language models. In
+  Advances in Neural Information Processing Systems        Build success is a property of the harness, not
+  (NeurIPS).                                               the model. The verify-repair loop with tsc and
+                                                           vite lets any frontier model iterate until the project
+Chunqiu Steven Xia, Yinlin Deng, Soren Dunn, and           compiles, so the discriminating signal moves to
+  Lingming Zhang. 2025. Agentless: Demystifying
+                                                           visual fidelity (Borda spread [0.13, 0.91]) and navi-
+  LLM-based software engineering agents. Proceed-
+  ings of the ACM on Software Engineering (FSE).           gation correctness (58%–92%). Benchmarks that
+                                                           want compilation as a discriminator must remove
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan         the verify-repair loop or impose stricter gates, such
+   Li, Siheng Zhao, Ruisheng Cao, Toh Jing Hua, Zhou-      as no any, strict null checks, and a lint pass.
+   jun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu,
+  Yiheng Xu, Shuyan Zhou, Silvio Savarese, Caiming         B   Per-App Results
+  Xiong, Victor Zhong, and Tao Yu. 2024. OSWorld:
+   Benchmarking multimodal agents for open-ended           Table 5 reports per-app means across all six models.
+   tasks in real computer environments. In Advances        Table 6 summarizes the per-app list-wise Borda
+   in Neural Information Processing Systems (NeurIPS)
+  Datasets and Benchmarks Track.
+                                                           leader and the agreement between per-app and
+                                                           global model rankings.
+John Yang, Carlos E. Jimenez, Alexander Wettig, Kilian
+  Lieret, Shunyu Yao, Karthik Narasimhan, and Ofir              App              Pages   NavPass↑   Vis(pt)↑
+  Press. 2024. SWE-agent: Agent-computer interfaces             notion             4.8       0.90      3.62
+  enable automated software engineering. In Advances            khan-academy       5.0       1.00      3.50
+  in Neural Information Processing Systems (NeurIPS).           whats-app         15.5       0.84      3.33
+                                                                shopify            9.2       0.98      3.29
+                                                                google             7.3       0.77      3.16
+Zhen Yang, Wenyi Hong, Mingde Xu, Xinyue Fan, Wei-              you-tube-music     7.8       0.74      3.16
+  han Wang, Jiale Cheng, Xiaotao Gu, and Jie Tang.              revolut           14.2       0.88      3.12
+  2025. UI2Code-N: A visual language model for test-            uber               8.3       0.77      3.07
+  time scalable interactive ui-to-code generation. arXiv        netflix            5.5       0.79      3.04
+  preprint arXiv:2511.08195.                                    wise               6.5       0.94      3.03
+                                                                pinterest         12.0       0.70      2.98
+                                                                reddit             6.5       0.83      2.98
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran,               messenger          5.5       0.60      2.96
+  Thomas L. Griffiths, Yuan Cao, and Karthik                    medium            10.3       0.45      2.94
+  Narasimhan. 2023a. Tree of thoughts: Deliberate               coursera           8.8       0.89      2.93
+  problem solving with large language models. In Ad-            grab              14.2       0.72      2.91
+  vances in Neural Information Processing Systems               klook             16.7       0.48      2.82
+  (NeurIPS).                                                    fiverr            15.0       0.77      2.81
+                                                                spotify            5.2       0.86      2.80
+                                                                naver              7.8       0.48      2.74
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak                tik-tok            7.0       0.87      2.74
+  Shafran, Karthik Narasimhan, and Yuan Cao. 2023b.             uber-eats         11.2       0.92      2.69
+  ReAct: Synergizing reasoning and acting in language           discord           11.2       0.80      2.56
+  models. In International Conference on Learning               etsy              10.7       0.82      2.56
+  Representations (ICLR).                                       x                  8.0       0.76      2.47
+                                                                nextdoor           8.7       0.69      2.43
+                                                                coinbase           8.8       0.76      2.07
+Keen You, Haotian Zhang, Eldon Schoop, Floris Weers,            airbnb            10.0       0.80      2.02
+  Amanda Swearngin, Jeffrey Nichols, Yinfei Yang,               apple-news         9.0       0.78      2.01
+  and Zhe Gan. 2024. Ferret-UI: Grounded mobile UI
+  understanding with multimodal LLMs. In European          Table 5: Per-app means across all six models (n=6 per
+  Conference on Computer Vision (ECCV).                    row). Sorted by Vis(pt) descending.
+
+Chi Zhang, Zhao Yang, Jiaxuan Liu, Yanda Li, Yucheng
+  Han, Xin Chen, Zebiao Huang, Bin Fu, and Gang Yu.        C    Judge-Method Study
+  2025a. AppAgent: Multimodal agents as smartphone
+  users. In Proceedings of the CHI Conference on           Three-way comparison. On a 3-scenario ×
+  Human Factors in Computing Systems (CHI).                5-model smoke-test, list-wise achieves shuffle-
+                                                           stability Kendall τ =0.822 and a 100% anchor
+Guibin Zhang, Luyang Niu, Junfeng Fang, Kun Wang,
+  Lei Bai, and Xiang Wang. 2025b. Multi-agent archi-
+                                                           pass rate at 9 API calls per scenario set. Pair-
+  tecture search via agentic supernet. In International    wise exhibits 23.3% position bias, requiring swap-
+  Conference on Machine Learning (ICML).                   augmented runs and doubling the call count to 60
+                                                      60305
+
+=== [PDF page 13] ===
+
+ App            Top-1   Borda Runner-up (Borda)    τglob   62 unrankable candidates.
+ Three apps where Opus does not lead
+ etsy           GPT-5 0.886 Opus (0.787)          0.47     D    Cross-Judge Consistency
+ pinterest      GPT-5 0.716 Opus (0.691)          0.47
+ youtube-music GPT-5 0.632 Opus (0.566)              –     We assess two robustness properties of the anchor-
+ Selected Opus wins by Borda                               reference list-wise protocol: (i) whether the per-
+ khan-academy Opus 1.000       Haiku (0.583)      0.20     model Borda ranking is stable when the judge is
+ reddit          Opus 1.000    GPT-5 (0.667)      0.73     swapped out, and (ii) whether the anchor sanity
+ grab            Opus 0.992    Gem-Pro (0.610)    0.73
+ airbnb          Opus 0.982    GPT-5 (0.535)      0.87     check correctly separates eligible from ineligible
+ klook           Opus 0.981    GPT-5 (0.222)      0.87     judge candidates.
+ coinbase        Opus 0.974    GPT-5 (0.645)      0.73
+ naver           Opus 0.877    GPT-5 (0.636)      0.33     Inter-judge agreement. Re-running the proto-
+ nextdoor        Opus 0.703    Gem-Pro (0.667)    0.60
+                                                           col with Claude Sonnet 4.5 as a second judge on
+Table 6: Per-app list-wise Borda leader, runner-up, and    139 scenarios drawn from 5 apps yields inter-judge
+the Kendall τ between the app’s 6-model ranking and        Kendall τ =0.867 on the global per-model Borda
+the global ranking. The 26 remaining Opus-win apps         ranking. The top three and bottom three model po-
+follow the same global ranking pattern and are omit-       sitions are identical across the two judges; the only
+ted for brevity (per-app τglob ranges from 0.20 to 1.0,    swap is in the middle, where Gemini 2.5 Pro and
+mean 0.715). GPT-5 takes Etsy and Pinterest, which         Claude Haiku 4.5 trade positions. The two judges
+are image-heavy catalogue layouts where Opus’s text-
+                                                           therefore agree on the substantive findings: Opus
+fidelity advantage is less decisive, as well as YouTube
+Music. The two lowest per-app τglob values, khan-          leads, the two GPT-5 variants and Gemini 2.5 Pro
+academy (0.20) and naver (0.33), are driven by unusual     form a middle cluster, and GPT-5 Mini sits last.
+runner-ups (Haiku and GPT-5 respectively) rather than      They disagree only on an ordering within the mid-
+disagreement on the leader.                                dle band that does not affect the main conclusion.
+                                                           Self-preference bias. A standard concern with
+API calls. Point-wise produces “ties-in-the-middle”        LLM-as-Judge is family-level self-preference: a
+on close candidates in every scenario tested. Inter-       Claude judge might systematically reward Claude
+method Kendall τ values (pair ↔ list 0.667, point          candidates, and similarly for Gemini. We observe
+↔ list 0.667, point ↔ pair 0.733) confirm that all         the opposite. The Claude Sonnet 4.5 judge gives
+three methods agree on top and bottom but disagree         Claude-family candidates (Opus, Haiku) slightly
+in the mid-range, which is precisely the regime            lower normalised Borda than the Gemini 2.5 Pro
+where a benchmark needs discrimination.                    judge does, while the Gemini judge gives Gemini
+                                                           candidates (Pro, Flash) almost identical Borda to
+Full-scale list-wise. List-wise with k-shuffle= 3          what the Claude judge gives them. The direction
+and a reference anchor was run across all 29 apps          of any small effect is opposite to family preference;
+× 701 scenarios with Gemini 2.5 Pro as judge. Per-         no judge inflates its own family.
+app Borda scores feed Tables 2 and 6. Per-scenario-
+type rankings (page-existence / parent–child / tab-        Anchor sanity check as judge eligibility. The
+navigation) align with the global ranking at Kendall       anchor-pass rate functions as a selection crite-
+τ ≥ 0.867.                                                 rion for VLM judges. On a 33-scenario screen-
+                                                           ing set, Gemini 2.5 Pro achieves ∼ 100% anchor
+Human alignment. We labelled 55 scenarios                  placement, and Claude Sonnet 4.5 also reaches
+with a blinded ranking interface (anonymous candi-         ∼ 100%; both qualify and produce mutually con-
+date labels A, B, C, . . . ). List-wise versus human:      sistent global rankings (above). GPT-5.1, by con-
+strict Kendall τ =0.716, top-1 accuracy 83.6%, top-        trast, places the anchor first on only ∼ 35% of
+2 overlap 80.4%, and unrankable-set IoU, meaning           calls. Inspection of its rationales shows that GPT-
+agreement on which candidates are “unrankable”,            5.1 explicitly meta-reasons about the prompt: it
+of 0.968. Page-existence scenarios show τ =0.699           identifies the anchor as the reference image and
+and zero unrankable candidates; parent–child sce-          concludes that the reference “is not an independent
+narios show τ =0.731, and 21/32 scenarios contain          candidate” and should not be ranked alongside the
+at least one unrankable candidate. The unrankable          model outputs, often placing it last instead. GPT-
+signal is concentrated entirely in parent–child cases,     5.1 is consequently ineligible under our criterion
+with Gemini 2.5 Flash accounting for 32% of the            because its outputs would not be discardable under
+                                                      60306
+
+=== [PDF page 14] ===
+
+the anchor-validity rule, and including them would       (13.2%), consistent with the self-repair pattern
+introduce a non-random sampling bias against the         noted in §5. The single-edit str_replace and
+protocol. We report this as a methodological obser-      delete_file tools are unused by every model in
+vation rather than a model-quality claim: list-wise      our six-model set and are omitted from the table;
+plus anchor judging depends on judges that follow        all models gravitate to whole-file write_file edits
+the prompt’s literal ranking instruction, and pro-       or, in the Gemini case, batched replacements.
+tocols that rely on the judge to “do the obvious
+thing” may behave differently as judges become           Context composition. For every model, the two
+more aggressive about meta-interpretation.               largest contributors to cumulative input are screen-
+                                                         shot tokens and the model’s own write_file out-
+Per-scenario-type stability. Decomposing the             puts echoed back as tool results; together they ac-
+global ranking by the three scenario types (page-        count for 47% (Gemini 2.5 Flash) to 84% (GPT-5)
+existence, parent–child navigation, tab navigation)      of cumulative input. Read-file results, build logs,
+reveals high stability: the rankings for parent–child    and task updates together fall under 8% in every
+and tab-navigation align with the global ranking         cell, so the apparent “observation cost” of the agen-
+at Kendall τ =1.0, and page-existence aligns at          tic loop is dominated by the model re-reading what
+τ =0.867 (one swap: GPT-5 and Gemini 2.5 Pro).           it has already written rather than by external feed-
+The full per-type Borda matrix is released along-        back. The Overhead column captures message-
+side the benchmark.                                      wrapping tokens, including tool-result envelopes,
+                                                         role markers, and function-calling protocol scaf-
+E   Agentic Harness Prompt                               folding, and varies with both iteration count and
+The system prompt instructs the model to produce a       per-provider protocol verbosity. Together, these
+complete React+TypeScript+Tailwind project, lists        factors push Gemini 2.5 Flash’s overhead share
+the eight available tools, and specifies the six-phase   above 40%.
+plan (analyse, foundation, components, pages, as-
+sembly, verify). We deliberately do not include          G    Annotation Pipeline Detail
+screenshot-specific instructions or chain-of-thought
+                                                         Table 9 reports the aggregate annotation-quality
+primers (Wei et al., 2022; Yao et al., 2023b) so that
+                                                         statistics referenced in §3.4. Per-app review states
+the result is attributable to the model rather than
+                                                         (all apps passed review) and field-level edit distri-
+prompt engineering. The complete prompt is in the
+                                                         butions are released alongside the benchmark.
+released repository.
+                                                         Annotation review interface. Figures 4–6 show
+F   Trajectory and Context Composition
+                                                         the three review panes of the in-house annotation
+Tables 7 and 8 report what the agent actually does       tool used to produce the reviewed ground truth.
+across the 174 runs: the share of each tool in the       The per-page pane (Figure 4) exposes page-level
+tool-call stream, and where the input-token bud-         fields, the page-relationship pane (Figure 5) sur-
+get accumulates in the context window. Both are          faces parent–child and tab pairs, and the test-case
+means over 29 apps per model.                            pane (Figure 6) carries the navigation specifica-
+                                                         tions. Each pane lets the human reviewer pass,
+Tool-call mix. The dominant differentiator is            edit, or reject every draft item produced by the
+how many files a model writes per write_file             auto-drafting stage. The pass/edit/reject states ag-
+call. Opus, GPT-5, and Gemini 2.5 Pro batch              gregated across all 309 pages and 701 test cases
+(3.3–8.5 files per call; batch ratio 0.51–0.70);         produce the statistics in Table 9.
+Claude Haiku 4.5 writes exactly one file per call
+(batch ratio 0.00), which mechanically drives its        H    Failure Taxonomy Detail
+38.5-iteration mean. Only the Gemini family
+uses batch_str_replace non-trivially (5–10% of           Table 10 shows the per-model C-code distribution
+calls). Claude models call read_file 3–10×               within the 64-sample interactive-navigation failure
+more often than GPT-5 or Gemini, which we                set (§7). Table 11 projects the same labels onto the
+read as a self-verification habit: re-reading writ-      three scenario types, exploiting the reachability–
+ten code before subsequent edits. run_command            operability decoupling that state-isolated testing
+(build/typecheck) usage is highest for Haiku             makes possible (§4.2).
+                                                    60307
+
+=== [PDF page 15] ===
+
+       Model               write_file        batch_str_replace       read_file    run_command          update_tasks      Other
+       Claude Opus 4.6             47.9                        0.7         16.3              8.5                 20.4        6.3
+       Claude Haiku 4.5            51.2                        1.9         11.1             13.2                 17.0        5.2
+       GPT-5                       67.5                        0.5          3.6              4.1                 17.7        6.5
+       GPT-5 Mini                  65.2                        0.4          2.1              7.2                 18.0        6.9
+       Gemini 2.5 Pro              66.2                        5.5          1.7              5.3                 18.1        3.2
+       Gemini 2.5 Flash            66.3                       10.3          2.6              4.4                 12.8        3.6
+
+Table 7: Tool-call mix per model (% of all tool invocations, means over 29 apps). update_tasks is the phase-tracker
+helper that enforces the six-phase plan (separate from the eight content tools listed in §5). Other = list_files +
+task_done. The single-edit str_replace and delete_file are unused by all six models and are omitted. Rows
+may not sum to 100% due to rounding.
+
+                  Model                   Images     Prompt   write_file echo     Other tool results     Overhead
+                  Claude Opus 4.6           38.6        2.9               37.7                  4.3            16.5
+                  Claude Haiku 4.5          39.0        2.9               32.9                  7.6            17.6
+                  GPT-5                     52.3        5.2               31.5                  2.7             8.4
+                  GPT-5 Mini                53.7        5.1               21.1                  2.3            17.8
+                  Gemini 2.5 Pro            11.1        4.7               47.9                  4.1            32.2
+                  Gemini 2.5 Flash           9.0        3.6               38.2                  4.3            44.9
+
+Table 8: Context composition per model (% of cumulative input tokens at end of run, means over 29 apps). Images:
+API-reported image tokens for the screenshot payload. The same screenshots are sent to all models, but each
+provider’s tokenizer accounts for image content differently. Gemini reports substantially fewer image tokens
+per screenshot than Claude or GPT-5, so this row reflects tokenizer accounting, not screenshot count. Prompt:
+system prompt plus initial user text. write_file echo: write_file tool results returned to the agent as context.
+Other tool results: read_file, run_command, list_files, update_tasks, str_replace/batch_str_replace,
+and assistant-text tokens combined. Overhead: message-wrapping tokens not attributable to any tool. Rows may
+not sum to 100% due to rounding.
+
+
+    Metric                                   Pages    Test Cases            Model                  C1     C2     C3     C4
+    Recall (auto → reviewed)                96.8%         74.1%             Claude Opus 4.6         0     17      8     75
+    Precision (auto → reviewed)             94.3%         83.9%             Claude Haiku 4.5        0     33     33     33
+    Unchanged rate (auto correct as-is)     64.7%         76.5%             GPT-5                   0      0     25     75
+    Total reviewed                            309           701             GPT-5 Mini              0     11     67     22
+                                                                            Gemini 2.5 Pro          0      0     45     55
+Table 9: Annotation pipeline quality. Recall: fraction                      Gemini 2.5 Flash       42      0     25     33
+of final reviewed items already produced by the auto-
+drafting model. Precision: fraction of auto-drafted items            Table 10: Per-model failure-mode distribution (%) in
+retained in the reviewed set. Unchanged: fraction of                 the n=64 hand-labelled interactive-navigation sample.
+auto items retained with no field-level edits.                       Per-model sample sizes: Opus 12, Haiku 12, GPT-5 8,
+                                                                     GPT-5 Mini 9, Gemini Pro 11, Gemini Flash 12. Rows
+                                                                     may not sum to 100% due to rounding.
+I     Qualitative Failure Case Gallery
+We illustrate the failure modes of §7 with hand-                     color consistency has saturated across all frontier
+picked cases from the labelled pool. Each strip                      models (0.74–0.85, 15% spread), while structural
+reads, left to right: reference source page, agent’s                 indicators (LoC, LoC/file, reuse, dead-component
+rendered source page before the trigger, agent’s                     rate) differentiate sharply.
+rendered page after the trigger, and reference target
+page.
+
+J      Code Maintainability Detail
+Table 12 extends Table 3 with the remaining per-
+model code maintainability indicators: total file
+count, shared-component count, and standard devi-
+ations across apps. As noted in §6.2, design-token
+                                                               60308
+
+=== [PDF page 16] ===
+
+Figure 4: Annotation review interface, per-page pane (§3.4). The reviewer inspects each page’s type, description,
+key elements, layout, and primary action, and may pass, edit, or reject the auto-drafted entry.
+
+
+
+  Scenario type       n       FP      C1   C2     C3    C4
+  page existence    120 6% 42% 52% 0% 0%
+  parent–child nav. 189 1% 21% 30% 15% 33%
+  tab navigation    392 10% 34% 48% 5% 3%
+
+Table 11: Human-label distribution (%) among auto-
+flagged cases by scenario type, projected from the hand-
+labelled sample to the population. FP denotes false
+positives under the automatic evaluator. The decompo-
+sition matches the structural meaning of the three types:
+page-existence failures concentrate on unreachable tar-
+gets (C1, blank page) and route mapping errors (C2);
+parent–child failures concentrate on inert affordances
+(C4) and missing targets (C3), which form the oper-
+ability axis that state-isolated testing was designed to
+expose; tab-navigation failures pattern with the page-
+existence axis. Percentages are rounded to the nearest
+integer.
+
+
+  Model               Files        Shared comp.   LoC s.d.
+  Claude Opus 4.6     17.6                  4.0        325
+  Claude Haiku 4.5    18.9                  5.6        382
+  GPT-5               20.1                  5.4        189
+  GPT-5 Mini          16.7                  4.3        146
+  Gemini 2.5 Pro      22.8                  3.5        213
+  Gemini 2.5 Flash    22.9                  9.2        276
+
+Table 12: Additional code maintainability indicators
+per model (means over 29 apps). Files: number of
+source files. Shared comp.: count of components under
+src/components/. LoC s.d.: standard deviation of
+LoC across apps for this model.
+
+                                                             60309
+
+=== [PDF page 17] ===
+
+Figure 5: Annotation review interface, page-relationship pane. Parent–child and tab pairs are surfaced with
+source/target screenshots and the trigger description; the reviewer pass/edits/rejects each pair.
+
+
+
+
+Figure 6: Annotation review interface, navigation test-case pane. Page-existence, tab-navigation, and parent–child
+specifications carry pass / has-issue / reject states aggregated into Table 9.
+
+
+
+
+                                                     60310
+
+=== [PDF page 18] ===
+
+Figure 7: C1: blank starting page (1/2). (a) Messenger / Gemini 2.5 Flash, calls_history → chats; (b) Reddit /
+Gemini 2.5 Flash, home_feed → inbox. The source page renders empty or as a stub placeholder with no interaction
+target, so no navigation action can be dispatched (§7).
+
+
+
+
+                                                    60311
+
+=== [PDF page 19] ===
+
+Figure 8: C1: blank starting page (2/2). (c) Reddit / Gemini 2.5 Flash, inbox → chat_channels_welcome.
+
+
+
+
+                                                60312
+
+=== [PDF page 20] ===
+
+Figure 9: C2: route mapping error. (a) Revolut / GPT-5 Mini, crypto_portfolio → send_money; (b) Uber
+/ Claude Haiku 4.5, uber_eats_home → eats_home. The agent declared the route, but the URL resolves to a
+different page than the one referenced by the test; the model has correctly produced the page, but the global routing
+table maps the navigation action to the wrong page (§7).
+
+
+
+
+                                                       60313
+
+=== [PDF page 21] ===
+
+Figure 10: C3: target unreachable or occluded (1/3). (a) Discord / GPT-5, notifications → messages; (b) Fiverr
+/ Claude Haiku 4.5, inbox → manage_orders_active. The action target is not present in the rendered viewport,
+either because the layout omits it entirely or because another element covers it. This is structurally distinct from C4:
+here the page is malformed, whereas in C4 it is well-formed but inert (§7).
+
+
+
+
+                                                        60314
+
+=== [PDF page 22] ===
+
+Figure 11:   C3:    target unreachable or occluded (2/3).          (c) Spotify / Gemini 2.5 Pro,
+create_playlist_options → home; (d) Uber Eats / GPT-5 Mini, profile → uber_one_membership.
+
+
+
+
+                                             60315
+
+=== [PDF page 23] ===
+
+Figure 12:   C3:   target unreachable or occluded (3/3).   (e) WhatsApp / Gemini 2.5 Flash,
+settings → account_settings.
+
+
+
+
+                                             60316
+
+=== [PDF page 24] ===
+
+Figure 13: C4: target clickable but unresponsive (1/3). (a) Airbnb / GPT-5, profile → profile_details;
+(b) Coinbase / Gemini 2.5 Pro, portfolio_overview → notifications_page. The page renders, the affordance
+is in the right place, but the click registers no effect, consistent with a missing or mis-wired onClick handler (§7).
+
+
+
+
+                                                       60317
+
+=== [PDF page 25] ===
+
+Figure 14:      C4:    target clickable but unresponsive (2/3).         (c) Etsy / Claude
+Opus 4.6,     favorites → favorites_collections;       (d) Notion   /     Claude Opus 4.6,
+home → document_editor_block_selection_overlay.
+
+
+
+
+                                          60318
+
+=== [PDF page 26] ===
+
+Figure 15: C4: target clickable but unresponsive (3/3). (e) TikTok / Gemini 2.5 Flash, profile → following_list.
+
+
+
+
+                                                    60319

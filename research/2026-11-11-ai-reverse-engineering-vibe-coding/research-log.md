@@ -1,0 +1,92 @@
+# Research log — Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+
+Chronological record of every action and decision. Append only (`python3 scripts/rlab.py log <project> <phase> "<message>"`).
+
+- 2026-11-11 22:29 · setup · Project created. Topic: Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+- 2026-11-11 22:29 · discovery · search `vibe coding large language models software quality` on openalex,arxiv: 20 hits, 14 unique -> search/20261111-222947-vibe-coding-large-language-models.json
+- 2026-11-11 22:29 · discovery · search `screenshot to code generation multimodal LLM web application` on openalex,arxiv: 10 hits, 10 unique -> search/20261111-222949-screenshot-to-code-generation-multimodal.json
+- 2026-11-11 22:29 · discovery · search `LLM reverse engineering GUI application reimplementation behavior` on openalex,arxiv: 8 hits, 8 unique -> search/20261111-222959-llm-reverse-engineering-gui-application.json
+- 2026-11-11 22:30 · discovery · search `maintainability code smells LLM-generated code empirical study` on openalex,arxiv: 11 hits, 10 unique -> search/20261111-223002-maintainability-code-smells-llm.json
+- 2026-11-11 22:30 · scoping · Scope fixed with user: reconstruction from behaviour/UI (not source/binary); preprints included+flagged; 2020-2026; ~20 papers. 4 objectives, 5 RQs written after 4 pilot searches.
+- 2026-11-11 22:31 · discovery · search `vibe coding empirical study` on openalex,crossref,arxiv: 56 hits, 46 unique -> search/20261111-223149-vibe-coding-empirical-study.json
+- 2026-11-11 22:31 · discovery · search `LLM full application generation benchmark functional correctness` on openalex,crossref,arxiv: 44 hits, 42 unique -> search/20261111-223150-llm-full-application-generation.json
+- 2026-11-11 22:31 · discovery · search `GUI reverse engineering model extraction application` on openalex,crossref,arxiv: 30 hits, 28 unique -> search/20261111-223151-gui-reverse-engineering-model-extraction.json
+- 2026-11-11 22:31 · discovery · search `code quality static analysis AI-generated code` on openalex,crossref,arxiv: 60 hits, 50 unique -> search/20261111-223151-code-quality-static-analysis-ai.json
+- 2026-11-11 22:31 · discovery · search `design to code webpage generation benchmark` on openalex,crossref,arxiv: 45 hits, 35 unique -> search/20261111-223152-design-to-code-webpage-generation.json
+- 2026-11-11 22:31 · discovery · search `vibe coding code quality maintainability` on openalex,crossref,arxiv: 55 hits, 43 unique -> search/20261111-223154-vibe-coding-code-quality-maintainability.json
+- 2026-11-11 22:31 · discovery · search `LLM specification recovery from application behavior` on openalex,crossref,arxiv: 35 hits, 35 unique -> search/20261111-223155-llm-specification-recovery-from.json
+- 2026-11-11 22:31 · discovery · search `technical debt LLM generated code` on openalex,crossref,arxiv: 60 hits, 50 unique -> search/20261111-223156-technical-debt-llm-generated-code.json
+- 2026-11-11 22:31 · discovery · search `end-to-end software development benchmark LLM agents` on openalex,crossref,arxiv: 60 hits, 54 unique -> search/20261111-223156-end-to-end-software-development.json
+- 2026-11-11 22:31 · discovery · search `screenshot to code multimodal LLM evaluation` on openalex,crossref,arxiv: 45 hits, 40 unique -> search/20261111-223157-screenshot-to-code-multimodal-llm.json
+- 2026-11-11 22:32 · discovery · search `vibe coding systematic review` on openalex,crossref,arxiv: 44 hits, 35 unique -> search/20261111-223200-vibe-coding-systematic-review.json
+- 2026-11-11 22:32 · discovery · search `readability maintainability Copilot ChatGPT generated code empirical` on openalex,crossref,arxiv: 40 hits, 37 unique -> search/20261111-223203-readability-maintainability-copilot.json
+- 2026-11-11 22:32 · discovery · search `interactive webpage generation from interaction video LLM` on openalex,crossref,arxiv: 34 hits, 31 unique -> search/20261111-223203-interactive-webpage-generation-from.json
+- 2026-11-11 22:32 · discovery · search `web application generation LLM benchmark end-to-end test` on openalex,crossref,arxiv: 50 hits, 46 unique -> search/20261111-223203-web-application-generation-llm-benchmark.json
+- 2026-11-11 22:32 · discovery · search `large language model app exploration GUI model inference` on openalex,crossref,arxiv: 33 hits, 32 unique -> search/20261111-223205-large-language-model-app-exploration-gui.json
+- 2026-11-11 22:32 · discovery · search `AI agent natural language app building end users` on openalex,crossref,arxiv: 40 hits, 39 unique -> search/20261111-223206-ai-agent-natural-language-app-building.json
+- 2026-11-11 22:32 · discovery · search `GUI to code mobile app generation` on openalex,crossref,arxiv: 45 hits, 36 unique -> search/20261111-223208-gui-to-code-mobile-app-generation.json
+- 2026-11-11 22:32 · discovery · search `re-implementing existing software with LLM agents clone` on openalex,crossref,arxiv: 30 hits, 29 unique -> search/20261111-223210-re-implementing-existing-software-with.json
+- 2026-11-11 22:32 · discovery · search `project-level code generation from requirements evaluation` on openalex,crossref,arxiv: 60 hits, 53 unique -> search/20261111-223210-project-level-code-generation-from.json
+- 2026-11-11 22:32 · discovery · search `SonarQube analysis code generated by ChatGPT Copilot human-written comparison` on openalex,crossref,arxiv: 40 hits, 39 unique -> search/20261111-223210-sonarqube-analysis-code-generated-by.json
+- 2026-11-11 22:32 · discovery · search `reconstruct web application from screen recording interaction trace LLM` on openalex,crossref,arxiv: 30 hits, 29 unique -> search/20261111-223226-reconstruct-web-application-from-screen.json
+- 2026-11-11 22:32 · discovery · search `requirements extraction from mobile app GUI large language model` on openalex,crossref,arxiv: 33 hits, 26 unique -> search/20261111-223232-requirements-extraction-from-mobile-app.json
+- 2026-11-11 22:32 · discovery · search `UI design image to code mobile multimodal large language model` on openalex,crossref,arxiv: 25 hits, 23 unique -> search/20261111-223239-ui-design-image-to-code-mobile.json
+- 2026-11-11 22:32 · discovery · search `pix2code generating code from graphical user interface screenshot` on openalex,crossref,arxiv: 21 hits, 18 unique -> search/20261111-223244-pix2code-generating-code-from-graphical.json
+- 2026-11-11 22:32 · discovery · search `website generation from scratch benchmark LLM agents functional testing` on openalex,crossref,arxiv: 41 hits, 36 unique -> search/20261111-223246-website-generation-from-scratch.json
+- 2026-11-11 22:32 · discovery · search `software development benchmark PRD design implementation testing LLM` on openalex,crossref,arxiv: 40 hits, 39 unique -> search/20261111-223251-software-development-benchmark-prd.json
+- 2026-11-11 22:33 · discovery · search `maintainability of agent-generated code repository human comparison` on openalex,crossref,arxiv: 33 hits, 31 unique -> search/20261111-223311-maintainability-of-agent-generated-code.json
+- 2026-11-11 22:33 · discovery · search `survey UI code generation design to code multimodal large language models` on openalex,arxiv: 10 hits, 10 unique -> search/20261111-223327-survey-ui-code-generation-design-to-code.json
+- 2026-11-11 22:35 · discovery · search `coding agents rebuild application from reference behavior without source code` on openalex,arxiv: 20 hits, 20 unique -> search/20261111-223507-coding-agents-rebuild-application-from.json
+- 2026-11-11 22:36 · screening · included fawzy2026vibe (10.1145/3786583.3786866): F1 vibe coding: empirical evidence on vibe-coding outcomes (quality, correctness, review cost)
+- 2026-11-11 22:36 · screening · included mock2026vibe (10.1007/s10664-026-10950-z): F1 vibe coding: empirical evidence on vibe-coding outcomes (quality, correctness, review cost)
+- 2026-11-11 22:36 · screening · included zhao2025vibe (arXiv:2512.03262): F1 vibe coding: empirical evidence on vibe-coding outcomes (quality, correctness, review cost)
+- 2026-11-11 22:36 · screening · included asdaque2026novice (10.1145/3793302.3793597): F1 vibe coding: empirical evidence on vibe-coding outcomes (quality, correctness, review cost)
+- 2026-11-11 22:36 · screening · included mota2026comparing (arXiv:2608.16302): F1 vibe coding: empirical evidence on vibe-coding outcomes (quality, correctness, review cost)
+- 2026-11-11 22:36 · screening · included si2025benchmarking (10.18653/v1/2025.naacl-long.199): F2 UI-to-code reconstruction: benchmarks/methods measuring visual, interaction or code quality fidelity
+- 2026-11-11 22:36 · screening · included xiao2025benchmarking (10.1109/ase63991.2025.00028): F2 UI-to-code reconstruction: benchmarks/methods measuring visual, interaction or code quality fidelity
+- 2026-11-11 22:36 · screening · included chen2025iwr (arXiv:2509.24709): F2 UI-to-code reconstruction: benchmarks/methods measuring visual, interaction or code quality fidelity
+- 2026-11-11 22:36 · screening · included zhou2025declarui (10.1145/3715726): F2 UI-to-code reconstruction: benchmarks/methods measuring visual, interaction or code quality fidelity
+- 2026-11-11 22:36 · screening · included wu2026looks (10.18653/2026.emnlp-main.2650): F2 UI-to-code reconstruction: benchmarks/methods measuring visual, interaction or code quality fidelity
+- 2026-11-11 22:36 · screening · included lu2025webgen (10.52202/085713-2419): F3 app-level generation: functional fidelity of whole apps tested against requirements/reference behaviour
+- 2026-11-11 22:36 · screening · included liu2026benchmarking (10.18653/v1/2026.acl-long.1618): F3 app-level generation: functional fidelity of whole apps tested against requirements/reference behaviour
+- 2026-11-11 22:36 · screening · included pan2026functional (arXiv:2602.03462): F3 app-level generation: functional fidelity of whole apps tested against requirements/reference behaviour
+- 2026-11-11 22:36 · screening · included tran2026vibe (arXiv:2603.04601): F3 app-level generation: functional fidelity of whole apps tested against requirements/reference behaviour
+- 2026-11-11 22:36 · screening · included he2026speed (10.1145/3793302.3793349): F4 quality/maintainability of LLM-generated code: measured smells, static-analysis, maintainability, technical debt
+- 2026-11-11 22:36 · screening · included borg2026echoes (10.1007/s10664-026-10889-1): F4 quality/maintainability of LLM-generated code: measured smells, static-analysis, maintainability, technical debt
+- 2026-11-11 22:36 · screening · included zhu2026understanding (10.1145/3832783.3834413): F4 quality/maintainability of LLM-generated code: measured smells, static-analysis, maintainability, technical debt
+- 2026-11-11 22:36 · screening · included molison2025llm (10.1109/esem64174.2025.00036): F4 quality/maintainability of LLM-generated code: measured smells, static-analysis, maintainability, technical debt
+- 2026-11-11 22:37 · screening · included ehsani2026faster (10.1145/3820165): F4 quality/maintainability of LLM-generated code: measured smells, static-analysis, maintainability, technical debt
+- 2026-11-11 22:37 · screening · included yang2026programbench (arXiv:2605.03546): F5 black-box reverse engineering: rebuild/spec recovery from a running app without source
+- 2026-11-11 22:37 · screening · included kim2026programdistill (arXiv:2609.18805): F5 black-box reverse engineering: rebuild/spec recovery from a running app without source
+- 2026-11-11 22:37 · screening · included bai2026recreationworld (arXiv:2609.22000): F5 black-box reverse engineering: rebuild/spec recovery from a running app without source
+- 2026-11-11 22:37 · screening · included xiong2026propgen (10.1145/3832783.3837536): F5 black-box reverse engineering: rebuild/spec recovery from a running app without source
+- 2026-11-11 22:38 · discovery · 5 paper-scout agents (F1-F5) ran ~30 searches + OpenAlex snowballing + WebSearch; saturation moderate-high except F5 (sparse, 2026 preprints).
+- 2026-11-11 22:38 · screening · 23 included (15 published, 8 preprint), 22 reserves, notable exclusions in search/screening.md; all metadata verified, 0 duplicates. Fixed rlab name-parsing bug ('Family, Given') found via false MISMATCH.
+- 2026-11-11 22:38 · screening · Correction to previous entry: 16 published, 7 preprint (zhao2025vibe counted as preprint by metadata, published ICML 2026).
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for asdaque2026novice from https://arxiv.org/pdf/2602.23905
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for bai2026recreationworld from https://arxiv.org/pdf/2609.22000
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for borg2026echoes from https://link.springer.com/content/pdf/10.1007/s10664-026-10889-1.pdf
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for chen2025iwr from https://arxiv.org/pdf/2509.24709
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for ehsani2026faster from https://arxiv.org/pdf/2606.14796
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for fawzy2026vibe from https://arxiv.org/pdf/2510.00328
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for he2026speed from https://arxiv.org/pdf/2511.04427
+- 2026-11-11 22:38 · acquisition · downloaded OA PDF for kim2026programdistill from https://arxiv.org/pdf/2609.18805
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for liu2026benchmarking from https://aclanthology.org/2026.acl-long.1618.pdf
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for lu2025webgen from https://arxiv.org/pdf/2505.03733
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for mock2026vibe from https://link.springer.com/content/pdf/10.1007/s10664-026-10950-z.pdf
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for molison2025llm from https://arxiv.org/pdf/2508.00700
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for mota2026comparing from https://arxiv.org/pdf/2608.16302
+- 2026-11-11 22:39 · acquisition · downloaded OA PDF for pan2026functional from https://arxiv.org/pdf/2602.03462
+- 2026-11-11 22:40 · acquisition · downloaded OA PDF for si2025benchmarking from https://aclanthology.org/2025.naacl-long.199.pdf
+- 2026-11-11 22:40 · acquisition · downloaded OA PDF for tran2026vibe from https://arxiv.org/pdf/2603.04601
+- 2026-11-11 22:40 · acquisition · downloaded OA PDF for wu2026looks from https://aclanthology.org/2026.emnlp-main.2650.pdf
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for xiao2025benchmarking from https://arxiv.org/pdf/2411.03292
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for xiong2026propgen from https://arxiv.org/pdf/2604.13463
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for yang2026programbench from https://arxiv.org/pdf/2605.03546
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for zhao2025vibe from https://arxiv.org/pdf/2512.03262
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for zhou2025declarui from https://arxiv.org/pdf/2409.11667
+- 2026-11-11 22:41 · acquisition · downloaded OA PDF for zhu2026understanding from https://arxiv.org/pdf/2605.02741
+- 2026-11-11 22:41 · acquisition · 23/23 open-access PDFs downloaded and identity-checked (20 match by DOI/arXiv id, 3 probable by title); 0 unavailable.
+- 2026-11-11 22:52 · analysis · 20/23 analyses ready; 3 (bai, xiong, chen) written but blocked from saving by Write-tool block, analyst asked to save via Edit. Fixed rlab page-extraction bug (stray form feeds -> fake pages) found on asdaque2026novice.
+- 2026-11-11 22:52 · analysis · Paused by user. 20/23 analyses ready; 3 being saved. Next: critical review.
+- 2026-11-11 22:53 · analysis · Analyst for bai/xiong/chen stopped by user request before saving; all 3 left as empty drafts (bai status reset ready->draft). 20/23 ready.
