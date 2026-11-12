@@ -1,1 +1,0 @@
-- [Reading guide doc preference](reading-guide-doc-preference.md) — end every project with plain-English reading guide as public-link Google Doc
