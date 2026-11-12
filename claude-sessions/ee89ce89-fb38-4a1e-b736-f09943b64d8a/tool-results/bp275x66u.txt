@@ -1,0 +1,431 @@
+   330	summary of a model’s software security capability. Structured multitask models such as SIFT introduce
+   331	auxiliary tasks to place additional constraints on shared representations [22-23]. In addition, some studies
+   332	analyze how different LLM components affect performance, but identifying where the gains actually come
+   333	from is still limited by baseline settings, data conditions, and training budget [26]. Therefore, multitask
+   334	research needs ablation experiments or task-interference analysis, and the effectiveness of each module cannot
+   335	be inferred from overall F1.
+   336	    Fine-tuning large-scale LLMs also requires clear input and output protocols. Inputs may include functions,
+   337	file fragments, vulnerability type descriptions, or program-analysis results. Outputs may be labels, structured
+   338	JSON, or explanatory text. The more open the output is, the more parsing failure rate and factual verification
+   339	are needed. Parameter-efficient fine-tuning reduces training cost, but it cannot remove corpus contamination
+   340	and version differences in the base model. As shown in Table 1, representative methods can be compared from
+   341	six aspects: code representation, learning mode, dataset, evaluation metrics, advantages, and limitations.
+   342	Table 1: Comparison of Representative Source Code Vulnerability Detection Methods
+   343	 Method          Code representation    Learning mode Main data         Metrics                        Advantages   Limitations
+   344	                                                       setting
+   345	 Devign          Code property graph GNN               Four large C Accuracy,                          Explicitly   Limited by
+   346	                                        supervised     projects         F1                             aggregates   project
+   347	                                        learning                                                       program      scope and
+   348	                                                                                                       semantics    random
+   349	                                                                                                                    splitting
+   350	
+   351	
+   352	                                                                 127
+   353	
+   354	
+   355	                                   © 2026 The Author(s). Authors retain copyright in their articles.
+   356	
+   357	=== [PDF page 7] ===
+   358	
+   359	                      zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   360	
+   361	
+   362	
+   363	Method          Code representation       Learning mode Main data   Metrics                           Advantages   Limitations
+   364	                                                        setting
+   365	CodeBERT        NL-PL sequence            General       CodeSearchN Downstrea   Provides        Original
+   366	                                          pretraining   et, etc.    m task      transferable    study is not
+   367	                                                                    metrics     code            vulnerability
+   368	                                                                                representations detection
+   369	GraphCodeBE     Sequence + data flow Structured      CodeSearchN Downstrea Introduces           Downstream
+   370	RT                                    pretraining    et, etc.      m task       definition-use security
+   371	                                                                   metrics      relations       gains need
+   372	                                                                                                separate
+   373	                                                                                                verification
+   374	LineVul         Transformer/CodeBE Supervised        188k+ C/C++ F1, Top-k, Considers both BigVul-style
+   375	                RT                    fine-tuning +  functions     Effort       function        data limits
+   376	                                      localization                              detection and generalizatio
+   377	                                                                                line-level      n
+   378	                                                                                localization
+   379	GRACE           AST/CFG/PDG +         In-context     Three public P/R/F1        Jointly         Sensitive to
+   380	                LLM                   learning +     datasets                   enhances        prompts,
+   381	                                      retrieval                                 structure and   benchmarks,
+   382	                                                                                examples        and
+   383	                                                                                                contaminati
+   384	                                                                                                on
+   385	EnStack         Multiple LLM outputs Stacking        Public        Accuracy, Uses model         High cost
+   386	                                      ensemble       vulnerability P/R/F1       complementari and possibly
+   387	                                                     data                       ty              correlated
+   388	                                                                                                errors
+   389	DLAP            Code + auxiliary      Two-stage      Public        F1, etc.     Uses external Upstream
+   390	                model information     prompting      vulnerability              models to       errors may
+   391	                                                     benchmarks                 assist LLMs     propagate
+   392	Finetuning      Code tokens           Supervised     Public        Classificati Stable task     Inherits
+   393	LLM                                   fine-tuning    vulnerability on metrics adaptation        duplicate
+   394	                                                     data                                       and label
+   395	                                                                                                bias
+   396	LLMVulExp       LLM + key code        LoRA/instructi SeVC, etc.    Classificati Outputs type, Explanation
+   397	                                      on fine-tuning               on and       location,       correctness
+   398	                                                                   explanation cause, and       needs
+   399	                                                                   metrics      suggestion      independent
+   400	                                                                                                verification
+   401	Cross-project   Code representation   Zero-shot      Cross-project F1, MCC,     Directly tests Not
+   402	zero-shot                             transfer       data          etc.         unseen          equivalent to
+   403	                                                                                projects        out-of-time
+   404	                                                                                                deployment
+   405	Context-        Program abstraction + Context        Public        Classificati Compares        Depends on
+   406	Enhanced        LLM                   prompting      vulnerability on metrics different         model and
+   407	                                                     data                       context levels analyzer
+   408	                                                                                                versions
+   409	M2CVD           Multi-model semantic Generation-     Public        F1, etc.     Mitigates       Cost and
+   410	                information           filtering      vulnerability              insufficient    common
+   411	                                      collaboration  data                       single-model contaminati
+   412	                                                                                understanding on risk
+   413	
+   414	5.2   Prompt Engineering and In-Context Learning
+   415	5.2.1 Direct Prompting
+   416	   Direct prompting organizes code and security questions into natural-language instructions and asks a
+   417	general-purpose LLM to give a judgment or explanation. Early studies mainly test the feasibility of GPT-like
+   418	models without task fine-tuning and also compare joint vulnerability and functionality judgments and different
+   419	input modes [10,27-28]. This method adapts quickly to new output formats, but results are easily affected by
+   420	prompt wording, context length, and model version, and repeated calls may produce inconsistent answers.
+   421	
+   422	                                                                128
+   423	
+   424	
+   425	                                  © 2026 The Author(s). Authors retain copyright in their articles.
+   426	
+   427	=== [PDF page 8] ===
+   428	
+   429	                       zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   430	
+   431	
+   432	
+   433	5.2.2 Few-Shot Learning and External Information Enhancement
+   434	   Few-shot in-context learning adds labeled examples to prompts. The key is not only the number of examples
+   435	but also their lexical, semantic, or program-structural relevance to the code under test. GRACE extracts
+   436	information from structures such as abstract syntax trees (ASTs), control-flow graphs (CFGs), and program
+   437	dependence graphs (PDGs), and combines example retrieval to enhance context. The paper reports that, in
+   438	three settings, FFmpeg+Qemu, ReVeal, and Big-Vul, its F1 improvement over six baselines is at least 28.65%
+   439	[11]. This result is a relative improvement rather than 28.65 percentage points, and it applies only to the tested
+   440	models, baselines, and prompt configurations.
+   441	    DLAP first uses a deep learning model to generate auxiliary information and then writes that information
+   442	into the LLM prompt, forming a two-stage workflow of “lightweight detector-language model” [12]. This
+   443	shows that an LLM does not have to analyze all code alone, and an external model can provide candidates,
+   444	structures, or representations. However, errors from the previous stage also enter the later prompt. If the
+   445	auxiliary model overfits duplicate samples, the LLM may only restate the original bias.
+   446	
+   447	5.3   Hybrid Detection with LLMs and Program Analysis
+   448	5.3.1 Program Structure and Context
+   449	    A single function or truncated token sequence often cannot present complete vulnerability triggering
+   450	conditions. GRACE uses graph structures for in-context learning, and the 2026 context-enhancement study
+   451	further compares program information at different abstraction levels and finds that suitable levels vary with
+   452	the model [11,29]. More context is not necessarily better. Irrelevant paths occupy the context window, and
+   453	static-analysis errors may also be amplified by language models.
+   454	5.3.2 Static Analysis Collaboration
+   455	   A more feasible workflow is “SAST candidate generation-LLM review or explanation-human
+   456	confirmation.” Program analysis provides traceable results to the LLM, and the LLM ranks alerts, gives
+   457	semantic explanations, or proposes verification questions [29]. Generated text itself cannot serve as a security
+   458	conclusion, and high-risk fixes still need verification through path analysis, testing, or expert review. Whether
+   459	a hybrid workflow is effective should be measured by audit time, false-negative control, and explanation
+   460	consistency, not only by overall F1.
+   461	   The focus of hybrid methods is to preserve the source of external evidence. Program slices, control flow,
+   462	data flow, and SAST alerts should all be linked to specific locations so that LLM judgments can be checked
+   463	against code paths. If static-analysis outputs are only concatenated into text, tool errors may still be amplified.
+   464	Only by clarifying the responsibilities of candidate generation, ranking explanation, and human confirmation
+   465	can an auditable workflow be formed.
+   466	
+   467	5.4   Ensemble, Multi-Model Collaboration, and Explanation
+   468	5.4.1 Model Ensemble and Collaboration
+   469	    Ensemble methods usually combine predictions from multiple LLMs to reduce the effect of unstable
+   470	outputs from a single model. M2CVD goes a step further by allowing different models to participate in the
+   471	generation and filtering of vulnerability semantic information, forming a collaborative judgment process
+   472	[13,30]. However, whether such methods can bring stable gains depends on whether the participating models
+   473	truly differ in capability and error patterns. If several models use similar pretraining corpora or are fine-tuned
+   474	on the same biased data, simply increasing the number of models cannot remove shared contamination. Instead,
+   475	it increases calling cost and makes experimental reproduction more difficult.
+   476	5.4.2 Vulnerability Explanation and System Cost
+   477	   Explanation generation moves model output beyond vulnerability labels and further includes suspicious
+   478	locations, causes, and repair suggestions. In the SeVC single-type detection setting, LLMVulExp reports an
+   479	average F1 of 92.4% and generates several types of explanatory information at the same time [6]. This result
+   480	indicates that vulnerability detection and explanation generation can be modeled within the same framework.
+   481	However, the conclusion is still limited by the experimental setting and cannot be directly generalized to
+   482	
+   483	                                                                 129
+   484	
+   485	
+   486	                                   © 2026 The Author(s). Authors retain copyright in their articles.
+   487	
+   488	=== [PDF page 9] ===
+   489	
+   490	                      zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   491	
+   492	
+   493	
+   494	PrimeVul, cross-project testing, or real deployment scenarios. When evaluating explanation quality, at least
+   495	four aspects should be examined separately: whether the language expression is complete, whether the
+   496	explanation is consistent with the vulnerability location, whether the program path can be verified, and whether
+   497	the repair suggestion is safe. A model’s own judgment that the text is fluent is not enough to prove that the
+   498	explanation itself is correct.
+   499	   Ensemble and collaboration also increase system cost. Beyond F1, studies should report the number of
+   500	model calls, latency, video memory or API cost, and whether members share pretraining corpora and error
+   501	patterns. Explanatory output needs support from vulnerability location, control or data dependence, test cases,
+   502	or expert judgment; language coherence cannot replace program correctness.
+   503	    Large-scale LLMs can describe tasks in natural language and access examples, retrieval results, program
+   504	structures, and tool outputs. The costs are prompt sensitivity, nondeterminism, computation cost, and version
+   505	drift. Fine-tuning is suitable for stable tasks, prompting is convenient for quick adaptation, hybrid methods
+   506	emphasize traceable evidence, and collaboration methods use model differences. The concrete choice still
+   507	depends on data and deployment conditions.
+   508	
+   509	6.    Datasets and Evaluation Metrics
+   510	
+   511	6.1    Dataset Construction and Common Benchmarks
+   512	    Vulnerability data are often constructed from repair commits. Researchers locate pre-fix code according to
+   513	security advisories, commit information, or patches and label the corresponding functions as vulnerable
+   514	samples. This approach is convenient for expanding data scale, but it may label synchronized changes unrelated
+   515	to security repair as vulnerabilities and may label related functions that were not modified in the same commit
+   516	as non-vulnerable. Automatic labeling by static rules is limited by rule coverage, whereas manual verification
+   517	depends on expert protocols and consistency. Recent reviews generally require model comparisons to first
+   518	report label sources [2-4].
+   519	    DiverseVul is constructed from 7,514 commits and contains 18,945 vulnerable functions, 330,492 non-
+   520	vulnerable functions, and 150 CWE classes [17]. These numbers show wider project and vulnerability
+   521	coverage and also reveal obvious class imbalance: non-vulnerable functions far outnumber vulnerable
+   522	functions, and rare CWE samples are further insufficient. Increasing data volume can increase coverage, but
+   523	it does not automatically repair weak labels at the commit level and cannot ensure that difficult vulnerabilities
+   524	receive enough supervision.
+   525	    From the perspective of construction methods, vulnerability data can be roughly divided into three types:
+   526	manually designed examples, real repair commits, and data generated by automatic rules. Manually designed
+   527	examples usually have clear labels, but their scale is limited, and they are still distant from real development
+   528	scenarios. Data based on repair commits are closer to actual development processes, but they often contain
+   529	weak labels and may also include other changes made at the same time as security fixes. Data generated by
+   530	automatic rules are convenient for scale expansion, but their coverage is still limited by the rules themselves.
+   531	Therefore, when using a dataset, researchers should not report only its name. They should also describe the
+   532	data version, project sources, commit-time range, CWE distribution, deduplication rules, and the way the
+   533	training and test sets are split.
+   534	
+   535	6.2    Data Quality and Splitting
+   536	6.2.1 Duplicate Samples and Training Contamination
+   537	    Data duplication does not refer only to exactly identical functions. It also includes near-duplicate samples
+   538	in which only whitespace, variable names, or identifiers are changed, as well as paired code samples that are
+   539	highly similar before and after the same repair commit. If such samples appear in both the training and test
+   540	sets, the model may simply memorize lexical features instead of learning transferable vulnerability patterns.
+   541	Random splitting within the same project has a similar problem, because shared templates, library code, and
+   542	developers’ coding habits may also enter the test set. The performance gap observed in PrimeVul directly
+   543	reflects this risk, and the results from DiverseVul also suggest that cross-project results should be interpreted
+   544	separately from random-split results [14,17].
+   545	
+   546	                                                                130
+   547	
+   548	
+   549	                                  © 2026 The Author(s). Authors retain copyright in their articles.
+   550	
+   551	=== [PDF page 10] ===
+   552	
+   553	                      zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   554	
+   555	
+   556	
+   557	    Training contamination may also come from the pretraining corpora of base models. If public repositories,
+   558	patches, or benchmark code have already been included in pretraining data, the model may not be seeing the
+   559	relevant samples for the first time during testing. For closed-source models or extremely large corpora,
+   560	researchers usually cannot prove whether a specific sample has appeared. Therefore, this paper does not treat
+   561	contamination as a confirmed fact, but regards it as an alternative explanation that needs to be audited. High
+   562	scores in comprehensive benchmarks or fine-tuning studies are more likely to rule out memorization effects
+   563	only when the training data, test time, and code sources can be clearly distinguished [24,31].
+   564	6.2.2 Random Splits and Temporal Splits
+   565	    Random splitting assumes that training and test samples come from the same distribution. It is suitable for
+   566	estimating within-benchmark generalization, but it does not correspond to realistic scenarios of detecting future
+   567	commits or unseen repositories. Coding conventions, dependent libraries, and vulnerability types in the same
+   568	project may be shared between two sets, thereby reducing test difficulty. Therefore, F1 obtained from a random
+   569	split should be called “within-benchmark performance” and cannot be directly described as a “real-world
+   570	detection rate” [14].
+   571	   Temporal splitting trains on the past and tests on the future according to commit time, and ensures that the
+   572	same commit and its near duplicates belong to only one set. It is closer to use in continuous integration and
+   573	can also reduce the chance that the model indirectly sees future repair information. PrimeVul observes an
+   574	obvious performance drop after adopting the temporal principle, indicating that out-of-time testing should
+   575	become a reliability baseline [14]. A stricter design should also combine project isolation and report time
+   576	windows, data freeze dates, and model knowledge-cutoff information.
+   577	6.2.3 Data Governance and Risk Identification
+   578	    Data governance needs to handle exact duplicates, near duplicates, project associations, and temporal
+   579	relations at the same time. Hashing can find exactly identical code, and normalization, clone detection, or
+   580	structural similarity can supplement near-duplicate identification. Project, repository, commit, and time
+   581	identifiers are used to prevent associated samples from crossing sets. Pretraining contamination in closed-
+   582	source base models usually cannot be fully audited, so papers should clarify unknown scopes and should not
+   583	treat knowledge-cutoff dates as proof of no contamination. As shown in Table 2, dataset and evaluation risks
+   584	can be checked item by item together with identification signals and mitigation measures.
+   585	Table 2: Risk Matrix for Datasets and Evaluation
+   586	 Risk                   Risk mechanism Possible bias                  Identification        Mitigation         Evidence and
+   587	                                                                      signal                measure            remaining
+   588	                                                                                                               limitation
+   589	 Label noise          Weak labels          Treats non-                Sample-               Record label       PrimeVul and
+   590	                      from repair          security                   review                sources; use       DiverseVul;
+   591	                      commits, rule        changes as                 disagreement          two-person         complete ground
+   592	                      coverage, or         vulnerabilities            and                   review; release    truth remains
+   593	                      human                or misses                  inconsistency         disputed labels    difficult
+   594	                      disagreement         related                    between
+   595	                                           functions                  patches and
+   596	                                                                      labels
+   597	 Exact/near           Templates,           Counts                     High lexical or       Hashing,           PrimeVul; semantic
+   598	 duplicates           clones, and pre-     memorization               AST                   normalization,     thresholds still
+   599	                      /post-fix code       as                         similarity;           clone detection;   affect results
+   600	                      cross sets           generalization             project overlap       commit
+   601	                                                                                            isolation
+   602	 Pretraining          Public               Test samples               Unusually             Report corpus      Most closed-source
+   603	 contamination        repositories or      may have been              familiar              information,       models cannot be
+   604	                      patches enter        seen by the                explanations;         model versions,    fully ruled out
+   605	                      base-model           model                      opaque                and non-
+   606	                      corpora                                         knowledge             auditable parts
+   607	                                                                      cutoff
+   608	 Random splitting     Same-project         Overestimates              Cross-project         Use project        PrimeVul;
+   609	                      and same-time        performance                or out-of-time        isolation and      historically
+   610	                                           on unseen                                                           comparable results
+   611	
+   612	                                                                131
+   613	
+   614	
+   615	                                  © 2026 The Author(s). Authors retain copyright in their articles.
+   616	
+   617	=== [PDF page 11] ===
+   618	
+   619	                       zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   620	
+   621	
+   622	
+   623	 Risk                  Risk mechanism       Possible bias              Identification        Mitigation          Evidence and
+   624	                                                                       signal                measure             remaining
+   625	                                                                                                                 limitation
+   626	                       distributions are    repositories               results drop          temporal            still need to be
+   627	                       shared               and future                 clearly               splitting           retained
+   628	                                            commits
+   629	 Cross-                Differences in       Overall scores             Grouped               Leave-project-      Cross-project and
+   630	 project/language      coding               hide domain                differences by        out testing; per-   multilingual
+   631	 failure               conventions,         imbalance                  project,              language            studies; sample
+   632	                       ecosystems, and                                 language, and         reports; domain     composition is
+   633	                       syntax                                          CWE                   adaptation          mixed
+   634	 Class imbalance       Non-vulnerable       Inflated                   High majority-        Report P/R/F1,      DiverseVul;
+   635	                       functions far        Accuracy and               class baseline;       PR curves, and      resampling may
+   636	                       outnumber            missed rare                low grouped           grouped results     change the
+   637	                       vulnerable           CWEs                       Recall                                    distribution
+   638	                       functions
+   639	 False-                Classification       High F1 may                Alert volume          Report              SAST and
+   640	 positive/false-       metrics are not      still produce              under fixed           FPR/FNR, Top-       LineVul;
+   641	 negative cost         mapped to audit      unusable alerts            budget and            k, and              organizational cost
+   642	                       workload                                        cost per true         Effort@Recall       varies by scenario
+   643	                                                                       positive
+   644	 Explanation/version   Language             Misleading                 Path                  Verify program      LLMVulExp and
+   645	 validity              coherence is not     explanations or            inconsistency,        evidence; lock      context
+   646	                       program              irreproducible             repeated-call         versions,           enhancement;
+   647	                       correctness;         experiments                fluctuation,          prompts, and        human protocols
+   648	                       APIs update                                     version drift         parameters          still need
+   649	                       continuously                                                                              unification
+   650	
+   651	6.3     Evaluation Metrics
+   652	   Different classification metrics reflect different questions. Precision focuses on how many alerts produced
+   653	by the model are truly credible, Recall focuses on how many real vulnerabilities are found, and F1 takes the
+   654	harmonic mean of the two. When vulnerability data are highly imbalanced, reporting Accuracy alone can easily
+   655	hide errors on the minority class. For this reason, PrimeVul introduces paired samples, VD-Score, and other
+   656	checks that are closer to the vulnerability identification process. Studies on SAST also point out that both rule
+   657	coverage and the number of false positives affect practical usability [1,14].
+   658	   Evaluation for deployment should also convert model alerts into audit workload. LineVul uses Top-k
+   659	Accuracy and Effort@20%Recall to measure the priority of localization results. A unified LLM-SAST
+   660	benchmark compares both vulnerability detection and false positives, showing that the two kinds of tools may
+   661	complement each other on different vulnerability types [5,15]. For generative explanations, it is not enough to
+   662	check whether the text is complete. It is also necessary to examine whether the vulnerability location, causal
+   663	explanation, and repair suggestion are consistent with the code. LLMVulExp reflects this extended evaluation
+   664	direction, but automatic metrics, human annotation protocols, and consistency standards for explanation
+   665	evaluation still need further unification [6].
+   666	   Therefore, an evaluation report should at least include Precision, Recall, F1, and a confusion matrix, and
+   667	should provide grouped results by project, time, programming language, or CWE type. For line-level
+   668	localization methods, Top-k results and the amount of code that needs to be audited under a fixed recall should
+   669	also be reported. For generative explanations, location, type, cause, and suggestion should be checked
+   670	separately against program evidence. Accuracy can only be used as a supplementary metric. If an experiment
+   671	calls an LLM multiple times, it should also report the mean results, fluctuation range, and parsing failure rate.
+   672	
+   673	7.    Comparison of Method Performance and Applicability
+   674	
+   675	7.1     Comparison with Deep Learning and SAST
+   676	   Studies on prompting and fine-tuning do provide evidence of performance improvement on public datasets,
+   677	but these gains are not fixed. They vary with model type, dataset, parameter configuration, and training budget
+   678	
+   679	                                                                 132
+   680	
+   681	
+   682	                                   © 2026 The Author(s). Authors retain copyright in their articles.
+   683	
+   684	=== [PDF page 12] ===
+   685	
+   686	                      zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   687	
+   688	
+   689	
+   690	[24,31]. Therefore, this paper gives only medium confidence to C2: prompting, fine-tuning, and structural
+   691	enhancement can improve performance under the tested settings, but existing results are still insufficient to
+   692	show that any single route can remain comprehensively superior across all programming languages, project
+   693	environments, and future vulnerabilities.
+   694	   Low scores under strict evaluation do not mean that LLMs have no value in vulnerability detection. A more
+   695	important lesson from PrimeVul is that the evaluation protocol itself can change experimental conclusions; the
+   696	single result of 3.09% cannot be directly generalized to all models. Conversely, high scores on SeVC or BigVul
+   697	cannot simply be treated as detection capability in production environments. In other words, current evidence
+   698	shows that model capability has indeed improved, while also exposing insufficient external validity. Both
+   699	points need to be retained.
+   700	    When comparing lightweight Transformers with general-purpose LLMs, model scale is not the only
+   701	criterion. Lightweight Transformers are more suitable for scenarios with fixed label systems, local batch
+   702	processing, and lockable versions. General-purpose LLMs are more convenient for few-shot adaptation,
+   703	explanation generation, and complex context processing. SAST is usually more stable within the scope covered
+   704	by existing rules, whereas LLMs are better at semantic summarization and alert explanation. Existing evidence
+   705	from unified benchmarks supports complementarity rather than complete replacement by one tool: the two
+   706	types of tools may find different vulnerabilities and may also produce different kinds of false positives [1,15].
+   707	
+   708	7.2    Comparison of Different LLM Methods
+   709	   Prompting, fine-tuning, structural enhancement, and multi-model collaboration solve different problems.
+   710	Prompting lowers the adaptation threshold, fine-tuning improves output stability, structural enhancement
+   711	supplements program dependencies, and collaboration uses model differences. GRACE, DLAP, context
+   712	enhancement, and M2CVD all report gains in their own settings, but datasets, model versions, and evaluation
+   713	protocols differ, so they cannot be directly ranked on this basis [11-13,29]. Comprehensive benchmark studies
+   714	also show that preprocessing and prompt changes alter model rankings [26,31].
+   715	    Table V in PrimeVul compares five code language models. When trained and tested on BigVul, F1 is
+   716	62.88%-68.26%. When BigVul-trained models are transferred to PRIMEVUL testing, F1 drops to 1.91%-
+   717	5.82%. When PRIMEVUL is used for both training and testing, F1 rises to 18.05%-21.43% [14]. Under the
+   718	strict setting, VD-S is 88.78%-91.51%, both paired functions are correct in only 1.06%-3.01% of cases, and
+   719	both are judged safe in 84.22%-88.30% of cases. The above decline is not an isolated case of StarCoder2, but
+   720	the conclusion is limited to the five models and three settings in Table V.
+   721	
+   722	7.3    Cost and Deployment Choices
+   723	   Deployment plans depend on whether code can be sent outside, whether the task is stable, whether context
+   724	depends on cross-function or tool evidence, and the false-positive and computation costs that an organization
+   725	can bear. Sensitive code and local large-scale scanning are usually more suitable for lightweight models or
+   726	SAST. Rapidly changing vulnerability descriptions, interactive auditing, and explanation tasks are more
+   727	suitable for LLMs. High-risk scenarios should use hybrid workflows and retain human confirmation. API calls,
+   728	video memory, latency, model updates, and prompt maintenance should all be counted as costs; a one-time
+   729	offline F1 improvement cannot directly represent engineering gain.
+   730	
+   731	8.    Practical Challenges and Future Prospects
+   732	
+   733	8.1    Main Bottlenecks of the Two Types of Models
+   734	8.1.1 Constraints of Lightweight Models
+   735	   Lightweight Transformers are mainly constrained by context length, interprocedural structure, and task data.
+   736	Expanding inputs increases computation and noise, and simply concatenating callers, callees, or program
+   737	graphs may also dilute key evidence. Future research should select context around vulnerability triggering
+   738	paths and compare function, slice, file, and cross-function representations under a fixed budget, rather than
+   739	assuming that longer input is always better.
+   740	
+   741	
+   742	                                                                133
+   743	
+   744	
+   745	                                  © 2026 The Author(s). Authors retain copyright in their articles.
+   746	
+   747	=== [PDF page 13] ===
+   748	
+   749	                       zeuspress.org; Computers and Artificial Intelligence; Volume 3 · Issue 5 · 2026
+   750	
+   751	
+   752	
+   753	8.1.2 Constraints of Large Language Models
+   754	    Large-scale LLMs face problems of prompt robustness, hallucination, nondeterminism, version drift, and
+   755	deployment cost. A model may generate explanations that cannot be supported by code paths, and may change
+   756	its judgment when prompts change slightly. Experiments need to preserve system prompts, model identifiers,
+   757	call dates, temperatures, and repetition counts, and should set mechanisms for refusal and insufficient evidence.
+   758	For closed-source APIs, the inability to fully lock versions is itself a research limitation.
+   759	
+   760	8.2    Common Challenges in Data and Evaluation

@@ -1,0 +1,939 @@
+{
+  "query": "package name squatting detection PyPI npm 2025",
+  "sources": [
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:37:47+06:00",
+  "raw_hits": 25,
+  "unique": 24,
+  "errors": {},
+  "results": [
+    {
+      "title": "Version context and control construction in machine learning detection of malicious package updates across npm and PyPI",
+      "authors": [
+        {
+          "family": "Draz",
+          "given": "Moatasem M."
+        }
+      ],
+      "year": 2026,
+      "venue": "Scientific Reports",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/s41598-026-71750-5",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/s41598-026-71750-5",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Open-source package registries such as npm and PyPI are increasingly targeted by software supply-chain attacks in which a trusted package is compromised through a later release. This study reconstructs each candidate release together with its immediate predecessor in npm and PyPI and evaluates machine-learning detection under package-disjoint validation. Against never-compromised controls selected within ecosystem and matched on candidate archive file count, the model reaches ROC-AUC = 0.801 ± 0.006 and nested grouped F1 = 0.792 (95% CI 0.730–0.845). Performance falls to ROC-AUC = 0.551 when the controls are ordinary updates of the same compromised packages. That gap shows that the evaluated features separate compromised packages from clean packages far better than they separate a malicious update from another update of the same package. A strict temporal hold-out returns F1 = 0.310, and training on one registry and testing on the other gives ROC-AUC = 0.498 from npm to PyPI and 0.630 from PyPI to npm. Version context contributes a small incremental signal, but control construction largely determines apparent performance. The approach is therefore presented as a first-stage screening filter, and the results argue for stronger within-package and temporal evaluation.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Diffusion of a supply-chain control through package dependency networks: build provenance in npm and PyPI",
+      "authors": [
+        {
+          "family": "Sun",
+          "given": "Yibo"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7669797",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7669797",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "A supply-chain control spreads over a network of package dependencies: anartefact published once becomes reachable transitively by every project whosegraph contains it. We measure the diffusion of one such control — buildprovenance, the signed attestation recording which pipeline built a release —across the dependency networks of 10,000 npm packages and 12,000 PyPIprojects ranked by downloads. Adoption reaches 34.4% of the npm frame(95% interval 33.5%–35.4%) and 24.9% of the PyPI frame. It is flat acrossdownloads and steep across release count: adopters release often rather thanbeing widely used. It follows the graph’s shape as well as node attributes,rising from 34.7% in the periphery to 45.8% in the deepest well-populatedshells of a frame whose in-degree is heavy-tailed (Gini 0.77) and of which only80.1% is connected. Adoption is strongly associated with the attested shareof a package’s dependencies and dependents. We test it against two nullsthat hold different things fixed — label permutation within degree strata anddegree-preserving rewiring of the arcs — and they disagree: the associationsurvives the first, while two thirds of it is a property of the wiring underthe second. The residual is no degree artefact; influence, homophily and acommon shock remain indistinguishable. Reachability figures are recomputedon a halo-extended frame within a tolerance fixed in advance. A by-productremediation contrast is null on the only specification whose arms clear thegroup-size gate.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Do Machine Learning Security Detectors Survive New Attacks? A Leakage Free Evaluation of Hidden Prompt Injection Detection in AI Coding Agents, Malicious npm and PyPI Package Detection, and Network Intrusion Detection",
+      "authors": [
+        {
+          "family": "Ugwumba",
+          "given": "Nnaemeka"
+        },
+        {
+          "family": "Ndeekor",
+          "given": "Clement Barisua"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-11667204/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-11667204/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Machine learning detectors for cybersecurity are usually tested by splitting one dataset at random, so the attacks in the test set closely resemble the attacks seen in training. Real attackers change technique. This paper asks whether three kinds of machine learning security detectors still work when they meet an attack technique they have never seen, using one shared, leakage free evaluation protocol. Study A builds a corpus of 4,955 real AI agent instruction files and Model Context Protocol tool descriptions from GitHub, plants harmless hidden instructions with nine hiding techniques used in 2026 prompt injection campaigns, and tests five detectors. Study B tests malicious npm and PyPI package detection on 13,317 packages, training on samples published before 2026 and testing on the 2026 attack waves. Study C revisits network intrusion detection on CICIDS2017, CICIDS2018 and UNSW NB15 with duplicate removal, time ordered splits, unseen attack families and cross dataset transfer. On standard random splits, almost every detector scores a ROC AUC between 0.95 and 1.00. Against hiding techniques never seen in training, a feature based detector of hidden instructions falls from 0.87 to 0.04 recall at a one percent false alarm rate, while a canonicalising character model keeps 0.89 and a fine tuned DistilRoBERTa keeps 0.98. A malicious package model built on static features falls from 0.90 to 0.41 recall on 2026 packages once its size shortcut is removed. An intrusion detector trained on earlier days of CICIDS2018 scores a ROC AUC of 0.49 on later days and finds 10 percent of unseen attack families. Small open language models (Qwen2.5 Instruct, 1.5B to 7B parameters) obeyed hidden instructions in up to 67 percent of poisoned files, larger models obeyed more often, and removing invisible characters made zero width attacks more effective. Our Study A detector, trained only on synthetic poisoning, found 80 percent of 202 real malicious AI agent skills. We release the scripts and give a short checklist for testing security detectors against new attacks.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Metadata Compressibility and Evaluation Bias in Malicious Package Detection for NPM and PyPI",
+      "authors": [
+        {
+          "family": "Moufid",
+          "given": "Hanan"
+        },
+        {
+          "family": "El Ghazouani",
+          "given": "Mohamed"
+        },
+        {
+          "family": "El Kiram",
+          "given": "Moulay Ahmed"
+        }
+      ],
+      "year": 2026,
+      "venue": "Journal of Cybersecurity and Privacy",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3390/jcp6050160",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3390/jcp6050160",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Malicious packages in open source-software supply chains are a growing security concern, yet machine learning detectors built on registry metadata are difficult to interpret and are typically evaluated under protocols susceptible to data leakage. We construct a dataset of 3330 package versions from NPM and PyPI in which every attribute is reconstructed at its exact publication timestamp, and we partition the data so that all versions of a package, all packages of a maintainer, and all members of a name-similarity family reside within a single fold. The primary analysis is restricted to NPM, where 18 of 456 point-in-time attributes attain an AU-PR of 0.9972 against a positive-class baseline of 0.8755 and an AUC-ROC of 0.9828 on 763 held-out versions. A secondary pooled analysis over both ecosystems is reported: the class priors differ by nearly a factor of nine, a classifier using only the ecosystem of origin attains an AUC-ROC of 0.8036, and the pooled figures should be read with that composition in mind. Confidence intervals are obtained by cluster-bootstrap resampling at the composite-group level and are 3.7-times wider than version-level intervals in AU-PR (0.0201 against 0.0055); at that scale, none of the differences between feature subsets, selection-stage orderings, or metadata families reported here is distinguishable from sampling variation. At an operational prevalence of 0.1%, the positive predictive value is 4.3% and recall at the selected threshold is 0.537, indicating that metadata-based detection functions as a triage filter rather than a definitive verdict.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "CLAMPD-Net: Cross-language malicious package detection across PyPI and NPM with multimodal fusion",
+      "authors": [
+        {
+          "family": "Iqbal",
+          "given": "Tahir"
+        },
+        {
+          "family": "Wu",
+          "given": "Guowei"
+        },
+        {
+          "family": "Iqbal",
+          "given": "Zahid"
+        },
+        {
+          "family": "Mahmood",
+          "given": "Muhammad Bilal"
+        }
+      ],
+      "year": 2026,
+      "venue": "Information and Software Technology",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.infsof.2026.108129",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.infsof.2026.108129",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Killing Two Birds with One Stone: Malicious Package Detection in NPM and PyPI using a Single Model of Malicious Behavior Sequence",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Junan"
+        },
+        {
+          "family": "Huang",
+          "given": "Kaifeng"
+        },
+        {
+          "family": "Huang",
+          "given": "Yiheng"
+        },
+        {
+          "family": "Chen",
+          "given": "Bihuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Ruisi"
+        },
+        {
+          "family": "Wang",
+          "given": "Chong"
+        },
+        {
+          "family": "Peng",
+          "given": "Xin"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM Transactions on Software Engineering and Methodology",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3705304",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3705304",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 35,
+      "abstract": "Open source software (OSS) supply chain enlarges the attack surface of a software system, which makes package registries attractive targets for attacks. Recently, multiple package registries have received intensified attacks with malicious packages. Of those package registries, NPM and PyPI are two of the most severe victims. Existing malicious package detectors are developed with features from a list of packages of the same ecosystem and deployed within the same ecosystem exclusively, which is infeasible to utilize the knowledge of a new malicious NPM package detected recently to detect the new malicious package in PyPI. Moreover, existing detectors lack support to model malicious behavior of OSS packages in a sequential way. To address the two limitations, we propose a single detection model using malicious behavior sequence, named Cerebro , to detect malicious packages in NPM and PyPI. We curate a feature set based on a high-level abstraction of malicious behavior to enable multi-lingual knowledge fusing. We organize extracted features into a behavior sequence to model sequential malicious behavior. We fine-tune the pre-trained language model to understand the semantics of malicious behavior. Extensive evaluation has demonstrated the effectiveness of Cerebro over the state-of-the-art as well as the practically acceptable efficiency. Cerebro has detected 683 and 799 new malicious packages in PyPI and NPM, and received 707 thank letters from the official PyPI and NPM teams.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Decoding Maliciousness: A Scalable Framework for Malicious PyPI Package Detection via Multi-source Semantic Fusion",
+      "authors": [
+        {
+          "family": "wang",
+          "given": "jiutian"
+        },
+        {
+          "family": "Mao",
+          "given": "Deming"
+        },
+        {
+          "family": "Han",
+          "given": "Ye"
+        },
+        {
+          "family": "Quan",
+          "given": "Zhaoheng"
+        },
+        {
+          "family": "Wang",
+          "given": "Bingwen"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6727185",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6727185",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Context: The Python Package Index (PyPI) has become a primary target for software supply chain attacks. Existing detection methods often rely on single-dimensional analysis, which struggles to meet the scalability and real-time requirements of modern software ecosystems.Objectives: This study aims to develop a scalable and automated framework to accurately identify malicious PyPI packages by fusing multi-dimensional features, specifically focusing on the integration of code structural patterns and deep semantic understanding.Methods: We propose a framework that first employs static analysis to construct API call graphs and calculate four graph centrality metrics to capture structural features. Subsequently, Large Language Models (LLMs) with specialized prompt engineering are introduced to screen high-centrality APIs and eliminate noise. Finally, optimized structural features are fused with metadata features to construct a robust classification model.Results: Evaluations on a large-scale dataset of over 20,000 samples demonstrate that the proposed method achieves 97.2% precision and 97.3% F1-score. Notably, the framework exhibits exceptional efficiency, with an average end-to-end detection time of less than 1 second per package. It also shows strong robustness in highly imbalanced (1:50) scenarios.Conclusion: Our approach offers a high-precision, scalable solution for securing the open-source software supply chain. By effectively combining graph-based structural analysis with LLM-powered semantics, it provides a practical tool for advancing software quality assurance in real-world environments.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "MVRFDet: Malicious package detection in PyPI ecosystem using multi-view representation fusion",
+      "authors": [
+        {
+          "family": "Yan",
+          "given": "Jiale"
+        },
+        {
+          "family": "Zhao",
+          "given": "Bo"
+        }
+      ],
+      "year": 2027,
+      "venue": "Information Fusion",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.inffus.2026.104698",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.inffus.2026.104698",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Broken Trust in Open-Source Ecosystems: The Risks of Third-Party Packages in npm and PyPI",
+      "authors": [
+        {
+          "family": "Lahouifi",
+          "given": "Youssef"
+        },
+        {
+          "family": "Korchiyne",
+          "given": "Redouan"
+        },
+        {
+          "family": "Hadi",
+          "given": "Moulay Youssef"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 11th International Conference on Optimization and Applications (ICOA)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icoa66896.2025.11236532",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icoa66896.2025.11236532",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "PyPIMalDet: A malicious PyPI package detection method combining code features and metadata features",
+      "authors": [
+        {
+          "family": "Yan",
+          "given": "Jiale"
+        },
+        {
+          "family": "Zhao",
+          "given": "Bo"
+        }
+      ],
+      "year": 2026,
+      "venue": "Neural Networks",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.neunet.2025.108487",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.neunet.2025.108487",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Evaluating LLM-Based Detection of Malicious Package Updates in npm",
+      "authors": [
+        {
+          "family": "Wyss",
+          "given": "Elizabeth"
+        },
+        {
+          "family": "Tassio",
+          "given": "Dominic"
+        },
+        {
+          "family": "Carli",
+          "given": "Lorenzo De"
+        },
+        {
+          "family": "Davidson",
+          "given": "Drew"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 28th International Symposium on Research in Attacks, Intrusions and Defenses (RAID)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/raid67961.2025.00047",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/raid67961.2025.00047",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Decoding Maliciousness: LLM-Assisted Semantic Filtering for Scalable Malicious PyPI Package Detection",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Jiutian"
+        },
+        {
+          "family": "Mao",
+          "given": "Deming"
+        },
+        {
+          "family": "Han",
+          "given": "Ye"
+        },
+        {
+          "family": "Quan",
+          "given": "Zhaoheng"
+        },
+        {
+          "family": "Wang",
+          "given": "Bingwen"
+        }
+      ],
+      "year": 2026,
+      "venue": "Electronics",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3390/electronics15215021",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3390/electronics15215021",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The Python Package Index (PyPI) has become a primary target for software supply chain attacks. Existing detection methods often rely on single-dimensional analysis, limiting their ability to support scalable detection in modern software ecosystems. This study presents a scalable framework for malicious PyPI package detection by combining graph centrality-based candidate identification with large language model semantic filtering. API interaction graphs are constructed from package source code, and four complementary centrality metrics are used to identify structurally important APIs. For each metric independently, a separate Top-K candidate pool is constructed and refined through semantic filtering with Qwen3.5-Plus, removing benign generic APIs while retaining security-sensitive APIs. The refined API features are further augmented with package-level metadata and used for package-level classification. Evaluations on a dataset of 20,743 packages (10,743 malicious and 10,000 benign) show that the proposed method achieves 96.3% precision, 95.9% recall, and a 96.1% F1-score. Ablation experiments indicate that semantic filtering provides the largest performance improvement, increasing F1-score by 4.2 percentage points over raw centrality features, while metadata augmentation provides a further improvement of 1.2 percentage points. The framework maintains robust detection performance under a highly imbalanced 1:50 class ratio and, after the one-time offline construction of the refined feature vocabulary, requires approximately 1 s per package for detection. A retrospective monitoring experiment on the PyPI release stream further demonstrates the practical applicability of the framework, while LIME provides interpretable evidence for the resulting predictions.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "ACCI: A Multi-Feature PyPI Package Anomaly Detection Method Based on Script Deep Semantics",
+      "authors": [
+        {
+          "family": "Xie",
+          "given": "Xiaobin"
+        },
+        {
+          "family": "Feng",
+          "given": "Qiying"
+        },
+        {
+          "family": "Leng",
+          "given": "Tao"
+        },
+        {
+          "family": "Zhou",
+          "given": "Huacong"
+        },
+        {
+          "family": "Cai",
+          "given": "Yongxin"
+        },
+        {
+          "family": "Cai",
+          "given": "Zhenqi"
+        },
+        {
+          "family": "Qiu",
+          "given": "Jing"
+        },
+        {
+          "family": "Chai",
+          "given": "Yuhan"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 IEEE 10th International Conference on Data Science in Cyberspace (DSC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/dsc67331.2025.00043",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/dsc67331.2025.00043",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "PypiGuard: A novel meta-learning approach for enhanced malicious package detection in PyPI through static-dynamic feature fusion",
+      "authors": [
+        {
+          "family": "Iqbal",
+          "given": "Tahir"
+        },
+        {
+          "family": "Wu",
+          "given": "Guowei"
+        },
+        {
+          "family": "Iqbal",
+          "given": "Zahid"
+        },
+        {
+          "family": "Mahmood",
+          "given": "Muhammad Bilal"
+        },
+        {
+          "family": "Shafique",
+          "given": "Amreen"
+        },
+        {
+          "family": "Guo",
+          "given": "Wenbo"
+        }
+      ],
+      "year": 2025,
+      "venue": "Journal of Information Security and Applications",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.jisa.2025.104032",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.jisa.2025.104032",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Analyzing the Accessibility of GitHub Repositories for PyPI and NPM Libraries",
+      "authors": [
+        {
+          "family": "Tsakpinis",
+          "given": "Alexandros"
+        },
+        {
+          "family": "Pretschner",
+          "given": "Alexander"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 28th International Conference on Evaluation and Assessment in Software Engineering",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3661167.3661231",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3661167.3661231",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "CHRONO-RESOLUTION: A Dependency Resolution Dataset at Release Points for npm, PyPI, and crates.io Packages",
+      "authors": [
+        {
+          "family": "Rahman",
+          "given": "Imranur"
+        },
+        {
+          "family": "Marley",
+          "given": "Jill"
+        },
+        {
+          "family": "Paramitha",
+          "given": "Ranindya"
+        },
+        {
+          "family": "Williams",
+          "given": "Laurie"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 IEEE International Conference on Software Maintenance and Evolution (ICSME)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icsme67971.2026.00141",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icsme67971.2026.00141",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "<p>Autodevto: An NPM Package for Automated Generation and Publication &nbsp;</p>",
+      "authors": [
+        {
+          "family": "Hodge Jr",
+          "given": "Roy"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5790122",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5790122",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Modified method of cursor pagination and data filtering as an NPM package",
+      "authors": [
+        {
+          "family": "Stepanenko",
+          "given": "A.S."
+        },
+        {
+          "family": "Saiapina",
+          "given": "I.O."
+        }
+      ],
+      "year": 2025,
+      "venue": "System technologies",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.34185/1562-9945-3-158-2025-17",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.34185/1562-9945-3-158-2025-17",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "This article is devoted to the development of a modified cursor pagination method that supports major databases and ORM systems, provides the ability to use complex data filtering and sorting, query indexing, etc. Existing solutions, their use cases, advantages and disadvan-tages are analyzed. A modified method is formed that includes modified and improved func-tionality of existing NPM packages, along with new implementations focused on increasing the efficiency and versatility of database queries. The proposed solution is analyzed. Potential directions for further expansion and improvement of the method are given. The purpose of this research is to increase the efficiency and versatility of cursor pagi-nation by developing and software implementing a method in which query time will be signifi-cantly reduced and the number of databases supported will be greater than in existing solu-tions. In accordance with the stated goal, it is necessary to solve the following tasks: to re-view existing methods for implementing cursor pagination, to propose a new method with bet-ter speed and greater versatility, to experimentally verify the effectiveness of the developed method. At the moment, there is a very limited number of data packages that provide ready-made functionality for implementing cursor pagination, and none of them is universal enough (only one ORM system or one native database is supported). In addition, such solutions do not include the implementation of query indexing to increase efficiency; there is no optional filtering/sorting of data by the selected parameter. Thus, the problem of the lack of a univer-sal and optimized pagination method is relevant and requires research. Therefore, a modified method of cursor pagination and data filtering is proposed in the form of an NPM package, which will solve the shortcomings of existing methods.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "UNDERSTANDING THE TRENDS OF DEVELOPER CONTRIBUTIONS IN NUGET, PYPI, AND NPM ECOSYSTEMS",
+      "authors": [
+        {
+          "family": "Raiffaza",
+          "given": "Naufal Dzakia"
+        },
+        {
+          "family": "Nugroho",
+          "given": "Yusuf Sulistyo"
+        }
+      ],
+      "year": 2024,
+      "venue": "Jurnal Teknik Informatika (Jutif)",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.52436/1.jutif.2024.5.4.2143",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.52436/1.jutif.2024.5.4.2143",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Open-source software (OSS) projects have taken the software development industry rapidly by encouraging cooperation, creativity, and knowledge exchange. However, despite the widespread adoption and success of OSS, there is limited understanding of how contributions are distributed across different types of activities, such as code, documentation, and issue triage, and how these contributions vary over time within different OSS ecosystems. This gap in knowledge can impact effective project management and community engagement strategies. To address this problem, we aim to look into the patterns of developer contributions within the three main OSS ecosystems hosted on GitHub, namely NuGet, PyPI, and NPM. We examine the distribution of type-based contribution and the trends of developer activities within these ecosystems. We classify contributions into code, documentation, and issue triage using a mixed-methods approach that combines content analysis and time-series analysis, and we analyze the timeline variations in contribution trends. Our results show differences in pull request activity and developer contribution patterns between ecosystems. The ‘npm-expansion’ repository leads in open pull requests, while the ‘warehouse’ repository in PyPI dominates closed pull requests. The NPM ecosystem shows the highest number of activities when it comes to open pull requests. Notable peaks can be seen in trends in code development and maintenance activities, indicating the changing priorities of various projects. The findings shed light on the changes of OSS contributions and highlight the value of varied roles and ongoing community involvement. The comprehension of contribution patterns in open-source software projects is improved by this study, which also provides guidance for project management, resource allocation, and community support strategies. The knowledge acquired can direct the creation of instruments and systems that support more cooperative and productive open-source software ecosystems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "1+1>2: Integrating Deep Code Behaviors with Metadata Features for Malicious PyPI Package Detection",
+      "authors": [
+        {
+          "family": "Sun",
+          "given": "Xiaobing"
+        },
+        {
+          "family": "Gao",
+          "given": "Xingan"
+        },
+        {
+          "family": "Cao",
+          "given": "Sicong"
+        },
+        {
+          "family": "Bo",
+          "given": "Lili"
+        },
+        {
+          "family": "Wu",
+          "given": "Xiaoxue"
+        },
+        {
+          "family": "Huang",
+          "given": "Kaifeng"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 39th IEEE/ACM International Conference on Automated Software Engineering",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3691620.3695493",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3691620.3695493",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "Improving Your Restaurant Website Using the React-Bootstrap npm Package",
+      "authors": [
+        {
+          "family": "Imsirovic",
+          "given": "Ajdin"
+        }
+      ],
+      "year": 2025,
+      "venue": "Designing Web Layouts with Bootstrap 5",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.1007/979-8-8688-1904-9_12",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1007/979-8-8688-1904-9_12",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "Detecting Malicious Packages in PyPI and NPM by Clustering Installation Scripts",
+      "authors": [
+        {
+          "family": "Liang",
+          "given": "Wentao"
+        },
+        {
+          "family": "Ling",
+          "given": "Xiang"
+        },
+        {
+          "family": "Zhao",
+          "given": "Chen"
+        },
+        {
+          "family": "Wu",
+          "given": "Jingzheng"
+        },
+        {
+          "family": "Luo",
+          "given": "Tianyue"
+        },
+        {
+          "family": "Wu",
+          "given": "Yanjun"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Transactions on Software Engineering",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/tse.2025.3618952",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/tse.2025.3618952",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "Seeing the Forest: A Taxonomy-Guided Analysis and Improvement of Malicious PyPI Package Detectors",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Zibo"
+        },
+        {
+          "family": "Wang",
+          "given": "Junjie"
+        },
+        {
+          "family": "Chen",
+          "given": "Sen"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 2nd International Workshop on Software Genomics",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3844178.3844648",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3844178.3844648",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "PyPIGuard: A Lightweight, Explainable Machine Learning Tool for Pre-Install Detection of Malicious PyPI Packages",
+      "authors": [
+        {
+          "family": "Jobu",
+          "given": "Rahat  Ahmed"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7067738",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7067738",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Open-source package registries such as PyPI are increasingly targeted by at-tackers, yet existing detection tools report false-positive rates as high as 97%,making automated adoption impractical. PyPIGuard is an open-source, de-ployable tool that classifies PyPI packages as malicious or benign withina millisecond, using only static code, Abstract Syntax Tree (AST), andbytecode-level structural features — without relying on a large languagemodel (LLM). It is deployed as a live web application with a real-time scan-ner, a file-upload scanner, and a Jupyter notebook malware-import scanner.Trained on 9,723 real packages — the entire available malicious archive plusfreshly-sampled benign packages — it achieves 0.9993 ROC-AUC on held-outdata and 0.984 ROC-AUC on packages discovered after the training cutoff,remaining robust under adversarial evasion testing.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 24,
+      "in_project": null
+    }
+  ]
+}

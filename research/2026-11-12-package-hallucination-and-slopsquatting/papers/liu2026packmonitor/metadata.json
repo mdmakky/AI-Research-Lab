@@ -1,0 +1,81 @@
+{
+  "title": "PackMonitor: Towards Zero Package Hallucinations via Decoding-Time Monitoring",
+  "authors": [
+    {
+      "family": "Liu",
+      "given": "Xiting"
+    },
+    {
+      "family": "Liu",
+      "given": "Yuetong"
+    },
+    {
+      "family": "Zhang",
+      "given": "Yitong"
+    },
+    {
+      "family": "Li",
+      "given": "Jia"
+    },
+    {
+      "family": "Hu",
+      "given": "Shi-Min"
+    }
+  ],
+  "year": 2026,
+  "venue": "Proceedings of the ACM on Software Engineering",
+  "type": "journal-article",
+  "venue_kind": "published",
+  "doi": "10.1145/3832118",
+  "arxiv_id": "2602.20717",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7215088233",
+  "url": "https://doi.org/10.1145/3832118",
+  "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832118?download=true",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 0,
+  "abstract": "As Large Language Models (LLMs) are increasingly integrated into software development workflows, their trustworthiness has become a critical concern. However, in dependency recommendation scenarios, the reliability of LLMs is undermined by widespread package hallucinations, where models often recommend hallucinated packages. Recent studies have proposed a range of approaches to mitigate this issue. Nevertheless, existing approaches typically merely reduce hallucination rates rather than eliminate them, leaving persistent software security risks. In this work, we argue that package hallucinations are theoretically preventable based on the key insight that package validity is decidable through finite and enumerable authoritative package lists. Building on this, we propose PackMonitor, the first approach capable of fundamentally eliminating package hallucinations by continuously monitoring the model's decoding process and intervening when necessary. To implement this in practice, PackMonitor addresses three key challenges: (1) determining when to trigger intervention via a Context-Aware Parser that continuously monitors model outputs and selectively activates intervening only during installation command generation; (2) resolving how to intervene by employing a Package-Name Intervenor that strictly limits the decoding space to an authoritative package list; and (3) ensuring monitoring efficiency through a DFA-Caching Mechanism that enables scalability to millions of packages with negligible overhead. Extensive experiments on five widely used LLMs demonstrate that PackMonitor is a training-free, plug-and-play solution that consistently reduces package hallucination rates to zero while maintaining low-latency inference and preserving original model capabilities.",
+  "sources": [
+    "crossref",
+    "openalex"
+  ],
+  "key": "liu2026packmonitor",
+  "added": "2026-11-12T04:55:39+06:00",
+  "added_reason": "F3 defences against package hallucination (RQ3, RQ5)",
+  "found_via": "mitigating package hallucination; package hallucination unlearning model editing",
+  "verification": {
+    "status": "MISMATCH",
+    "checked": "2026-11-12T17:54:04+06:00",
+    "cross_checks": {
+      "crossref": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "arxiv": {
+        "title_similarity": 0.854,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": false
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2602.20717",
+    "retrieved": "2026-11-12T04:56:30+06:00",
+    "sha256": "39fd1531d374033d61e1021d222e07ff28ca88ed15e83f366fb1922153cb22d7",
+    "pages": 23,
+    "text_layer": "ok",
+    "identity": "match (DOI printed in PDF)"
+  }
+}

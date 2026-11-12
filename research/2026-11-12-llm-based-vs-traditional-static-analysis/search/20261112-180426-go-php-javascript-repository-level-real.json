@@ -1,0 +1,520 @@
+{
+  "query": "Go PHP JavaScript repository-level real CVE vulnerability detection LLM Semgrep comparison",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2025,
+  "year_to": null,
+  "run_at": "2026-11-12T18:04:26+06:00",
+  "raw_hits": 12,
+  "unique": 11,
+  "errors": {
+    "arxiv": "The read operation timed out"
+  },
+  "results": [
+    {
+      "title": "The History Is the Detector: Executing CVE Patch History, End-to-End",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Qiushi"
+        },
+        {
+          "family": "Eykholt",
+          "given": "Kevin"
+        },
+        {
+          "family": "Park",
+          "given": "Youngja H."
+        },
+        {
+          "family": "Shu",
+          "given": "Xiaokui"
+        },
+        {
+          "family": "Kirat",
+          "given": "Dhilung"
+        },
+        {
+          "family": "Schales",
+          "given": "Douglas Lee"
+        },
+        {
+          "family": "Molloy",
+          "given": "Ian"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.05335",
+      "arxiv_id": "2609.05335",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7211894712",
+      "url": "https://arxiv.org/abs/2609.05335",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.05335",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Public vulnerability databases collect rich information about known software flaws, including their weakness types, affected components, and related patches. Fixing commits provide the exact code changes that removed these flaws. While these records capture why the original code was unsafe, they are documented mainly for human inspection rather than automated reuse. Consequently, the same unsafe conditions may still exist elsewhere in code without a known advisory, leaving much of this detection knowledge unused. We present BUGSTONE-E2E, a framework that transforms vulnerability history into executable detection rules and validates their findings. First, BUGSTONE-E2E mines reusable rules from verified fixing commits, capturing scan anchors, fix semantics, and CVE provenance and organizing them by CWE and language. Second, detection follows a funnel-shaped pipeline: early stages process a large pool of candidates using lightweight analysis, while later stages apply increasingly capable and expensive models to a shrinking set of targets. Specifically, BUGSTONE-E2E first enumerates call sites matching rule anchors using Tree-sitter, then removes benign sites using lightweight heuristics without LLM calls. Next, LLM-based agents inspect the remaining candidates guided by the rule. Following this inspection, the system re-triages surviving candidates and builds runtime verifications, then generates scope-checked patches validated via two-sided differential tests. Using 19,325 high-severity CVEs from 2022 to 2026, BUGSTONE-E2E identifies 2,710 fixing commits and constructs 1,033 detection rules across 56 CWE families, packaged into 172 skills. When applied across 14 programs, it produced runtime evidence for 644 findings. These results demonstrate that CVE history can be turned into an executable workflow, transforming past vulnerabilities into reproducible detection and repair.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Willing but Unable: Separating Refusal from Capability in Code LLMs via Abliteration",
+      "authors": [
+        {
+          "family": "Carleo",
+          "given": "Cristina"
+        },
+        {
+          "family": "Liguori",
+          "given": "Pietro"
+        },
+        {
+          "family": "Ivaki",
+          "given": "Naghmeh"
+        },
+        {
+          "family": "Cotroneo",
+          "given": "Domenico"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.05396",
+      "arxiv_id": "2606.05396",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7163711685",
+      "url": "https://arxiv.org/abs/2606.05396",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.05396",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Producing a labeled vulnerable code at scale is a recurring obstacle for learning-based vulnerability detection: mined corpora carry substantial label noise, and existing LLM-based augmentation propagates these inaccuracies because it transforms vulnerable seeds rather than synthesising vulnerabilities from a specification. A complementary route is to start from safe code and ask an instruction-tuned LLM to inject a specified CWE (which would shift the labeling burden from open-ended detection to bounded binary confirmation) but safety-aligned code LLMs systematically refuse such prompts. This paper is a preliminary feasibility study of abliteration, a low-rank weight edit that orthogonally projects out the refusal direction in the residual stream, as a tool to remove this barrier. We use Python and CWE-89 (SQL injection) as a case study, evaluating the Qwen2.5-Coder-Instruct family at 3B, 7B, and 14B parameters on safe samples drawn from PromSec and SafeCoder, replicated three times per condition. We find that (i) refusal on injection prompts is strongly size- and prompt-context-dependent: the 14B refuses 100% of prompts, the 7B refuses 73% of PromSec but only 5% of SafeCoder, whereas the 3B is essentially never blocked; (ii) abliteration reduces refusal to zero or near-zero across all sizes while leaving syntactic validity above 93%, supporting the view that, in this setting, refusal can be detached from measured code-generation capability; and (iii) the post-abliteration injection rate remains capacity-bound (88-97% on the 14B, 89-90% on the 7B, and 25-48% on the 3B) separating willingness, which abliteration unlocks, from capability, which scales with parameters. Vulnerability verdicts are produced by a three-tool detector ensemble (CodeQL, Semgrep, Bandit) followed by manual adjudication by two authors on detector-positive outputs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Analysis of the Precision of Large Language Models in the Identification of Security Vulnerabilities and Weaknesses in Generated Code",
+      "authors": [
+        {
+          "family": "Muñoz-Babiano",
+          "given": "Federico"
+        },
+        {
+          "family": "Lamo",
+          "given": "Paula"
+        },
+        {
+          "family": "Alonso",
+          "given": "Ricardo S."
+        }
+      ],
+      "year": 2026,
+      "venue": "ADCAIJ ADVANCES IN DISTRIBUTED COMPUTING AND ARTIFICIAL INTELLIGENCE JOURNAL",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.14201/adcaij.32926",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7154729999",
+      "url": "https://doi.org/10.14201/adcaij.32926",
+      "oa_pdf_url": "https://revistas.usal.es/cinco/index.php/2255-2863/article/download/32926/31308",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) have accelerated code generation, yet their security implications remain underexplored. This work evaluates the capability of eight general-purpose and code-specialized LLMs to detect weaknesses and vulnerabilities in generated code using CVE and CWE references. Stratified sampling of the CVEfixes dataset across five programming languages is assessed using precision, recall, F1-score, and relevance-oriented metrics (REINP, REINR, and REINF1). Results show limited detection of specific vulnerabilities (CVE), but better performance for general weaknesses (CWE), especially in Python and Ruby. We discuss limitations in model training and prompt conditioning, and outline improvements through dataset diversification, prompt engineering and hybrid human-in-the-loop approaches. The study highlights the current potential and limitations of LLMs for practical vulnerability detection in generated code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "A large scale analysis of code security in public repositories",
+      "authors": [
+        {
+          "family": "Oprişa",
+          "given": "Ciprian"
+        },
+        {
+          "family": "Grigoruţ",
+          "given": "Dominic Octavian"
+        },
+        {
+          "family": "Mouratidis",
+          "given": "Haralambos"
+        },
+        {
+          "family": "Lakka",
+          "given": "Eftychia"
+        },
+        {
+          "family": "Manta",
+          "given": "Ourania"
+        },
+        {
+          "family": "Mavrias",
+          "given": "Angelos"
+        },
+        {
+          "family": "Tsantekidis",
+          "given": "Marinos"
+        },
+        {
+          "family": "Filippatos",
+          "given": "Nikolas"
+        },
+        {
+          "family": "Daniil",
+          "given": "George"
+        },
+        {
+          "family": "Gal",
+          "given": "Alexandru"
+        },
+        {
+          "family": "Gavriluţ",
+          "given": "Dragoş Teodor"
+        },
+        {
+          "family": "Kargatzis",
+          "given": "Christos"
+        },
+        {
+          "family": "Ioannidis",
+          "given": "Sotiris"
+        }
+      ],
+      "year": 2026,
+      "venue": "International Journal of Information Security",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10207-025-01187-w",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7118662180",
+      "url": "https://doi.org/10.1007/s10207-025-01187-w",
+      "oa_pdf_url": "https://link.springer.com/content/pdf/10.1007/s10207-025-01187-w.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Cybersecurity is a growing concern for the software development sector, as insecure code and insecure software development practices lead to dangerous vulnerabilities in the released products. We propose CONSOLE, designed to boost cybersecurity for software development with an automated, unified platform of tools and services. The proposed framework integrates static and dynamic code analysis tools, real-time protection mechanisms, and adaptive training services. Multiple open-source tools for Static Application Security Testing offer a wide coverage of supported programming languages and types of vulnerabilities that can be detected. The code analysis features of the proposed platform were used in a large scale analysis on 10,855 public repositories. More than 60% of the analyzed repositories contained verified security issues, which highlights the need for automatic code evaluation as a standard practice in the software development pipeline. While popular software projects are usually more secure, having less defects per Megabyte of code, they are not shielded from security issues. The vulnerabilities present in popular projects are likely to have a greater impact in production environments. The large scale analysis results can be used to improve CONSOLE. The paper proposes a strategy for mitigating the False Positives, focusing on prevalent types of alerts and prioritizing them so the developers will be able to examine the most serious issues first. This paper brings awareness on the security defects found in common software projects and proposes the CONSOLE platform as a solution to automatically detect and correct these defects during the software development lifecycle.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "MOSAIC-Bench: Measuring Compositional Vulnerability Induction in Coding Agents",
+      "authors": [
+        {
+          "family": "Steinberg",
+          "given": "Jonathan"
+        },
+        {
+          "family": "Gal",
+          "given": "Oren"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.03952",
+      "arxiv_id": "2605.03952",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160433137",
+      "url": "https://arxiv.org/abs/2605.03952",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.03952",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Coding agents often pass per-prompt safety review yet ship exploitable code when their tasks are decomposed into routine engineering tickets. The challenge is structural: existing safety alignment evaluates overt requests in isolation, leaving models blind to malicious end-states that emerge from sequenced compliance with innocuous-looking requests. We introduce MOSAIC-Bench (Malicious Objectives Sequenced As Innocuous Compliance), a benchmark of 199 three-stage attack chains paired with deterministic exploit oracles on deployed software substrates (10 web-application substrates, 31 CWE classes, 5 programming languages) that treats both exploit ground truth and downstream reviewer protocol as first-class evaluation axes. On this benchmark, nine production coding agents from Anthropic, OpenAI, Google, Moonshot, Zhipu, and Minimax compose innocuous tickets at 53-86% end-to-end ASR with only two refusals across all staged runs. In a matched direct-prompt experiment over four frontier Claude/Codex agents, vulnerable-output rates fall to 0-20.4%: Claude primarily refuses, while Codex primarily hardens rather than emitting the vulnerable implementation - ticket staging silences both defense modes simultaneously. Downstream, code reviewer agents approve 25.8% of these confirmed-vulnerable cumulative diffs as routine PRs, and a full-context implementation protocol closes only 50% of the staged/direct gap, ruling out context fragmentation as the sole explanation. As a deployable but non-adaptive mitigation, reframing the reviewer as an adversarial pentester reduces evasion across the evaluated reviewer subset; pentester framed evasion ranges from 3.0% to 17.6%, and an open-weight Gemma-4-E4B-it reviewer under this framing detects 88.4% of attacks on the dataset with a 4.6% false-positive rate measured on 608 real-world GitHub PRs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Anota: Identifying Business Logic Vulnerabilities via Annotation-Based Sanitization",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Meng"
+        },
+        {
+          "family": "Görz",
+          "given": "Philipp"
+        },
+        {
+          "family": "Schilling",
+          "given": "Joschua"
+        },
+        {
+          "family": "Haßler",
+          "given": "Keno"
+        },
+        {
+          "family": "Guo",
+          "given": "Liwei"
+        },
+        {
+          "family": "Holz",
+          "given": "Thorsten"
+        },
+        {
+          "family": "Abbasi",
+          "given": "Ali"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2512.20705",
+      "arxiv_id": "2512.20705",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7117315963",
+      "url": "http://arxiv.org/abs/2512.20705",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.20705",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Detecting business logic vulnerabilities is a critical challenge in software security. These flaws come from mistakes in an application's design or implementation and allow attackers to trigger unintended application behavior. Traditional fuzzing sanitizers for dynamic analysis excel at finding vulnerabilities related to memory safety violations but largely fail to detect business logic vulnerabilities, as these flaws require understanding application-specific semantic context. Recent attempts to infer this context, due to their reliance on heuristics and non-portable language features, are inherently brittle and incomplete. As business logic vulnerabilities constitute a majority (27/40) of the most dangerous software weaknesses in practice, this is a worrying blind spot of existing tools. In this paper, we tackle this challenge with ANOTA, a novel human-in-the-loop sanitizer framework. ANOTA introduces a lightweight, user-friendly annotation system that enables users to directly encode their domain-specific knowledge as lightweight annotations that define an application's intended behavior. A runtime execution monitor then observes program behavior, comparing it against the policies defined by the annotations, thereby identifying deviations that indicate vulnerabilities. To evaluate the effectiveness of ANOTA, we combine ANOTA with a state-of-the-art fuzzer and compare it against other popular bug finding methods compatible with the same targets. The results show that ANOTA+FUZZER outperforms them in terms of effectiveness. More specifically, ANOTA+FUZZER can successfully reproduce 43 known vulnerabilities, and discovered 22 previously unknown vulnerabilities (17 CVEs assigned) during the evaluation. These results demonstrate that ANOTA provides a practical and effective approach for uncovering complex business logic flaws often missed by traditional security testing techniques.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Ulysses: A Security Harness For Synthesizing Verifiable Web Exploits",
+      "authors": [
+        {
+          "family": "Oke",
+          "given": "Aditya"
+        },
+        {
+          "family": "Duarte",
+          "given": "Andre Vicente"
+        },
+        {
+          "family": "Melo",
+          "given": "Rui"
+        },
+        {
+          "family": "Gandhi",
+          "given": "Shubham"
+        },
+        {
+          "family": "Kotalwar",
+          "given": "Nachiket"
+        },
+        {
+          "family": "Khandor",
+          "given": "Charmi"
+        },
+        {
+          "family": "Wang",
+          "given": "Danqing"
+        },
+        {
+          "family": "Rosé",
+          "given": "Carolyn"
+        },
+        {
+          "family": "Li",
+          "given": "Lei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.31831",
+      "arxiv_id": "2610.31831",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223678815",
+      "url": "https://arxiv.org/abs/2610.31831",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.31831",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "How can an AI agent automatically discover security vulnerabilities in any software repository? Existing approaches use LLMs to generate software vulnerability exploits. However, it is challenging for an LLM to reliably verify its own generated exploits. In this paper, we propose Ulysses, a multi-agent security harness to synthesize verifiable vulnerability exploits for web applications. Ulysses converts candidate vulnerability findings into verified Proofs of Exploitability by iteratively exploring exploit hypotheses and establishing success in independently observed execution effects. We evaluated Ulysses on WebExploitGym, a curated benchmark of exploitable instances from 25 real-world web applications that span 5 languages and 7 frameworks. Ulysses produces verified proofs for 10 of 25 real-world advisories. It also discovered 4 new proofs of exploitability that have never been previously reported.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "SastBench: A Benchmark for Testing Agentic SAST Triage",
+      "authors": [
+        {
+          "family": "Feiglin",
+          "given": "Jake"
+        },
+        {
+          "family": "Dar",
+          "given": "Guy"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2601.02941",
+      "arxiv_id": "2601.02941",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7118388574",
+      "url": "http://arxiv.org/abs/2601.02941",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.02941",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "SAST (Static Application Security Testing) tools are among the most widely used techniques in defensive cybersecurity, employed by commercial and non-commercial organizations to identify potential vulnerabilities in software. Despite their great utility, they generate numerous false positives, requiring costly manual filtering (aka triage). While LLM-powered agents show promise for automating cybersecurity tasks, existing benchmarks fail to emulate real-world SAST finding distributions. We introduce SastBench, a benchmark for evaluating SAST triage agents that combines real CVEs as true positives with filtered SAST tool findings as approximate false positives. SastBench features an agent-agnostic design. We evaluate different agents on the benchmark and present a comparative analysis of their performance, provide a detailed analysis of the dataset, and discuss the implications for future development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Assessing the Effectiveness of ChatGPT in Secure Code Development: A Systematic Literature Review",
+      "authors": [
+        {
+          "family": "Bouzid",
+          "given": "Rezika"
+        },
+        {
+          "family": "Khoury",
+          "given": "Raphaël"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM Computing Surveys",
+      "type": "review",
+      "venue_kind": "published",
+      "doi": "10.1145/3744553",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4411241451",
+      "url": "https://doi.org/10.1145/3744553",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3744553",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "ChatGPT, a Large Language Model (LLM) maintained by OpenAI, has demonstrated a remarkable ability to seemingly comprehend and contextually generate text. Among its myriad applications, its capability to autonomously generate and analyze computer code stands out as particularly promising. This functionality has piqued substantial interest due to its potential to streamline the software development process. However, this technological advancement also brings to the forefront significant apprehensions concerning the security of code produced by LLMs. In this article, we survey recent research that examines the use of ChatGPT to generate secure code, detect vulnerabilities in code, or perform other tasks related to secure code development. Beyond categorizing and synthesizing these studies, we identify important insights into ChatGPT’s potential impact on secure programming. Key findings indicate that while ChatGPT shows great promise as an aid in writing secure code, challenges remain. Its effectiveness varies across security tasks, depending on the context of experimentation (programming language, CWE, code length, etc.) and the benchmark used for comparison–whether against other LLMs, traditional analysis tools, or its own versions. The overall trend indicates that GPT-4 consistently surpasses its predecessor in most tasks.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "SoK: Understanding (New) Security Issues Across AI4Code Use Cases",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Qilong"
+        },
+        {
+          "family": "Li",
+          "given": "Taoran"
+        },
+        {
+          "family": "Zhou",
+          "given": "Tianyang"
+        },
+        {
+          "family": "Chandrasekaran",
+          "given": "Varun"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2512.18456",
+      "arxiv_id": "2512.18456",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7117135618",
+      "url": "http://arxiv.org/abs/2512.18456",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.18456",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "AI-for-Code (AI4Code) systems are reshaping software engineering, with tools like GitHub Copilot accelerating code generation, translation, and vulnerability detection. Alongside these advances, however, security risks remain pervasive: insecure outputs, biased benchmarks, and susceptibility to adversarial manipulation undermine their reliability. This SoK surveys the landscape of AI4Code security across three core applications, identifying recurring gaps: benchmark dominance by Python and toy problems, lack of standardized security datasets, data leakage in evaluation, and fragile adversarial robustness. A comparative study of six state-of-the-art models illustrates these challenges: insecure patterns persist in code generation, vulnerability detection is brittle to semantic-preserving attacks, fine-tuning often misaligns security objectives, and code translation yields uneven security benefits. From this analysis, we distill three forward paths: embedding secure-by-default practices in code generation, building robust and comprehensive detection benchmarks, and leveraging translation as a route to security-enhanced languages. We call for a shift toward security-first AI4Code, where vulnerability mitigation and robustness are embedded throughout the development life cycle.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Continuous Static Assurance and Symbolic Execution for Secure Software Supply Chains",
+      "authors": [
+        {
+          "family": "Giapantzis",
+          "given": "Konstantinos"
+        },
+        {
+          "family": "Zarras",
+          "given": "Apostolis"
+        },
+        {
+          "family": "Psychogyiou",
+          "given": "Katerina"
+        },
+        {
+          "family": "Xenakis",
+          "given": "Christos"
+        }
+      ],
+      "year": 2026,
+      "venue": "IntechOpen eBooks",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.5772/intechopen.1015225",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214242921",
+      "url": "https://doi.org/10.5772/intechopen.1015225",
+      "oa_pdf_url": "https://www.intechopen.com/citation-pdf-url/1246509",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Software supply chains increasingly depend on third-party and open-source components, yet these dependencies are often propagated without continuous, verifiable security evidence. To address this assurance gap, this work enhances supply-chain cybersecurity by integrating continuous static code security testing as a core component of a Trusted Bill of Materials (TBOM). Third-party and open-source components are treated as managed assets that must be accompanied by verifiable security evidence before they can be trusted and propagated through the chain. To operationalize this principle, the proposed Static Application Security Tester (SASTER) pipeline orchestrates multiple open-source static vulnerability analyzers. By combining complementary rule-based and pattern-matching techniques, SASTER enhances detection accuracy while substantially reducing false positives, a key obstacle to the adoption of static analysis in practice. The pipeline further integrates sensitive-data classification, ensuring that privacy risks and the misuse of confidential information are addressed as top-priority security findings early in development. To complement automated scanning, this work proposes the Intelligent Vulnerabilities Exposure Engine, a symbolic-execution-driven framework that can prove or refute embedded program properties and produce counterexamples when violations occur. Each assessment yields a Static Supply Chain Component Guarantee, which is required as a TBOM element and is regenerated whenever a component changes, enabling evidence-based lifecycle assurance.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    }
+  ]
+}

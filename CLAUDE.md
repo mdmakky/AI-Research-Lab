@@ -14,7 +14,8 @@ A reusable workspace for academic literature research. The user is a beginner re
 ## Tools
 - `rlab` = `python3 scripts/rlab.py` (run from this directory; `-h` lists commands). Use it for every deterministic step: project creation, search, adding papers (resolves + verifies metadata, rejects duplicates), PDF fetch/attach + text extraction, validation, BibTeX, citation checks, indexing, logging. Never hand-edit `metadata.json`, `registry.json`, `literature-matrix.*`, `references.bib` or `research/INDEX.md`.
 - After changing project content, run `rlab index <id>`; log decisions with `rlab log <id> <phase> "<msg>"`.
-- Skills (`.claude/skills/`): start-research, discover-papers, analyze-paper, compare-methods, find-gaps, write-literature-review, research-report, resume-research.
+- Skills (`.claude/skills/`): start-research, discover-papers, analyze-paper, compare-methods, find-gaps, write-literature-review, research-report, reading-guide, resume-research.
+- Shareable Google Doc: `python3 scripts/md2gdoc.py --title T --subtitle S [--share anyone] [--pdf out.pdf] [--md out.md] a.md b.md ...` turns simple markdown (one file per page; see the script docstring) into a styled Google Doc owned by the user (auth via the google-doc-builder skill). Per-project reading guides live in `reports/reading-guide/` (`00-front.md`, `papers/<key>.md`, `99-back.md`, `order.txt`).
 - External services in use: OpenAlex, Crossref, arXiv, PubMed, doi.org, Europe PMC (no keys needed). Semantic Scholar is rate-limited without a key: use it via WebFetch only as a fallback. Unpaywall runs only if `RLAB_CONTACT_EMAIL` is set.
 
 ## Layout

@@ -1,0 +1,227 @@
+# Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+
+- Project id: `2026-11-12-package-hallucination-and-slopsquatting`
+- Started: 2026-11-12
+- Owner: the user (beginner researcher). Claude manages the workflow.
+
+## Topic in plain language
+AI coding assistants (ChatGPT, Copilot, Claude Code, Cursor) sometimes recommend software packages that do not exist; this is called *package hallucination*. If an attacker registers that made-up name on a public package registry (PyPI for Python, npm for JavaScript) and fills it with malware, every developer who trusts the AI and runs `pip install` / `npm install` gets infected; this attack is called *slopsquatting*. It is a new kind of *software supply-chain attack* (an attack through the third-party code a project depends on). This project reviews how often hallucinated packages occur, how exploitable they are, and which defences work, so that a small laptop-scale measurement + defence study can be designed.
+
+## Scope
+- In scope: package/dependency/import hallucination by LLMs and coding agents; its exploitation (slopsquatting, registry squatting) on package registries (PyPI, npm, others); detection, measurement methods and mitigations (model-side and tool-side); closely related supply-chain background (typosquatting, malicious packages) only where needed for the attack model.
+- Out of scope: general LLM hallucination in natural language; general code-correctness hallucination unless it reports package/API-existence results; general software-supply-chain work with no LLM link (except 1–2 background papers).
+- Time window (publication years): 2023–2026 (the topic emerged with ChatGPT-era code assistants); older supply-chain background allowed if seminal.
+- Disciplines / venues of interest: software engineering (ICSE, FSE, ASE, TSE, TOSEM), security (USENIX Security, CCS, S&P, NDSS), NLP (ACL/EMNLP) and arXiv preprints (flagged).
+- Target size for the first pass: up to 20 included papers (raise only with a reason).
+
+## Objectives
+1. O1 — Map the evidence on how often LLMs and coding agents hallucinate packages, and what drives it (model, language, prompt, quantization, agentic setting). (RQ1)
+2. O2 — Understand the attack model: persistence/repeatability of hallucinated names and evidence of real-world exploitability on registries. (RQ2)
+3. O3 — Compare existing defences (model-side and tool/registry-side) on effectiveness, cost and deployability on ordinary hardware. (RQ3)
+4. O4 — Consolidate measurement methodology and identify a novelty-checked, laptop-scale implementation gap (measurement and/or lightweight defence). (RQ4, RQ5)
+
+## Inclusion / exclusion criteria
+| Include if | Exclude if |
+|---|---|
+| peer-reviewed journal/conference paper, or a preprint that is highly relevant and flagged as such | not about the topic; no empirical or methodological contribution; retracted; duplicate version |
+
+## Search strategy
+- Sources: OpenAlex, Crossref, arXiv (+ PubMed for biomedical topics)
+- Query strings (one per facet):
+  - F1 measurement: "package hallucination large language model code generation", "LLM hallucinated dependencies import nonexistent library"
+  - F2 exploitation: "slopsquatting", "LLM package confusion supply chain attack PyPI npm", "typosquatting malicious packages registry"
+  - F3 defences: "mitigating package hallucination", "package hallucination unlearning model editing retrieval", "LLM API hallucination mitigation retrieval documentation"
+  - F4 agents/tools: "coding agent dependency installation security", "AI coding assistant supply chain security dependencies"
+  - F5 benchmarks/testing: "code hallucination benchmark taxonomy", "fuzzing LLM package hallucination"
+- Snowballing: references/citations of the most central papers.
+- Every executed search is recorded automatically in `search/search-log.md`.
+
+## Key decisions
+- 2026-11-12 — Topic chosen by the user from four candidate security topics (option A, slopsquatting) — fits low-compute, short-time, implementation-oriented goal; small literature (~33 title hits since 2024 in OpenAlex).
+- 2026-11-12 — Defaults: 2023–2026, peer-reviewed first, ≤20 papers, preprints allowed but flagged — the field is young, so many key works are arXiv preprints.
+- 2026-11-12 — Novelty check to be run early (during gap phase) because the field moves fast.
+# Research questions — Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+
+<!-- 3-5 questions. Each must be answerable from literature evidence. -->
+
+## RQ1: How often do LLMs and coding agents hallucinate package names, and how does the rate vary by model, programming language/ecosystem, prompt type, quantization and agentic setting?
+- Type: descriptive
+- Why it matters: Base rate and drivers define the size of the threat and where to measure.
+- Linked objective: O1
+- Status: open
+- Current answer:
+
+## RQ2: What makes hallucinated packages exploitable: are names repeated across runs and models, do they collide with registered or malicious packages, and is there evidence of real-world slopsquatting?
+- Type: descriptive
+- Why it matters: Only persistent, predictable names are worth squatting; this defines the attack model.
+- Linked objective: O2
+- Status: open
+- Current answer:
+
+## RQ3: Which defences against package hallucination have been proposed (fine-tuning, model editing, unlearning, RAG/self-check, registry-side checks), and how effective, costly and deployable are they?
+- Type: comparative
+- Why it matters: A beginner implementation study needs a cheap defence that works on ordinary hardware.
+- Linked objective: O3
+- Status: open
+- Current answer:
+
+## RQ4: How do studies measure package hallucination (prompt sources, ground-truth registry snapshots, metrics, deduplication), and what methodological weaknesses threaten their validity?
+- Type: methodological
+- Why it matters: A new measurement must avoid known pitfalls (stale registry snapshots, name normalisation, contamination).
+- Linked objective: O4
+- Status: open
+- Current answer:
+
+## RQ5: What has not yet been tested — e.g. agentic tools that install dependencies automatically, newer models, other ecosystems, lightweight client-side defences — that a laptop-scale study could address?
+- Type: methodological
+- Why it matters: Directly yields the implementation project (answered via gap report + novelty check).
+- Linked objective: O4
+- Status: open
+- Current answer:
+
+# Literature matrix
+
+_Generated by `rlab index` from papers/*/metadata.json and analysis.md frontmatter. Do not edit by hand._
+
+| key | year | title | venue | venue_kind | retracted | fulltext | analysis | evidence_basis | design | dataset | sample_size | metrics | main_finding | relevance |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| churilov2026range | 2026 | The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort | arXiv | preprint |  | downloaded | complete | full-text | Temporal replication of Spracklen et al. with preregistered live-registry revalidation + preregistered natural experiment on registration of hallucinated names | Spracklen et al. prompt datasets reused unchanged (20,163 Stack Overflow + 19,806 LLM-synthesised prompts = 39,969, Python + JavaScript) | 5 frontier LLMs, 199,840 generations, 2,282 unique hallucinated names; natural experiment A=104 vs B4=128 names | Mention-level and generation-level hallucination rate (Wilson 95% CI); chi-square + Holm, permutation tests; Jaccard overlap; registration share (Fisher, Newcombe CI) | 2026 frontier models hallucinate 3.63–5.02% of package mentions; 104 names shared by all five; ~1.1% of hallucinated names registered within six months. | high |
+| dasu2026refusing | 2026 | Refusing the Impossible: A Taxonomy and Benchmark for Code Hallucination in Large Language Models | arXiv | preprint |  | downloaded | complete | full-text | Benchmark + empirical evaluation (hand-built unsatisfiable requests with matched solvable controls; LLM judge validated against human labels) | 270 adversarial prompts (24 subcategories, 6 languages, 10 framing templates) + 91 solvable controls; 17 open-weight models 6.7B-671B | 6,137 judged responses (17 models x 361 prompts, one sample each); 138-item human gold set | Hallucination rate, refusal rate, over-refusal on controls; 95% bootstrap CIs; Spearman rho vs log parameters; Cohen's kappa for judge agreement | Open models fabricate code for 54% of unsatisfiable requests; scale curbs theoretical impossibilities but not fake packages—largest models still fabricate 85% of nonexistent npm/crates. | high |
+| djire2026evaluating | 2026 | Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code | Proceedings of the 41st IEEE/ACM International Conference on Automated Software Engineering | published |  | downloaded | complete | full-text | Comparative empirical evaluation (8 models x 4 languages x 8 strategies, 3 runs) + measurement-bias analysis + adversarial stress test | 4,000 GPT-4o-mini prompts seeded from top-1,000 Libraries.io packages per registry (PyPI, npm, RubyGems, crates.io); 4,000 adversarial prompts; registry snapshots of 2026-03-04 + stdlib manifests | 8 open-weight 1-8B models; 4,000 standard + 4,000 adversarial prompts; 3 runs per configuration | micro/macro Package Hallucination Rate (PHR), Package Utility (precision/recall/F1 vs embedding-based reference set), Semgrep syntax-error rate and code-smell count | No inference-time defence dominates; RAG gives lowest PHR in 19/32 settings but worsens JavaScript; ignoring stdlib inflates Python PHR by up to 9.4 pp. | high |
+| haque2025secure | 2025 | Secure or Suspect? Investigating Package Hallucinations of Shell Command in Original and Quantized LLMs | arXiv | preprint |  | downloaded | complete | full-text | Empirical measurement study (5 model sizes x 3 precision levels x 3 prompt datasets; single run, no statistical testing) | Three GPT-4o-derived Go prompt sets: Stack Overflow (5,435), MBPP-adapted (974), awesome-go paraphrases (1,746); Go module paths checked by HTTP reachability; OSV API for vulnerabilities | 8,155 prompts x 15 model configurations (Qwen 0.5B-14B x full/8-bit/4-bit); 0 to 21,439 generated package strings per condition | Package Hallucination Rate (hallucinated / all generated package strings), Vulnerable Package Rate (OSV-flagged / existing packages) | For Qwen models writing Go install commands, 4-bit quantization mostly raises package hallucination sharply (0.5B: >=96%), but not uniformly (7B on Stack Overflow falls 34%->10%). | high |
+| hsu2026harmless | 2026 | Harmless Yet Harmful: Neutral Prompting Attacks for Stealthy Hallucination Steering in Agent Skills | Findings of the Association for Computational Linguistics: EMNLP 2026 | published |  | downloaded | draft | full-text |  |  |  |  |  |  |
+| krishna2025importing | 2025 | Importing Phantoms: Measuring LLM Package Hallucination Vulnerabilities | arXiv | preprint |  | downloaded | complete | full-text | Measurement study using garak probes across 11 LLMs and 3 languages, plus correlational analysis with model size and coding benchmarks | Prompt grid of 7 request stubs x 13 task descriptions x 3 languages (JS, Python, Rust); registry name+release-date lists (npm, PyPI, crates.io) as of 30 Jan 2025 | 11 LLMs x 3 languages; N per cell not reported, inferred 455 prompts per model-language cell (1,365 per model) | Package Hallucination Rate (PHR) = share of prompts with >=1 hallucinated package; Pearson correlation with size, HumanEval, MBPP; t-test coding vs general | All 11 models hallucinate packages (PHR 0.22–46.15%); JavaScript lowest; larger models and higher HumanEval scores correlate with lower PHR. | high |
+| liu2026mitigating | 2026 | Mitigating Package Hallucinations in Large Language Models via Model Editing | arXiv | preprint |  | downloaded | complete | full-text | Technique proposal + controlled experiment (localized LoRA model editing vs Full-FT, Self-Refinement, ROME, MEMIT, DINM) with 4 edit folds, ablation, cost and HumanEval checks | Per-model high-risk Python prompts (Sample-HR > 0.5 over 5 generations) from the Spracklen et al. LLM-generated prompt set; PyPI metadata with release-date cutoff | 3 open LLMs (6.7-8B); 609-1,134 high-risk prompts per model (4 x 50 edit, 409-934 unseen); 5 samples per prompt; 100-prompt subsets for transfer and ablation | Sample-HR, Package-HR, Valid-Rate, HumanEval pass@1/pass@10, localization/edit/test time, adapter size | Localized LoRA editing cuts high-risk-prompt Package-HR 79.9% (edit) and 65.4% (unseen) relative; Valid-Rate rises on average but falls for Qwen3; HumanEval within ±2%. | medium |
+| liu2026packmonitor | 2026 | PackMonitor: Towards Zero Package Hallucinations via Decoding-Time Monitoring | Proceedings of the ACM on Software Engineering | published |  | downloaded | complete | full-text | Technique proposal + controlled experiment (decoding-time constrained decoding vs RAG/SR/RAG+SR/SFT baselines) | HFuzzer fuzzing rounds (DeepSeek-V3 tester) + subset of Package4U (Spracklen et al.); PyPI list of 706,618 names | 5 open-weight 7-8B LLMs; 1 HFuzzer round (1,000 iterations) per model x configuration; 231-2,288 recommended packages per run | Package Hallucination Rate (PHR), Response Hallucination Rate (RHR), unique hallucinated packages, avg generation time, HumanEval Pass@1 | Logit masking against a cached DFA of the PyPI name list drives PHR to 0% on five 7-8B models with x1.07-x1.28 latency and unchanged HumanEval. | high |
+| liu2026trust | 2026 | Trust Me, Import This: Dependency Steering Attacks via Malicious Agent Skills | arXiv | preprint |  | downloaded | draft | full-text |  |  |  |  |  |  |
+| mirandapena2026empirical | 2026 | An Empirical Analysis of Static Analysis Methods for Detection and Mitigation of Code Library Hallucinations | arXiv | preprint |  | downloaded | complete | full-text | Empirical comparison of static-analysis, grammar, LLM-judge detection plus LLM repair and grammar-constrained decoding, with manual annotation of failures | DS-1000 (1,000), ODEX (550 library-requiring questions of 945), BigCodeBench-instruct (1,140); outputs of 6 LLMs | 6 LLMs x 3 benchmarks; 600 manually annotated failure cases; repair on 5,502 erroneous samples | precision/recall on all errors; Imaginary Feature Recall (IFR); RIF; Pass@1; Execution Rate; IF%; Cohen's kappa; Spearman; latency | Pyright detects 14-85% of library hallucinations (recall); manual ceiling 48.5-77%; LLM repair lowers hallucination share on DS-1000, not Odex/BigCode. | medium |
+| ohm2020backstabbers | 2020 | Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks | Lecture Notes in Computer Science | book |  | downloaded | complete | full-text | Manually curated dataset of real malicious packages + qualitative attack-tree taxonomy (descriptive statistics) | 174 malicious packages from npm (109), PyPI (28), RubyGems (37) used in real attacks, Nov 2015-Nov 2019 | 174 packages analysed (of 469 identified; 59 proof-of-concept packages excluded) | descriptive shares (trigger phase, injection technique, conditional execution, objective, OS, obfuscation), Levenshtein distance, days to disclosure, code clusters | Among 174 real malicious npm/PyPI/RubyGems packages, 61% used typosquatting and 56% executed at install time (PyPI: 75% and 96%). | medium |
+| okwor2026hallucination | 2026 | From Hallucination to Registration: Do the Package Names That LLMs Invent Actually Get Claimed? | Zenodo (CERN European Organization for Nuclear Research) | preprint |  | user-supplied | complete | full-text | Registration-status measurement of hallucinated names (self-generated corpus + public anchor set) with static content triage and an offline install-time demo | 6,800 generations from 5 local open-weight code models via Ollama (Python + JS); 149 anchor names from Trend Micro and DepScope public datasets | 1,641 confirmed hallucinated names; 149 anchor names (22 registered) | Distinct confirmed hallucinated names; new names per generation; share registered with rule-of-three 95% upper bound; intent taxonomy of registered names | None of 1,641 self-generated hallucinated names were registered four days later; 22 of 149 public names registered, none malicious, most reported as one placeholder operator. | medium |
+| raj2026names | 2026 | Names Can Hurt: Spotting Slopsquatting Risks Caused by Package Name Hallucinations in Local Coding LLMs | arXiv (Cornell University) | preprint |  | downloaded | complete | full-text | System design + small empirical evaluation (agent pipeline run on hand-written prompts; offline classifier transfer matrix; convenience-sample user survey) | 300 hand-written single-line Python prompts in 18 tiers; per-LLM package-verdict dataset (464 unique package names, 7 LLMs) for classifier training | 300 prompts (385 runs, 823 package verdicts) on llama-3.1-8b/llama-3.3-70b; 24 survey participants | primary give-up rate, intra/cross-model rescue rate, end-to-end clean rate, classifier F1 (bootstrap 95% CI), feature importance, Likert ratings | PyPI 404 check plus 10-feature metadata classifier; about half of 179 flagged names already exist on PyPI; a two-feature OR rule matches the Random Forest. | high |
+| spracklen2024we | 2024 | We Have a Package for You! A Comprehensive Analysis of Package Hallucinations by Code Generating LLMs | arXiv | preprint |  | downloaded | complete | full-text | Large-scale measurement study + mitigation experiment (prompt LLMs, extract package names, check against registry master list) | 2 own prompt sets (Stack Overflow questions; Llama-2-generated prompts from top-5,000 PyPI/npm package descriptions), Python + JavaScript | 16 LLMs, 30 model-language tests, 576,000 code samples, 2.23M package mentions | Package hallucination rate = hallucinated packages / all recommended packages (mention level); HumanEval pass@1 for code quality | 19.7% of 2.23M package mentions hallucinated; commercial 5.2% vs open-source 21.7% (per-test means); 43% of hallucinations repeat 10/10; RAG/self-refinement/fine-tuning reduce rates. | high |
+| spracklen2026llm | 2026 | LLM Ghostbusters: Surgical Package Hallucination Suppression via Adaptive Unlearning | arXiv | preprint |  | downloaded | complete | full-text | Technique proposal + controlled experiment (adaptive unlearning vs gradient ascent, NPO, PMC) with loss, inner-epoch and mutation ablations | 20 hallucination-eliciting Python prompts from the Spracklen et al. benchmark (training) + 40 ChatGPT-paraphrased variants (test); static PyPI snapshot; EvalPlus | 2 DeepSeek-Coder models (7B dense, 16B MoE); 20 training prompts; 40 test prompts; samples/identifiers per prompt not reported; single runs | Hallucination rate over Mode 1 (required) + Mode 2 (useful) package queries; KL divergence from base on code, instruction and package prompts; EvalPlus pass@1 (HumanEval(+), MBPP(+)) | Full-parameter adaptive unlearning cut package hallucination 21.23%→2.56% (7B) and 27.75%→6.13% (16B) on paraphrased held-out prompts; coding average +1.6 / −4.2 pp. | medium |
+| twist2026library | 2026 | Library Hallucinations in LLM-Generated Code: A Risk Analysis Grounded in Developer Queries | Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing | published |  | downloaded | complete | full-text | Controlled prompt-variation experiments (user language, user mistakes) on API-hosted LLMs, plus prompt-engineering, tool-use, ecosystem, ablation studies and benchmark release | 321 BigCodeBench tasks (30 libraries) as seeds; 3,917 Software Recommendations StackExchange questions for prompt design; 500 CodeInsight tasks (Python/JS/Rust) | 7 LLMs x 321 tasks x 3 responses per condition; LibHalluBench 4,173 prompts; 200 responses manually validated | Response Hallucination Rate (RHR), Task Hallucination Rate (THR); detector precision/recall; tool-use and no-code rates | Year-based requests (up to 85% of tasks), one-char typos (26%), multi-char typos (79%) and fake names (99%) trigger library-name hallucinations; prompting/PyPI tool only reduce them. | high |
+| wang2026package | 2026 | Package Hallucination Attacks on Coding Agents through Prompt Injection in Rule Files | arXiv | preprint |  | downloaded | draft | full-text |  |  |  |  |  |  |
+| zhang2025llm | 2025 | LLM Hallucinations in Practical Code Generation: Phenomena, Mechanism, and Mitigation | Proceedings of the ACM on Software Engineering | published |  | downloaded | complete | full-text | Empirical study: manual open-coding taxonomy of repository-level code hallucinations + pilot RAG mitigation evaluated by Pass@1 | CoderEval Python (230 repository-level tasks from real projects); 6 LLMs (GPT-3.5-Turbo, CodeGen-350M, PanGu-alpha-2.6B, DeepSeekCoder-6.7B, CodeLlama-7B-Python, StarCoder2-7B), 10 samples per task | 230 tasks x 6 models x 10 samples (13,800 snippets by our computation; total not stated); taxonomy seeded on 1,380 snippets | Share of hallucination instances per taxonomy category; Pass@1 for the mitigation | Repository-level code hallucinations fall into 3 categories/8 types, mostly task-requirement conflicts (43.53%); environment conflicts, incl. missing packages, are only 0.94%. | low |
+| zhao2025hfuzzer | 2025 | HFuzzer: Testing Large Language Models for Package Hallucinations via Phrase-based Fuzzing | 2025 40th IEEE/ACM International Conference on Automated Software Engineering (ASE) | published |  | downloaded | complete | full-text | Tool proposal + controlled experiment (LLM-driven phrase-based fuzzing vs adapted GPTFuzzer baseline, 9x9 tester/target model grid, ablation, GPT-4o case study) | Names/descriptions of top-100 (case study: top-1,000) Python packages by Libraries.io SourceRank; LLM-generated coding tasks; PyPI + Libraries.io as ground truth | 81 tester/target combinations x 1,000 rounds per run (3 repeat runs for 3 targets); case study 10,000 rounds on GPT-4o | Package Hallucination Rate (share of responses with a hallucinated package), unique hallucinated packages, Diversity Index (DBSCAN clusters+noise), Welch's t-test, coefficient of variation | Phrase-based fuzzing triggers package hallucinations in all 9 models, finding on average 2.60x more unique hallucinated Python packages than an adapted GPTFuzzer baseline. | high |
+| zheng2026when | 2026 | When LLMs Invent Rust Crates: An Empirical Study of Hallucination Patterns and Mitigation | arXiv | preprint |  | downloaded | complete | full-text | Empirical measurement study + prompt-level mitigation experiment (Rust code generation; 14 model variants from 6 families; size and temperature sweeps) | 2,794 Rust coding tasks (1,001 Stack Overflow, 793 GitHub RustDoc-derived, 1,000 crate-description tasks generated by Qwen2.5:32B); crates.io name list + std/rustc crates + mined aliases as ground truth | Main run 16,764 code snippets (6 models x 2,794 tasks) with 48,494 extracted crate references; plus size, temperature and mitigation runs | Crate Hallucination Rate (hallucinated / extracted crate references), Levenshtein distance, Jaccard overlap, ANOVA F-tests | About 22% of crate references in LLM-generated Rust are hallucinated, nearly half being std-module confusions; size and temperature barely matter; prompting mitigations reduce <=3.3 points. | high |
+# Critical review — measurement analyses (batch 1)
+
+- Date: 2026-11-12 · Reviewer: critical-reviewer agent (returned as text; saved by orchestrator)
+- Scope: spracklen2024we, churilov2026range, okwor2026hallucination, krishna2025importing, zhao2025hfuzzer, haque2025secure, zheng2026when, dasu2026refusing, zhang2025llm
+- Result: 0 pass · 8 pass-with-minor-fixes · 1 fail (okwor2026hallucination, provenance only). cite-check OK for all 9; `rlab validate` verified 8, okwor MISMATCH.
+
+## Verdicts and fixes (summary; full fix text was sent to the analysts)
+
+| key | verdict | fixes |
+|---|---|---|
+| spracklen2024we | minor | 3.59%/13.63% "overall" are Python-only (Table 7, p. 20; JS 4.00%/27.45%); 5.2/21.7/15.8/21.3% are unweighted means of per-test rates, only 19.7% pooled; RQ2–4 sampling statement is [A], some analyses use all 16 models (pp. 8, 10); fine-tuning H1/H2 labels = H2/H3 by own definitions; data release is a promise (p. 14), confirmed by churilov; top-k/min-p only DeepSeek and CodeLlama (p. 8); funding UTSA FDL + NSF 2231002 (p. 14); venue: tier 1 USENIX Security '25 (supported by churilov p. 1, 16; okwor p. 9), analysed from arXiv v3 |
+| churilov2026range | minor | "level with Spracklen's best" compares pooled Py+JS with Python-only 3.59%; Gemini/DeepSeek/GPT-5.4-mini non-significant only at mention level (Table 4, p. 8); prompt-source ordering reverses Spracklen on the same corpus; funding/COI (p. 15); released corpus 39,969 prompts (p. 4) vs Spracklen's stated counts |
+| okwor2026hallucination | fail → fixable | provenance: printed DOI …427 is the version DOI, metadata …426 the concept DOI of the same Zenodo deposit (resolved 2026-11-12); Crossref has no record (DataCite). npm-mirror claim is [A] (p. 3) partly supported (p. 7); single-operator attribution is [A] (evidence withheld, p. 6); 11-name scope (p. 7); add secondary [A] claims huggingface-cli / npm example (p. 2); code is promised (p. 8); justify tier choice |
+| krishna2025importing | minor | not the only Rust study (zheng2026when, dasu2026refusing); N = 455 per cell inferable from Table 3 multiples; size correlation depends on guessed 200B GPT-4o (Table 1, p. 3); lowest Python Dracarys 2.42% |
+| zhao2025hfuzzer | minor | PyPI "last accessed Mar. 2025" ref [13] (p. 12) as registry-date proxy; split [V]/[A] in RQ4 row; move proposal out of RQ3 row; temperature is tester-model temperature (p. 10) |
+| haque2025secure | minor | "mostly URL" is [A] (p. 6); in the one table, 51% URL vs 49% file paths/free text (Table 2, p. 8); PHR overstates squattable names [I]; label inferred single pass [I] |
+| zheng2026when | minor | Internetware acceptance unsourced → Analyst notes; `-`/`_` normalisation not reported; edit-distance units not comparable with Spracklen; quantization caveat applies to all open models |
+| dasu2026refusing | minor | planted names are not evidence of spontaneous repetition; 18% "factual" not a slopsquatting risk; misspelled names fabricated 14% (p. 8); per-group model counts (Table V, p. 6) |
+| zhang2025llm | minor | venue is PACMSE 2(ISSTA): 481–503 (cited by zheng p. 11, dasu p. 11); published OA version exists but not analysed (replacing paper.pdf needs user permission); `_lfu_cache` not a valid PyPI name |
+| (all B-group) | format | use bracketed [V]/[A]/[I] everywhere; label §2 RQ lines [A] and §6 metric lines [V] |
+
+## Cross-paper notes for the evidence matrix
+
+**A. Rate units — never pool or rank across papers.** spracklen2024we: mention-level (pools install commands with model-queried lists; only 19.7% pooled). churilov2026range: mention- and generation-level, live registry, time-of-generation rule. krishna2025importing: per prompt, N = 455 per cell, regex imports, no mapping/stdlib filter, date-aware definition. zhao2025hfuzzer: per response on fuzzer-optimised tasks (not a base rate). haque2025secure: per Go package string (~half file paths/free text). zheng2026when: per source-level crate reference, 45.47% std/module confusions. dasu2026refusing: acceptance of a planted name (different construct). okwor2026hallucination: no rate. zhang2025llm: category shares only.
+
+**B. Extraction method.** Model-queried: Spracklen H2/H3, Zhao. Install-command parsing: Spracklen H1, Churilov, Haque. Import parsing: Churilov (pipreqs ~1,157 names), Okwor (mapping source unreported), Krishna (none), Zheng (`-`/`_` unreported). Spracklen rejects import parsing yet Churilov claims to follow it (p. 5) → 2024→2026 comparison not like-for-like.
+
+**C. Contradictions.** (1) Language: Spracklen JS > Py; Krishna and Churilov Py > JS — [I] likely extraction (import names). (2) Prompt source on the same corpus: Spracklen SO > LLM-generated; Churilov LLM-generated > SO — cleanest contradiction. (3) Model size: Krishna larger better (pseudo-replicated n = 33); Zheng no effect; Dasu small effect; Churilov Haiku < Sonnet; Zhao Llama-3.1 > Llama-3. (4) Temperature: Spracklen rises above 1; Zheng no effect 0–2 (Rust). (5) Edit distance: different units (unique vs occurrence-weighted). (6) Cross-model overlap: mostly model-specific with a persistent shared core (Spracklen 81% single-model; Churilov 104 universal names, Jaccard 0.219; Okwor 450/455 single-model). (7) RAG effect: Python large (Spracklen) vs Rust negligible (Zheng).
+
+**D. Real-world registration (RQ2).** Churilov 25/2,282 registered in ~6 months, 1 with malware, 23 names with malware history; Okwor 0/1,641 after 4 days, 22/149 public names registered, 0 malicious, 19 defensive placeholders. Compatible, not contradictory.
+
+**E.** Do not reuse Okwor's secondary numbers (misreports Spracklen units, quotes superseded Churilov v1–3).
+
+**F. Hidden quantization confound:** Spracklen GPTQ for all open models; Dasu 4-bit ≤32B; Zheng unreported; Haque explicit.
+
+**G. Independence/venues:** Churilov reuses Spracklen's prompts. Peer-reviewed: spracklen2024we, zhao2025hfuzzer, zhang2025llm. No paper in this batch measures agentic tools that install dependencies automatically (novelty check needed).
+# Critical review — defences, tool-side and background analyses (batch 2)
+
+- Date: 2026-11-12 · Reviewer: critical-reviewer agent (returned as text; saved by orchestrator)
+- Scope: liu2026packmonitor, djire2026evaluating, liu2026mitigating, spracklen2026llm, raj2026names, mirandapena2026empirical, twist2026library, ohm2020backstabbers
+- Result: 0 pass · 7 pass-with-minor-fixes · 1 fail (mirandapena2026empirical). cite-check OK; validate MISMATCH for liu2026packmonitor, raj2026names (explained below).
+
+## Fixes per key
+
+### liu2026packmonitor (minor)
+1. Analyst notes: record "rlab validate: MISMATCH only because arXiv listing title differs (similarity 0.854); Crossref + OpenAlex verified; DOI printed in PDF (p. 1)".
+2. §3 baselines: use verbatim p. 11 wording "Following prior work on mitigating package hallucinations [41], we include three representative baselines" or drop quote marks.
+3. §5 hallucination decision: definition is on p. 2 ("non-existent packages") and p. 6 (official registry snapshot / curated allowlist), not p. 12. Add [I]: the paper's own example is import-path vs install-name confusion (google.protobuf vs google-protobuf, p. 6); the mask only guarantees some listed name.
+4. §12: "needs logits but no GPU" is unsupported. Replace: "[I] Needs a locally decoded open-weight model exposing logits and tokenizer; CPU-only operation untested; timings from 8×A100 (p. 12, p. 19); DFA loading ≤0.25 s (p. 17) is host-side and does not show 7–8B decoding is laptop-feasible."
+5. §7 finding 1: RAG+SR on CodeLlama 1.30% PHR comes with only 231 recommended packages vs 1,004 vanilla (p. 13) — add here and in §9.
+
+### djire2026evaluating (minor)
+1. §9 third bullet: remove the CD accusation — CD is below Vanilla in 19/32 cells (Table 4, p. 7) and lowest in none (p. 6); both true. Replace Nudging point with: "[I] The conclusion calls Nudging the best trade-off 'among the guided decoding strategies' (p. 11), though the paper counts Greedy as guided (p. 2) and Greedy has the best trade-off (p. 8)."
+2. §9 first bullet: "Abstract '18 of 32' (p. 1) matches neither the 24/32 reductions nor the 19/32 'lowest' count derivable from Table 4 (p. 7)."
+3. New §9 [I]: p. 6 says RAG does not increase PHR for any model in Python/Ruby/Rust, but Table 4 shows mistral-7b Rust 18.6 → 20.8 (p. 7).
+4. §3 Nudging: add [I] that for 5 of 8 models the surrogate (largest in family) is the model itself (p. 3); unexplained (p. 5).
+5. §4: Table 3 counts (1,470–32,337) are "per model–language cell under vanilla decoding".
+6. §13: split the guided-decoding RQ3 row into [V] (DoLa 38.0% avg; syntax errors) and [I] (white-box access needed); relabel the RQ5 "latency not reported" row as [I].
+7. §5: add [I] code-gen imports are "validated against the same registry snapshots" (p. 6); unregistered import names like cv2 probably count as hallucinations, inflating Fig. 1.
+
+### liu2026mitigating (minor)
+1. Frontmatter main_finding: "Valid-Rate rises on average (+6.4% edit) but falls 7% for Qwen3 on unseen prompts (0.7990 → 0.7434; Table II, p. 7); HumanEval within ±2% (Table VI, p. 9)."
+2. §13 cost row: "per edit run (unit undefined), averaged across models" (Table V, p. 9).
+3. §5 cost: add DINM (edit 11.97 s, localization 0.92 s) and ROME test time 10.86 s (Table V, p. 9); "lower than ROME, MEMIT, Full-FT" holds only because DINM is omitted.
+4. §7: Full-FT beats BOUND on DeepSeekCoder Edit50 (Package-HR 0.0188 vs 0.0745; Valid-Rate 0.9500 vs 0.9480; Table II, p. 7) — qualifies "best overall balance".
+5. §9 [I]: edit cases use the model's own hallucinated names (p. 5); unseen prompts come from the same pool; "unseen" generalisation may partly be suppression of memorised names; overlap not reported.
+
+### spracklen2026llm (minor)
+1. §9 [I]: "surgical" overstated — GA on DeepSeek-7B reaches 7.2% HR with unchanged utility (Avg 66.95 vs 66.98) and code KL 0.0031 vs AU 0.0796 (Table 1, p. 10); on 16B GA keeps Avg 77.35 vs AU 73.17. Trade-off, not dominance.
+2. New §9 [I]: tuning/checkpoint selection favours AU — AU LR 5e-5 (7B), 2e-5 (16B) vs GA/NPO 1e-5; GA/NPO report final checkpoint, AU/CE-only/NPO-only a selected one (Table 3, p. 19).
+3. §9 inconsistency: Appendix D says 16B AU is a restart at checkpoint 60 (p. 18); Table 3 says "50 restarted" (p. 19). §5 must not state "checkpoint 60" as fact.
+4. §7 finding 3: HumanEval 16B drops 81.1 → 73.2 under AU while GA keeps 79.9 (p. 10).
+
+### raj2026names (minor)
+1. Source tier/notes: "rlab validate: MISMATCH (arXiv and OpenAlex agree; Zenodo DOI not in Crossref); PDF identity probable (only 'Version: v1, arXiv, August 2026', p. 1)."
+2. §5/§9: stdlib handling not reported (extractor keeps all top-level imports, p. 5; any 404 = fake, p. 5). [I] directly affects give-up rates.
+3. §7 finding 4: add paper evidence — reconciler maps pil → Pillow (p. 7) but pil returns 200 so the reconciler cannot fire (p. 5); flagged 36 times as squat (Table 3, p. 8); pkg-resources listed as invention (p. 8); faiss counted as hallucinatory variant in bait test (p. 11).
+4. §13 RQ4 row "give-up 79% → ~29%": strength weak; different overlapping prompt sets (70, 58, 60, 300; Table 1, p. 7).
+5. Optional §9 [I]: paper attributes the term "slopsquatting" to Spracklen et al. (p. 2) without support; 3-item reference list (p. 15).
+
+### mirandapena2026empirical (FAIL)
+1. §7 finding 6, §13 RQ3 row, main_finding, §12: wrong RIF claim. Table 5 (p. 10): RIF falls on DS-1000 for all models and repair methods (claude-3 9.1 → 2.7, Gemma2 22.3 → 8.1, Qwen3 25.4 → 6.1), roughly flat on BigCode, rises on Odex for small models (Qwen3 31.3 → 55.6). Correct to "[V] … (p. 10). [A] The authors summarise this as 'no improvement in most cases' (p. 10), which overstates the table."
+2. §9/§7 finding 1: abstract "14–85%" = Pyright IFR range (Table 10, p. 20). "16–70%" and "8.1–40%" could not be matched (Pyright all-error recall 0.16–0.82, p. 6; no-repair RIF 8.1–44.9, p. 10).
+3. §13 RQ4: "≈27–30% (Odex 30.3%, BigCode 26.6%) of sampled hallucinations; authors say 'over 30%' (p. 9)" (Table 3, p. 8).
+4. §7 findings 2/3 and §13 row 1: detection range is recall; correct-for-the-right-reason (TP) only 37.6% DS-1000, 4.0% Odex, 10.0% BigCode (Table 2, p. 8).
+5. §9: "Package-level causes are a small share (Library category 14.7/6.6/6.0%, p. 8); detection metrics not broken down by it."
+6. Tier: orchestrator decision 2026-11-12 — keep preprint tier (TMLR acceptance is an arXiv-comment author claim; no DOI/OpenReview record verified).
+
+### twist2026library (minor)
+1. §3/§12: PyPA normalisation only folds case and -_. ; cannot map dateutil → python-dateutil or cv2 → opencv-python; dateutil corrected manually (p. 15); false positive pywintypes (p. 15). Add [I]: check effectively tests whether the import name exists on PyPI; third-party-registered import names count as valid. Replace "Adopt the PyPI name normalisation" with "adopt normalisation plus an explicit import→distribution map".
+2. §4: "one response per task" unsupported — p. 7 "same experimental setup used previously" implies three; remove or mark "not stated".
+3. §5: JS validated against all-the-package-names (jsDelivr, 2026), Rust against Cargo registry (p. 20), snapshots undated; "January 2026 snapshot" only for the rarity top-PyPI list (p. 19).
+4. main_finding: "one-char typos up to 26%, multi-char up to 79% (79.44%, p. 6), fake names up to 99%".
+
+### ohm2020backstabbers (minor)
+1. Tier: "Tier 2 (LNCS proceedings chapter per metadata); used as background because it predates LLMs, not because of source quality."
+2. §7 finding 5: data exfiltration 55% (pp. 16–18).
+3. §12 RQ2: add [V] some typosquats have Levenshtein distance 0 by reusing a name from another repository (python-sqlite from apt, p. 12) — pre-LLM analogue of cross-ecosystem/import-name confusion.
+
+## Cross-paper notes for the evidence matrix
+
+**A. Hallucination decision (do not pool rates).**
+
+| key | ground truth | snapshot | stdlib | names checked | registered-but-malicious |
+|---|---|---|---|---|---|
+| liu2026packmonitor | PyPI list 706,618 names (p. 12, 19) | not reported | n/a (pip install args) | pip install args | valid |
+| djire2026evaluating | registry ∪ stdlib manifests (p. 3–4) | 2026-03-04 | Py/Ruby corrected; JS/Rust unclear (p. 5) | recommended names; code-gen imports, mapping unstated | valid |
+| liu2026mitigating | on PyPI and ≥1 release before model cutoff (p. 5) | ~2026-06-14; cutoffs unreported | not reported | recommendations; code-gen imports mapped by base LLM (p. 7) | post-cutoff counts as hallucinated (only paper) |
+| spracklen2026llm | static PyPI snapshot (p. 20) | not reported | not reported | pip install lines + model answers (p. 8) | valid; oracle poisoning flagged (p. 12) |
+| raj2026names | live PyPI JSON; 404 fake, 200 → classifier (p. 5) | live, undated | not reported | AST imports + pip install | flagged if metadata suspicious |
+| mirandapena2026empirical | installed env + builtins (p. 4, 18) | n/a | builtins allowed | imports/members at runtime | not addressed |
+| twist2026library | PyPI + PyPA normalisation (p. 4); npm list; crates (p. 20) | not reported | not reported | AST import names | valid |
+
+- Import vs install names: Twist counts registered import names valid; Raj flags registered import names (pil, faiss, skimage) as squats; Djire code-gen and Twist probably count unregistered import names (cv2) as hallucinations → method-driven contradiction (RQ4).
+- Stdlib: only djire2026evaluating quantifies the inflation (+7.6 to +9.4 pp Python, p. 5).
+- Release-date cutoff: only liu2026mitigating; all others score post-training registrations (incl. attacker squats) as correct → undercounts exploitable names (RQ2).
+
+**B. Defence access and hardware (RQ3/RQ5).** PackMonitor: white-box logits, 8×A100 (p. 12), CPU untested. Greedy/RAG/Self-Refine (djire): black-box, "single GPU", no latency. CD/DoLa/ALCD/Nudging: logits/hidden states. BOUND: weights + LoRA training, 8×A100 (p. 6). Adaptive unlearning: full fine-tuning, MI210/MI300, 12–24 h (p. 8, 19). raj2026names: black-box, PyPI API + small RF; API models (Groq), no local inference. mirandapena2026empirical static tools + grammar: CPU; grammar decoding via local llama.cpp on M2 24 GB (p. 17), +12 s/request (p. 11) — the only laptop-class run. twist2026library prompting/PyPI tool: black-box, API. ohm2020backstabbers: user-side pinning, disable install scripts (p. 16).
+
+**C. Dependencies and contradictions.** PackMonitor's Package4U SFT numbers are quoted from spracklen2024we — cite the original. liu2026mitigating shares authors with zhao2025hfuzzer; PackMonitor uses HFuzzer as benchmark — not independent groups. RAG unstable in both studies (PackMonitor p. 12–13; Djire JS +12.7 pp, p. 6). Self-refine with registry feedback (liu2026mitigating p. 5) vs unreported (djire) — not comparable. User-supplied fake names (djire 46.6–92.5%, p. 9; twist 20.7–99.2%, p. 6; raj bait 6/10 or 9/10) measure compliance, not spontaneous invention. Relative reductions (−65.4%, −88%) are on hallucination-heavy selected prompts; report absolute residuals. Utility evidence weak everywhere. Persistence evidence thin in this batch (only raj2026names, p. 10).

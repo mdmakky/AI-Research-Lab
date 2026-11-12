@@ -1,6 +1,6 @@
 ---
 key: pan2026functional
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + controlled empirical evaluation of 16 LLMs (zero-shot, single-pass repository generation)
 dataset: RAL-Bench, 38 pinned Python GitHub projects in 7 scenarios with reference-validated black-box system tests
@@ -94,13 +94,13 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [I] The maintainability score M = (g/b)/(1+g/b) equals 0.5 when the generated MI equals the reference MI and approaches 1 only when the generated MI is much higher (p. 3). M is therefore on a different scale from the other four dimensions, yet it carries the largest weight (0.36) (p. 4). An average M of about 33% (p. 6) suggests that the typical generated repository has a lower MI lower bound than the reference, but the paper reports no raw MI values to confirm this.
 - [I] Zero variance in functional scores across 5 full reruns (p. 7) is surprising for API-served LLMs generating whole repositories, even with greedy decoding. Either the reruns re-evaluated cached generations, or the models were unusually deterministic. The paper does not say which, so the stability claim may describe the test harness rather than generation.
 - [I] The 446 repositories in the failure analysis (p. 7) do not match 16 models x 38 tasks (608 per run), and how they were selected is not reported. Who assigned the failure categories, and whether agreement was measured, is also not reported.
-- [I] The prompt-sensitivity result (0.4181 to 0.4972, about +8 points or +19% relative) (p. 9) is not "small" compared with the roughly 16-point spread across most models (p. 6). Requirement wording may matter as much as model choice.
-- [I] All projects are Python libraries or CLI-style tools (p. 2), with no GUI, web front end or interactive application, so the findings transfer only partly to UI-level reconstruction.
+- [I] The prompt-sensitivity result (0.4181 to 0.4972, about +8 points or +19% relative) (p. 9) is not "small" compared with the model spread: functional scores range 16.23–43.86% (27.6 pp) over all 16 models, and 24.37–43.86% (19.5 pp) without DeepSeek-R1 (Tables 4–5, p. 6). The +7.9 pp prompt effect is about 30–40% of that spread. Requirement wording may matter as much as model choice.
+- [I] All 38 projects are Python (p. 2). Some have user-facing interfaces (e.g. mitmproxy, Mailpile, glances, folium in Table 1, p. 2), but they are evaluated only through black-box pytest suites built from documented behaviours and public APIs (p. 2; pytest invocations, p. 3); UI behaviour is never exercised, so the findings transfer only partly to UI-level reconstruction.
 - [I] "Maintainability" is reduced to one complexity index. Code smells, duplication, modularity and human judgement of the generated code are not measured.
 
 ## 10. Threats to validity
 - Internal (confounds, leakage, selection): [I] Requirements were drafted with access to the source code (p. 2), tests were built from the reference's documented behaviour (p. 2), and the interface specification reveals the module layout (p. 4). Contamination with the original public code is plausible (see section 9). Who drafted and reviewed the requirements and tests, and with what tool support, is not reported.
-- External (generalisability of sample/context): [I] 38 Python projects, mostly libraries and CLI tools. Generation is single-turn and zero-shot without agents (p. 4; p. 5), unlike vibe-coding practice where developers iterate with agents.
+- External (generalisability of sample/context): [I] 38 Python projects, tested only through their public APIs (p. 2), not their UIs. Generation is single-turn and zero-shot without agents (p. 4; p. 5), unlike vibe-coding practice where developers iterate with agents.
 - Construct (do metrics measure the concept?): [I] The functional score is a pass rate on about 11 tests (p. 5), maintainability is the MI lower bound only (p. 3), and security is a count of high-risk static findings. These are weak proxies for "functional fidelity" and "maintainability" as our project defines them, which the authors acknowledge (p. 4).
 - Statistical conclusion (power, multiple comparisons, variance): [I] No tests or intervals. Model differences of a few points (e.g. 27.63 vs 27.48) are discussed only descriptively (p. 5). Results are means of three runs (p. 5).
 - Reproducibility (data/code/setup reported?): [A] Code and data are public (p. 11), and commits are pinned (p. 2). [I] Decoding parameters appear only in the abstract, and the static-analysis tools are not named in the text.
@@ -126,7 +126,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 |---|---|---|---|---|
 | RQ2 | In single-pass generation of 38 real Python applications, no LLM exceeds 45% functional test pass rate (averages 33.98% standard, 30.23% thinking). | p. 5 | V | weak (preprint, single study, ~11 tests/task) |
 | RQ2 | Most failures (82.8%) occur after the code runs (requirement–implementation mismatch or runtime instability); only 17.2% are executability/dependency failures. | p. 7 | V | weak (coding procedure not reported) |
-| RQ3 | Reference-normalised maintainability (MI lower bound) averages ~31–33%, the weakest non-functional dimension, while security averages 85–87%. | p. 6 | V | weak (single MI proxy; parity with reference scores only 0.5) |
+| RQ3 | Reference-normalised maintainability (MI lower bound) averages 33.45% (standard) and 31.38% (thinking), among the two weakest dimensions with resource usage (31.25% / 28.92%), while security averages 87.40% / 85.32%. | p. 6 | V | weak (single MI proxy; parity with reference scores only 0.5) |
 | RQ3 | On GPT-5.2, self-repair, environment repair and planning each lowered the aggregate non-functional score (46.1–49.9% vs 57.1% baseline) without raising functional correctness. | p. 8 | V | weak (one model, one-shot strategies) |
 | RQ4 | Tests are kept only if they pass on the pinned reference repository; functional suites caught 76/76 injected defects. | p. 2; p. 5 | V | weak (only 2 defects/task, method not described) |
 | RQ4 | Functional scores had zero variance across 5 reruns; the NF ranking is robust to weighting choices (Spearman ≥0.90) except rank-based aggregation (0.64). | p. 7; p. 10 | V | weak |
@@ -142,7 +142,8 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 > "MI does not capture all aspects of maintainability, such as naming quality or architectural clarity" (p. 3)
 
 ## Analyst notes
-- Reading coverage: whole paper read (pp. 1–12), including all tables and the reference list. Figure 4 (failure shares per category) is garbled in the text layer, so only the combined 82.8%/17.2% split stated in the text is used. Figure 6 (strategy workflows) was only skimmed.
+- Source version: arXiv:2602.03462v2 (30 Mar 2026) (p. 1); all page refs follow this PDF.
+- Reading coverage: whole paper read (pp. 1–12), including all tables and the reference list. Figure 4's text layer shows the three overall shares 44.2%, 38.6% and 17.2% (p. 7); 17.2% is executability/dependency per the text (p. 7), but which of 44.2% / 38.6% belongs to requirement–implementation mismatch vs non-functional quality failures is ambiguous in the extraction, so only the combined 82.8%/17.2% split is used. Figure 6 (strategy workflows) was only skimmed.
 - Uncertainties:
   - whether a "rerun" means regenerating the code or re-evaluating existing generations;
   - how the 446 repositories were selected;

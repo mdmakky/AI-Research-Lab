@@ -1,0 +1,453 @@
+{
+  "query": "code smell detectors disagreement LLM generated code comparison of tools",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T00:21:37+06:00",
+  "raw_hits": 10,
+  "unique": 10,
+  "errors": {},
+  "results": [
+    {
+      "title": "LLM Code Smells: A Taxonomy and Detection Approach",
+      "authors": [
+        {
+          "family": "Chenail-Larcher",
+          "given": "Zacharie"
+        },
+        {
+          "family": "Mahmoudi",
+          "given": "Brahim"
+        },
+        {
+          "family": "Moha",
+          "given": "Naouel"
+        },
+        {
+          "family": "Stiévenart",
+          "given": "Quentin"
+        },
+        {
+          "family": "Avellaneda",
+          "given": "Florent"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.22976",
+      "arxiv_id": "2605.22976",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7162297225",
+      "url": "https://arxiv.org/abs/2605.22976",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.22976",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) are increasingly integrated into software systems for diverse purposes, due to their versatility, flexibility, and ability to simulate human reasoning to some extent. However, poor integration of LLM inference in source code can undermine software system quality. Therefore, inadequate LLM integration coding practices must be documented to help developers mitigate such issues. Following our earlier work on LLM code smells, this paper consolidates and refines the concept by presenting a self-contained taxonomy and a catalog of nine LLM code smells. We also create SpecDetect4LLM, a static source code analysis tool for their detection, and conduct extensive empirical evaluations of its detection effectiveness (precision and recall) as well as the prevalence of LLM code smells across 692 open-source software projects (171,194 source files). Our results show that LLM code smells affect 73.5% of the analyzed systems, with a detection precision of 91.3% and a recall of 71.8%.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "SmellBench: Evaluating LLM Agents on Architectural Code Smell Repair",
+      "authors": [
+        {
+          "family": "Dinu",
+          "given": "Ion George"
+        },
+        {
+          "family": "Mihăescu",
+          "given": "Marian Cristian"
+        },
+        {
+          "family": "Rebedea",
+          "given": "Traian Eugen"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.07001",
+      "arxiv_id": "2605.07001",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160837719",
+      "url": "https://arxiv.org/abs/2605.07001",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.07001",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": "Architectural code smells erode software maintainability and are costly to repair manually, yet unlike localized bugs, they require cross-module reasoning about design intent that challenges both developers and automated tools. While large language model agents excel at bug fixing and code-level refactoring, their ability to repair architectural code smells remains unexplored. We present the first empirical evaluation of LLM agents on architectural code smell repair. We contribute SmellBench, a task orchestration framework that incorporates smell-type-specific optimized prompts and supports iterative multi-step execution, together with a scoring methodology that separately evaluates repair effectiveness, false positive identification, and net codebase impact. We evaluate 11 agent configurations from four model families (GPT, Claude, Gemini, Mistral) on 65 hard-severity architectural smells detected by PyExamine in the Python project scikit-learn, validated against expert judgments. Expert validation reveals that 63.1% of detected smells are false positives, while the best agent achieves a 47.7% resolution rate. Agents identify false positives with up to $κ= 0.94$ expert agreement, but repair aggressiveness and net codebase quality are inversely related: the most aggressive agent introduces 140 new smells. These findings expose a gap between current LLM capabilities in localized code transformations and the architectural understanding needed for cross-module refactoring. SmellBench provides reusable infrastructure for tracking progress on this underexplored dimension of automated software engineering. We release our code and data at https://doi.org/10.5281/zenodo.19247588.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Towards LLM-Based Detection of Elixir Code Smells: An Empirical Evaluation",
+      "authors": [
+        {
+          "family": "Dias",
+          "given": "Mateus José"
+        },
+        {
+          "family": "Vegi",
+          "given": "Lucas"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "conference-paper",
+      "venue_kind": "unknown",
+      "doi": "10.5753/se4fp.2026.32884",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223337493",
+      "url": "https://doi.org/10.5753/se4fp.2026.32884",
+      "oa_pdf_url": "https://sol.sbc.org.br/index.php/se4fp/article/download/46181/45940",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) have shown promise for code smell detection, but their effectiveness for functional programming languages remains largely unexplored. This paper presents the first empirical evaluation of LLM-based Elixir code smell identification. We introduce ExSmell-Train, a retrieval corpus, ExSmell-Gold, a labeled benchmark, and ExSmellBench, an experimental framework for evaluating four prompting strategies across the 35 smells of the Elixir smell catalog. We compare one proprietary and three openweight LLMs under description-based and Retrieval-Augmented Generation (RAG) prompting. The results show that RAG improves multi-label smell identification only when combined with smell descriptions, whereas retrieved examples alone are insufficient. Performance varies substantially across smells, categories, and models: design-related Elixir smells are identified more reliably than traditional smells, and no model dominates across all criteria. Gemini 3.1 Flash Lite achieves the highest recall, whereas Qwen2.5-Coder 32B provides the best precision and overall agreement. Our publicly available datasets and benchmark establish a foundation for future research on LLM-based smell detection for functional languages.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "On the Diffusion of Test Smells in LLM-Generated Unit Tests",
+      "authors": [
+        {
+          "family": "Ouédraogo",
+          "given": "Wendkûuni C."
+        },
+        {
+          "family": "Li",
+          "given": "Yinghua"
+        },
+        {
+          "family": "Dang",
+          "given": "Xueqi"
+        },
+        {
+          "family": "Tang",
+          "given": "Xunzhu"
+        },
+        {
+          "family": "Koyuncu",
+          "given": "Anil"
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Lo",
+          "given": "David"
+        },
+        {
+          "family": "Bissyandé",
+          "given": "Tegawendé François"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM Transactions on Software Engineering and Methodology",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3838597",
+      "arxiv_id": "2410.10628",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4403571118",
+      "url": "https://doi.org/10.1145/3838597",
+      "oa_pdf_url": "https://arxiv.org/pdf/2410.10628",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "LLMs promise to transform Java unit test generation from a manual burden into an automated solution. Yet, beyond metrics such as compilability or coverage, the quality of LLM-generated Java tests (particularly their susceptibility to test smells, design flaws that undermine readability and maintainability) remains insufficiently understood. Recent studies have begun to examine test smells and broader quality attributes in LLM-generated tests, but a comprehensive, multi-benchmark analysis of test smell diffusion in Java unit tests, comparing LLM-generated suites with SBST-generated and human-written tests under multiple detectors, is still missing. This paper presents a multi-benchmark, large-scale analysis of test smell diffusion in LLM-generated Java unit tests. We contrast LLM outputs with human-written suites (as the reference for real-world practices) and SBST-generated tests from EvoSuite (as the automated baseline), disentangling whether LLMs reproduce human-like flaws or artifacts of synthetic generation. Our aim is to systematically characterise the prevalence, distribution, and co-occurrence of test smells (what we term their diffusion) in LLM-generated Java tests across models, prompting strategies, and generation granularities, and to compare these diffusion patterns with SBST-generated and human-written suites. Our study draws on 20,505 class-level suites generated by four LLMs (GPT-3.5, GPT-4, Mistral 7B, Mixtral 8×7B) over three Java benchmarks (Defects4J, SF110, and a curated dataset, CMD), 972 method-level cases from TestBench generated by three LLMs (GPT-3.5, GPT-4, CodeLlama-13B-Instruct), 14,469 EvoSuite tests, and 779,585 human-written tests from 34,635 open-source Java projects (CAT-LM dataset, SF110, Defects4J). Using two complementary detection tools (TsDetect and JNose) together with a manually validated sample of 240 classes and 447 methods, we analyze prevalence, co-occurrence, and correlations with software attributes and generation parameters. Results show that LLM-generated Java tests consistently manifest smells such as Assertion Roulette and Magic Number Test, with patterns strongly influenced by prompting strategy, context length, and model scale. Comparisons reveal overlaps with human-written tests, especially under certain detectors, which are consistent with shallow imitation of common testing idioms or possible training-data overlap, while EvoSuite exhibits distinct, generator-specific flaws. These findings highlight both the promise and the risks of LLM-based Java test generation, and call for the design of smell-aware generation frameworks, prompt engineering strategies, and enhanced detection tools to ensure maintainable, high-quality test code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "An Empirical Study of Interaction Smells in Multi-Turn Human-LLM Collaborative Code Generation",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Binquan"
+        },
+        {
+          "family": "Zhang",
+          "given": "Li Hua"
+        },
+        {
+          "family": "Shi",
+          "given": "Lin"
+        },
+        {
+          "family": "Wang",
+          "given": "Song"
+        },
+        {
+          "family": "Qian",
+          "given": "Yuwei"
+        },
+        {
+          "family": "Zhao",
+          "given": "Linhui"
+        },
+        {
+          "family": "Liu",
+          "given": "Fang"
+        },
+        {
+          "family": "Fu",
+          "given": "An"
+        },
+        {
+          "family": "Ye",
+          "given": "Yida"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2603.09701",
+      "arxiv_id": "2603.09701",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7134975074",
+      "url": "http://arxiv.org/abs/2603.09701",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.09701",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "Large Language Models (LLMs) have revolutionized code generation, evolving from static tools into dynamic conversational interfaces that facilitate complex, multi-turn collaborative programming. While LLMs exhibit remarkable proficiency in generating standalone code snippets, they often struggle to maintain contextual consistency during extended interactions, creating significant obstacles in the collaboration process. Existing benchmarks primarily emphasize the functional correctness of the final output, overlooking latent quality issues within the interaction process itself, which we term Interaction Smells. In this paper, we conduct an empirical study on sampled real-word user-LLM interactions from WildChat and LMSYS-Chat-1M datasets to systematically investigate Interaction Smells in human-LLM code generation tasks from the perspectives of phenomena, distribution, and mitigation. First, we establish the first taxonomy of Interaction Smells by manually performing open card sorting on real-world interaction logs. This taxonomy categorizes Interaction Smells into three primary categories, i.e., User Intent Quality, Historical Instruction Compliance, and Historical Response Violation, comprising nine specific subcategories. Next, we quantitatively evaluate six mainstream LLMs (i.e., GPT-4o, DeepSeek-Chat, Gemini 2.5, Qwen2.5-32B, Qwen2.5-72B, and Qwen3-235B-a22b) to analyze the distribution of Interaction Smells across different models. Finally, we propose Invariant-aware Constraint Evolution (InCE), a multi-agent framework designed to improve multi-turn interaction quality through explicit extraction of global invariants and pre-generation quality audits. Experimental results on the extended WildBench benchmark demonstrate that this lightweight mitigation approach significantly improves the Task Success Rate and effectively suppresses the occurrence of Interaction Smells.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "A Catalog of Data Smells for Coding Tasks",
+      "authors": [
+        {
+          "family": "Vitale",
+          "given": "Antonio"
+        },
+        {
+          "family": "Oliveto",
+          "given": "Rocco"
+        },
+        {
+          "family": "Scalabrino",
+          "given": "Simone"
+        }
+      ],
+      "year": 2024,
+      "venue": "ACM Transactions on Software Engineering and Methodology",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3707457",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4405239633",
+      "url": "https://doi.org/10.1145/3707457",
+      "oa_pdf_url": "https://iris.polito.it/bitstream/11583/2999907/1/a_catalog_of_data_smells_for_coding_tasks.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "Large Language Models (LLMs) are increasingly becoming fundamental in supporting software developers in coding tasks. The massive datasets used for training LLMs are often collected automatically, leading to the introduction of data smells. Previous work addressed this issue by using quality filters to handle some specific smells. Still, the literature lacks a systematic catalog of the data smells for coding tasks currently known. This article presents a Systematic Literature Review (SLR) focused on articles that introduce LLMs for coding tasks. We first extracted the quality filters adopted for training and testing such LLMs, inferred the root problem behind their adoption (data smells for coding tasks), and defined a taxonomy of such smells. Our results highlight discrepancies in the adoption of quality filters between pre-training and fine-tuning stages and across different coding tasks, shedding light on areas for improvement in LLM-based software development support.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "A Methodology for Analysing Coding Bugs for LLMs and SAST",
+      "authors": [
+        {
+          "family": "Tehrani",
+          "given": "Madjid"
+        },
+        {
+          "family": "Buchanan",
+          "given": "William Johnston"
+        },
+        {
+          "family": "Sultanow",
+          "given": "Eldar"
+        },
+        {
+          "family": "Houmani",
+          "given": "Mahkame"
+        },
+        {
+          "family": "Fodja",
+          "given": "Christel H. Djaha"
+        },
+        {
+          "family": "Lemoudden",
+          "given": "Mouad"
+        }
+      ],
+      "year": 2026,
+      "venue": "Lecture notes in networks and systems",
+      "type": "conference-paper",
+      "venue_kind": "book",
+      "doi": "10.1007/978-3-032-24807-7_42",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7168173661",
+      "url": "https://doi.org/10.1007/978-3-032-24807-7_42",
+      "oa_pdf_url": "https://napier-repository.worktribe.com/preview/5222887/GPTvsSAST-3.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Sustainability Smells in Infrastructure as Code",
+      "authors": [
+        {
+          "family": "Kosbar",
+          "given": "Seifeldin"
+        }
+      ],
+      "year": 2026,
+      "venue": "PolyPublie (École Polytechnique de Montréal)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161513710",
+      "url": "https://publications.polymtl.ca/73177/",
+      "oa_pdf_url": "https://publications.polymtl.ca/73177/37/2026_SeifeldinKosbar.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "L’Infrastructure as Code (IaC) est au coeur de l’ingénierie cloud moderne, en permettant de provisionner et de gérer l’infrastructure au moyen de fichiers de configuration lisibles par machine. Si l’IaC améliore la reproductibilité et la scalabilité, elle peut également cristalliser des décisions d’infrastructure inefficaces : certains motifs récurrents de configuration peuvent entraîner une consommation de ressources inutile, des coûts opérationnels accrus et un impact environnemental évitable. Pour caractériser ces inefficacités, cette thèse introduit les odeurs de durabilité (sustainability smells) comme des indicateurs de risque de gaspillage potentiel ou d’utilisation sous-optimale des ressources dans des scripts Terraform. Cette thèse poursuit deux objectifs : (1) définir et valider empiriquement une taxonomie d’odeurs de durabilité pour Terraform, et (2) mesurer leur prévalence à grande échelle tout en améliorant la fiabilité de l’estimation de prévalence. Nous dérivons sept odeurs, fondées sur les recommandations des fournisseurs cloud et sur les retours de praticiens, puis nous affinons la taxonomie au moyen d’une analyse qualitative d’un échantillon stratifié. Nous étudions ensuite la prévalence sur un large corpus de plus de 28 000 scripts Terraform provenant de centaines de dépôts open source. Les résultats montrent que les odeurs de durabilité sont fréquentes mais inégalement réparties entre les projets, et que les inefficacités apparentes dépendent souvent d’interactions entre la structure des scripts, les choix de configuration et des contraintes contextuelles. Afin d’améliorer l’estimation de la prévalence au-delà d’heuristiques statiques fondées sur des règles, nous construisons un benchmark annoté et quantifions l’erreur de mesure de règles basées sur des expressions régulières, en mettant en évidence leurs limites pour des odeurs dépendantes du contexte (p. ex., le sur-provisionnement et les inefficacités de transfert de données). Nous proposons ensuite un pipeline d’estimation de prévalence sensible au contexte, qui exploite les informations de contrôle de version en analysant conjointement les diffs et les messages de commit avec des grands modèles de langage (LLM). À travers du few-shot prompting, des études d’ablation et une validation croisée entre modèles, l’approche proposée produit des estimations de prévalence plus stables et plus exactes, et permet une analyse qualitative complémentaire des manières dont les développeurs atténuent les odeurs de durabilité. Enfin, nous synthétisons des stratégies de mitigation récurrentes, notamment le rightsizing, l’autoscaling, l’optimisation des chemins réseau, l’affinement du cycle de vie des ressources, l’amélioration de la gestion de l’état et la modularisation. Au final, cette thèse contribue (1) une taxonomie validée d’odeurs de durabilité pour Tervi raform, (2) une étude empirique de leur prévalence à l’échelle de l’écosystème, et (3) une approche sensible au contexte visant à améliorer la robustesse de l’estimation de prévalence et à mettre en évidence les pratiques de mitigation des développeurs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "A Systematic Literature Review of Code Smell Detection Tools for JavaScript Systems",
+      "authors": [
+        {
+          "family": "Souza",
+          "given": "Saymon"
+        },
+        {
+          "family": "Ribeiro",
+          "given": "Felipe"
+        },
+        {
+          "family": "Fernandes",
+          "given": "Eduardo"
+        },
+        {
+          "family": "Figueiredo",
+          "given": "Eduardo"
+        }
+      ],
+      "year": 2026,
+      "venue": "SBC Reviews on Computer Science",
+      "type": "review",
+      "venue_kind": "published",
+      "doi": "10.5753/reviews.2026.6187",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7207677783",
+      "url": "https://doi.org/10.5753/reviews.2026.6187",
+      "oa_pdf_url": "https://journals-sol.sbc.org.br/index.php/reviews/article/download/6187/4262",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "JavaScript is one of the most popular programming languages. As projects grow, their code can become complex which leads to code smells, signs that can indicate problems. Many tools are available to detect and fix these issues, but we need a comprehensive summary of their most important features. This paper provides a systematic literature review of JavaScript code smell detection tools. We searched four databases (Scopus, ACM Digital Library, IEEE Xplore, and Springer) using a specific search string to find relevant studies. To refine the results, we applied a four-step selection process, reducing 1002 initial studies to 18 by removing duplicates, filtering metadata, and reviewing their full texts. We then used backward and forward snowballing to find more relevant studies, increasing the total number to 27 primary studies. Finally, we examined these studies to analyze the code smell detection tools they described. We identified 22 tools, many published in top software engineering venues, such as ICSE, MSR and TSE. We found that most tools use rule-based linting (55%), which is efficient but struggles with complex architectural smells. Dynamic analysis (23%) is underused and AI-driven detection is completely missing, despite its relevance in modern software engineering research. Researchers are also developing framework-specific tools for modern JavaScript practices and focusing on the detection of test smells (22%). Most tools available to practitioners detect only basic smells and ignore deeper design issues. Tool builders can address these gaps by combining static and dynamic analysis and creating more adaptable tools. For researchers, the lack of AI-driven detection and modern benchmark datasets presents an opportunity for progress.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Your Build Scripts Stink: The State of Code Smells in Build Scripts",
+      "authors": [
+        {
+          "family": "Tamanna",
+          "given": "Mahzabin"
+        },
+        {
+          "family": "Chandrani",
+          "given": "Yash"
+        },
+        {
+          "family": "Burrows",
+          "given": "Matthew"
+        },
+        {
+          "family": "Wroblewski",
+          "given": "Brandon"
+        },
+        {
+          "family": "Williams",
+          "given": "Laurie A."
+        },
+        {
+          "family": "Wermke",
+          "given": "Dominik"
+        }
+      ],
+      "year": 2025,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/ase63991.2025.00246",
+      "arxiv_id": "2506.17948",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415058469",
+      "url": "https://doi.org/10.1109/ase63991.2025.00246",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.17948",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Build scripts automate the process of compiling source code, managing dependencies, running tests, and packaging software into deployable artifacts. These scripts are ubiquitous in modern software development pipelines for streamlining testing and delivery. While developing build scripts, practitioners may inadvertently introduce code smells, which are recurring patterns of poor coding practices that may lead to build failures or increase risk and technical debt. The goal of this study is to aid practitioners in avoiding code smells in build scripts through an empirical study of build scripts and issues on GitHub. We employed a mixed-methods approach, combining qualitative and quantitative analysis. First, we conducted a qualitative analysis of 2000 build-script-related GitHub issues to understand recurring smells. Next, we developed a static analysis tool, Sniffer, to automatically detect code smells in 5882 build scripts of Maven, Gradle, CMake, and Make files, collected from 4877 open-source GitHub repositories. To assess Sniffer’s performance, we conducted a user study, where Sniffer achieved higher precision, recall, and F-score. We identified 13 code smell categories, with a total of 10,895 smell occurrences, where 3184 were in Maven, 1214 in Gradle, 337 in CMake, and 6160 in Makefiles.Our analysis revealed that Insecure URLs were the most prevalent code smell in Maven build scripts, while Hardcoded Paths/URLs were commonly observed in both Gradle and CMake scripts. Wildcard Usage emerged as the most frequent smell in Makefiles. The co-occurrence analysis revealed strong associations between specific smell pairs of Hardcoded Paths/URLs with Duplicates, and Inconsistent Dependency Management with Empty or Incomplete Tags, which indicate potential underlying issues in the build script structure and maintenance practices. Based on our findings, we also recommended strategies to remove code smells in build scripts to improve the efficiency, reliability, and maintainability of software projects.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    }
+  ]
+}

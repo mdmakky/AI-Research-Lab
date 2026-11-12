@@ -1,0 +1,418 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                         Novice Developers Produce Larger Review Overhead for Project
+                                                        Maintainers while Vibe Coding
+                                                     Syed Ammar Asdaque                                               Imran Haider                           Muhammad Umar Malik
+                                                    25280060@lums.edu.pk                                      25280038@lums.edu.pk                             27100139@lums.edu.pk
+                                               Lahore University of Management                           Lahore University of Management                  Lahore University of Management
+                                                           Sciences                                                  Sciences                                         Sciences
+                                                   Lahore, Punjab, Pakistan                                  Lahore, Punjab, Pakistan                         Lahore, Punjab, Pakistan
+
+                                                                                Maryam Abdul Ghafoor                                    Abdul Ali Bangash
+                                                                             maryam.ghafoor@lums.edu.pk                               abdulali@lums.edu.pk
+
+
+
+
+arXiv:2602.23905v1 [cs.SE] 27 Feb 2026
+                                                                            Lahore University of Management                      Lahore University of Management
+                                                                                        Sciences                                             Sciences
+                                                                                Lahore, Punjab, Pakistan                             Lahore, Punjab, Pakistan
+                                         Abstract                                                                                April 13–14, 2026, Rio de Janeiro, Brazil. ACM, New York, NY, USA, 5 pages.
+                                         AI coding agents allow software developers to generate code quickly,                    https://doi.org/10.1145/3793302.3793597
+                                         which raises a practical question for project managers and open                         1    Introduction
+                                         source maintainers: can vibe coders with less development experi-                       The software engineering community has long recognized devel-
+                                         ence substitute for expert developers? To explore whether devel-                        oper experience and expertise as critical factors in software suc-
+                                         oper experience still matters in AI-assisted development, we study                      cess [4, 18]. In traditional software engineering, seasoned devel-
+                                         22, 953 Pull Requests (PRs) from 1, 719 vibe coders in the GitHub                       opers often navigate complex codebases more efficiently, while
+                                         repositories of the AIDev dataset. We split vibe coders into lower                      novices focus on simpler tasks [12]. Now, with the advent of “Soft-
+                                         experience vibe coders (𝐸𝑥𝑝 𝐿𝑜𝑤 ) and higher experience vibe coders                     ware 3.0”, a paradigm in which AI agents collaborate with, or
+                                         (𝐸𝑥𝑝 𝐻𝑖𝑔ℎ ) and compare contribution magnitude and PR acceptance                        autonomously perform programming tasks [11, 13, 23], the tra-
+                                         rates across PR categories. We find that 𝐸𝑥𝑝 𝐿𝑜𝑤 submits PRs with                       ditional relationship between experience and task-complexity is
+                                         larger volume (2.15× more commits and 1.47× more files changed)                         likely changing. Industry reports show that most developers [21]
+                                         than 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ . Moreover, 𝐸𝑥𝑝 𝐿𝑜𝑤 PRs, when compared to 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ ,                      already use AI coding tools (92% in a survey [22]) and believe these
+                                         receive 4.52× more review comments, and have 31% lower accep-                           tools help them preserve cognitive effort. Yet preliminary studies
+                                         tance rates, and remain open 5.16× longer before resolution. Our                        offer mixed signals: for example, a recent study [1] measured how
+                                         results indicate that low-experienced vibe coders focus on generat-                     early-2025 AI tools affect experienced open-source developers dur-
+                                         ing more code while shifting verification burden onto reviewers.                        ing real coding tasks. The study found that developers who used AI
+                                         For practice, project managers may not be able to safely replace                        assistants required ∼19% more time to complete their assigned pro-
+                                         experienced developers with low-experience vibe coders without                          gramming tasks compared to developers who did not use AI. This
+                                         increasing review capacity. Development teams should therefore                          trend raises a key question: Does AI-based code assistance perform
+                                         combine targeted training for novices with adaptive PR review                           differently based on the coder’s experience and expertise?
+                                         cycles.                                                                                    To study the patterns in vibe coding, we first establish a clear
+                                                                                                                                 definition of the term. Prior work presents multiple interpretations
+                                         CCS Concepts                                                                            of vibe coding. Maes [14] characterizes it broadly as AI-assisted
+                                         • Software and its engineering → Open source software.                                  programming, whereas Sarkar et al. [21] and Sapkota et al. [20]
+                                                                                                                                 offer a more precise definition: a workflow in which a human devel-
+                                         Keywords                                                                                oper directs and supervises an AI agent through natural-language
+                                                                                                                                 prompts and validates the generated code. In this study, we adopt
+                                         Vibe Coding, AI-Assisted Programming, Developer Experience
+                                                                                                                                 the latter definition. We systematically compare the contributions
+                                         ACM Reference Format:                                                                   of vibe coders across two experience levels. We define these two
+                                         Syed Ammar Asdaque, Imran Haider, Muhammad Umar Malik, Maryam                           groups as 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ , representing vibe coders with high development
+                                         Abdul Ghafoor, and Abdul Ali Bangash. 2026. Novice Developers Produce                   experience, and 𝐸𝑥𝑝 𝐿𝑜𝑤 , representing vibe coders with low devel-
+                                         Larger Review Overhead for Project Maintainers while Vibe Coding. In                    opment experience. Following prior literature [15, 17], we measure
+                                         23rd International Conference on Mining Software Repositories (MSR ’26),
+                                                                                                                                 a developer’s experience based on their total number of commits
+                                                                                                                                 in the lifetime divided by their account age on GitHub.
+                                                                                                                                    Specifically, we study the characteristics of 22, 953 AI-based
+                                         This work is licensed under a Creative Commons Attribution 4.0 International License.   pull requests (PRs) generated by 1, 719 vibe coders on open-source
+                                         MSR ’26, Rio de Janeiro, Brazil                                                         Github projects. Most prior work on developer-experience research
+                                         © 2026 Copyright held by the owner/author(s).
+                                         ACM ISBN 979-8-4007-2474-9/2026/04                                                      predates generative AI, and early AI-augmented studies have exam-
+                                         https://doi.org/10.1145/3793302.3793597                                                 ined performance in isolation [13, 23]. In contrast, we investigate
+
+=== [PDF page 2] ===
+
+MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil   Syed Ammar Asdaque, Imran Haider, Muhammad Umar Malik, Maryam Abdul Ghafoor, and Abdul Ali Bangash
+
+
+real-world outcomes, i.e. PR contribution magnitude (in terms of             Code, Cursor and Devin. AIDev offers a subset of PRs from reposi-
+commit-frequency and number of files changed) and PR merge                   tories with more than 100 Github stars containing 33, 596 PRs and
+effort (in terms of PR acceptance rate, PR resolution time and PR            1, 796 users which we used for our analysis. Each record contains
+review volume), under AI assistance. We ask the following research           detailed PR-level metadata, including the number of commits, files
+questions:                                                                   changed, timestamps, review events, author and reviewer iden-
+                                                                             tifiers, and the declared PR category. These attributes provide a
+    RQ1: What is the frequency and magnitude of contributions                comprehensive foundation for analyzing contribution size, merge
+    submitted by high-experience (𝐸𝑥𝑝 𝐻𝑖𝑔ℎ ) and low-experience              efficiency and review dynamics within AI-assisted development.
+    (𝐸𝑥𝑝 𝐿𝑜𝑤 ) vibe coders in OSS?
+    RQ2: Is the PR merge effort similar between the high-experience          4    Methodology
+    (𝐸𝑥𝑝𝐻𝑖𝑔ℎ ) and low-experience (𝐸𝑥𝑝 𝐿𝑜𝑤 ) vibe coders?
+                                                                             We follow a three step process in our methodology. First, we select
+   In our results, we find that, counterintuitively, 𝐸𝑥𝑝 𝐿𝑜𝑤 produce         the vibe coders and their PRs. Second, we divide them into experi-
+larger-scoped PRs than 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ , they pass the PR review phase less         enced groups based on their experience. Finally, we extract relevant
+often and attract more reviewer feedback, indicating that while AI           metrics from the vibe coders’ PRs for statistical analysis.
+enables 𝐸𝑥𝑝 𝐿𝑜𝑤 to generate code rapidly, it fundamentally shifts                From the AIDev dataset, we select users who have created agen-
+the workload to maintainers in the form of higher verification               tic PRs as vibe coders, adopting the definition of Li et al. [13]. To
+overhead. Thus, 𝐸𝑥𝑝 𝐿𝑜𝑤 will likely require disproportionately more          rigorously isolate human activity, we filter out accounts where the
+development and review effort to manage these larger, slower-to-             username contains the sub-string bot or matches known agent iden-
+integrate contributions. To support open science, we release our             tifiers (e.g., Copilot), as these represent fully autonomous agents
+replication package online [9].                                              rather than vibe coders. After filtering bots, we retain 22, 953 PRs
+                                                                             authored by 1, 719 distinct vibe coders.
+2    Related Work                                                                To quantify experience, we retrieve the all-time commit history
+                                                                             for each vibe coder via the GitHub GraphQL API [8]. We aggregate
+Prior work has emphasized that developer expertise is a critical fac-        contribution data across each user’s entire active timeline, start-
+tor in software contribution. For instance, Dey et al. constructed an        ing from their account creation date. Following the approach of
+“expertise space” to model and predict developer behaviors, such as          Malik et al. [15], we compute the experience score:
+future API use and PR acceptance [4]. Similarly, Meijer et al. demon-                                      Total # of commits by the vibe coder
+strate that an individual contributor’s ecosystem-wide experience                     Experience Score =
+                                                                                                                 Vibe coder’s account age
+(e.g., history of PRs) strongly boosts their acceptance rate and suc-
+                                                                             We distribute the 1, 719 vibe coders into four quartiles based on their
+cess [18]. These studies imply that more experienced contributors
+                                                                             experience score. 859 coders fall in the top two quartiles (Q3 & Q4),
+tend to make accepted, higher-quality code contributions. However,
+                                                                             whom we refer to as high-experienced developers (𝐸𝑥𝑝 𝐻𝑖𝑔ℎ ) that
+this body of work predates the widespread adoption of generative
+                                                                             perform vibe coding, and 860 fall in the bottom two quartiles (Q1
+AI. Consequently, it reflects a “Software 2.0” paradigm [3, 5, 10]
+                                                                             & Q2), whom we refer to as low-experienced developers (𝐸𝑥𝑝 𝐿𝑜𝑤 )
+where AI coding assistants did not mediate developer productivity.
+                                                                             that perform vibe coding.
+Meanwhile, the software community recognizes that generative
+                                                                                We perform all data processing and analysis using Python (pan-
+AI represents a major paradigm shift (termed “Software 3.0”), fun-
+                                                                             das, numpy, matplotlib, seaborn, and scipy). To compare the two
+damentally altering how developers write, debug, and understand
+                                                                             experience groups (𝐸𝑥𝑝𝐻𝑖𝑔ℎ .vs. 𝐸𝑥𝑝 𝐿𝑜𝑤 ), we conduct group-wise
+code [13, 23]. Developers now embed AI assistants like Copilot and
+                                                                             statistical test comparisons on mean values of each metric across PR
+Cursor into their development workflows. Concurrently, surveys
+                                                                             categories (e.g., bug fix, feature development, documentation [13]).
+indicate a widespread belief that these tools will enhance produc-
+                                                                             We then interpret the observed patterns in light of the two research
+tivity and allow developers to concentrate on more complex design
+                                                                             questions outlined in Section 1.
+problems [22]. Yet, controlled experiments have begun to question
+                                                                             From each PR in the AIDev dataset, we extract four metrics: con-
+this optimism regarding productivity gains. For instance, Becker
+                                                                             tribution magnitude (number of commits and files changed per
+et al. recently found that for experienced OSS developers, using
+                                                                             PR), PR acceptance rate (merged PRs over total submitted PRs),
+state-of-the-art AI tools actually increased task completion time
+                                                                             PR resolution time (days from PR creation to merge), and PR
+by ∼19%, suggesting new bottlenecks related to code verification
+                                                                             review volume (total review comments per PR).
+or merge challenges [1]. Li et al. reported from the AIDev dataset
+that AI-generated PRs tend to be accepted far less frequently than
+human-authored ones and are structurally simpler (fewer com-
+                                                                             5    Results
+plexity changes) [13]. However, no prior study has systematically            In order to compare the PRs of vibe coders of 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ and 𝐸𝑥𝑝 𝐿𝑜𝑤 ,
+compared these AI-assisted contributions when authored by devel-             we first analyze the frequency and magnitude of their contributions.
+opers with different levels of technical experience.
+                                                                             RQ1: Magnitude of Contributions (𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .vs.
+3    Dataset                                                                 𝐸𝑥𝑝 𝐿𝑜𝑤 )
+We use the AIDev dataset, a publicly released corpus of AI-assisted          We find that 𝐸𝑥𝑝 𝐿𝑜𝑤 perform 2.15× more AI-based commits
+PRs on GitHub OSS projects [13]. It includes contributions made              per PR compared to 𝐸𝑥𝑝𝐻𝑖𝑔ℎ . The Mann-Whitney U test on num-
+through major AI coding agents such as Copilot, Codex, Claude                ber of commits confirms the difference between 𝐸𝑥𝑝 𝐿𝑜𝑤 and 𝐸𝑥𝑝𝐻𝑖𝑔ℎ
+
+=== [PDF page 3] ===
+
+Novice Developers Produce Larger Review Overhead for Project Maintainers while Vibe Coding                                                                                                     MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil
+
+
+                                                                                                                                                                  this pattern persists across specific PR categories, we further apply
+                                                                                                                                                     ExpHigh
+                                                                                                                                                      ExpLow      the Chi-Square test to each category. Referring to Figure 2a, we
+
+
+
+ $ Y J  & R P P L W V
+                                                                                                                                                                 observe that 𝐸𝑥𝑝 𝐿𝑜𝑤 have lower PR acceptance rate than 𝐸𝑥𝑝𝐻𝑖𝑔ℎ
+                                                                                                                                                                  in 10/11 categories. We find a significant difference in all of these
+                                                                                                                                                                 10 PR categories (𝑝 < 0.05), notably including the major difference
+                                                                                                                                                                 in documentation related PRs (93.06% acceptance rate for 𝐸𝑥𝑝𝐻𝑖𝑔ℎ
+                                                                                                                                                                  .vs. 75.39% acceptance rate for 𝐸𝑥𝑝 𝐿𝑜𝑤 ).
+                                                                                                                                                                    Next, we measure mean PR resolution time (elapsed time from
+                                            I H D               U H            U         G       W H V           E X L             I L [        V         H U W
+                                                                                                                                                                  PR creation to merge), as shown in Figure 2b. We find that 𝐸𝑥𝑝 𝐿𝑜𝑤
+                                                                             F W R    F L  F           W               O G                   G R F
+                                                   W X U H    F K R
+                                                                          U H I D
+                                                                                                              S H U
+                                                                                                             P D  I R U 
+                                                                                                                 Q F H                                  U H Y
+                                                                                                                 V W \  O H                                       takes 5.16× more time to resolve PRs than 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ . The dif-
+                                                                                       (a) Commits per PR                                                         ference between the two experience groups is significant, as we
+                                                                                                                                                      ExpHigh     confirm through a Mann-Whitney U test [16], 𝑝 < 0.05. On category
+
+
+
+
+ $ Y J  ) L O H V  & K D Q J H G
+                                                                                                                                                    ExpLow      level analysis, using Mann-Whitney U test [16], we find statistically
+                                                                                                                                                                  significant difference in 10/11 PR categories, including the major
+                                                                                                                                                                difference in chore related PRs (0.61 days for 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .vs. 2.83 days
+                                                                                                                                                                  for 𝐸𝑥𝑝 𝐿𝑜𝑤 ).
+                                                                                                                                                                   To diagnose the reasons for longer PR resolution time in 𝐸𝑥𝑝 𝐿𝑜𝑤 ,
+                                                                                                                                                                  we compare the PR review volume of the two experience groups as
+                                                                                                                                                                 shown in Figure 2c. PR review volume is the total number of review
+                                                   O H         W H V           U H       S
+                                                                                      P D H U I R U                       G         H U W    I L [       V
+                                                                                                                                                                  comments received per agentic PR. We find that 𝐸𝑥𝑝 𝐿𝑜𝑤 PRs
+                                                                     W                      Q F H                       F L  F                         G R F
+                                                V W \                       F K R     U H I D
+                                                                                        I H D  F W R  U                            U H Y
+                                                                                               W X U H
+                                                                                            E X L  O G                                                            receive 4.52× more review comments than 𝐸𝑥𝑝𝐻𝑖𝑔ℎ PRs. The
+                                                                                    (b) Files Changed per PR
+                                                                                                                                                                  difference between the two experience groups is significant, as we
+Figure 1: Comparison of Number of Commits and Files                                                                                                               confirm through a Mann-Whitney U test [16], 𝑝 < 0.05. On category
+Changed per Pull Request (PR) for 𝐸𝑥𝑝 𝐿𝑜𝑤 and 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .                                                                                                          level analysis, using Mann-Whitney U test [16], we find statistically
+as statistically significant (𝑝 < 0.05). To determine if this pattern                                                                                             significant difference in 6/11 PR categories, including the major
+persists across specific PR categories, we further apply the Mann-                                                                                                difference in chore related PRs (mean 0.13 review comments per PR
+Whitney U test to each category. Referring to Figure 1a, we observe                                                                                               for 𝐸𝑥𝑝𝐻𝑖𝑔ℎ .vs. mean 0.86 review comments per PR for 𝐸𝑥𝑝 𝐿𝑜𝑤 ).
+that 𝐸𝑥𝑝 𝐿𝑜𝑤 performs more commits than 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ in 10/11 cate-
+gories. We find that the difference remains statistically significant
+                                                                                                                                                                      A lower PR acceptance rate for 𝐸𝑥𝑝 𝐿𝑜𝑤 than 𝐸𝑥𝑝𝐻𝑖𝑔ℎ indi-
+for all 10 PR categories (𝑝 < 0.05) notably including the major
+                                                                                                                                                                      cates that novice vibe coders face the steepest barrier to PR
+difference in feature related PRs (1.58 mean commits per PR for
+                                                                                                                                                                      acceptance. While Li et al. [13] previously observed that AI-
+𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .vs. 4.20 mean commits per PR for 𝐸𝑥𝑝 𝐿𝑜𝑤 ).
+                                                                                                                                                                      generated PRs generally face lower acceptance rates, our re-
+   We find that 𝐸𝑥𝑝 𝐿𝑜𝑤 modify 1.47× more files per PR com-
+                                                                                                                                                                      sults refine this understanding: the struggle to achieve merge-
+pared to 𝐸𝑥𝑝𝐻𝑖𝑔ℎ . The Mann-Whitney U test on files changed per
+                                                                                                                                                                      able quality PR is more prevalent in 𝐸𝑥𝑝 𝐿𝑜𝑤 . This result sug-
+PR confirms the difference between 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ and 𝐸𝑥𝑝 𝐿𝑜𝑤 as statis-
+                                                                                                                                                                      gests that despite the aid of vibe coding, novice vibe coders
+tically significant (𝑝 < 0.05). To determine if this pattern persists
+                                                                                                                                                                      may still lack the requisite expertise to verify and tune AI
+across specific PR categories, we further apply the Mann-Whitney
+                                                                                                                                                                      generated code to a standard that would satisfy OSS reviewers.
+U test to each category. Referring to Figure 1b, we observe that
+𝐸𝑥𝑝 𝐿𝑜𝑤 modify more files than 𝐸𝑥𝑝𝐻𝑖𝑔ℎ in 9/11 categories. This
+difference is statistically significant for 5/11 categories (𝑝 < 0.05),
+notably including the major difference in style related PRs (24.29                                                                                                6     Potential Struggles of Novice Vibe Coders
+mean files changed per PR for 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .vs. 70.35 mean files changed                                                                                              We analyze 22, 953 PRs from vibe coders to compare less-experienced
+per PR for 𝐸𝑥𝑝 𝐿𝑜𝑤 ).                                                                                                                                             vibe coders with more experienced vibe coders. 𝐸𝑥𝑝 𝐿𝑜𝑤 make 2.15×
+                                                                                                                                                                  larger and 1.47× broader changes, as reflected in higher commits
+                                                                                                                                                                  and changed files per PR, but reviewers spent 5.16× more time eval-
+                  Analyzing the number of commits and changed files per PR,
+                                                                                                                                                                  uating and resolving 𝐸𝑥𝑝 𝐿𝑜𝑤 PRs. 31% lower PR acceptance rate
+                  we find that 𝐸𝑥𝑝 𝐿𝑜𝑤 ’s PRs are larger in both scope (1.47× more
+                                                                                                                                                                  and 4.52× higher PR review volume indicate that reviewers had to
+                  files changed) and magnitude (2.15× more commits per PR).
+                                                                                                                                                                  provide more feedback, identify issues, and guide corrections for
+                                                                                                                                                                  PRs from less-experienced vibe coders. To understand these fric-
+                                                                                                                                                                  tions, we manually inspect the top 15 highest review volume PRs in
+RQ2: PR Merge Effort(𝐸𝑥𝑝𝐻𝑖𝑔ℎ .vs. 𝐸𝑥𝑝 𝐿𝑜𝑤 )                                                                                                                       the feature development category, which is the most frequent type
+Figure 2 shows the comparison between 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ and 𝐸𝑥𝑝 𝐿𝑜𝑤 across                                                                                                 of PR in our dataset, submitted by 𝐸𝑥𝑝 𝐿𝑜𝑤 . As a result, we identify
+11 categories based on PR acceptance rate, PR resolution time, and                                                                                                two potential sources of friction:
+PR review volume.                                                                                                                                                 1. Infrastructure Mismatch: 𝐸𝑥𝑝 𝐿𝑜𝑤 vibe coders struggle to align
+   We find that 𝐸𝑥𝑝 𝐿𝑜𝑤 PRs have 31% lower PR acceptance                                                                                                          AI-generated logic with the constraints of the build environment.
+rate as compared to 𝐸𝑥𝑝𝐻𝑖𝑔ℎ . We confirm using a Chi-Square                                                                                                       We observe a recurring pattern where AI models generate syntacti-
+test [19] that this difference is significant, 𝑝 < 0.05. To determine if                                                                                          cally correct code but often fail to account for environment-specific
+
+=== [PDF page 4] ===
+
+MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil                                                                   Syed Ammar Asdaque, Imran Haider, Muhammad Umar Malik, Maryam Abdul Ghafoor, and Abdul Ali Bangash
+
+
+
+                                                                             ExpHigh                                                                                    ExpHigh                                                                           ExpHigh
+                                                                                                                                                                                                                             
+
+
+
+
+                                                                                        5 H V R O X W L R Q  W L P H   ' D \ V 
+
+=== [PDF page 5] ===
+
+
+                                                                             ExpLow                                                                                  ExpLow                                                                            ExpLow
+
+
+
+
+ $ F F H S W D Q F H  U D W H    
+
+=== [PDF page 6] ===
+
+                                                                                                                                                $ Y J  5 H Y L H Z  9 R O X P H
+                                            
+                                                                                                                                                                                                                          
+                                            
+                                                                                                                                         
+                                                                                                                                                                                                                          
+                                                                                                                                         
+                                                                                                                                                                                                                          
+                                                                                                                                         
+                                                                                                                                                                                                                       
+                                                      G R F
+                                                    U H Y
+                                                    F K R       V
+                                                            H U W
+                                                             U H                                                                                 F K R
+                                                                                                                                            U H I D  F W R
+                                                                                                                                              I H D  U     U H
+                                                                                                                                                     W X U H                                                                         F K R
+                                                                                                                                                                                                                                  I H D
+                                                                                                                                                                                                                                U H I D       U H
+                                                                                                                                                                                                                                         W X U H
+                                                                                                                                                                                                                                         F W R
+                                                      F L  F
+                                                      E X L     G
+                                                            I L [                                                                                        I L [
+                                                                                                                                                      W H V
+                                                                                                                                                   F L  F     W                                                                       E X L
+                                                                                                                                                                                                                                       G R F      U
+                                                                                                                                                                                                                                               O G
+                                                                                                                                                                                                                                                 V
+                                                      V W \   O G
+                                                         W H V   W
+                                                              O H                                                                                  G R F
+                                                                                                                                               S  V
+                                                                                                                                            P D H U I R U    G                                                                              I L [
+                                                                                                                                                                                                                                       F L  F
+                                                                                                                                                                                                                                          W H V  G
+                                               U H I D  F W R
+                                                 I H D  U
+                                                        W
+                                                  S  X U H
+                                               P D H U I R U                                                                                      Q F
+                                                                                                                                                   E X H L
+                                                                                                                                                   V W \
+                                                                                                                                                 U H Y     O G
+                                                                                                                                                            O H                                                                    S  W
+                                                                                                                                                                                                                                P D H U I R U 
+                                                                                                                                                                                                                                       Q F H
+                                                                                                                                                                                                                                       V W \
+                                                                                                                                                                                                                                     U H Y     O H
+                                                      Q F H                                                                                              H U W                                                                               H U W
+
+                                                    (a) PR Acceptance Rate                                                                     (b) PR Resolution Time                                                              (c) PR Review Volume
+
+                                                  Figure 2: Comparison of PR acceptance rate, PR resolution time and PR review volume for 𝐸𝑥𝑝 𝐿𝑜𝑤 and 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ .
+
+
+runtime factors. To illustrate this broader trend, we highlight a case                                                                                       broad offline experience but few GitHub contributions would count
+in the roboflow/inference repository’s PR#1350 [6], where the vibe                                                                                           as “low-experienced” in our work. However, in the context of AI
+coder faces significant friction dealing with execution timeouts in                                                                                          workflows (where familiarity with agents matters), experience is a
+a CI environment. The PR illustrates a struggle not with business                                                                                            reasonable proxy. Third, project-specific factors (e.g., review poli-
+logic but with the limitations of the infrastructure. The vibe coder                                                                                         cies) can influence PR acceptance rate and PR review volume. We
+has to commit repeatedly to tune timeout parameters, effectively                                                                                             mitigate this bias by comparing means of metrics within categories,
+debugging via CI because the vibe coder likely could not replicate                                                                                           but residual effects may remain. Fourth, conducting multiple statis-
+the constrained environment locally.                                                                                                                         tical comparisons increases the risk of Type I errors (false positives).
+2. Integration Friction: We observed that AI-generated code of-                                                                                              To mitigate this, we performed Benjamini-Hochberg (BH) correc-
+ten lacked necessary system context, resulting in extended review                                                                                            tion [2] for all tests, ensuring that reported significant differences
+cycles for 𝐸𝑥𝑝 𝐿𝑜𝑤 authors. For instance, in getsentry/sentry reposi-                                                                                        are robust.
+tory’s PR#94889 [7], the author implemented user feedback mecha-
+nisms but faced challenges aligning the code with the repository’s
+                                                                                                                                                             9    Ethical Considerations
+existing privacy schemas and integration standards. The high re-
+view volume indicates that while the feature logic was generated,                                                                                            The study did not require ethical approval because it did not in-
+ensuring compliance with project-specific architectural require-                                                                                             volve human participants. We used the AIDev dataset and cited
+ments required significant manual verification and adjustment.                                                                                               its authors throughout the paper to give appropriate credit. We
+                                                                                                                                                             removed GitHub repository author names for their privacy.
+7                                        Implications
+Project managers and maintainers should anticipate higher re-                                                                                                10    Conclusion
+viewer workload and longer PR resolution times by 𝐸𝑥𝑝 𝐿𝑜𝑤 vibe                                                                                               This study addresses whether novice developers who engage in
+coders. They can mitigate this challenge by integrating efficient re-                                                                                        vibe coding can substitute for experienced developers who also
+view strategies, such as assigning extra reviewers or implementing                                                                                           engage in vibe coding. Our study indicates that while vibe coding
+automated review checks for 𝐸𝑥𝑝 𝐿𝑜𝑤 PRs.                                                                                                                     enables novices (𝐸𝑥𝑝 𝐿𝑜𝑤 ) to produce much larger contributions,
+Training programs and community onboarding must empha-                                                                                                       it also incurs substantial verification cost. In the AIDev dataset,
+size verification skills for AI-generated code, equipping 𝐸𝑥𝑝 𝐿𝑜𝑤                                                                                            𝐸𝑥𝑝 𝐿𝑜𝑤 PRs exhibit 2.15× higher code magnitude, measured by
+vibe coders to evaluate it for correctness, style, and security. Finally,                                                                                    commits, but also face 5.16× longer PR resolution time. 31% lower
+the 𝐸𝑥𝑝𝐻𝑖𝑔ℎ .vs. 𝐸𝑥𝑝 𝐿𝑜𝑤 analysis offers a new analytical lens for                                                                                           PR acceptance rate and 4.52× higher PR review volume accompany
+studying AI-augmented software development. Extending our ap-                                                                                                this increase, indicating that verifying 𝐸𝑥𝑝 𝐿𝑜𝑤 generated code may
+proach to industrial settings or longitudinal studies could reveal                                                                                           demand a tremendous increase in reviewer effort. Our study pro-
+how AI’s role evolves with experience and provide an empirical                                                                                               vides actionable guidance for software development teams. Teams
+foundation for designing adaptive AI tools, reviewer automation                                                                                              must rebalance oversight and developers’ training for different
+strategies, and task-assignment models in the era of Software 3.0.                                                                                           experience levels by implementing mandatory code reviews or
+                                                                                                                                                             monitoring review volume spikes to allocate review effort effec-
+8                                        Threats to Validity                                                                                                 tively. Training must focus on teaching novice developers how to
+The definition of vibe coding varies from broad AI assistance [14]                                                                                           rigorously test and verify code outputs while vibe coding. Finally,
+to strict agent supervision via prompting and verification [20, 21].                                                                                         the 𝐸𝑥𝑝 𝐻𝑖𝑔ℎ vs. 𝐸𝑥𝑝 𝐿𝑜𝑤 experience segmentation offers a robust
+Our findings may not apply to contexts using the broader defini-                                                                                             methodological framework, providing researchers a lens to study
+tion of vibe coding. Second, we measure “experience” via commit                                                                                              the evolving dynamics of human-AI collaboration across various
+count [15], which conflates activity with skill. A developer with                                                                                            software engineering tasks.
+
+=== [PDF page 7] ===
+
+Novice Developers Produce Larger Review Overhead for Project Maintainers while Vibe Coding                                     MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil
+
+
+References                                                                                 [13] Hao Li, Haoxiang Zhang, and Ahmed E. Hassan. 2025. The Rise of AI Team-
+ [1] Joel Becker, Nate Rush, Elizabeth Barnes, and David Rein. 2025. Measuring the              mates in Software Engineering (SE 3.0): How Autonomous Coding Agents Are
+     Impact of Early-2025 AI on Experienced Open-Source Developer Productivity.                 Reshaping Software Engineering. In Proceedings of the International Conference
+     arXiv preprint arXiv:2507.09089 (2025). https://arxiv.org/abs/2507.09089                   on Mining Software Repositories (MSR). https://leo-lihao.github.io/files/P7.pdf
+ [2] Yoav Benjamini and Yosef Hochberg. 1995. Controlling the false discovery rate:        [14] Stephane H. Maes. 2025. The Gotchas of AI Coding and Vibe Coding: It’s All
+     a practical and powerful approach to multiple testing. Journal of the Royal                About Support And Maintenance. doi:10.5281/zenodo.15343349 Published April
+     Statistical Society: Series B (Methodological) 57, 1 (1995), 289–300.                      28, 2025.
+ [3] Barry W. Boehm. 2006. A view of 20th and 21st century software engineering. In        [15] Akshat Malik, Bram Adams, and Ahmed Hassan. 2024. Towards graph-
+     Proceedings of the 28th International Conference on Software Engineering (ICSE’06).        anonymization of software analytics data: empirical study on JIT defect prediction.
+     ACM, 12–29. doi:10.1145/1134285.1134288                                                    Empirical Software Engineering 29 (06 2024). doi:10.1007/s10664-024-10464-6
+ [4] Tapajit Dey, Andrey Karnauch, and Audris Mockus. 2020. Representation of              [16] Henry B Mann and Donald R Whitney. 1947. On a test of whether one of
+     Developer Expertise in Open Source Software. arXiv preprint arXiv:2005.10176               two random variables is stochastically larger than the other. The Annals of
+     (2020). https://arxiv.org/abs/2005.10176                                                   Mathematical Statistics 18, 1 (1947), 50–60.
+ [5] Malinda Dilhara, Ameya Ketkar, and Danny Dig. 2021. Understanding Software-           [17] Shane McIntosh and Yasutaka Kamei. 2017. Are Fix-Inducing Changes a Moving
+     2.0: A Study of Machine Learning Library Usage and Evolution. ACM Transactions             Target? A Longitudinal Case Study of Just-In-Time Defect Prediction. IEEE
+     on Software Engineering and Methodology 30, 4 (2021), 55:1–55:42. doi:10.1145/             Transactions on Software Engineering PP (04 2017), 1–1. doi:10.1109/TSE.2017.
+     3453478                                                                                    2693980
+ [6] GitHub. 2024. Add perception encoder workflow blocks. Pull Request #1350,             [18] Willem Meijer, Mirela Riveni, and Ayushi Rastogi. 2024. Ecosystem-wide
+     roboflow/inference, GitHub. https://github.com/roboflow/inference/pull/1350                Influences on Pull Request Decisions: Insights from NPM. arXiv preprint
+     Accessed: 2025-12-17.                                                                      arXiv:2410.14695 (2024). https://arxiv.org/abs/2410.14695
+ [7] GitHub. 2025. feat(user feedback): update default title for tickets created from      [19] Karl Pearson. 1900. On the criterion that a given system of deviations from
+     user feedback. Pull Request #94889, getsentry/sentry, GitHub. https://github.              the probable in the case of a correlated system of variables is such that it can
+     com/getsentry/sentry/pull/94889 Accessed: 2025-12-17.                                      be reasonably supposed to have arisen from random sampling. The London,
+ [8] GitHub. 2025. GitHub graphql API documentation. https://docs.github.com/en/                Edinburgh, and Dublin Philosophical Magazine and Journal of Science 50, 302
+     graphql                                                                                    (1900), 157–175.
+ [9] GitHub. 2026. AmmarAsdaque/msr-2026-replication-package. https://github.              [20] Ranjan Sapkota, Konstantinos I. Roumeliotis, and Manoj Karkee. 2025. Vibe
+     com/AmmarAsdaque/msr-2026-replication-package. [Accessed 25-01-2026].                      Coding vs. Agentic Coding: Fundamentals and Practical Implications of Agentic
+[10] Ahmed E. Hassan, Hao Li, Dayi Lin, Bram Adams, Tse-Hsun Chen, Yutaro                       AI. (2025). https://arxiv.org/abs/2505.19443
+     Kashiwa, and Dong Qiu. 2025. Agentic Software Engineering: Foundational               [21] Advait Sarkar and Ian Drosos. 2025. Vibe coding: programming through conver-
+     Pillars and a Research Roadmap. CoRR abs/2509.06216 (2025). arXiv:2509.06216               sation with artificial intelligence. arXiv:2506.23253 [cs.HC]
+     doi:10.48550/arXiv.2509.06216                                                         [22] Inbal Shani. 2023.        Survey Reveals AI’s Impact on the Developer Ex-
+[11] Ahmed E. Hassan, Gustavo A. Oliva, Dayi Lin, Boyuan Chen, and Zhen Ming                    perience. https://github.blog/2023-07-20-survey-reveals-ais-impact-on-the-
+     Jiang. 2024. Towards AI-Native Software Engineering (SE 3.0): A Vision and a               developer-experience/.
+     Challenge Roadmap. CoRR abs/2410.06107 (2024). arXiv:2410.06107 doi:10.48550/         [23] Christoph Treude and Margaret-Anne Storey. 2025. Generative AI and Empirical
+     ARXIV.2410.06107                                                                           Software Engineering: A Paradigm Shift. arXiv:2502.08108 [cs.SE] https://arxiv.
+[12] Andrew Ko, Robert Deline, and Gina Venolia. 2007. Information Needs in Collo-              org/abs/2502.08108
+     cated Software Development Teams. 344–353. doi:10.1109/ICSE.2007.45

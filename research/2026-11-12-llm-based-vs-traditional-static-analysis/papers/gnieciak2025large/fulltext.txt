@@ -1,0 +1,913 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                    Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.
+                                    Digital Object Identifier 10.1109/ACCESS.2017.DOI
+
+
+
+
+                                    Large Language Models Versus Static
+                                    Code Analysis Tools: A Systematic
+                                    Benchmark for Vulnerability Detection
+                                    DAMIAN GNIECIAK1 , TOMASZ SZANDALA1
+                                    1
+                                        Faculty of Information and Communication Technology, Wroclaw University of Science and Technology, Wroclaw, Poland
+                                    Corresponding author: Tomasz Szandala (e-mail: Tomasz.Szandala@pwr.edu.pl)
+
+
+
+
+arXiv:2508.04448v1 [cs.SE] 6 Aug 2025
+                                          ABSTRACT Modern software relies on a multitude of automated testing and quality assurance tools
+                                          to prevent errors, bugs and potential vulnerabilities. This study sets out to provide a head-to-head,
+                                          quantitative and qualitative evaluation of six automated approaches: three industry-standard rule-based
+                                          static code-analysis tools (SonarQube, CodeQL and Snyk Code) and three state-of-the-art large language
+                                          models hosted on the GitHub Models platform (GPT-4.1, Mistral Large and DeepSeek V3). Using a
+                                          curated suite of ten real-world C# projects that embed 63 vulnerabilities across common categories
+                                          such as SQL injection, hard-coded secrets and outdated dependencies, we measure classical detection
+                                          accuracy (precision, recall, F-score), analysis latency, and the developer effort required to vet true positives.
+                                          The language-based scanners achieve higher mean F-1 scores,0.797, 0.753 and 0.750, than their static
+                                          counterparts, which score 0.260, 0.386 and 0.546, respectively. LLMs’ advantage originates from superior
+                                          recall, confirming an ability to reason across broader code contexts. However, this benefit comes with
+                                          substantial trade-offs: DeepSeek V3 exhibits the highest false-positive ratio, all language models mislocate
+                                          issues at line-or-column granularity due to tokenisation artefacts. Overall, language models successfully
+                                          rival traditional static analysers in finding real vulnerabilities. Still, their noisier output and imprecise
+                                          localisation limit their standalone use in safety-critical audits. We therefore recommend a hybrid pipeline:
+                                          employ language models early in development for broad, context-aware triage, while reserving deterministic
+                                          rule-based scanners for high-assurance verification. The open benchmark and JSON-based result harness
+                                          released with this paper lay a foundation for reproducible, practitioner-centric research into next-generation
+                                          automated code security.
+                                          ProjectAnalyzer Code is available on GitHub:https://github.com/Damian0401/ProjectAnalyzer
+
+
+                                          INDEX TERMS Large Language Models, Software Engineering, CI/CD, Software Quality
+
+
+                                        I. INTRODUCTION                                                                           vulnerability-contributing commits, false-positive noise and
+                                    Rapidly developed software has become vital for modern                                        rule coverage limitations continue to hamper day-to-day
+                                    industry. Yet, its growing complexity and attack surface have                                 adoption. Concurrently, the remarkable rise of large lan-
+                                    outpaced the human capacity to reason about every line of                                     guage models (LLMs) has opened a new branch of code
+                                    code [1]. Static Application Security Testing (SAST) has                                      intelligence. Industry surveys chart a rapid uptick in LLM
+                                    long been the developer’s first line of defence: tools such                                   pilots across engineering teams. The research community
+                                    as SonarQube, CodeQL, and SnykCode integrate seamlessly                                       has begun to fine-tune these models for vulnerability de-
+                                    into continuous-integration pipelines, flagging defects be-                                   tection with promising results: early experiments report
+                                    fore they ever reach production, and are trusted by more                                      competitive F-scores against graph-based and traditional se-
+                                    than seven million developers across 400,000 organisations                                    quence models, while comparative analyses on emerging
+                                    worldwide.                                                                                    models—GPT-4-class systems, Mistral-Large, DeepSeek V3
+                                                                                                                                  and others—suggest that LLMs can reason across larger
+                                       Recent empirical studies nevertheless reveal a persis-
+                                                                                                                                  contexts and identify subtle data-flow flaws that evade con-
+                                    tent gap, while a single state-of-the-art analyser can
+                                                                                                                                  ventional pattern-based rules.
+                                    highlight vulnerabilities in roughly half of real-world,
+
+                                    VOLUME 4, 2016                                                                                                                                           1
+
+=== [PDF page 2] ===
+
+                                                               D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+   Yet, enthusiasm must be tempered with caution. The same               ment tools are a way of reinventing traditional programming
+generative power that allows an LLM to "understand" source               practices and introducing new possibilities. This approach
+code also enables failure modes alien to deterministic analy-            will enhance the effectiveness of static analysis techniques
+sers. For instance, a recent industry report warns of "slop-             and redefine their function, enabling more contextualised,
+squatting": hallucinated package names inserted by LLMs                  personalised, and proactive code evaluation processes.
+that attackers later register in public repositories, creating an
+entirely new supply-chain vector. Such findings underline the            A. HOW STATIC CODE ANALYSIS WORKS
+need for a principled, head-to-head assessment rather than               Static source code analysis involves examining the source
+anecdotes and marketing claims.TechRadar                                 code without executing it to detect potential bugs and weak-
+   This paper undertakes the first systematic comparison                 nesses. The code is analysed for defined patterns or rules
+between three mature static analysers, SonarQube, Cod-                   that indicate undesirable behaviour. Typical tools use control,
+eQL and SnykCode, and three cutting-edge LLMs, avail-                    data flow analysis, and pattern matching to known error
+able on GitHub: GPT-4.1, Mistral-Large and DeepSeek V3,                  signatures [6]. Static scanners can detect, e.g. SQL Injection
+evaluated on a standard benchmark suite spanning multi-                  or code injection vulnerabilities through taint analysis, but
+ple projects and vulnerability classes. We measure clas-                 usually only if such patterns have been predefined in their
+sical accuracy metrics (precision, recall, F1), as well as               rules. In industry practice, rule sets are constantly expanded
+developer-centric costs, such as inspection effort per true              to include new bugs. Due to the multiplicity of use cases, they
+positive, time-to-signal in CI, and the qualitative value of the         have been divided into categories [7], such as:
+explanations generated by each approach.
+                                                                            • Naming – Issues related to inconsistent, misleading, or
+   Our contributions consits of:
+                                                                              nonstandard naming conventions for identifiers.
+   • Unified benchmark and protocol. We form a diverse
+                                                                            • Style – Violations of code formatting or stylistic guide-
+      dataset of real-world vulnerable functions, pair each                   lines can affect readability.
+      with ground-truth labels, and release an open evaluation              • Concurrency – Problems arising from incorrect han-
+      harness suitable for rule-based and generative systems.                 dling of parallel execution or shared resources.
+   • Comprehensive quantitative evaluation. We show where
+                                                                            • Exceptions – Improper use or handling of exceptions
+      LLMs already rival, and occasionally surpass, special-                  and error conditions.
+      ist analysers in recall, while highlighting scenarios in              • Performance – Inefficiencies or bottlenecks that could
+      which deterministic rules remain indispensable for sup-                 degrade the system’s performance.
+      pressing false alarms.                                                • Interoperability – Compatibility problems between
+   • Qualitative insight. Through thematic analysis of model
+                                                                              different systems, platforms, or APIs.
+      rationales and tool reports, we surface strengths (e.g.,              • Security – Vulnerabilities that could be exploited to
+      data-flow reasoning across files) and weaknesses (e.g.,                 compromise the system’s integrity or data.
+      inconsistent CWE mapping) unique to each paradigm.                    • Maintainability – Code complexity or structure issues
+   • Guidance for practitioners and researchers. We distil our
+                                                                              that make future modification or understanding more
+      findings into recommendations on tool choice, prompt                    difficult.
+      engineering, and future benchmarks that capture emerg-                • General – Broad or uncategorised issues that do not fit
+      ing threat vectors.                                                     neatly into other specific groups.
+II. STATE OF THE ART
+                                                                         B. FORMAT OF RESULTS
+Static code analysis represents an essential component within
+modern software development processes. Early detection of                Static code analysis tools are often integrated into other
+software defects, which, according to various studies, can               software development processes. The analysis results are
+lead to a significant reduction in the cost and impact of                usually an essential element before the final implementation
+subsequent corrections [2], [3]. Furthermore, it simplifies              of the system under development.
+the code review process by assisting developers in detecting                SARIF (Static Analysis Results Interchange Format) was
+potential issues early, reducing the time and effort required            presented in 2020 [8] as a standardized and extensible format
+for manual code reviews [4]. It is worth paying attention to             for exchanging results produced by static analysis tools, en-
+the fact that the utility of static analysis is not limited to pro-      abling consistent interpretation, comparison, and integration
+fessional and commercial use. Academic research highlights               between different platforms. Since then, it has been adopted
+its educational value. A large-scale study analysing more                and integrated by many static analysis tools [9]. The structure
+than 500 student-developed software projects illustrates that            shown in listing 1 represents a simplified example of a SARIF
+regular static code analysis tools can significantly improve             JSON output. The list includes only the fields necessary to
+code quality and student learning outcomes [5]. With the                 generate a minimal report.
+increasing integration of artificial intelligence into the soft-            $schema: Specifies the URL of the JSON schema used to
+ware development lifecycle, the role and application of static              validate the structure, referencing the official SARIF 2.1.0
+code analysis are also poised to evolve. AI-powered develop-                specification.
+2                                                                                                                                     VOLUME 4, 2016
+
+=== [PDF page 3] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+{
+"$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+"version": "2.1.0",
+"runs": [{
+"tool": {
+  "driver": {
+    "name": "SonarQube",
+    "semanticVersion": "1.0.0",
+    "version": "1.0.0",
+    "rules": [{
+      "id": "SQL_INJECTION",
+      "shortDescription": { "text": "SQL Injection vulnerability" }
+    }]
+  }
+},
+"results": [{
+  "ruleId": "SQL_INJECTION",
+  "ruleIndex": 0,
+  "level": "error",
+  "message": { "text": "User input is used directly in a SQL query. This can lead to
+      ,→ SQL injection." },
+  "locations": [{
+    "physicalLocation": {
+      "artifactLocation": { "uri": "Controllers/UserController.cs" },
+      "region": {
+        "startLine": 27,
+        "endLine": 27,
+        "startColumn": 17,
+        "endColumn": 66
+      }
+    }
+  }]
+}]
+}]
+}
+                                                     Listing 1: Example SARIF JSON output
+
+
+
+  version: Defines the version of the SARIF format that is                          locations: An array indicating the location of the issue in
+  being used (here, "2.1.0").                                                       the code.
+  runs: An array containing analysis runs.                                          physicalLocation: Provides detailed location data.
+  tool: Provides metadata on the analysis tool.                                     artifactLocation: The file where the issue occurs.
+  driver: Describes the tool driver (e.g., SonarQube).                              region: Describes the exact range in the file (line and
+  name, semanticVersion, version: Identify the tool and its                         column numbers).
+  version.                                                                         This structure is not a complete representation of all
+  rules: An array of rules-objects applied during analysis.                      available SARIF fields. According to the official SARIF
+  id: Unique identifier for the rule (e.g., "SQL_INJECTION").                    schema [10], many additional fields and features are sup-
+  shortDescription: A brief text describing the rule.                            ported. The example includes only the fields required to
+  results: An array of analysis results.                                         produce a minimal report.
+  ruleId, ruleIndex: Reference the rule responsible for the
+  finding.
+                                                                                  C. LIMITATIONS OF TRADITIONAL CODE ANALYSIS
+  level: Indicates the severity level of the result (e.g., "er-
+  ror").                                                                         Despite their widespread use, static approaches face signif-
+  message: A descriptive message on the issue was found.                         icant challenges. First, designing a good analyser is time-
+                                                                                 consuming and difficult; each new type of defect requires
+VOLUME 4, 2016                                                                                                                                3
+
+=== [PDF page 4] ===
+
+                                                              D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+the development of an appropriate rule. As a result, typical               The user can self-host the Community version, which is
+tools are limited to predefined defect patterns and may fail to         open source and can be used initially without any costs. In
+recognise new or unusual problems [11]. Another limitation              that case, it is in the consumer’s interests to ensure the safety
+may be the lack of ability to fully understand the context of           of processed data. The second option is to choose one of the
+the analysed code, as shown by the authors of the paper [12].           two paid versions provided by SonarSource, which are Team
+This shortcoming underscores the need for more adaptive and             and Enterprise [19]. The first version costs 65$ per month (as
+intelligent approaches and methods to fill the gap between              of 2025), and the cost of the higher tier is determined indi-
+recognising a known pattern and deep semantic understand-               vidually after contacting the sales department. SonarSource
+ing.                                                                    guarantees the respect of the EU General Data Protection
+                                                                        Regulation (GDPR) or the California Consumer Privacy Act
+D. USE OF LARGE LANGUAGE MODEL                                          to ensure the privacy of their users’ data [20]. Due to its long
+In recent years, numerous works have examined large lan-                existence on the market, SonarCode is a very mature and
+guage models in the context of industry code quality [13],              proven tool.
+[14]. Models trained on huge collections of code and text                  CodeQL is an engine created and developed by GitHub. Its
+demonstrate the ability to understand the context of a pro-             main goal is discovering security vulnerabilities and bugs in
+gram and suggest corrections. This raises the question of               the analysed source code. The distinguishing feature of this
+whether they can take over the role of classic static analysers         tool over others is that it allows users to write custom queries
+in bug detection. An important advantage of LLMs is the                 using a specialised domain-specific language named QL.
+lack of rigidly defined rules - the model can potentially catch         CodeQL is part of the GitHub Advanced Security platform
+an error based on its "understanding" of the context, even              and can be used with most popular programming languages,
+if the pattern is not explicitly programmed. Research shows             such as C++, Java, and Python [21]. CodeQL, as part of
+that LLMs can detect certain defects without the need for               GitHub Code Security, also offers two pricing levels, Team
+a complete set of tests or rules, due to their ability to infer         for the price of 4$ per month for each user and Enterprise
+from the context of the code. The comparative potential of              starting at 21$ per month for each user [22]. GitHub pro-
+large language models and traditional static analysis tools             cessed personal data according to the declaration of respect
+has been explored in studies such as [12], which analysed               for the GDPR and other applicable laws [23].
+the performance of GPT-3.5 Turbo and GPT-4o in relation to                 SnykCode is a static application security testing tool cre-
+SonarQube. This work is extended by additional static analy-            ated by the Snyk company. Unlike traditional SAST tools,
+sers, including CodeQL and SnykCode, as well as a broader               SnykCode uses machine learning algorithms to detect issues
+set of large language models such as GPT-4.1, DeepSeek V3,              in the source code [24]. This tool focuses mainly on security
+and Mistral Large, enabling a more comprehensive evalua-                vulnerabilities such as SQL injection, cross-site scripting
+tion of their capabilities in the detection of defects in the           (XSS), and authentication-related issues. The first version
+source code.                                                            was officially released in 2020 [25]. SnykCode is also avail-
+                                                                        able in two pricing plans, Team for 25$ per month for each
+III. METHODS                                                            contributing developer and Enterprise, where the price is de-
+Ensuring code quality and reliability is crucial in modern IT           termined individually after contacting the sales department,
+systems. Static analysis tools typically identify vulnerabili-          similar to SonarQube [26]. To ensure data privacy, Snyk leads
+ties based on predefined patterns or rule sets. The effective-          a global program designed to align with the requirements of
+ness of such tools in improving software quality and their              the GDPR and other privacy laws [27].
+efficiency in minimising code defects has been demonstrated
+                                                                           Before using each static analysis tool, it is crucial to
+in the existing literature [15].
+                                                                        be familiar with the license and data privacy arrangements.
+                                                                        Another important aspect is to conduct a cost analysis. Key
+A. OVERVIEW OF EVALUATED TOOLS
+                                                                        aspects were visualised with a Table 1 to compare each tool
+For this work, three widely recognised static analysis tools
+                                                                        better. All three solutions comply with data privacy regula-
+have been selected for evaluation: SonarQube, SnykCode and
+                                                                        tions and offer multiple pricing tiers, but differ in hosting
+CodeQL.
+                                                                        models and cost structures, which may influence the selection
+   SonarCode is an open source tool that is used for static
+                                                                        based on organisational needs.
+code analysis, created in 2006 [16]. It is designed to automat-
+ically detect errors, security vulnerabilities, and issues related
+to code quality and technology debt. During almost 20 years             B. LARGE LANGUAGE MODELS IN CODE ANALYSIS
+of existence on the market, it has grown to support over 30             The use of large language models can significantly improve
+programming languages [17] and offers a built-in interface              code quality assessments, as they can analyse predefined
+with comprehensive dashboards and detailed reports. This                rules and vulnerabilities and contextual aspects of the code
+tool is used by more than 400,000 organisations [18]. When              under review [12]. For this work, three large language models
+choosing SonarQube, it is possible to select one of two                 from leading companies have been selected for evaluation:
+options to use this solution.                                           GPT 4.1, DeepSeek V3, and Mistral Large.
+4                                                                                                                                    VOLUME 4, 2016
+
+=== [PDF page 5] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+                        SonarQube                                 CodeQL                                SnykCode
+ Hosting model          Self-hosted (Community) or cloud-         Cloud-based via GitHub Code Secu-     Cloud-based (Team, Enterprise)
+                        based (Team, Enterprise)                  rity
+ Cost of license        Free    (Community),      $65/month       $4/user/month     (Team),      from   $25/user/month (Team), Enterprise
+                        (Team), Enterprise (custom pricing)       $21/user/month (Enterprise)           (custom pricing)
+ Data privacy           Compliant with GDPR and CCPA              Compliant with GDPR and other ap-     Global program aligned with GDPR
+                                                                  plicable laws                         and other privacy laws
+
+                                                 TABLE 1: Comparison of Code Analysis Tools
+
+
+   GPT 4.1, developed by OpenAI, is known for its extensive                       C. DATASET
+context window of 1,047,576 tokens, significantly enhancing                      For the purpose of analysis, 10 projects were prepared in the
+its ability to handle complex tasks, such as analysing large                     popular programming language, which is C#. According to
+codebases or extensive documents. The price is set at $2 per                     Table 3, size of the prepared projects is between 3500 and
+million input tokens and $8 per million output tokens [28].                      5500 characters and contains up to 10 files. This number of
+Regarding data privacy, user interactions with GPT 4.1 in                        files was selected based on the analysis, which shows that
+consumer products can be used to train OpenAI models, but                        it is the most common change based on the source control
+users can opt out through settings. For business products,                       history [36].
+data is not used for training by default [29]. The declared                         Each of project has a random number of vulnerabilities,
+knowledge cut-off date is June 2024 [30].                                        such as:
+   DeepSeek V3 offers a cost-effective alternative with a                            • SQL injection,
+context window of 64,000 tokens, attractively priced at $0.27                        • cross-site scripting,
+per million input tokens and $1.10 per million output tokens                         • hardcoded secrets,
+[31]. However, DeepSeek collects extensive personal data,                            • command injection,
+including user inputs, uploaded files, and automatically col-                        • weak encryption algorithms,
+lected network information such as IP addresses and device                           • deprecated dependencies.
+identifiers, raising significant concerns about data privacy
+[32]. The declared knowledge cut-off date is July 2024 [33].                      D. PROJECTANALYZER
+It was created by the Chinese company DeepSeek, founded in
+                                                                                 Working with large language models requires intensive com-
+2023. The model has gained popularity due to its competitive
+                                                                                 putational power, which presents a notable challenge for
+capabilities in relation to the cost of its exploitation.
+                                                                                 consistent evaluation. Furthermore, GPT 4.1, one of the
+   Mistral Large, from Mistral AI, features a balanced context                   three models originally intended for study, is not publicly
+window of 32,000 tokens and costs $2 per million input                           accessible. As a result, to ensure equivalent conditions and
+tokens and $6 per million output tokens [34]. Its data privacy                   a fair basis for comparison, the GitHub Models platform
+policy states that user data is not utilised for training except in              was chosen as the hosting environment. GitHub Models is
+specific cases such as free-tier usage without explicit opt-out,                 a publicly accessible repository developed through a col-
+feedback provision, or content moderation purposes [35].                         laboration between GitHub and Microsoft [37], providing
+   Before integrating LLM into practical workflows, it is                        a standardized and open place to prototype and build AI-
+essential to understand their licensing terms, data privacy                      powered solutions.
+policies, and associated costs. These factors are critical in                       For the purpose of generating reports in SARIF format, the
+selecting a model that aligns with organisational require-                       tool named ProjectAnalyzer was developed. It is designed to
+ments. Key aspects were visualised with a Table 2 to com-                        automate the analysis of software projects using large lan-
+pare each LLM better. Each of the selected models has                            guage models. The tool facilitates static analysis by scanning
+distinct advantages and limitations. GPT 4.1 excels with its                     the current working directory for source code files with spec-
+unparalleled context capacity, which is essential for complex                    ified extensions (e.g., cs, .csproj, .sln). Once the relevant files
+tasks, such as analysing a large codebase, but it has higher                     are identified, the tool constructs a single aggregated prompt
+pricing. DeepSeek V3 offers significant cost benefits, but at                    that represents the entire project, suitable for processing. The
+the expense of increased data privacy risks. Mistral Large                       prompt is then sent by API to each of the selected models.
+presents a similar pricing and approach to data privacy to                       Each model processes the prompt independently and returns
+GPT 4.1, but is slightly more cost-effective.                                    an analysis in JSON format. This response is subsequently
+   The effective use of large language models for static anal-                   parsed and transformed into the SARIF format. The final
+ysis requires a structured approach to data preparation and                      report is saved to the specified output location, providing a
+result handling. This section covers the process of selecting                    machine-readable summary of the models findings. C# was
+and preparing software projects, describes the SARIF format                      chosen as the programming language to develop the analyzer
+used to represent results, and presents the tool created to                      due to its native and officially supported capabilities for
+perform the analysis.                                                            interacting with the API used in this project [38].
+VOLUME 4, 2016                                                                                                                                    5
+
+=== [PDF page 6] ===
+
+                                                                       D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+                         GPT 4.1                                   DeepSeek V3                               Mistral Large
+    Knowledge cutoff     June 1, 2024                              July 1, 2024                              Unknown
+    Context window       1,047,576                                 64,000                                    32,000
+    (in tokens)
+    Cost of usage (per   2$ input, 8$ output                       0.27$ input, 1.1$ output                  2$ input, 6$ output
+    1M tokens)
+    Data privacy         User data may be used for training        Extensive data collection including in-   Data used for training only under spe-
+                         (opt-out available for consumers; not     puts, chat history, and automated net-    cific conditions (e.g., free tier without
+                         used by default for business products).   work data collection.                     opt-out, moderation purposes).
+
+                                               TABLE 2: Comparison of Large Language Models
+
+    Project   Number of files    Number of characters        Number of vuln.
+                                                                                  time, the number of detected vulnerabilities, and the number
+     S01           5                    5317                       8
+     S02           3                    3145                       3              of true positive identifications. These indicators form the
+     S03           3                    3431                       6              basis for a more in-depth and comparative analysis.
+     S04           4                    4016                       1
+     S05           3                    5117                       6              A. DEFINITION OF EVALUATION METRICS
+     S06           7                    3791                       8
+     S07           7                    5036                      13
+                                                                                  The total number of identified vulnerabilities was determined
+     S08           8                    3878                       7              by counting the number of entries present in the Results
+     S09           7                    3709                       8              section of the SARIF reports generated by the analysis tools
+     S10          10                    4938                       3              [10]. Each entry in this section represents a distinct issue
+TABLE 3: Number of files, characters and vulnerabilities in                       identified during the analysis process, and the aggregate
+each project                                                                      count serves as a quantitative indicator of detection capabili-
+                                                                                  ties.
+                                                                                     Each reported vulnerability was individually reviewed and
+   During analysis, a system prompt, shown in Figure 2, was                       compared with a reference dataset of known vulnerabilities
+included as a system message. It was intended to instruct the                     for the given project to determine the number of true positive
+model on how it should behave and in what format the results                      results. Only findings that accurately matched a real problem
+should be returned. Figure 1 illustrates the help command                         were counted as true positives. The only exception to this
+of the ProjectAnalyzer tool, displaying available arguments,                      rule was the location region of the results produced by the
+flags, and usage options, while Figure 2 illustrates the usage                    large language models. The rationale behind this exception is
+of the tool, showing the summary of the completed analyzes                        explained in detail in the Discussion section.
+for each selected model, and reporting the time required to                          The number of false positive results was determined by
+generate the full report. The token used to access models                         subtracting the number of confirmed true positives from the
+from the GitHub Models platform was hidden.                                       total number of vulnerabilities identified by each tool or
+                                                                                  model. A false positive is defined as a reported vulnerability
+                                                                                  that does not correspond to any real or known problem in the
+                                                                                  reference data set for the analysed project.
+                                                                                     The F1 score is a standard evaluation metric used to assess
+                                                                                  the overall effectiveness of a classification model by combin-
+                                                                                  ing precision and recall into a single harmonic mean. In the
+                                                                                  context of vulnerability detection, it provides a balanced view
+           FIGURE 1: ProjectAnalyzer - help command                               of how well a tool or model identifies true vulnerabilities
+                                                                                  while minimising incorrect detections. To fully understand
+                                                                                  and calculate the F1 score, it is essential to introduce the indi-
+                                                                                  vidual metrics on which it depends, including false negatives,
+                                                                                  precision, and recall, which together determine the overall
+                                                                                  value of the score.
+                                                                                     False negatives is calculated by subtracting the number
+                                                                                  of true positive results from the total number of known
+                   FIGURE 2: ProjectAnalyzer - usage
+                                                                                  vulnerabilities in the reference data set for each project.
+
+IV. RESULTS
+                                                                                  False Negatives = Total Known Vulnerabilities−True Positives.
+A set of standardised ML model performance metrics was
+utilised for each static analysis tool and the large language                        Precision is defined as the proportion of correctly identi-
+model under consideration to evaluate all the projects pre-                       fied vulnerabilities (True Positives) among all reported vul-
+pared. Specifically, the evaluation measured the execution                        nerabilities and is calculated as:
+6                                                                                                                                                VOLUME 4, 2016
+
+=== [PDF page 7] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+
+You are a static code analysis engine. Your task is to review the provided source
+   ,→ code and identify security vulnerabilities. Focus on detecting vulnerabilities
+   ,→ such as (but not limited to):
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Command Injection
+- Insecure Deserialization
+- Insecure or missing authentication/authorization mechanisms
+- Hardcoded credentials or secrets
+- Improper input validation or lack of sanitization
+- Use of outdated or vulnerable libraries
+- Insecure use of cryptography (e.g., weak algorithms, hardcoded keys)
+- Insecure file handling (e.g., path traversal, unrestricted uploads)
+
+Only analyze and report issues that pose a security risk. Do not report code smells,
+   ,→ general bugs, or non-security-related issues.
+Your output must be a JSON array, enclosed between triple backticks (‘‘‘json and
+   ,→ ‘‘‘), with each finding represented as a JSON object in the following format:
+[{"RuleId":"string","RuleDescription":"string","Level":"Error"|"Warning"|"Note"|"
+   ,→ None", "Message":"string","Path":"string","Category":"string","StartLine":
+   ,→ integer, "EndLine":integer,"StartColumn":integer,"EndColumn":integer}]
+
+Field description:
+- RuleId: A short identifier for the rule or issue.
+- RuleDescription: A brief description of the rule being violated.
+- Level: Severity of the issue (Error, Warning, Note, or None).
+- Message: A concise explanation of the specific issue found.
+- Path: The file path where the issue occurs.
+- Category: The general category.
+- StartLine, EndLine: Line range of the issue.
+- StartColumn, EndColumn: Column range of the issue.
+
+Ensure the JSON is well-formed and strictly adheres to this json structure. All
+   ,→ fields are required.
+                                                     Listing 2: Prompt sent used for analysis
+
+
+
+                                                                                 view of detection performance. All F1 scores reported in
+                               True Positives                                    this work were calculated based on manually verified true
+        Precision =                                     .
+                     True Positives + False Positives                            positive results.
+  Recall, on the other hand, measures the proportion of                             Finally, the execution time was systematically measured
+actual vulnerabilities that were correctly identified by the tool                for each run of the static analysis tools and the imple-
+and is given by:                                                                 mented analyser. These measurements were recorded in sec-
+                                                                                 onds, maintaining a precision of three floating-point decimal
+                             True Positives
+          Recall =                                   .                           places, to support accurate performance comparisons and
+                   True Positives + False Negatives                              detailed evaluation.
+  The F1 score is then calculated as the harmonic mean of
+precision and recall, providing a single measure that balances
+                                                                                  B. EXPERIMENTS
+both:
+                                                                                 The results presented in the following tables illustrate the raw
+                             Precision · Recall                                  performance data gathered during these experiments. This
+             F1 Score = 2 ·                       .
+                            Precision + Recall                                   data is then further analysed to provide insight into each
+  This metric is handy when comparing tools with varying                         method’s strengths, limitations, and overall reliability. The
+balances of precision and recall, as it offers a comprehensive                   experiments were run in a uniform execution environment
+VOLUME 4, 2016                                                                                                                                 7
+
+=== [PDF page 8] ===
+
+                                                               D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+    Project   SonaQube SonaQube CodeQL   CodeQL    Snyk    Snyk
+              Total    TP       Total    TP        Total   TP
+                                                                         and balanced comparison of their detection capabilities and
+    S01       6        4        6        3         10      7             overall effectiveness.
+    S02       1        1        1        1         1       1                The detailed results of this evaluation are presented in
+    S03       2        2        3        3         3       3             Tables 7-12. The detailed results of this evaluation are pre-
+    S04       0        0        0        0         0       0             sented in Tables 7–12. Tool-based methods include Sonar-
+    S05       0        0        3        3         1       1
+    S06       1        1        3        3         7       7
+                                                                         Qube (Table 7), CodeQL (Table 8), and SnykCode (Table 9),
+    S07       1        1        5        5         14      10            while model-based approaches include GPT-4.1 (Table 10),
+    S08       0        0        1        0         7       5             Mistral Large (Table 11), and DeepSeek V3 (Table 12). These
+    S09       4        4        4        3         11      8             tables compile the computed metrics for each tool across all
+    S10       0        0        0        0         3       0
+                                                                         target projects, enabling a direct side-by-side comparison of
+TABLE 4: Number of Total Found and True Positive (TP)                    their effectiveness. The tabulated data form the basis for the
+findings for each project and tool                                       comparative analysis discussed in the following sections.
+                                                                            The static analysis tools - SonarQube, CodeQL, and Snyk-
+    Project   GPT-    GPT-     Mistral   Mistral   DSeek   DSeek         Code - achieved average F1 scores of 0.260, 0.386, and 0.546,
+              4.1     4.1 TP   Total     TP        Total   TP
+              Total
+                                                                         respectively. In comparison, the large language models eval-
+    S01       13      8        11        7         11      7             uated, GPT-4.1, Mistral Large and DeepSeek V3, obtained
+    S02       3       3        3         2         3       3             average F1 scores of 0.797, 0.753, and 0.750, respectively.
+    S03       8       6        8         6         8       6             Detailed average results are presented in Table 13.
+    S04       2       1        3         1         5       1
+    S05       4       4        5         4         6       5
+    S06       10      7        8         6         8       6
+                                                                         A. COMPARISON
+    S07       15      11       9         8         10      8             Figure 3 illustrates the analysis runtime as a function of
+    S08       7       5        5         5         7       6             project size, measured by the number of characters. As
+    S09       9       8        7         7         7       7             shown, for a typical change size as reported by [36], the
+    S10       3       2        2         2         5       3
+                                                                         number of characters does not substantially impact the
+TABLE 5: Number of Total Found and True Positive (TP) per                analysis time. However, a clear outlier is CodeQL, consis-
+project and model                                                        tently demonstrating significantly longer runtimes within this
+                                                                         range. This behaviour can probably be attributed to its archi-
+                                                                         tecture and operational design. Unlike lighter tools tailored
+to eliminate variability due to system performance. Further-             for rapid feedback, CodeQL is primarily intended for con-
+more, each static analysis tool and large language model was             tinuous integration and deployment (CI/CD) environments,
+executed using their default configuration settings, unless              where more extensive computational resources are allocated,
+explicitly stated otherwise, to maintain fairness and repro-             and longer processing times are acceptable in exchange for
+ducibility in all approaches tested.                                     deeper and more thorough analysis.
+   Table 4 presents the total number of vulnerabilities found
+and the number of true positive results for the static anal-
+ysis tools. In contrast, Table 5 provides the corresponding
+data for the large language models. It should be noted that
+SnykCode consistently reports a significantly higher number
+of vulnerabilities compared to the other tools evaluated. This
+trend may indicate a higher detection sensitivity, suggesting
+that SnykCode employs a more aggressive strategy to identify
+potential problems.
+   Table 6 shows the total execution time measured for both
+the large language models and the static analysis tools.
+These measurements were obtained following the procedure
+described in previous section. It should be noted that the
+execution time recorded for CodeQL is significantly longer
+than that of the other tools, which may reflect its deeper or                 FIGURE 3: Tool Runtime vs. Number of Characters
+more comprehensive analysis process.
+
+V. ANALYSIS OF RESULTS
+As part of the effort to perform a comprehensive compar-
+ative analysis using key evaluation metrics, including False
+Positives, False Negatives, Precision, Recall, and the F1
+Score. These metrics were computed for all large language
+models and static analysis tools to facilitate an objective
+8                                                                                                                                     VOLUME 4, 2016
+
+=== [PDF page 9] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+ Project                 SonarQube            CodeQL                 SnykCode            GPT-4.1            Mistral            DeepSeekV3
+ S01                     39.928s              195.102s               27.370s             12.741s            35.149s            17.835s
+ S02                     32.984s              186.703s               20.887s             4.407s             11.178s            5.815s
+ S03                     33.544s              188.552s               27.071s             8.140s             24.019s            11.607s
+ S04                     35.511s              207.137s               13.921s             3.526s             10.181s            7.345s
+ S05                     34.426s              207.640s               16.886s             6.715s             14.790s            7.472s
+ S06                     30.202s              197.323s               18.113s             9.536s             22.919s            29.860s
+ S07                     35.921s              199.423s               21.590s             17.802s            26.623s            13.581s
+ S08                     32.335s              185.923s               16.547s             7.633s             15.669s            12.701s
+ S09                     38.701s              191.757s               19.025s             8.196s             22.696s            9.931s
+ S10                     63.905s              213.088s               29.266s             4.769s             67.273s            9.083s
+
+                                               TABLE 6: Execution time for each tool and model
+
+
+                                SonarQube                                         B. NUMBER OF FALSE POSITIVES
+ Project      False        False      Precision     Recall      F1
+              Positive     Nega-                                Score
+                           tive
+ S01          2            4          0.667         0.500       0.571
+                                                                                 Figure 4 illustrates the juxtaposition of the average false
+ S02          0            2          1.000         0.333       0.500
+ S03          0            4          1.000         0.333       0.500            positive rate (FP) with the total number of vulnerabilities
+ S04          0            1          0.000         0.000       0.000            found by each tool and the large language model. A lower
+ S05          0            6          0.000         0.000       0.000            ratio indicates higher precision in vulnerability detection,
+ S06          0            7          1.000         0.125       0.222            reflecting a lower percentage of incorrect alerts than the total
+ S07          0            12         1.000         0.077       0.143
+                                                                                 number of reported vulnerabilities.
+ S08          0            7          0.000         0.000       0.000
+ S09          0            4          1.000         0.500       0.667
+ S10          0            3          0.000         0.000       0.000
+
+        TABLE 7: Calculated metrics using SonarQube                                 As shown in the figure, SonarQube and CodeQL have
+                                                                                 the lowest FP ratios, suggesting that these traditional tools
+                                                                                 are more accurate and targeted in their analysis, generating
+                                 CodeQL
+ Project      False        False     Precision      Recall      F1
+                                                                                 fewer false alerts and highlighting vulnerabilities with greater
+              Positive     Nega-                                Score            reliability. Their performance indicates a level of reliability
+                           tive                                                  that can be especially appreciated in software development
+ S01          3            5         0.500          0.375       0.429            environments where accuracy and confidence in results are
+ S02          0            2         1.000          0.333       0.500
+ S03          0            3         1.000          0.500       0.667
+                                                                                 essential.
+ S04          0            1         0.000          0.000       0.000
+ S05          0            3         1.000          0.500       0.667
+ S06          0            5         1.000          0.375       0.545
+ S07          0            8         1.000          0.385       0.556               On the other hand, DeepSeek V3 shows the highest FP ratio
+ S08          1            7         0.000          0.000       0.000            in the investigated solutions. This behaviour may result in
+ S09          1            5         0.750          0.375       0.500            the need to increase the effort in verification on the part of
+ S10          0            3         0.000          0.000       0.000            developers, who must spend more time manually reviewing
+           TABLE 8: Calculated metrics using CodeQL                              and validating the analysis results. This suggests that while
+                                                                                 the tool may be accurate in its assessments, it may also
+                                                                                 overwhelm users with alerts that may not correspond to
+                                SnykCode
+                                                                                 actual threats.
+ Project      False        False     Precision      Recall      F1
+              Positive     Nega-                                Score
+                           tive
+ S01          3            1         0.700          0.875       0.778
+ S02          0            2         1.000          0.333       0.500               It is also important to note that the performance of Snyk-
+ S03          0            3         1.000          0.500       0.667            Code is closely aligned with that of LLM-based tools, with
+ S04          0            1         0.000          0.000       0.000            its FP ratio between those of traditional analysers and large
+ S05          0            5         1.000          0.167       0.286            language models. This similarity may be due to its hy-
+ S06          0            1         1.000          0.875       0.933
+ S07          4            3         0.714          0.769       0.741            brid analytical approach, which combines machine learning
+ S08          2            2         0.714          0.714       0.714            algorithms with techniques commonly employed in static
+ S09          3            0         0.727          1.000       0.842            analysis [24]. The fusion of these methods probably shapes
+ S10          3            3         0.000          0.000       0.000            its detection behaviour, resulting in a reporting pattern that
+        TABLE 9: Calculated metrics using SnykCode.                              reflects characteristics of both traditional and AI-enhanced
+                                                                                 approaches.
+VOLUME 4, 2016                                                                                                                                 9
+
+=== [PDF page 10] ===
+
+                                                                   D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+                                                                      GPT-4.1
+ Project               False Positive             False Negative            Precision                 Recall                    F1 Score
+ S01                   5                          0                         0.615                     1.000                     0.762
+ S02                   0                          0                         1.000                     1.000                     1.000
+ S03                   2                          0                         0.750                     1.000                     0.857
+ S04                   1                          0                         0.500                     1.000                     0.667
+ S05                   0                          2                         1.000                     0.667                     0.800
+ S06                   3                          1                         0.700                     0.875                     0.778
+ S07                   4                          2                         0.733                     0.846                     0.786
+ S08                   2                          2                         0.714                     0.714                     0.714
+ S09                   1                          0                         0.889                     1.000                     0.941
+ S10                   1                          1                         0.667                     0.667                     0.667
+
+                                    TABLE 10: Calculated metrics for each project using GPT-4.1
+
+                                                                   Mistral Large
+ Project               False Positive             False Negative            Precision                 Recall                    F1 Score
+ S01                   4                          1                         0.636                     0.875                     0.737
+ S02                   1                          1                         0.667                     0.667                     0.667
+ S03                   2                          0                         0.750                     1.000                     0.857
+ S04                   2                          0                         0.333                     1.000                     0.500
+ S05                   1                          2                         0.800                     0.667                     0.727
+ S06                   2                          2                         0.750                     0.750                     0.750
+ S07                   1                          5                         0.889                     0.615                     0.727
+ S08                   0                          2                         1.000                     0.714                     0.834
+ S09                   0                          1                         1.000                     0.875                     0.934
+ S10                   0                          1                         1.000                     0.667                     0.800
+
+                                  TABLE 11: Calculated metrics for each project using Mistral Large
+
+                                                                   DeepSeek V3
+ Project               False Positive             False Negative            Precision                 Recall                    F1 Score
+ S01                   4                          1                         0.636                     0.875                     0.737
+ S02                   0                          0                         1.000                     1.000                     1.000
+ S03                   2                          0                         0.750                     1.000                     0.857
+ S04                   4                          0                         0.200                     1.000                     0.334
+ S05                   1                          1                         0.833                     0.833                     0.834
+ S06                   2                          2                         0.750                     0.750                     0.750
+ S07                   2                          5                         0.800                     0.615                     0.696
+ S08                   1                          1                         0.857                     0.857                     0.857
+ S09                   0                          1                         1.000                     0.875                     0.934
+ S10                   3                          1                         0.400                     0.667                     0.500
+
+                                  TABLE 12: Calculated metrics for each project using DeepSeek V3
+
+ Tool            Avg. Precision     Avg. Recall       Avg. F1 Score
+                                                                             C. AVERAGE F1 SCORE
+ SonarQube       0.567              0.187             0.260
+ CodeQL          0.625              0.284             0.386                  Figure 7 builds on the insights from Figure 5 Figure 6 and
+ SnykCode        0.686              0.523             0.546                  compares the effectiveness of each tool using the F1 score.
+ GPT-4.1         0.757              0.877             0.797
+ Mistral Large   0.783              0.783             0.753
+                                                                             The FP ratio highlights the effectiveness of a tool in isolation.
+ DeepSeek V3     0.723              0.847             0.750                  Still, the F1 score provides a more comprehensive measure
+                                                                             that balances both the precision of correct detections and the
+TABLE 13: Average Precision, Recall and F1 Score for each                    completeness of the tool in recognising issues.
+tool and model
+                                                                                Figure 5 and Figure 6 show that SnykCode performs better
+                                                                             than other traditional static analysis tools in the F1 score
+                                                                             and competes with systems based on large language models,
+                                                                             further validating the effectiveness of its hybrid analysis
+                                                                             strategy. The tool created by Snyk Company achieved the
+                                                                             highest average F1 score of 0.55; however, it should be noted
+                                                                             that it has two outliers for projects S04 and S10, which can
+                                                                             be easily seen earlier, in Figure 5. In contrast, although strong
+10                                                                                                                                         VOLUME 4, 2016
+
+=== [PDF page 11] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+in precision as shown earlier, SonarQube and CodeQL have                         by one of the steps the text undergoes before processing: BPE
+more limited recall, leading to greater variance and lower                       tokenisation, which transformer-based models use [39]. This
+medians in their F1 score distributions.                                         is a known and common problem. It can be a major limitation
+   GPT-4.1, Mistral-Large and DeepSeek V3 achieve higher                         in building systems that require precisely determining error
+F1 scores than traditional tools such as SonarQube and                           locations.
+CodeQL. Despite its high false-positive rate, DeepSeek V3                           CodeQL achieved the worst results of all the static code
+performs well in terms of F1 score, suggesting that this                         analysis tools tested, regarding the time required for analysis.
+compensates for its lower precision shown in Figure 3. It is                     This may be due to the intended use of this tool, which
+worth mentioning that with the use of large language models,                     was designed for professional applications that use many
+outliers can also be observed for Mistral-Large and DeepSeek                     predefined rules that the user can define. The need to load
+V3 in the S04 project. These can be observed in Figure 7.                        them into memory and process them can be a potential reason
+                                                                                 for these results.
+                                                                                    A well-known problem that occurs when using large lan-
+                                                                                 guage models is hallucinations. Is it a situation where the
+                                                                                 generated response is deviated, based neither on training
+                                                                                 data nor input from the user [40], [41]. Such an answer
+                                                                                 only appears to be correct, but it contains false information.
+                                                                                 Table 14 contains examples of such findings. In each case, the
+                                                                                 latest available versions of the libraries are used in the anal-
+                                                                                 ysed projects, but the models consider them obsolete. This
+                                                                                 situation cannot occur with classical code analysis tools, as
+     FIGURE 5: Comparison of effectiveness (Precision)                           they usually have a list of deprecated dependencies updated
+                                                                                 regularly.
+                                                                                    When analysing the results, false positives and false neg-
+                                                                                 atives were considered. From the end user’s point of view,
+                                                                                 false negatives are more dangerous, as they translate into
+                                                                                 overlooking real vulnerabilities that could affect the system’s
+                                                                                 functioning. However, it is worth noting that false positive
+                                                                                 results also have negative effects. The primary one is that
+                                                                                 developers pay less attention to the results of the analysis. As
+                                                                                 a consequence, this can lead to the ignored real issues [42].
+
+                                                                                  A. FUTURE WORKS
+      FIGURE 6: Comparison of Effectiveness (Recall)                             Although this thesis provides a comparative analysis of tradi-
+                                                                                 tional static analysis tools such as SonarQube, CodeQL and
+                                                                                 SnykCode and the large language models GPT-4.1, Mistral
+                                                                                 Large and DeepSeek V3 in the context of vulnerability detec-
+                                                                                 tion, several directions remain open for further exploration
+                                                                                 and development. One aspect worth exploring is prompt
+                                                                                 engineering, i.e. manipulating the content of queries that are
+                                                                                 sent to the models and their impact on the results received.
+                                                                                    Another direction could be an attempt to create a hybrid
+                                                                                 solution that uses both classical tools and language mod-
+                                                                                 els. These approaches can be used to prioritise and verify
+                                                                                 vulnerabilities found. This could contribute to reducing the
+                                                                                 weaknesses of both approaches.
+     FIGURE 7: Comparison of Effectiveness (F1 score)
+
+VI. DISCUSSION, LIMITATIONS, AND FUTURE WORK
+One of the fields found in the SARIF schema is region,
+which reports the location of vulnerabilities found with line
+and column precision in a given file [10]. All of the large
+language models tested were unable to determine it correctly.
+All results correctly identified the file, but the incorrect
+location was always reported. Upon further analysis, no
+correlation was found in these errors. They are likely caused
+VOLUME 4, 2016                                                                                                                                11
+
+=== [PDF page 12] ===
+
+                                                                             D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+ Project                  Model                    Rule ID                                     Message
+ S02                      Mistral Large            VULNERABLE_LIBRARY                          The version ’9.0.5’ of the ’Microsoft.Data.Sqlite’ package
+                                                                                               is outdated. Consider updating to a more recent version.
+ S03                      Mistral Large            WEAK_ALGORITHM                              Using an outdated version of Microsoft.Data.SQLite li-
+                                                                                               brary.
+ S06                      GPT 4.1                  OUTDATED_DEPENDENCY                         The Newtonsoft.Json package is used (version 13.0.3).
+                                                                                               Ensure to update it against security vulnerabilities.
+
+                                               TABLE 14: Hallucinated findings by project and model
+
+
+VII. CONCLUSION                                                                             interchange format (sarif) version 2.1.0. OASIS Standard, March 2020.
+                                                                                            Edited by Michael C. Fanning and Laurence J. Golding.
+After analysing all projects using the selected static code                             [9] Sriteja Kummita and Goran Piskachev. Integration of the static analysis
+analysis tools and large language models, conclusions can                                   results interchange format in cognicrypt. arXiv preprint arXiv:1907.02558,
+be drawn. Large language models perform well in detecting                                   2019.
+                                                                                       [10] SchemaStore contributors. SARIF JSON Schema (Version 2.1.0). https:
+code vulnerabilities, as seen from comparing the F1 score
+                                                                                            //json.schemastore.org/sarif-2.1.0.json, 2020. Accessed: 2025-05-28.
+values shown in Figure 7. The ability to analyse the entire                            [11] G. Liang and Q. Wang. CODAS: An Extensible Static Code Defect
+context of the code, as opposed to traditional tools that rely                              Analysis Service. Computer Science, 39(1):14–18, 2012.
+on defined patterns, can be considered the reason. It is also                          [12] Igor Regis da Silva Simões and Elaine Venson. Evaluating source code
+                                                                                            quality with large languagem models: a comparative study. https://doi.org/
+worth noting that the increased probability of reporting false                              10.48550/arxiv.2408.07082, 2024. arXiv preprint.
+positives comes with the greater ability to detect vulnerabil-                         [13] Baleegh Ahmad, Hammond Pearce, Ramesh Karri, and Benjamin Tan.
+ities. This is shown in Figure 4. Another important factor                                  Lashed: Llms and static hardware analysis for early detection of rtl bugs.
+                                                                                            arXiv preprint arXiv:2504.21770, 2025.
+when considering large language models as code analysis                                [14] Tomasz Szandała. Chatgpt vs human expertise in the context of it
+tools is their inability to provide the exact location of the                               recruitment. Expert Systems with Applications, 264:125868, 2025.
+vulnerabilities found. When developing more elaborate code                             [15] W. R. Nichols Jr. The cost and benefits of static analysis during develop-
+                                                                                            ment. arXiv preprint arXiv:2003.03001, 2020.
+analysis systems, the failure to provide location information                          [16] Wikipedia contributors. SonarQube — Wikipedia, The Free Encyclopedia.
+when the SARIF format is used may preclude using large                                      https://en.wikipedia.org/wiki/SonarQube, 2025. Accessed: 2025-05-28.
+language models.                                                                       [17] SonarSource. Languages Overview - SonarQube Documentation. https:
+                                                                                            //docs.sonarsource.com/sonarqube-server/10.8/analyzing-source-code/
+   In conclusion, classical tools for static code analysis are                              languages/overview/, 2025. Accessed: 2025-05-28.
+recommended in situations requiring reliability and preci-                             [18] SonarSource. Sonar Extends Code Security Coverage with SonarQube Ad-
+sion, such as software audits, which are necessary for systems                              vanced Security. https://www.sonarsource.com/company/press-releases/
+                                                                                            sonar-extends-code-security-coverage-with-sonarqube-advanced-security/,
+that must be reliable and used in critical sectors. In such                                 2024. Accessed: 2025-05-28.
+situations, the definition of specific patterns is often required.                     [19] SonarSource. Pricing. https://www.sonarsource.com/plans-and-pricing/,
+Solutions based on large language models have a higher                                      2025. Accessed: 2025-05-28.
+                                                                                       [20] SonarSource. Data Privacy. https://www.sonarsource.com/company/
+sensitivity, but generate more false-positive results. They                                 privacy/, 2025. Accessed: 2025-05-28.
+can be used during the development process to ensure that                              [21] GitHub Inc. About Code Scanning with CodeQL. https://docs.github.
+developers working on the system are aware of defects.                                      com/en/code-security/code-scanning/introduction-to-code-scanning/
+                                                                                            about-code-scanning-with-codeql, 2025. Accessed: 2025-05-28.
+                                                                                       [22] GitHub Inc. About Code Scanning with CodeQL. https://github.com/
+REFERENCES                                                                                  pricing, 2025. Accessed: 2025-05-28.
+                                                                                       [23] GitHub Inc. GitHub General Privacy Statement. https://docs.github.com/
+ [1] Daniel Ajiga, Patrick Azuka Okeleke, Samuel Olaoluwa Folorunsho, and                   en/site-policy/privacy-policies/github-general-privacy-statement, 2025.
+     Chinedu Ezeigweneme. The role of software automation in improving                      Accessed: 2025-05-28.
+     industrial operations and efficiency. International Journal of Engineering        [24] Snyk Inc.         Snyk Code Documentation.             https://docs.snyk.io/
+     Research Updates, 7(1):22–35, 2024.                                                    scan-with-snyk/snyk-code, 2024. Accessed: 2025-05-28.
+ [2] Daniel Kästner, Laurent Mauborgne, and Christian Ferdinand. On soft-              [25] Ravi Maira. Developer Fist SAST with Snyk Code. https://snyk.io/blog/
+     ware safety, security, and abstract interpretation. In Computer Safety,                developer-first-sast-with-snyk-code/, 2020. Accessed: 2025-05-28.
+     Reliability, and Security, pages 662–665. Springer, Cham, 2018.                   [26] Snyk Inc. Plans and Pricing. https://snyk.io/plans/, 2025. Accessed: 2025-
+ [3] R. D. Venkatasubramanyam, S. Gupta, and U. Uppili. Assessing the                       05-28.
+     effectiveness of static analysis through defect correlation analysis. In Pro-     [27] Snyk Inc.            How Snyk Handles Your Data.                      https:
+     ceedings of the International Conference on Global Software Engineering                //github.com/snyk/user-docs/blob/main/docs/working-with-snyk/
+     (ICGSE), pages 100–104, 2015.                                                          how-snyk-handles-your-data.md, 2025. Accessed: 2025-05-28.
+ [4] Devarshi Singh, Varun Ramachandra Sekar, Kathryn T. Stolee, and Brit-             [28] OpenAI Inc. API Pricing. https://openai.com/api/pricing/, 2025. Ac-
+     tany Johnson. Evaluating how static analysis tools can reduce code review              cessed: 2025-05-28.
+     effort. In 2017 IEEE Symposium on Visual Languages and Human-Centric              [29] OpenAI Inc. GPTs Data Privacy FAQs. https://help.openai.com/en/
+     Computing (VL/HCC), pages 101–105, 2017.                                               articles/8554402-gpts-data-privacy-faqs, 2025. Accessed: 2025-05-28.
+ [5] Dušan Nikolić, Dragan Stefanović, Milica Nikolić, Darko Dakić, Marko          [30] OpenAI Inc. Introducing GPT-4.1 in the API. https://openai.com/index/
+     Stefanović, and Siniša Koprivica. Uncovering determinants of code quality             gpt-4-1/, 2025. Accessed: 2025-05-28.
+     in education via static code analysis. IEEE Access, 1, 2024.                      [31] DeepSeek Inc. Models & Pricing. https://api-docs.deepseek.com/quick_
+ [6] Alexandru G Bardas et al. Static code analysis. Journal of Information                 start/pricing, 2025. Accessed: 2025-05-28.
+     Systems & Operations Management, 4(2):99–107, 2010.                               [32] DeepSeek Inc. DeepSeek Privacy Policy. https://cdn.deepseek.com/
+ [7] Jernej Novak, Andrej Krajnc, and Rok Žontar. Taxonomy of static code                   policies/en-US/deepseek-privacy-policy.html, 2025. Accessed: 2025-05-
+     analysis tools. In The 33rd International Convention MIPRO, pages 418–                 28.
+     422, 2010.                                                                        [33] DeepSeek Inc. DeepSeek V3 Model Card. https://www.prompthub.us/
+ [8] Michael C. Fanning and Laurence J. Golding. Static analysis results                    models/deepseek-v3, 2025. Accessed: 2025-05-28.
+
+12                                                                                                                                                    VOLUME 4, 2016
+
+=== [PDF page 13] ===
+
+D.Gnieciak, T.Szandala et al.: Large Language Models Versus Static Code Analysis Tools
+
+
+
+[34] Mistral AI Inc. Pricing. https://mistral.ai/pricing#api-pricing, 2025.
+     Accessed: 2025-05-28.
+[35] Mistral AI Inc.        Terms of Service.          https://mistral.ai/terms#
+     terms-of-service, 2025. Accessed: 2025-05-28.
+[36] Mívian Ferreira, Diego Gonçalves, Mariza A. S. Bigonha, and Kecia A. M.
+     Ferreira. Characterizing commits in open-source software. In Brazilian
+     Symposium on Software Quality, 2022.
+[37] GitHub Inc.       GitHub Models Marketplace.           https://github.com/
+     marketplace?type=models, 2025. Accessed: 2025-05-28.
+[38] Microsoft. Microsoft.extensions.ai libraries, May 2025. Accessed: 2025-
+     06-05.
+[39] Yekun Chai, Yewei Fang, Qiwei Peng, and X. Li. Tokenization falling
+     short: The curse of tokenization. https://doi.org/10.48550/arxiv.2406.
+     11687, 2024. arXiv:2406.11687.
+[40] Yejin Bang, Ziwei Ji, Alan Schelten, Anthony Hartshorn, Tara Fowler,
+     Cheng Zhang, Nicola Cancedda, and Pascale Fung. HalluLens: LLM
+     Hallucination Benchmark. arXiv preprint arXiv:2504.17550, 2025.
+[41] Tomasz Szandała. Aiops for reliability: Evaluating large language models
+     for automated root cause analysis in chaos engineering. In International
+     Conference on Computational Science, pages 323–336. Springer, 2025.
+[42] Foteini Cheirdari and George Karabatis. Analyzing false positive source
+     code vulnerabilities using static analysis tools. In Proceedings of the
+     International Conference on Big Data, pages 4782–4788, 2018.
+
+
+
+
+                           DAMIAN GNIECIAK a WIT graduate with a mas-
+                           ter’s degree in Computer Science and a software
+                           engineer with a professional focus on cloud tech-
+                           nologies, is currently developing a specialization
+                           in Microsoft Azure. He is particularly interested in
+                           the design and implementation of scalable, secure,
+                           and highly available solutions.
+
+
+
+
+                         TOMASZ SZANDALA a Ph.D. graduate in Com-
+                         puter Science (2022), is a PostDoc researcher
+                         at the Scuola Universitaria Professionale della
+                         Svizzera italiana in Lugano, supported by an ES-
+                         KAS scholarship. His academic work centers on
+                         applied computer science and DevOps. In addition
+                         to academic pursuits, Tomasz is a certified DevOps
+                         engineer with expertise in Kubernetes and Google
+                         Cloud Platform, frequently publishing industrial
+                         papers that bridge theoretical and practical insights
+across his academic and professional experience.
+
+
+
+
+VOLUME 4, 2016                                                                           13

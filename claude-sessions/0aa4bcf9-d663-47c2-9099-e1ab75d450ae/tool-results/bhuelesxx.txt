@@ -1,0 +1,478 @@
+=================== spracklen2024we
+- Year / venue: Published at USENIX Security 2025. **Source tier 1** (peer-reviewed full conference paper).
+  - This analysis uses the arXiv v3 text (arXiv:2406.10279v3, 2 Mar 2025, p. 1).
+  - The venue is not printed in the arXiv text. It is supported by [@churilov2026range, p. 1; @churilov2026range, p. 16] and [@okwor2026hallucination, p. 9].
+  - Differences between the arXiv text and the proceedings version cannot be ruled out.
+- DOI: 10.48550/arxiv.2406.10279 · URL: https://arxiv.org/abs/2406.10279
+## 3. Methodology
+- Research design: [V] A three-phase pipeline: (i) build the prompt datasets, (ii) generate code, (iii) detect hallucinations (p. 5). This is followed by targeted sub-experiments for RQ2–RQ4 and a mitigation experiment for RQ5 (p. 7–13).
+- Approach / model / intervention: [V] 16 models (Table 1, p. 6):
+  - GPT-4, GPT-4 Turbo, GPT-3.5 Turbo;
+  - CodeLlama 7B/13B/34B;
+  - DeepSeek Coder 1.3B/6.7B/33B;
+  - Magicoder 6.7B, WizardCoder 34B, Mistral 7B, Mixtral 8x7B, OpenChat 7B;
+  - WizardCoder-Python 7B and CodeLlama-Python 33B (Python only).
+
+  Models were picked from the top of the EvalPlus leaderboard as of 20 January 2024, plus the GPT models (p. 5). The two Python-only models were not tested on JavaScript, which gives 30 tests (p. 6).
+- Package-name extraction: [V] Three heuristics (p. 6–7):
+  - **H1:** parse `pip install` / `npm install` commands that the model wrote on its own (they appear in 7% of outputs).
+  - **H2:** give the generated code back to the same model and ask which packages are needed to run it.
+  - **H3:** give the original prompt back to the same model and ask which packages would solve the task.
+
+  Parsing `import` / `require` statements is explicitly rejected, because module names do not map one-to-one onto package names (p. 6; Appendix G, p. 19).
+- Hallucination decision: [V] A name counts as hallucinated if it is absent from a master list of PyPI or npm package names taken on 10 January 2024 (p. 7). [A] The master list may already contain names that attackers have squatted, so the authors present their rates as a lower bound (p. 7).
+- Mitigation: [V] Tested on DeepSeek Coder 6.7B and CodeLlama 7B, each method alone and all combined (p. 12–13):
+  - **RAG:** 65,000 statements of the form "Package [x] could answer questions about [y]", generated with LlaMA-2 from the top 20,000 PyPI packages and stored in a vector database. The 5 closest statements are added to the prompt.
+  - **Self-refinement:** the model is asked whether its packages are valid and regenerates up to 5 times.
+  - **Supervised fine-tuning:** 560,000 response pairs that contain only valid packages. The paper calls these "code/package list (Heuristic 1) and prompt/package list (Heuristic 2)" pairs (p. 12–13).
+  - [I] By the definitions on p. 6–7, these pairs are actually H2 (code→packages) and H3 (prompt→packages); H1 is install-command parsing. Appendix B uses the same shifted numbering: Figure 11 "Heuristic 1" is code→packages and Figure 12 "Heuristic 2" is prompt→packages (p. 18). So the heuristic numbers in the main text and the appendix do not match.
+- Baselines or comparison conditions: [V]
+  - Commercial vs open-source models; Python vs JavaScript.
+  - "Recent" (2023) vs "all-time" (before 2023) prompt subsets (p. 5, p. 7–8).
+  - Temperature sweep, and top-p / top-k / min-p settings (p. 8).
+  - Unmitigated baseline vs each mitigation (p. 13).
+  - Comparison with Lanyado's blog estimate: GPT-3.5 24.2%, GPT-4 22.2% (p. 7).
+
+## 4. Dataset and sample
+- Data source(s):
+  - [V] **Stack Overflow set** (p. 5):
+    - 240 manually chosen tags, each with more than 5,000 questions and relevant to Python or JavaScript;
+    - the 20 most-upvoted questions per tag give 4,800 prompts per language;
+    - this was done once for 2023 ("recent") and once for before 2023 ("all-time"), so 9,600 prompts per language.
+  - [V] **LLM-generated set** (p. 5):
+    - Llama-2 70B turned the descriptions of the 5,000 most-downloaded PyPI and npm packages into one-sentence coding prompts (prompt template in Figure 13, p. 19);
+    - about 4,800 prompts per language;
+    - also split into recent and all-time halves, with overlap removed.
+- Sample size (N) and unit:
+  - [V] 19,200 code samples per test, 30 tests, 576,000 code samples in total (p. 6).
+  - [V] Two package prompts per code sample, so 1,152,000 package prompts (p. 7).
+  - [V] These produced 2.23 million package mentions; 440,445 were hallucinated, covering 205,474 unique hallucinated names (p. 7).
+  - [V] The contributions list instead says 19,500 prompts and 586,000 samples (p. 2), which does not match the 576,000 elsewhere (p. 1, p. 6). The paper does not explain the difference.
+- Sampling / selection method:
+  - [A] The authors say RQ2–RQ4 use only Python, 4 models (GPT-4 Turbo, GPT-3.5, CodeLlama 7B, DeepSeek 6.7B) and "randomly sampled subsets" of the datasets (p. 7).
+  - [V] Some RQ2–RQ4 analyses nonetheless use all 16 Python models: the recency comparison ("all 16 Python models", p. 8) and the cross-model analysis (Figure 8 and the family comparison, p. 10).
+  - The size of the subsets is not reported, except for the 500 prompts in the persistence test (p. 9).
+  - The size of the self-detection sample is not reported (p. 9–10).
+- Data availability (public? link?):
+  - [A] The authors promise to release code, both prompt datasets, generated code, the RAG database and the fine-tuned models via Zenodo record 14676377 and GitHub Spracks/PackageHallucination (p. 2, p. 14).
+  - The release of the prompt datasets, package lists and validation code is confirmed by a later replication [@churilov2026range, p. 15; @churilov2026range, p. 17].
+  - [V] The master list of hallucinated names and the detailed per-test results are withheld and shared "by request to verified researchers" (p. 14).
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools:
+  - [V] Open-source models were run with Hugging Face transformers, using GPTQ-quantized weights (p. 6).
+  - [V] Hardware: a 40-node Debian cluster with A100/V100 GPUs, and an Ubuntu machine with 3 RTX 6000 GPUs (p. 18).
+  - [V] RQ1 settings (Table 6, p. 19):
+
+    | Setting | Code generation | Package prompts |
+    |---|---|---|
+    | Temperature | 0.7 | 0.01 |
+    | Max tokens | 2048 | 64 |
+    | Top-p / top-k / repetition penalty | 0.9 / 20 / 1 | 0.9 / 20 / 1 |
+
+  - [V] System messages and prompts are given word for word in Figures 10–13 (p. 18–19).
+  - [V] Temperature sweep: up to 2 for GPT models and up to 5 for open models (p. 8).
+  - [V] Decoding sweep: top-p 0.4/0.6/0.8, top-k 5/10/15, min-p 0.1/0.2/0.3, plus one combined setting. Top-k and min-p were "only tested for DeepSeek and CodeLlama", because the OpenAI API does not expose them (p. 8).
+  - [V] Ground truth: PyPI and npm master lists as of 10 January 2024 (p. 7).
+  - [V] Deleted packages were found from Google BigQuery PyPI download counts from 2022 and earlier (p. 11).
+  - [V] The cross-language check used libraries.io package lists for 9 registries (p. 11).
+  - **Name normalisation** (case folding, PEP 503 equivalence of `-`, `_` and `.`, npm scopes): not reported.
+  - **Standard-library exclusion:** not reported.
+  - **Deduplication:** rates count mentions, and "unique" means distinct strings (p. 7). The exact rule is not reported.
+- Funding and conflicts of interest:
+  - [V] Partly funded by the UTSA Faculty Development Leave programme and NSF award 2231002 (p. 14).
+  - No conflict-of-interest statement.
+  - [V] Findings were disclosed to OpenAI, Meta, DeepSeek and Mistral AI (p. 14).
+- Code availability: [A] Promised (p. 14); confirmed as released, see section 4.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - [V] **Package hallucination rate** = number of hallucinated packages / total recommended packages (p. 7). This is counted per mention. It pools names from H1 (install commands inside the code) with names from H2/H3 (the model's answer to a direct "which packages" question).
+  - [I] **Pooled vs averaged.** Our recomputation from Tables 7–8 (p. 20) shows that only the 19.7% figure is pooled over all mentions (440,445 / 2.23M, p. 7). The other headline figures are unweighted means of per-test rates:
+
+    | Headline figure | Recomputed unweighted mean |
+    |---|---|
+    | 5.2% commercial | 5.22% (6 GPT tests) |
+    | 21.7% open-source | 21.74% (24 open tests) |
+    | 15.8% Python | 15.87% (16 tests) |
+    | 21.3% JavaScript | 21.38% (14 tests) |
+
+  - [V] **Persistence:** how many of 10 repeated queries regenerate the same hallucinated name (p. 9).
+  - [V] **Cross-model count:** the number of models that produce each unique name (p. 10).
+  - [V] **Levenshtein distance** (number of character edits) to the nearest valid package (p. 10–11).
+  - [V] **Self-detection:** accuracy, precision and recall (p. 10).
+  - [V] **HumanEval pass@1**, used to measure code quality after fine-tuning (p. 13).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals):
+  - Not reported. There are no confidence intervals, no significance tests and no run-to-run variance. "Significantly reduce" is used only in a descriptive sense (p. 1, p. 13).
+  - [V] The Python–JavaScript relationship is called "linear" and "positively correlated" from a scatter plot, with no coefficient given (p. 7; Figure 14, p. 19).
+
+## 7. Key findings
+## 9. Limitations we identified
+- [I] **The rate mixes three name sources.** H2 and H3 ask the model directly for package lists (p. 6–7). Names in those answers are not necessarily names that would be installed from generated code. So the pooled per-mention rate is not the same thing as "hallucinated dependency in code", and it cannot be compared directly with rates from import/install parsing (churilov2026range) or per-prompt rates (krishna2025importing). Based on the heuristic definitions, p. 6–7.
+- [I] **Mixed aggregation.** The headline numbers use different aggregations: 19.7% is pooled over mentions, while 5.2%, 21.7%, 15.8% and 21.3% are unweighted means of per-test rates. The "overall" figures for single models are Python-only (p. 7, p. 20). Later studies that compare against "Spracklen's best model 3.59%" are therefore comparing against a Python-only figure.
+- [I] **Normalisation and standard library not reported.** If names were matched without PEP 503 normalisation, variants of real names that differ only in case or separators (e.g. `my_pkg` vs `my-pkg`) would count as hallucinations, which would inflate the rates (p. 7).
+- [I] **Possible train/test leakage in fine-tuning.** The model was fine-tuned on 560,000 valid responses produced from the same prompt datasets (p. 12–13). The paper does not describe which prompts were used for evaluation, so the 2.66% result may be partly in-distribution.
+- [I] **No uncertainty reported.** Each condition was run once, so small differences cannot be judged. For example, self-refinement on CodeLlama moved from 26.28% to 25.51% (p. 13).
+- [I] **Internal inconsistencies.** These are probably typos, but they lower confidence in exact numbers:
+  - 586,000 vs 576,000 samples (p. 2 vs p. 6);
+  - CodeLlama is marked "✗" (not open source) in Table 1 (p. 6) but treated as open-source in the text;
+  - Table 7 contains malformed counts "(2,495/41,7)" and "(2,8523/13,329)" (p. 20);
+  - in the GPT-4 JavaScript Stack Overflow cell, 3.86% does not equal 1,672/23,416 = 7.1% (p. 20);
+  - the recency effect is stated in both directions (p. 8–9);
+  - the heuristic numbering differs between the main text and the appendix (section 3).
+- [I] **"10%" is ambiguous.** For the recency effect, the paper does not say whether 10% is a relative change or a difference in percentage points (p. 8).
+- [I] **No real-world exploitation data.** The registry snapshot (January 2024) is from before the analysis, and the paper does not track whether hallucinated names were registered later (relevant to RQ2).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection):
+  - [I] In H2/H3 the same model generates the code and then names its packages, so its self-consistency becomes part of the measurement.
+  - [I] Fine-tuning data comes from the same prompt pool that is used for evaluation (p. 12–13).
+  - [I] The LLM-generated prompts were written by Llama-2 70B, from the same family as the CodeLlama models being tested (p. 5).
+- External (generalisability of sample/context):
+  - [I] The models are from 2023 to early 2024 (p. 5–6). Agentic and IDE settings are not covered.
+  - [V] Only Python and JavaScript are studied (p. 6).
+  - [I] Open models were run GPTQ-quantized (p. 6), so results may differ for full-precision models.
+- Construct (do metrics measure the concept?):
+  - [I] "Absent from the 10 Jan 2024 list" stands in for "hallucinated". The authors acknowledge that squatted names in the list would bias rates downward (p. 7).
+  - [I] Normalisation, the standard library, and private or scoped names are not addressed (p. 7).
+  - [I] Counting mentions gives more weight to verbose models. Mixing pooled and averaged rates can confuse comparisons (p. 7, p. 20).
+- Statistical conclusion (power, multiple comparisons, variance): [I] There are no tests, no confidence intervals and no repeated runs, apart from the 10-run persistence check (p. 9).
+- Reproducibility (data/code/setup reported?):
+  - [V] Prompts and settings are documented (p. 18–19).
+  - [A] Data and code release is promised (p. 14) and confirmed by [@churilov2026range, p. 15].
+  - [V] The list of hallucinated names is withheld (p. 14).
+  - [I] The commercial-model results cannot be reproduced exactly, because those API endpoints have since changed.
+- Funding / conflicts of interest:
+  - [V] UTSA FDL and NSF 2231002 (p. 14).
+  - No conflict-of-interest statement.
+  - [V] Findings were disclosed to the model vendors before publication (p. 14).
+
+## 11. Future research directions
+=================== churilov2026range
+- Year / venue: 2026, arXiv preprint (not peer-reviewed). **Source tier 3.**
+  - The analysed text is "Version 4 (November 2026)". It replaces all numbers in versions 1–3 and in a SCORED '26 workshop version (p. 1).
+  - Single author, "Independent Researcher" (p. 1).
+- DOI: 10.48550/arxiv.2605.17062 · URL: https://arxiv.org/abs/2605.17062
+## 3. Methodology
+- Research design: [V] Three parts:
+  - a temporal replication: the same prompts run on newer models (p. 2, p. 4);
+  - a re-check of all names against the live registries, following a plan registered in advance on 7 Nov 2026, with a log of 20 deviations from that plan (p. 6);
+  - a natural experiment that uses an accidental public exposure of the universal list (p. 11).
+- Approach / model / intervention: [V] Five models (Table 1, p. 4):
+  - Claude Sonnet 4.6 (`claude-sonnet-4-6`);
+  - Claude Haiku 4.5 (`claude-haiku-4-5-20251001`);
+  - GPT-5.4-mini (`gpt-5.4-mini-2026-03-17`, reasoning effort set to minimal);
+  - Gemini 2.5 Pro (`gemini-2.5-pro`);
+  - DeepSeek V3.2 (alias `deepseek-chat`).
+
+  Extended thinking was not used for the Claude models (p. 4–5).
+- Package extraction: [V] (p. 5)
+  - `pip install` anywhere in the response, first argument only.
+  - `npm install` only inside code blocks.
+  - Import statements: Python parsed with `ast` (sub-imports reduced to the top-level module); JavaScript parsed with tree-sitter.
+  - Scoped npm names (`@scope/name`) kept whole.
+  - Not extracted: requirements files, uv, poetry, yarn, pnpm.
+- Registry check: [V]
+  - Two methods per registry (p. 5):
+    - PyPI: the JSON API and the Simple API (PEP 691);
+    - npm: the registry document and deps.dev.
+  - Status 200 = EXISTS, 404 = ABSENT, anything else = UNKNOWN.
+  - A name is ABSENT only if both methods return ABSENT in two rounds at least 12 hours apart (round 1: 7 Nov 2026, 11:53–13:14 UTC; round 2: 8 Nov 2026, 10:16–11:22 UTC).
+  - At most 1 request per second per host; 14,821 requests, with no errors.
+  - Hallucination is judged as of the moment of generation. The package's creation time (npm `time.created`; on PyPI the earliest upload) is compared with the generation timestamp or the batch window (p. 5).
+  - OSV is queried for malicious-package records (p. 5).
+- Exclusions: [V] four classes of names are removed (p. 5–6):
+  1. extraction noise;
+  2. standard-library modules: the union of `sys.stdlib_module_names` for Python 3.10–3.13 plus the built-in modules of Node 18/20/22;
+  3. names that break PEP 508 or npm naming rules;
+  4. Python import names that pipreqs maps to a package that exists. A name that also appears as an install target stays a candidate.
+- Baselines or comparison conditions:
+  - [V] Spracklen's 2024 figures: 3.59% for the best model, 5.2% commercial average, 21.7% open-source average (p. 3, p. 6).
+  - [I] These baselines are not like-for-like:
+    - Spracklen's 3.59% (GPT-4 Turbo) is a Python-only per-test rate [@spracklen2024we, p. 20], but Churilov compares it with pooled Python+JavaScript rates such as Haiku 4.5's 3.63%. Churilov's own Python-only rate for Haiku is 4.38% (Table 2, p. 7).
+    - Spracklen's 5.2% and 21.7% are unweighted means of per-test rates, not pooled rates [@spracklen2024we, p. 20].
+  - [V] Other comparisons: pairwise between the five models (p. 8), and against earlier versions of this paper (p. 10–11).
+
+## 4. Dataset and sample
+- Data source(s): [V] Spracklen's released prompt datasets, used unchanged (p. 4):
+  - 20,163 Stack Overflow prompts (SO_AT, SO_LY);
+  - 19,806 LLM-written prompts (LLM_AT, LLM_LY);
+  - 39,969 prompts in total, split evenly between Python and JavaScript;
+  - no new 2026 prompts were added.
+
+  [I] The released corpus size of 39,969 does not match the size Spracklen states. Spracklen gives 19,200 samples per model-language test, i.e. 2×19,200 = 38,400 per model across both languages [@spracklen2024we, p. 6], and elsewhere 19,500 prompts [@spracklen2024we, p. 2].
+- Sample size (N) and unit:
+  - [V] 39,969 generations per model (39,964 for Sonnet 4.6), 199,840 in total (p. 4).
+  - [V] Unique hallucinated names: 1,746 on PyPI and 536 on npm (Table 7, p. 11).
+  - [V] Registration groups: A = 104 names, B = 2,178 names (p. 11–12).
+- Sampling / selection method: [V] The models were chosen to represent the main commercial and open-weight providers at the frontier tier (p. 4). [A] The author notes that the results depend on this selection (p. 13).
+- Data availability (public? link?): [V]
+  - Code: GitHub `churik5/slopsquatting-replication-2026` (MIT licence).
+  - Re-check code, preregistration and aggregate results: `churik5/slopsquatting-revalidation-2026`.
+  - Raw responses: available to verified researchers on request.
+  - The universal list is not printed (p. 15).
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools:
+  - [V] Generations collected 22–28 April 2026 (p. 4, p. 14).
+  - [V] Provider defaults were used "unless noted". The temperature and top-p values are recorded but not printed (p. 4).
+  - [V] Refusal rates range from 1.27% to 31.51% (Table 1, p. 4; p. 6).
+  - [V] Estimated cost: $1,160.29 (Table A.1, p. 17).
+  - [V] The edit-distance analysis uses names "after normalization", compared against the registries' package lists of 23 July 2026. The normalisation rule is not specified (p. 9).
+  - [V] PyPI checks rely on PEP 508 (name rules) and PEP 691 (Simple API). PEP 503 normalisation is not explicitly named (p. 5).
+- Funding and conflicts of interest:
+  - [V] The author paid for the study personally, apart from a one-time Google Cloud free-credit grant used for Gemini 2.5 Pro (p. 15).
+  - [A] "The author has no conflicts of interest with the studied providers" (p. 15).
+  - [V] The author used Anthropic's Claude to write analysis code and to draft and edit the text (p. 15).
+- Code availability: [V] Available (p. 15). [A] The repository history was rewritten on 7 Nov 2026, so commit references in earlier versions no longer resolve (p. 15).
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - [V] **Mention-level rate:** the share of extracted package references that are hallucinated. Chosen to match Spracklen's unit (p. 6). [I] It is pooled over both languages, whereas Spracklen's per-model "overall" figures are per-language rates [@spracklen2024we, p. 20].
+  - [V] **Generation-level rate:** the share of generations with at least one hallucinated reference. This is the rate named in the preregistration (p. 6).
+  - [V] **Jaccard overlap** between models' sets of hallucinated names (p. 6).
+  - [V] **Registration share** (p. 11).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [V]
+  - Wilson confidence intervals for rates.
+  - Pearson χ² tests with Holm–Bonferroni correction over the 10 model pairs.
+  - Permutation tests (10,000 resamples, seed 42) (p. 6).
+  - Newcombe intervals for differences (p. 7, p. 12).
+  - Fisher's exact test and Cochran–Mantel–Haenszel test.
+  - Minimum detectable effect: 10.5% at a 1% baseline (p. 12).
+
+## 7. Key findings
+## 9. Limitations we identified
+- [I] **Extraction differs from Spracklen.** The paper says "We follow Spracklen's extraction approach" (p. 5), but it parses import statements. Spracklen explicitly rejects import parsing and instead asks the model for package lists [@spracklen2024we, p. 6–7].
+- [I] **Unit mismatch with the 2024 baseline.** The statement "practically level with the best 2024 model" (p. 6) compares Haiku 4.5's pooled Python+JavaScript rate (3.63%) with Spracklen's Python-only 3.59% for GPT-4 Turbo [@spracklen2024we, p. 20]. Churilov's own Python-only rate for Haiku is 4.38% (Table 2, p. 7), which is above 3.59%. Spracklen's 5.2% and 21.7% are unweighted means of per-test rates [@spracklen2024we, p. 20]. So the headline "2026 frontier at 2024's commercial level" (p. 1) mixes extraction methods, units and ways of averaging.
+- [I] **Two attributions to Spracklen were not found.** The paper says Spracklen explained higher JavaScript rates by npm "fragmentation" (p. 13), and observed that "smaller models within a family tend to hallucinate more" (p. 9). We searched the spracklen2024we text and found neither statement.
+- [I] **Python rates may still be inflated.** pipreqs covers only about 1,157 names (p. 14). Python modules whose import name differs from the package name and are not in that list would still count as hallucinations, which could partly explain the Python > JavaScript result. The author argues against this on p. 13.
+- [I] **Long gap between generation and checking.** About 6 months passed between generation (April) and the registry checks (November). Packages deleted in between could be misclassified as hallucinations.
+- [I] **Temperatures not printed** (p. 4).
+- [I] **Reliability record.** This is version 4 of a fast-revised, single-author paper, and several earlier numbers could not be reproduced (p. 10–11, p. 17). The text was drafted with AI help (p. 15).
+- [I] **Refusals change the rankings.** Model rankings at the generation level depend on how refusals are handled (p. 6).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection):
+  - [A] The prompts may be in the models' training data (p. 14).
+  - [I] Refusal rates differ between models, which distorts generation-level comparisons (p. 6).
+  - [I] Model aliases and settings may have drifted during the run (p. 14).
+- External (generalisability of sample/context):
+  - [A] Results apply only to frontier API models (p. 13–14).
+  - [I] No agentic setting was tested.
+- Construct (do metrics measure the concept?):
+  - [I] Import-based extraction counts names that may never be installed (p. 5–6).
+  - [V] The dated check with two methods per registry is more robust than the static lists used before (p. 5).
+  - [I] Pooled rates are not comparable with Spracklen's per-language rates (section 9).
+- Statistical conclusion (power, multiple comparisons, variance):
+  - [V] Holm correction is applied, and permutation tests confirm the results (p. 6, p. 8).
+  - [V] The natural experiment is underpowered (minimum detectable effect 10.5%) (p. 12).
+  - [I] Only one sample was drawn per prompt.
+- Reproducibility (data/code/setup reported?):
+  - [V] Code, preregistration and aggregate results are public; raw responses are available on request (p. 15).
+  - [A] The repository history was rewritten, and an earlier statement about a Zenodo deposit was incorrect (p. 15).
+- Funding / conflicts of interest:
+  - [V] Self-funded, plus a Google Cloud credit grant (p. 15).
+  - [A] The author reports no conflicts of interest with the studied providers (p. 15).
+  - [I] The free Google credits went specifically to running one of the evaluated models (Gemini) (p. 15).
+  - [V] Claude, one of the evaluated model families, was used to write the analysis code and draft the text (p. 15).
+
+## 11. Future research directions
+=================== okwor2026hallucination
+- Year / venue: 2026, Zenodo preprint ("Preprint, July 2026", p. 1). Single author, affiliated with Orygn LLC (p. 1).
+- **Source tier: 4 (grey literature).** Reasons:
+  - The paper calls itself a "Preprint" (p. 1).
+  - It is a self-deposit on Zenodo, not on a moderated preprint server, and has no peer review.
+  - Single author with a company affiliation, and no funding or conflict-of-interest statement.
+
+  It is used as background and corroborating evidence only.
+- DOI: 10.5281/zenodo.21199426 (concept DOI, used in metadata). The PDF prints 10.5281/zenodo.21199427 (p. 1), which is the version DOI of the same Zenodo deposit. The orchestrator resolved this via the Zenodo API on 2026-11-12. `rlab validate` reports MISMATCH only because Crossref has no record of this DataCite DOI; OpenAlex matches.
+## 3. Methodology
+- Research design: [V] Three parts (p. 2):
+  - (a) a self-generated corpus of hallucinated names, re-checked live;
+  - (b) a public "anchor set" of previously reported hallucinated names, judged by registration date and static content inspection;
+  - (c) an offline demonstration of code running at install time.
+- Approach / model / intervention: [V] Five open-weight models served locally through Ollama: qwen2.5-coder:7b, deepseek-coder:6.7b, codellama:13b, codestral:22b and gpt-oss:20b (p. 3). Prompts ask for Python and JavaScript solutions across a "fixed task set", at temperatures 0.7 and 1.0, with fixed seeds (p. 3).
+- Hallucination check ("two oracles"): [V] (p. 3)
+  - Check A: the name is absent from a frozen snapshot taken at t0 = 2026-06-30. The snapshot has 839,365 normalised PyPI names (from the simple index) and 4,194,421 lowercased npm names (from a public mirror). Both lists are SHA-256 hashed.
+  - Check B: the live registry returns 404 for the name.
+  - A name counts as a confirmed hallucination only if it passes both checks.
+  - When the checks disagree:
+
+    | Snapshot at t0 | Live now | Classified as |
+    |---|---|---|
+    | absent | exists | candidate registration after t0 |
+    | present | 404 | yanked package |
+    | — | network error | unknown |
+
+- Extraction: [V] (p. 3)
+  - Python is parsed with `ast`; JavaScript with an acorn-based parser, falling back to lenient parsing.
+  - Import names are mapped to distribution names where they differ (example: sklearn → scikit-learn). Where the mapping comes from is not reported.
+  - Names are normalised per PEP 503.
+  - Standard-library and built-in modules are excluded.
+  - Scoped and subpath names are resolved.
+  - Tokens that break registry naming rules are dropped.
+- Anchor-set judgement: [V] (p. 4)
+  - True registration time: npm `time.created`; for PyPI, the earliest release upload.
+  - Static inspection only: `setup.py`, `PKG-INFO` and manifests are read as text.
+  - A fixed rubric sorts each registered name into one of four classes: malicious, defensive placeholder, organic (an unrelated real package), or individual reservation.
+- Baselines or comparison conditions: none. [V] A negative control is reported (p. 7; see section 7, finding 5).
+
+## 4. Dataset and sample
+- Data source(s):
+  - [V] The self-generated corpus (p. 3–4).
+  - [V] The anchor set: 149 previously published hallucinated names, taken from the Trend Micro slopsquatting dataset and the DepScope corpus (p. 2–4).
+  - The selection rule for the anchor set is not reported beyond "circulated long enough to attract registration" (p. 1, p. 5).
+- Sample size (N) and unit:
+  - [V] 4,800 generations plus 2,000 more, 6,800 in total. These produced 1,186 + 455 = 1,641 distinct confirmed hallucinated names (p. 4).
+  - [V] Of the 149 anchor names, 22 are registered (p. 5).
+- Sampling / selection method: [V] Generations rotate evenly across the five models (p. 5). Not reported: the size of the task set, the prompt texts, and the split between languages.
+- Data availability (public? link?): [A] Code, configuration and snapshot hashes "will be deposited" with a DOI. The raw name list is withheld, and the registry metadata behind the attribution is available to reviewers under embargo (p. 8–9). We did not check whether any deposit exists.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools:
+  - [V] Temperatures 0.7 and 1.0, fixed seeds, Ollama runtime (p. 3).
+  - Not reported: seed values, maximum tokens, quantization level, hardware.
+  - [V] All 1,641 names were re-checked live on 2026-07-04 (p. 5). The date of the anchor-set check is not reported.
+  - [V] The check was validated on 17 known-real names and 8 synthetic fake names; precision and recall were both 1.000 (p. 4).
+  - [A] The author says every headline count was recomputed independently (p. 4); the procedure is not described.
+- Funding and conflicts of interest: not reported.
+- Code availability: [A] promised for later deposit (p. 8). We did not check whether the deposit exists.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - [V] The number of distinct confirmed hallucinated names, and new names per generation, used to judge whether the name space runs out (p. 4).
+  - [V] The share of names that are registered, with a rule-of-three 95% upper bound (p. 5–6). (Rule of three: when 0 of n cases are observed, the 95% upper bound is about 3/n.)
+  - [V] An intent classification of registered names (p. 5–6).
+  - No hallucination rate is reported.
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [V] Only rule-of-three upper bounds: below 0.2% (1,641 names), about 14% (22 names), about 2% (149 names) (p. 5–6).
+
+## 7. Key findings
+## 9. Limitations we identified
+- [I] **The "zero claimed" result is close to certain by design.** The names were generated privately and re-checked only 4 days after the snapshot (p. 3, p. 5). The 0 of 1,641 result therefore says almost nothing about attacker behaviour.
+- [I] **No hallucination rate is reported.** The paper gives neither a per-mention nor a per-generation rate, so it cannot contribute rates to RQ1. The task set, prompts and quantization are unknown.
+- [I] **Cited numbers are misreported.**
+  - It describes Spracklen's 21.7% as a share "of generations" (p. 1). Spracklen measures per recommended package, and 21.7% is an average over tests [@spracklen2024we, p. 7; @spracklen2024we, p. 20].
+  - It quotes Churilov's 4.62–6.10% "per generation", 127 universal names and 53 registrable names (p. 1–2). These are Churilov's version 1–3 figures, superseded in version 4 [@churilov2026range, p. 10–11], and they were per-mention rates.
+- [I] **The anchor-set selection is unclear** (p. 4–5). The date of the anchor check is missing.
+- [I] **Static inspection may miss payloads.** Reading only setup and manifest files can miss malicious code inside modules or code that runs at import time. Wheel-only packages are not discussed (p. 4).
+- [I] **The attribution cannot be checked.** The single-operator attribution rests on withheld metadata (p. 6).
+- [I] **The grey-source exploitation figures** (p. 2) are not verified by this paper. Use them only through their original sources, which would be tier 5 (vendor and researcher blogs).
+- [I] **No funding or conflict-of-interest statement**, despite the company affiliation (p. 1).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection):
+  - [A] The anchor set over-represents names claimed by defenders (p. 6).
+  - [I] A single adjudicator assigned the labels (p. 8).
+- External (generalisability of sample/context):
+  - [A] Only small local open-weight models, and no agent traffic (p. 8).
+  - [I] Only PyPI and npm, with one snapshot.
+- Construct (do metrics measure the concept?):
+  - [I] "Unregistered after 4 days" does not measure whether a name can be exploited.
+  - [V] The two-check definition is sound as of t0 (p. 3).
+  - [I] It ignores packages registered after the model's training cutoff (compare krishna2025importing).
+- Statistical conclusion (power, multiple comparisons, variance): [V] Only rule-of-three bounds are given (p. 5–6). [I] The bound on the malicious share, about 14%, is wide (p. 6).
+- Reproducibility (data/code/setup reported?):
+  - [A] Code and snapshot hashes are promised but not yet deposited (p. 3, p. 8).
+  - [I] Prompts, seeds and the task set are not given.
+
+## 11. Future research directions
+=================== krishna2025importing
+- Year / venue: 2025, arXiv preprint (not peer-reviewed). **Source tier 3.** arXiv:2501.19012v1, 31 Jan 2025 (p. 1).
+  - Page 1 carries the footer "Proceedings of the 41st International Conference on Machine Learning, Vienna, Austria. PMLR 235, 2024" (p. 1).
+  - [I] This is most likely left over from the conference template, since v1 was posted after ICML 2024 took place. We treat the venue as unverified.
+- DOI: 10.48550/arxiv.2501.19012 · URL: https://arxiv.org/abs/2501.19012
+## 3. Methodology
+- Research design: [V] Black-box probing with garak, an open-source tool for probing LLMs: send prompts, extract the imported packages from the output, and compare them with registry lists (p. 3).
+- Definition: [V] A package counts as hallucinated if it meets any of these conditions (p. 3):
+  - it is not registered on the relevant registry (npm, PyPI or crates.io);
+  - it was first registered after the model's knowledge cutoff;
+  - if the cutoff is unknown, it was first registered less than 90 days before the model's first publication.
+
+  How the knowledge cutoffs were obtained is not reported.
+- Approach / model / intervention: [V] 11 models (Table 1, p. 3):
+  - CodeGemma 7B;
+  - Dracarys-Llama-3.1-70B;
+  - GPT-4o (gpt-4o-2024-08-06; listed as about 200B parameters, an estimate from a third-party source);
+  - Granite-3.0 8B;
+  - Llama-3.1 8B and 70B;
+  - Mamba-Codestral 7B;
+  - Mistral-NeMo-Minitron-8B;
+  - Llama-3.1-Nemotron-70B;
+  - Qwen2.5-Coder 7B;
+  - StarCoder2-15B.
+
+  Six are classed as code-specialised and five as general-purpose (p. 6).
+- Prompts: [V] Every combination of 7 request stubs and 13 coding tasks, for each language (p. 4; Tables 6–7, p. 12). Each request is repeated five times (p. 4).
+  - Some stubs use personas ("As a woman, I need example...", "What <language> module would a Black person use...") (p. 12). Their purpose is not explained.
+  - Which prompts count as induced is not stated.
+- Extraction: [V] Regular expressions per language (p. 12):
+  - Python: `import x`, `from x import`, `import x as`;
+  - JavaScript: ES6 `import ... from`, CommonJS `require()`;
+  - Rust: `use x`, `extern crate x`, and `x::` path references.
+
+  Not reported: mapping from import name to package name, name normalisation, and standard-library exclusion.
+- Baselines or comparison conditions: [V] Comparisons across languages, code-specialised vs general models, model size, and HumanEval/MBPP scores (p. 4–7). No mitigation baseline.
+
+## 4. Dataset and sample
+- Data source(s): [V] Package names and release dates scraped from each registry, as of 30 January 2025 (Table 2, p. 4):
+  - npm: 3,391,235 packages;
+  - PyPI: 604,814;
+  - crates.io: 169,823.
+
+  How the scraping was done is not reported.
+- Sample size (N) and unit:
+  - The number of generations is not reported.
+  - [I] Every PHR value in Table 3 (p. 4) is an exact multiple of 1/455; we checked all 33 values. For example, 0.22% = 1/455, 2.42% = 11/455 and 46.15% = 210/455. This supports N = 455 prompts per model-language cell, which matches 7 stubs × 13 tasks × 5 repeats (p. 4, p. 12).
+  - [I] That gives 1,365 prompts per model and about 15,000 in total.
+  - [I] Nemotron's 0.22% (JavaScript and Rust) is therefore a single hallucinating prompt.
+  - [V] 11 models (p. 6).
+- Sampling / selection method: [V] Models were chosen to vary in size, provider and purpose (p. 3). The 13 tasks were hand-picked and include obscure or possibly fictional targets such as "StrombergDB", "Tektronics 4051" and "Query/400" (p. 12).
+- Data availability (public? link?): [V] Only a general statement that the study used open-source software and openly available models (p. 10). No link is given.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: [V] Experiments were run through garak (p. 3), with 5 repeats per request (p. 4). Not reported: temperature, decoding settings, maximum tokens, hardware, inference provider, quantization.
+- Funding and conflicts of interest: not reported. [V] Three of the four authors are affiliated with NVIDIA (p. 1).
+- Code availability: no repository is linked (p. 10). [I] garak itself is open source.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen: [V] Package Hallucination Rate (PHR) is the share of prompts that produced at least one hallucinated package (p. 4). It is a per-generation rate, not a per-package rate.
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [V]
+  - Pearson correlation of model size with PHR: r = −0.542, p = 0.00114; using log(size): r = −0.593, p = 0.00028 (p. 6–7).
+  - HumanEval vs PHR: r = −0.7887. MBPP vs PHR: r = −0.2919. No p-values are given for these (p. 7).
+  - t-test, code-specialised vs general models: significant only for JavaScript, and not significant once GPT-4o is removed (p. 6).
+  - No confidence intervals and no correction for multiple comparisons.
+
+## 7. Key findings
+## 9. Limitations we identified
+- [I] **Likely false positives from module/package mismatch.** Python imports are extracted by regex with no import-to-package mapping and no standard-library filter (p. 12). Imports like `sklearn`, `cv2` or `yaml` may be counted as hallucinations because their PyPI package names differ. The Rust `name::` pattern can match `std::`, `crate::` or local modules. Compare churilov2026range, where import names of real packages were the largest source of false positives [@churilov2026range, p. 10].
+- [I] **Pseudo-replication in the size correlation.** Each model contributes three language points that are treated as independent (finding 4).
+- [I] **The size correlation rests on an unverified number.** GPT-4o's size is a 200B estimate from a third-party source (Table 1 footnote, p. 3). GPT-4o is the largest point by far, so this single estimate drives the correlation.
+- [I] **Text contradicts the paper's own tables.**
+  - The text says Mamba-Codestral achieves "lower PHRs than all other models in its size class" (p. 6), but Table 5 gives Mamba-Codestral 21.03% vs Llama-3.1-8B 15.24% (p. 7).
+  - Coding models are said to span "14.95% to 24.40% PHR" with a mean of 26.90% (p. 6), which is impossible.
+  - Granite-3.0 is called "15 billion" in the text (p. 6) but 8B in Table 1 (p. 3).
+- [I] **Key quantities are missing.** The number of generations is not stated (we infer it, section 4). Temperature, the cutoff sources and the classification of induced prompts are not reported.
+- [I] **The claimed defence is not evaluated.** The abstract and introduction say defences were developed and evaluated (p. 1–2), but the defence is only proposed (p. 8).
+- [I] **Low-precision cells.** The task set is tiny and unusual (p. 12). Each cell has 455 prompts, so the lowest rates rest on very few events (section 4).
+- [I] **Possible undisclosed conflict of interest.** NVIDIA authors evaluate NVIDIA models, and Nemotron ranks best (p. 1, p. 4).
+- [I] **Unexplained persona stubs** (p. 12).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [I] The choice of tasks drives the rates, and induced and natural prompts are pooled into one PHR (p. 4–5, p. 12).
+- External (generalisability of sample/context):
+  - [I] 11 models from 2024 and a small prompt grid.
+  - [V] Rust/crates.io is covered alongside JavaScript and Python (p. 4).
+  - [I] Within this project, Rust is also covered by [@zheng2026when] and [@dasu2026refusing].
+- Construct (do metrics measure the concept?):
+  - [V] Strength: the date-aware definition catches packages registered after the model's cutoff (p. 3).
+  - [I] Regex extraction without name mapping weakens validity.
+  - [I] PHR is per generation, so it is not comparable with per-mention rates.
+- Statistical conclusion (power, multiple comparisons, variance):
+  - [I] Pseudo-replicated correlations.
+  - [I] The size variable includes an estimated value.
+  - [I] No confidence intervals, and N = 455 per cell.
+- Reproducibility (data/code/setup reported?):
+  - [V] The prompt grid is fully listed (p. 12).
+  - [I] Decoding settings, generation counts and code are not reported.
+
+## 11. Future research directions

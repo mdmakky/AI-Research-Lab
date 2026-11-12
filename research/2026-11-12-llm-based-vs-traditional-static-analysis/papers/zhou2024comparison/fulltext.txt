@@ -1,0 +1,908 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                              Comparison of Static Application Security Testing Tools and
+                                             Large Language Models for Repo-level Vulnerability Detection
+                                                           Xin Zhou                                   Duc-Manh Tran                                Thanh Le-Cong
+                                              Singapore Management University                  Hanoi University of Science and             The University of Melbourne
+                                                         Singapore                                      Technology                                   Australia
+                                               xinzhou.2020@phdcs.smu.edu.sg                             Vietnam                        congthanh.le@student.unimelb.edu.au
+                                                                                                manh.td120901@gmail.com
+
+                                                          Ting Zhang                              Ivana Clairine IRSAN                           Joshua SUMARLIN
+                                              Singapore Management University                Singapore Management University              Singapore Management University
+
+
+
+
+arXiv:2407.16235v1 [cs.SE] 23 Jul 2024
+                                                          Singapore                                      Singapore                                    Singapore
+                                              tingzhang.2019@phdcs.smu.edu.sg                     ivanairsan@smu.edu.sg                    jsumarlin.2022@scis.smu.edu.sg
+
+                                                                                    Bach Le                                     David Lo
+                                                                           University of Melbourne                Singapore Management University
+                                                                                  Australia                                  Singapore
+                                                                           bach.le@unimelb.edu.au                       davidlo@smu.edu.sg
+
+                                         ABSTRACT                                                                    Static Application Security Testing (SAST) tools are commonly
+                                         Software vulnerabilities pose significant security challenges and po-    used in industries to scan source code and detect vulnerabilities.
+                                         tential risks to society, necessitating extensive efforts in automated   These tools analyze code without executing it, using techniques
+                                         vulnerability detection. There are two popular lines of work to          such as syntax, data flow, and control flow analysis [18]. SAST is
+                                         address automated vulnerability detection. On one hand, Static Ap-       popular due to its low cost, fast operation, and ability to find bugs
+                                         plication Security Testing (SAST) is usually utilized to scan source     without running the program [49]. Meanwhile, in the research com-
+                                         code for security vulnerabilities, especially in industries. On the      munity, large language model (LLM)-based methods have demon-
+                                         other hand, deep learning (DL)-based methods, especially since the       strated their effectiveness for function-level software vulnerability
+                                         introduction of large language models (LLMs), have demonstrated          detection [29, 55], which predict whether a function contains the
+                                         their potential in software vulnerability detection. However, there      vulnerability or not. LLMs are deep learning (DL) models based
+                                         is no comparative study between SAST tools and LLMs, aiming to           on the Transformer architecture [78], comprising a vast number
+                                         determine their effectiveness in vulnerability detection, understand     of parameters and pre-trained on massive amounts of source code,
+                                         the pros and cons of both SAST and LLMs, and explore the potential       text, and other data modalities [11, 58]. Recently, LLMs have seen a
+                                         combination of these two families of approaches.                         significant increase in the size of their pre-training data and model
+                                            In this paper, we compared 15 diverse SAST tools with 12 popular      parameters [56, 59]. The extensive knowledge acquired through the
+                                         or state-of-the-art open-source LLMs in detecting software vulnera-      large-scale pre-training offers the potential to substantially improve
+                                         bilities from repositories of three popular programming languages:       the effectiveness of vulnerability detection.
+                                         Java, C, and Python. The experimental results showed that SAST              Despite the considerable research interest in either SAST tools
+                                         tools obtain low vulnerability detection rates with relatively low       or LLMs for vulnerability detection, a comprehensive comparative
+                                         false positives, while LLMs can detect up 90% to 100% of vulnera-        study between these two popular approaches has been lacking. This
+                                         bilities but suffer from high false positives. By further ensembling     gap can be attributed to the following three major challenges:
+                                         the SAST tools and LLMs, the drawbacks of both SAST tools and               Lack of a repo-level vulnerability detection formulation:
+                                         LLMs can be mitigated to some extent. Our analysis sheds light           SAST tools are usually used to detect vulnerabilities across entire
+                                         on both the current progress and future directions for software          code repositories. However, current DL-based methods for vulnera-
+                                         vulnerability detection.                                                 bility detection, including those utilizing LLMs, primarily focus on
+                                                                                                                  identifying vulnerabilities within individual functions [12, 27, 55,
+                                         1    INTRODUCTION                                                        84, 88]. To date, we are unaware of any DL-based methods that are
+                                         The early detection and mitigation of software vulnerabilities is        designed to detect vulnerabilities at the level of entire repositories.
+                                         crucial, as unaddressed vulnerabilities can potentially lead to con-     This gap in methodology hinders a fair and direct comparison be-
+                                         sequences like massive economic losses and compromised critical          tween SAST tools and LLMs. Therefore, there is a need for a new
+                                         infrastructure. With the number of software vulnerabilities signif-      task formulation for repo-level vulnerability detection.
+                                         icantly increasing from 5,697 in 2013 to 29,065 in 2023 [72], the           Lack of datasets supporting both SAST and LLMs: Existing
+                                         impact of software vulnerabilities has also amplified. Accurately        datasets for DL-based or LLM-based vulnerability detection, such as
+                                         and promptly identifying vulnerabilities is crucial for mitigating       BigVul [25] and CVEfixes [9], contain labeled data at the function
+                                         potential risks and has garnered significant attention from both         level without the source code of complete repositories, which is not
+                                         industry and academia.
+
+=== [PDF page 2] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+
+                              Study Framework                                                Function-level Vul. Detection
+                          RQ1: Effectiveness Evaluation                                                                      highlight files changed by the fix           Vul. Fixing Commit
+                                                                                             Vul. Software                                                                  (From Future)
+                               - Vul. Detection Ratios        CodeBERT        UniXcoder        (Current)
+                               - Approximate False Positive
+                          RQ2: SAST V.S. LLMs                 GraphCodeBERT         CodeT5                   …                …
+                               - Pros and Cons                   Lightweight LLMs
+                               - Best Tools for Each PL                                                          All Code Files      Files Changed         Detector      Detecting Vul. Functions
+                               - Best/Worst Detected CWE      CodeLlama       Llama3                                                     by Fix                            from Changed Files
+                          RQ3: Combining SAST/LLMs
+                               - Combining SAST Tools
+                                                              StarCoder       StarCoder2     Ours: Repo-level Vul. Detection
+                               - Combining LLMs                           DeepSeekCoder      Vul. Software
+                                                              Phi3
+                                                                                               (Current)
+                                                              CodeQwen        Mistral
+                                                                                                             …                …                              …               …
+                                                                     Large LLMs
+                                                                                                                 All Code Files         SAST or            Detecting Vul. Functions from
+   Diverse SAST Tools       Diverse Vul. Benchmark               Diverse LLMs                                                         LLM Detector             All Files in the Repo.
+
+                 Figure 1: Overview of Our Study                                                 Figure 2: Repo-level and Function-level Vul. Detection
+
+suitable for conducting experiments at the repository level. Thus,                           • To the best of our knowledge, we are the first to comprehensively
+there is a need for datasets that contain the complete source code                             compare the SAST tools with LLMs in three popular program-
+of vulnerable repositories, which are suitable for evaluating both                             ming languages, Java, C, and Python.
+SAST and LLM-based approaches.                                                               • We are the first to introduce the task of repo-level vulnerability
+   Lack of a comprehensive LLM evaluation framework: Re-                                       detection and evaluate twelve diverse LLMs on this task.
+cently, there has been a proliferation of diverse LLMs [41], and their                       • We have constructed a new repo-level Python vulnerability dataset
+implementations could vary in terms of model architectures (i.e.,                              and curated Java and C vulnerability datasets, facilitating evalua-
+encoder-only, decoder-only, encoder-decoder). Moreover, adapt-                                 tion across multiple popular programming languages.
+ing these LLMs to specific downstream tasks, such as repo-level                              • As far as we know, we are the first to evaluate the SAST tools in
+vulnerability detection, often could employ various adaptation tech-                           detecting real-world vulnerabilities in Python repositories.
+niques. These techniques include zero-shot prompting [11], few-                              • We conduct an extensive evaluation of 15 SAST tools and 12
+shot prompting [11], chain-of-thought prompting [47], and fine-                                LLMs, including four different LLM adaptation techniques. We
+tuning [27, 40], etc. Given the complexity and diversity of LLMs,                              identify the best-performing approaches and discuss implications
+there is a need for a unified LLM evaluation framework that can                                for future studies on vulnerability detection.
+support the diverse LLMs and various adaptation techniques.
+                                                                                             2     STUDY DESIGN
+   To tackle these challenges, in this paper, we conduct a compre-
+hensive study as shown in Figure 1, aimed at comparing SAST tools                            In this section, we present our proposed repo-level vulnerability
+with LLMs in detecting software vulnerabilities from repositories.                           detection task. We then introduce the data collection and detail the
+Firstly, we formulate a novel task that enables LLMs to conduct                              study objects (i.e., SAST tools and LLMs).
+repo-level vulnerability detection. The task involves identifying                            2.1      Repo-level Vulnerability Detection
+the vulnerability from a given software repository. Secondly, we
+                                                                                             We first introduce our proposed repo-level vulnerability detection
+have curated three datasets for repo-level vulnerability detection,
+                                                                                             task and then compare it with the function-level vulnerability de-
+each tailored to a widely used programming language: Java, C, and
+                                                                                             tection task used in existing studies [12, 27, 88].
+Python. This diverse set of evaluation datasets enable us to gain
+insights into the proficiency of SAST tools and LLMs in detecting                            2.1.1 Repo-level Vulnerability Detection Task Formation. This task
+vulnerabilities across these different popular programming lan-                              aims to detect the vulnerable functions in an entire repository. It
+guages. Thirdly, we implement a comprehensive evaluation frame-                              aims to learn a detector 𝑀 that can map the source code of an entire
+work encompassing 12 distinct LLMs with diverse architectures                                repository to vulnerability labels at the function level:
+(encoder-only, decoder-only, encoder-decoder) and parameter sizes                                    𝑀 : X ↦→ Y, X = {𝑥 0, 𝑥 1, ..., 𝑥𝑛 } and Y = {0, 1, ..., 0}
+ranging from 120 million to 8 billion parameters.
+   Our experiments yield the following key findings:                                         where X denotes the entire input repository and its component 𝑥𝑖
+(1) SAST tools obtained low vulnerability detection ratios (up to                            refers to the 𝑖-th function in the input repository. 𝑛 refers to the
+    44.4%) and many failed to detect any vulnerabilities.                                    number of functions in the input repository. Y denotes the labels
+(2) LLMs achieved high vulnerability detection rates (up to 90% to                           of all functions in the repository, where 1 indicates a vulnerable
+    100%) but they were accompanied by high false positive rates.                            function and 0 indicates a clean (non-vulnerable) function.
+(3) By combining multiple SAST tools, we observed a substantial                              2.1.2 Comparison with Function-level Vulnerability Detection. The
+    increase (i.e., 25.2%–100.0%) in vulnerability detection rates.                          function-level vulnerability detection aims to predict whether a tar-
+    Combining diverse LLMs led to a substantial reduction (i.e.,                             get function contains a vulnerability or not [12, 88]. To understand
+    40.9%–74.6%) in false positive rates.                                                    the difference between function-level and repo-level vulnerability
+(4) The best approach differs across programming languages if                                detection, we need to briefly explain what the “target functions”
+    considering both detection rates and false positive rates. For                           are in the function-level vulnerability detection dataset/task.
+    Java, the combined LLMs provide the most effective solution,                                Many function-level vulnerability detection datasets, such as
+    while for C and Python, the combined SAST tools are the best.                            BigVul [25], ReVeal [12], CrossVul [62], CVEfixes [9], and Diver-
+Contributions. In summary, our contributions are as follows:                                 seVul [14], employ a heuristic to automatically label functions, as
+
+=== [PDF page 3] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+depicted in Figure 2. Firstly, they collect vulnerability-fixing com-                                  Table 1: Statistics of the Used Datasets.
+mits from databases like NVD. They then label the pre-commit                                    Dataset      #Project     #CVE     #Functions       Vul. Ratio
+                                                                                                 Java           50         87       3,986,848        0.008%
+versions of functions changed by the vulnerability-fixing commits
+                                                                                                  C              6         85       1,181,556        0.009%
+as vulnerable functions. Additionally, they label all unchanged func-
+                                                                                                Python          78         98        312,045          0.18%
+tions in the changed code files in vulnerability-fixing commits as
+non-vulnerable. Thus, the “target functions” are functions in the                       al. [49], as it contains real-world vulnerabilities, in contrast to syn-
+changed code files of vulnerability-fixing commits. As shown in the                     thetic datasets such as the Juliet Test Suite Java [65]. This dataset
+bottom part of Figure 2, in contrast, our proposed repo-level vulner-                   contains CVE IDs, project names, and the locations of vulnerabili-
+ability detection aims to detect vulnerable functions given all func-                   ties labeled at the function level. However, the authors of the dataset
+tions in the repository. Thus, the repo-level task has a much broader                   did not share the actual repositories of the vulnerable Java software.
+detection scope. For instance, the ratios of vulnerable functions                       To obtain the complete source code of vulnerable repositories, we
+in the function-level vulnerability detection datasets BigVul [25],                     searched for the vulnerable repositories with the provided version
+ReVeal [12], CrossVul [62], CVEfixes [9], and DiverseVul [14] range                     IDs and project names on GitHub. We only selected the repositories
+from 4.5% to 9.2%. In contrast, the vulnerable function ratios in our                   that we could successfully download through GitHub APIs. In to-
+studied repo-level vulnerability detection datasets are substantially                   tal, we obtained 87 CVE entries and the corresponding vulnerable
+lower, ranging from 0.008% to 0.18% as shown later in Table 1.                          repositories. Next, we utilized Tree-sitter [1] to parse and slice each
+   We propose the repo-level vulnerability detection task for two                       vulnerable repository into individual function-level code snippets.
+reasons: (1) The repo-level task is more aligned with the tasks per-                    For the C vulnerability dataset selection, we considered the dataset
+formed by SAST tools, which usually check the entire repository                         shared by Lipp et al. [51] which contains real-world vulnerabilities.
+to detect vulnerabilities; (2) Limiting the detection range to only                     Similarly, this dataset contains CVE IDs, and project names but not
+the changed files in vulnerability-fixing commits is not a practical                    the actual vulnerable C repositories. To obtain the complete source
+approach for vulnerability detection. This is because when vulner-                      code of vulnerable repositories, we followed the instructions of the
+abilities are yet to be discovered and addressed, the corresponding                     authors and successfully obtained the vulnerable repositories of 85
+vulnerability-fixing commits do not exist. Therefore, it is better not                  CVE entries. Next, we utilized Tree-sitter [1] to parse and slice each
+rely on such commits to narrow down the detection scope from the                        vulnerable repository into individual function-level code snippets.
+entire repository into files changed in vulnerability-fixing commits.                   Python Vulnerability Dataset. Python is one of the most popular
+                                                                                        programming languages [75], with a broad range of application
+2.1.3 Applying LLMs for Repo-level Vulnerability Detection. For                         scenarios. However, there has been a lack of research effort in two
+the repo-level vulnerability detection task, the goal is to detect vul-                 aspects. Firstly, although previous studies[49, 51] have evaluated
+nerable functions across all functions within an entire repository.                     SAST tools for C and Java respectively, their findings may not be
+However, repositories can be extremely lengthy, while some of the                       directly applicable to Python due to the differences in language
+studied LLMs, such as CodeBERT and GraphCodeBERT, have input                            semantics and characteristics. Secondly, other studies on applying
+length limitations of 512 tokens. This 512-token limit aligns well                      LLMs to detect vulnerabilities have primarily focused on C/C++ [9,
+with function-level data but not with classes or entire repositories.                   25, 88], leaving a research gap for Python. To address this gap, we
+Although some larger studied LLMs allow wider input ranges (e.g.,                       have constructed a new dataset of real-world Python vulnerabilities.
+up to 8,192 tokens for StarCoder [50]), we aim to conduct experi-                           We first downloaded all available vulnerability data in JSON
+ments within the same setting for all studied LLMs. To enable all                       format from the National Vulnerability Database (NVD) from 2002
+LLMs, including LLMs like CodeBERT, to perform the repo-level                           to 2023. We then parsed this data and extracted GitHub Python
+task, we employ the following strategy unified across all LLMs: (1)                     repositories by collecting the reference URLs of these vulnerabili-
+We split a repository into individual functions. (2) We predict the                     ties. We then identified the fixing commits for each vulnerability
+vulnerability label for each function in the repository separately. (3)                 by checking the reference links provided in the vulnerability re-
+We aggregate all predictions for the functions within the repository                    ports. Subsequently, we selected the repositories from which we
+to obtain the predictions for the entire repository. (4) We analyze                     can retrieve complete source code via GitHub. We omitted projects
+whether vulnerabilities are detected within the repository based                        that encountered errors during scanning with SAST tools. Through
+on the aggregated predictions (See Sections 3.1 and 3.2 for details).                   these steps, we curated a dataset comprising a total of 98 CVE
+                                                                                        entries related to Python projects hosted on GitHub.
+2.2     Vulnerability Datasets                                                              To identify the vulnerable functions from vulnerability-fixing
+In this paper, we investigate three datasets for three popular pro-                     commits, we adopted the approach proposed by previous meth-
+gramming languages, i.e., Java, C, and Python. Specifically, the Java                   ods [9, 25, 88]. First, we collected the software versions prior to
+and C datasets are sourced from Li et al. [49] and Lipp et al. [51]. The                each vulnerability-fixing commit, which are regarded as vulnerable
+Python dataset is newly constructed. The statistics of three datasets                   versions. Then, we labeled the functions containing lines of code
+are shown in Table 1. Please note that for each CVE entry, our                          that were modified in the fixing commit as vulnerable. All other
+datasets provided 1) CVE ID, 2) CWE type, 3) the complete source                        functions present in the vulnerable version were considered non-
+code of the corresponding vulnerable software, and 4) locations of                      vulnerable. Although these other functions could potentially harbor
+vulnerabilities at the function level.                                                  vulnerabilities that have not been discovered by the community, in
+Java and C Vulnerability Datasets. For the Java vulnerability                           this work, we aim to assess whether the SAST tools/LLMs could ac-
+dataset selection, we considered the Java dataset shared by Li et                       curately identify known vulnerabilities. Therefore, we assume that
+
+=== [PDF page 4] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+
+it is reasonable to label all functions, except the known vulnerable                                    Table 2: Overview of Studied LLMs.
+ones, as non-vulnerable.                                                                                                          Release
+                                                                                                                                               Code Gene.
+                                                                                                                                                              Adaptation
+                                                                                                Model        #Param.     Type                 (HumanEval)
+                                                                                                                                    Date                      Techniques
+                                                                                                                                                Pass@1
+2.3     SAST Tools Selection                                                          Light-    CodeBERT       0.13B       Enc    Jul. 2020        -
+                                                                                      weight    G-BERT         0.13B       Enc   Feb. 2021         -               Full
+Java and C SAST Tools. For Java SAST tools, we followed Li et                         LLMs      CodeT5         0.22B   Enc-Dec   Sep. 2021         -           Fine-tuning
+al. [49] to select 7 free or open-source SAST tools that support                      (<1B)     UniXcoder      0.13B   Enc-Dec   Mar. 2022         -
+Java code: CodeQL [16], Contrast Codesec Scan (Contrast) [69],                                  StarCoder         7B      Dec    May 2023        20.4%
+                                                                                                CodeLlama         7B      Dec    Aug. 2023       45.7%
+Horusec [89], Insider [43], SpotBugs [64], Semgrep [70], and Sonar-                             Mistral           7B      Dec    Sep. 2023         -              PEFT,
+                                                                                      Large
+Qube community edition (SonarQube) [71]. These tools encompass                        LLMs
+                                                                                                DSCoder         6.7B      Dec    Dec. 2023       80.2%      Zero-shot Prompt,
+                                                                                                StarCoder2        7B      Dec    Feb. 2024       34.1%      Few-shot Prompt,
+a diverse range of SAST techniques and are popular among devel-                       (≥1B)
+                                                                                                CodeQwen          7B      Dec    Apr. 2024       50.8%         CoT Prompt
+opers, as indicated by the number of GitHub stars [49]. For C SAST                              LLama3            8B      Dec    Apr. 2024       62.2%
+                                                                                                Phi3            3.8B      Dec    May 2024        58.5%
+tools, we followed Lipp et al.[51] to select five free or open-source
+SAST tools that support C code, i.e., Flawfinder [28], Cppcheck [17],
+Infer [42], CodeChecker [15], and CodeQL [16]. These tools imple-                    aim to assess the effectiveness of both LLM categories in the repo-
+mented state-of-the-art analysis techniques [51] and were used in                    level vulnerability detection task. For code-related LLMs, we select
+previous studies focusing on evaluating SAST tools [51, 73].                         the five recently released and leading models (in 2023 or 2024):
+Python SAST Tools. We aim to select a representative set of SAST                     DeepSeek-Coder (DSCoder) [19], CodeLlama [58], StarCoder [50],
+tools that support Python code. For the search range, we utilized a                  StarCoder2 [56], and CodeQwen [6]. Additionally, we select four
+comprehensive set of 576 candidate SAST tools identified by Li et                    popular and lightweight code-related LLMs with parameters less
+al. [49]. They compiled their list by searching tool lists from recent               than 1 billion: CodeBERT [27], GraphCodeBERT (G-BERT) [35],
+literature (e.g., [4, 32, 52]) and obtaining recommendations for SAST                CodeT5 [79], and UniXcoder [34]. Regarding general LLMs, we
+tools from several prominent websites (e.g., GitHub, NIST, and                       select three recently released models: Mistral [3], Phi3 [60], and
+Wikipedia). We designed the following criteria to select SAST tools                  Llama3 [59]. Since LLM families have different model sizes, we
+for Python: 1) Python supported: we included only SAST tools that                    select models with no more than 8B parameters. This constraint
+support Python programs; 2) Free of charge: due to the substantial                   on the model parameters is imposed by our computing resources
+costs of commercial tools, we followed Li et al. [49] to select the                  (NVIDIA RTX A5000).
+free Python SAST tools; 3) Security-related: we selected tools that                  2.5       LLM Adaptation Techniques
+identify generalized security vulnerabilities rather than those aimed                We employ two typical techniques for adapting LLMs: prompt-
+at detecting specific vulnerabilities or code quality issues; 4) Well-               based methods and fine-tuning-based methods. The last column of
+documented with detecting rules: we selected SAST tools with                         Table 2 summarizes the corresponding LLM adaptation techniques
+clear documentation. Based on these criteria, we finally selected                    used for each of the studied LLMs.
+six SAST tools: Bandit [7], Dlint [23], DevSkim [21], CodeQL [16],                   2.5.1 Prompt-based Methods. Prompts act as guides for LLMs, for-
+Graudit [33], and Semgrep [70].                                                      matting the input data and providing a natural language descrip-
+                                                                                     tion of the task [11]. Prompt-based methods mainly leverage the
+2.4     Studied LLMs                                                                 pre-trained knowledge of LLMs to perform the downstream task
+We focus on free and open-source LLMs instead of commercial                          without the need for extensive task-specific training. The prompt
+LLMs such as GPT-3.5 and GPT-4 for two primary reasons. Firstly,                     format designed for our vulnerability detection task comprises three
+the cost of utilizing commercial LLMs to scan entire repositories                    components, organized sequentially: 1) Task Description: a natural
+for vulnerability detection is prohibitively high. As illustrated in                 language description of the vulnerability detection task, i.e., “If the
+Table 1, the datasets contain 312,045 to 3,986,848 functions, mak-                   following code snippet has any vulnerabilities, output Yes; otherwise,
+ing the use of commercial LLMs financially challenging for such                      output No”; 2) Formatted Input: the input code is enclosed within
+large-scale tasks. Secondly, commercial LLMs undergo continuous                      two markers “// Code Start” and “// Code End”; 3) Prediction Marker:
+updates, making it difficult to replicate and validate the results. In               a marker (“// Detection”) instructing the model to start to provide
+contrast, open-source LLMs offer greater transparency and accessi-                   its prediction.
+bility, facilitating reproducible evaluations.                                           We studied three popular prompt-based methods based on the
+   Table 2 summarizes the characteristics of the studied LLMs.                       aforementioned prompt designed for vulnerability detection:
+Please note that in accordance with a recent comprehensive sur-                      Zero-shot Prompting: In this approach, the input source code is
+vey on large language models for Software Engineering [39], we                       formatted based on the prompt above and then being inputted into
+categorize CodeBERT, GraphCodeBERT, CodeT5, and UniXcoder                            LLMs. The LLMs then generate a response to detect whether the
+as LLMs, though their model sizes may be considered relatively                       source code is vulnerable or not. It is named “zero-shot” because
+small within the LLM spectrum. Specifically, we select two groups                    no labeled data is used in this approach.
+of open-source LLMs: 1) general LLMs and 2) code-related LLMs.                       Chain-of-thought (CoT) Prompting: We utilized the Chain-of-
+General LLMs are pre-trained on diverse data, including natural                      thought technique proposed by Kojima et al. [47] for improved
+language and code, and can be utilized for various tasks. In con-                    reasoning, which involves adding “Let’s think step by step” to the
+trast, code-related LLMs are specifically (further) pre-trained on                   original prompt. Specifically, we add the “Let’s think step by step”
+code-related data. Given the empirical nature of this study, we                      after the task description of the prompt above.
+
+=== [PDF page 5] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+Few-shot Prompting: In this approach, we provided a few ex-                              remediation process for developers, enabling them to concentrate
+amples of inputs and ground truth label pairs for LLMs. Those                            their efforts effectively on the identified vulnerable functions.
+input-label pairs are concatenated after the original prompt. Specif-
+ically, we randomly select 2 examples from the training set, one
+                                                                                         3.2     Evaluation Metrics
+vulnerable function, and one clean function. Those examples can                         We follow the previous work [51] to employ the following metrics:
+help the model to better understand the target task and reply in the                                                                 #𝐷𝑒𝑡𝑒𝑐𝑡𝑒𝑑 𝑉𝑢𝑙𝑛.
+same format as the example responses.                                                             𝑉𝑢𝑙𝑛. 𝐷𝑒𝑡𝑒𝑐𝑡𝑖𝑜𝑛 𝑅𝑎𝑡𝑖𝑜 =
+                                                                                                                                 #𝐴𝑙𝑙 𝑉𝑢𝑙𝑛. 𝑖𝑛 𝐵𝑒𝑛𝑐ℎ𝑚𝑎𝑟𝑘
+2.5.2 Fine-tuning-based Methods. Fine-tuning is another widely                                                                   #𝑀𝑎𝑟𝑘𝑒𝑑 𝐹𝑢𝑛𝑐𝑡𝑖𝑜𝑛
+used adaptation technique for LLMs, which often unlocks their full                             𝑀𝑎𝑟𝑘𝑒𝑑 𝐹𝑢𝑛𝑐𝑡𝑖𝑜𝑛 𝑅𝑎𝑡𝑖𝑜 =
+                                                                                                                           #𝐴𝑙𝑙 𝐹𝑢𝑛𝑐𝑡𝑖𝑜𝑛𝑠 𝑖𝑛 𝐵𝑒𝑛𝑐ℎ𝑚𝑎𝑟𝑘
+potential for specific tasks [80]. Fine-tuning involves training an                     The first metric (i.e., the vulnerability detection ratio) computes the
+LLM on task-specific data, enabling it to acquire domain knowledge                      proportion of detected vulnerabilities present in the benchmark. A
+and generate more relevant and meaningful output. In this study,                        high vulnerability detection ratio signifies superior performance in
+we considered two different fine-tuning approaches based on the                         vulnerability detection. The second metric (i.e., the marked function
+size of the LLM models:                                                                 ratio) approximates the false positive rate [51] because, on average,
+Full Fine-Tuning on Lightweight LLMs. For the four lightweight                          only 0.008%–0.18% of functions are vulnerable in the repositories,
+LLMs with fewer than 1 billion parameters, i.e., CodeBERT, Graph-                       meaning that the majority of marked functions are non-vulnerable.
+CodeBERT, CodeT5, and UniXcoder, we utilized full parameter fine-                       A low marked function ratio is desirable, as it reduces the number
+tuning. This approach updates all model parameters to adapt the                         of functions developers need to inspect manually.
+LLMs to the training data. Full parameter fine-tuning is the standard                      We refrain from employing the commonly used evaluation met-
+approach for these lightweight LLMs across various code-related                         ric Precision in this study, aligning with previous research [51].
+tasks such as code search and defect prediction [27, 34, 35, 79].                       This decision stems from the inherent challenges in assessing real-
+Parameter-Efficient Fine-Tuning (PEFT) on Large LLMs. For                               world programs, which may conceal undiscovered vulnerabilities.
+the eight large LLMs with more than 1 billion parameters such as                        Our knowledge is confined to vulnerabilities reported or identified
+DeepSeekCoder (DSCoder), we utilized the parameter-efficient fine-                      by the community. Consequently, we lack precise information on
+tuning technique to adapt them to the training data. This is because                    the total number of positive samples (vulnerable functions), encom-
+full-parameter fine-tuning comes at a significant computational                         passing both known and unknown vulnerable functions. Precision
+cost when the LLM contains billions of parameters, exceeding our                        requires precise information on all positive samples, rendering its
+current computational resources [82]. Additionally, recent stud-                        calculation unfeasible in our context. We also cannot compute the
+ies [20, 82] suggest that parameter-efficient tuning techniques can                     F1 score, as it is based on Precision.
+achieve comparable or even better performance on LLMs exceeding
+1 billion parameters. Technically, parameter-efficient tuning tech-
+                                                                                         3.3     Implementation Details
+niques selectively update a subset of the model’s parameters, signifi-                  Data Split. Following the previous work [27, 35, 88], we randomly
+cantly reducing the computational resources required [20, 40, 57]. In                   split each vulnerability dataset into disjoint training, validation,
+this work, we employ a popular and widely used parameter-efficient                      and test sets in a ratio of 8:1:1. The training and validation sets are
+tuning technique called LoRA (Low-Rank Adaptation) [40], which                          used to fine-tune/prompt LLMs. Both SAST and LLMs are evaluated
+has been widely used in many existing studies [22, 53, 77, 82]. LoRA                    on the same test sets for fair comparison.
+allows the LLM to adapt to the target task while preserving its pre-                    Implementations. For prompt-based methods, any required la-
+trained knowledge and reducing the computational requirements                           beled data (e.g., for few-shot prompting) is randomly sampled from
+compared to full-parameter fine-tuning [82].                                            the training set. In contrast, fine-tuning-based methods employ a
+                                                                                        different approach. Firstly, we identify and extract all vulnerable
+3 EXPERIMENTAL SETUP                                                                    functions from the repositories in the training set. Subsequently,
+                                                                                        we randomly select an equal number of non-vulnerable functions
+3.1 Vulnerability Detection Scenarios                                                   from the repositories in the training set. By combining these two
+Aligned with the previous work [51], we assess the vulnerability                        groups of functions, we construct a balanced training set for fine-
+detection capabilities of SAST tools and LLMs across two distinct                       tuning LLMs. This balancing process is essential for effective model
+scenarios. Specifically, we investigated:                                               training when dealing with highly imbalanced datasets [38, 83, 84].
+ - Scenario 1 (S1): A vulnerability is considered detected if the                       Without the balancing, models would be overly biased towards
+   SAST tool or LLM identifies at least one vulnerable function                         learning the features of non-vulnerable functions due to their dom-
+   within the vulnerable repository.                                                    inance in the datasets, resulting in sub-optimal performance in
+ - Scenario 2 (S2): A vulnerability is only considered detected if                      detecting vulnerable samples [86]. Similarly, we also construct a
+   the SAST tool or LLM identifies all vulnerable functions present                     balanced validation set for model validation. Additionally, for LLMs,
+   in the vulnerable repository.                                                        we develop a generation pipeline in Python, utilizing PyTorch im-
+These scenarios underscore the significance of tools capable of pin-                    plementations of studied LLMs. We leverage the Hugging Face
+pointing vulnerabilities within repositories precisely. By accurately                   library [24] to load the model weights and generate outputs. We
+identifying the vulnerable functions associated with potential se-                      fine-tune all LLMs for 20 epochs, with a batch size of 8, and select
+curity weaknesses, such tools streamline the manual search and                          the best model snapshot based on the validation performance. For
+
+=== [PDF page 6] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+
+Table 3: Experimental results of repo-level vulnerability detection. “S1 D” refers to the vulnerability detection ratio in Scenario
+1; “S2 D” refers to the vulnerability detection ratio in Scenario 2; “Marked” refers to the marked function ratio.
+                Benchmarks                                         Java                                C                               Python
+        Categories     Method                         S1 D↑     S2 D↑ Marked↓            S1 D↑     S2 D↑      Marked↓       S1 D↑     S2 D↑ Marked↓
+                       CodeQL                           0.0       0.0   0.2                -         -           -             -         -      -
+                       Contrast                         0.0       0.0   0.0                -         -           -             -         -      -
+                       Horusec                          7.5       0.0   1.7                -         -           -             -         -      -
+              Java     Insider                          0.0       0.0   1.4                -         -           -             -         -      -
+                       SpotBugs                         0.0       0.0   0.0                -         -           -             -         -      -
+                       Semgrep                         25.0       .0     2.1               -         -           -             -         -      -
+                       SonarQube                        0.0       0.0   0.6                -         -           -             -         -      -
+                       Flawfinder                        -         -      -               0.0       0.0         1.9            -         -      -
+                       Cppcheck                          -         -      -               0.0       0.0         0.3            -         -      -
+     SAST
+                C      Infer                             -         -      -               11.1      11.1        0.9            -         -      -
+                       CodeChecker                       -         -      -               0.0       0.0         0.3            -         -      -
+                       CodeQL                            -         -      -               4.4       3.3         5.2            -         -      -
+                       Badnit                            -         -      -                -         -           -           20.0       0.0    2.4
+                       Dlint                             -         -      -                -         -           -           20.0       0.0    0.6
+                       DevSkim                           -         -      -                -         -           -            0.0       0.0    4.5
+             Python
+                       CodeQL                            -         -      -                -         -           -           0.0        0.0    0.4
+                       Graudit                           -         -      -                -         -           -           0.0        0.0   0.04
+                       Semgrep                           -         -      -                -         -           -           10.0      10.0    0.6
+                       CodeBERT                        87.5      50.0   35.4             100.0      88.9       36.2          80.0      60.0   41.2
+               Full    GraphCodeBERT                   75.0      50.0   30.1             100.0      88.9       44.6          80.0      70.0   50.0
+             Tuning    CodeT5                          87.5      62.5   24.3              88.9      77.8       19.8          90.0      90.0   50.5
+                       Unixcoder                       75.0      62.5   21.4             100.0      88.9       25.6          70.0      50.0   42.0
+                       CodeLlama                       75.0      37.5    .3               44.4      44.4        7.4          80.0      40.0   39.5
+                       Llama3                         100.0      87.5   21.8              22.2      22.2         .5          80.0      60.0   29.8
+                       CodeQwen                        75.0      37.5   14.8              22.2      22.2       12.2          80.0      60.0   35.8
+                       DeepSeek-Coder                  62.5      62.5   15.1              11.1      11.1       10.6          50.0      30.0   17.3
+              PEFT
+                       Mistral                         62.5      50.0   21.8              11.1      11.1        6.5          50.0      10.0   18.9
+                       Phi3                            50.0      50.0   20.4              33.3      33.3       10.3          50.0      20.0   20.8
+                       Starcoder                       75.0      37.5   15.6              44.4      44.4       12.0          50.0      30.0   26.5
+                       Starcoder2                      87.5      50.0   37.5              0.0       0.0         0.3          40.0      40.0   25.4
+                       CodeLlama                       87.5      50.0   66.9              44.4      44.4       47.0          70.0      40.0   51.2
+                       Llama3                          87.5      62.5   47.3              66.7      55.6       49.4          50.0      20.0   40.1
+                       CodeQwen                        50.0      37.5   60.1              33.3      33.3       53.7          70.0      30.0   51.3
+                       DeepSeek-Coder                  37.5      12.5   35.4              11.0      0.0        24.3          70.0      40.0   37.1
+            Zero-shot
+                       Mistral                         50.0      25.0   64.6              55.6      55.6       60.5          80.0      50.0   52.4
+                       Phi3                            62.5      25.0   41.9              77.8      66.7       66.0          20.0       0.0   30.8
+     LLM
+                       Starcoder                       62.5      37.5   73.4              66.7      55.6       54.1          50.0      20.0   55.9
+                       Starcoder2                      37.5      12.5   29.3              44.4      44.4       25.6          20.0       0.0   15.2
+                       CodeLlama                       75.0      50.0   70.4              55.6      44.4       50.0          60.0      20.0   57.4
+                       Llama3                          75.0      37.5   47.4              44.4      33.3       46.9          80.0      40.0   42.2
+                       CodeQwen                        75.0      37.5   66.4              44.4      33.3       53.3          80.0      60.0   51.0
+                       DeepSeek-Coder                  25.0      25.0   29.2              0.0       0.0        18.0          30.0       0.0   29.6
+              CoT
+                       Mistral                         62.5      37.5   69.2              77.8      66.7       64.8          70.0      50.0   57.7
+                       Phi3                            12.5       0.0   44.9              66.7      66.7       64.6          50.0      20.0   32.6
+                       Starcoder                       87.5      50.0   70.6              55.6      44.4       50.8          60.0      40.0   53.7
+                       Starcoder2                      75.0      50.0   41.9              55.6      44.4       28.3          40.0      20.0   22.2
+                       CodeLlama                       62.5      37.5   74.7              66.7      55.6       59.2          90.0      70.0   64.3
+                       Llama3                          62.5      25.0   29.8              44.4      44.4       43.1          70.0      60.0   35.9
+                       CodeQwen                        50.0      25.0   61.1              55.6      44.1       47.7          70.0      50.0   45.4
+                       DeepSeek-Coder                  12.5      12.5   26.0              0.0       0.0         5.4          30.0      10.0    4.9
+            Few-shot
+                       Mistral                         25.0      12.5   22.0              33.3      22.2       28.7          50.0      20.0   22.4
+                       Phi3                            75.0      37.5   59.2              44.4      44.4       58.3          40.0      10.0   28.9
+                       Starcoder                       75.0      50.0   66.8              55.6      55.6       45.3          80.0      50.0   46.7
+                       Starcoder2                      62.5      37.5   77.4              55.6      55.6       70.1          70.0      60.0   73.4
+
+=== [PDF page 7] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+the parameter-efficient tuning technique LoRA, we set its parame-                        4.1.2 Effectiveness of LLMs. LLMs achieved high detection rates.
+ters as 𝑟 = 8 and 𝛼 = 16. All the experiments are conducted on an                        For Java, many LLMs exhibited detection rates ranging from over
+Ubuntu 22.04 server equipped with A5000 GPU.                                             50% to as high as 100% in Scenario 1, and from surpassing 37.5%
+                                                                                         to as high as 87.5% in Scenario 2. Similarly, for C, LLMs achieved
+3.4     Research Questions                                                               detection rates up to 100.0% and 88.9% in Scenario 1 and Scenario
+Our work aims to answer three research questions (RQs).                                  2. For Python, LLMs achieved detection rates up to 90.0% in both
+                                                                                         Scenario 1 and Scenario 2. However, the drawback of LLMs is
+• RQ1: How effective are SAST tools and LLMs? In RQ1, we
+                                                                                         they mark a large portion of functions as vulnerable. This
+  evaluate a comprehensive list of 15 SAST tools and 12 LLMs in
+                                                                                         indicates that their high detection rates come at the cost of marking
+  their ability to detect vulnerabilities in software repositories.
+                                                                                         many functions in the repository as suspicious. Consequently, this
+• RQ2: Which one is more effective for detecting vulnerabili-
+                                                                                         makes it difficult for developers to pinpoint the actual vulnerability
+  ties, SAST tools or LLMs? In RQ2, we compare the effectiveness
+                                                                                         locations, as they need to inspect a large number of marked func-
+  of SAST tools against LLMs, aiming to determine which approach
+                                                                                         tions. Specifically, LLMs mark 8.3% to 77.4% of functions in Java,
+  performs better in detecting vulnerabilities across different pro-
+                                                                                         3.5% to 70.1% in C, and 14.9% to 73.4% in Python.
+  gramming languages.
+• RQ3: To what extent can combining multiple SAST tools                                 4.1.3 Comparisons Among LLMs. Among different adaptations
+  or LLMs improve vulnerability detection? In RQ3, we in-                               for large LLMs (≥1B), fine-tuning achieves the highest detec-
+  vestigate the potential enhancements in vulnerability detection                       tion ratios with the fewest marked vulnerable functions. For
+  achieved by integrating multiple SAST tools and LLMs.                                 instance, in Java, the fine-tuned large LLMs detect an average of
+                                                                                        73.4% and 51.6% of vulnerabilities in S1 and S2 respectively, across
+4 EXPERIMENTAL RESULTS                                                                  different LLM models. This outperforms the prompt-based methods
+                                                                                        by 20.5% to 73.7% in terms of average detection ratios. Meanwhile,
+4.1 RQ1: Effectiveness of SAST Tools and LLMs
+                                                                                        the fine-tuned large LLMs mark only 19.4% of functions as vul-
+Table 3 displays the experimental results, encompassing metrics                         nerable on average, which is much less than the prompt-based
+such as “S1 D,” “S2 D,” and “Marked.” The “S1 D” metric refers to                       methods, ranging from 52.1% to 55.0%. Thus, fine-tuned large LLMs
+the ratio of detected vulnerabilities in Scenario 1, where detection                    outperform prompted large LLMs. Fine-tuned lightweight LLMs
+is considered successful upon identifying any vulnerable function                       detect more vulnerabilities but also mark more functions as
+within the vulnerable repository. The “S2 D” metric represents the                      vulnerable compared to fine-tuned large LLMs. For example,
+detection ratio in Scenario 2, where a vulnerability is considered                      in Java, fine-tuned lightweight LLMs outperform the fine-tuned
+as detected only when all vulnerable functions in the repository                        large LLMs by 10.6% and 9.1% in S1 and S2, on average. However,
+are identified. The "Marked" metric indicates the percentage of                         at the same time, fine-tuned lightweight LLMs mark 43.2% more
+functions labeled as vulnerable. A higher detection ratio signifies                     functions as vulnerable on average.
+superior performance in vulnerability detection, whereas a lower
+marked function ratio is preferred, as it reduces the number of                                Answer to RQ1: SAST tools obtained lower vulnerability
+functions developers need to check to locate the actual vulnerabil-                            detection rates (up to 44.4%) while also marking fewer
+ities. In Table 3, bold numbers with green cells indicate the best                             functions as vulnerable (up to 5.2%). In contrast, LLMs
+performance, and underlined numbers with light green cells in-                                 detected more vulnerabilities (up to 100%) but also marked
+dicate the second-best performance. Please note that for the best                              a higher proportion of functions as vulnerable (up to 77.4%).
+marked function ratio, we consider the tool or model that achieves
+the lowest marked function ratio while still detecting at least one
+vulnerability. A tool or model that fails to detect any vulnerabilities,
+                                                                                         4.2     RQ2: SAST Tools vs. LLMs
+                                                                                        4.2.1 Comprehensive Comparison between SAST and LLMs. The
+regardless of its marked function ratio, is not considered to have
+                                                                                        advantages and disadvantages of SAST tools and LLMs are evident:
+the best marked function ratio.
+                                                                                        1) SAST tools mark fewer functions but detect fewer vulnerabilities,
+4.1.1 Effectiveness of SAST Tools. SAST tools achieved low de-                          while 2) LLMs detect more vulnerabilities but require marking
+tection rates. Many SAST tools, such as CodeQT, Contrast, In-                           substantially more functions. There seems to be a trade-off between
+sider, SpotBugs, SonarQube for Java, FlawFinder, CppChecker, and                        detection ratios and marked function ratios: the more vulnerabilities
+CodeChecker for C, and CodeQL and Graudit for Python, failed                            detected, the greater the number of functions marked as potentially
+to detect vulnerabilities. Among SAST tools, Horusec performed                          vulnerable. Thus, our aim here is to identify the optimal SAST
+the best for Java, achieving a 37.5% detection rate in Scenario 1.                      tools and LLMs that reach a sweet spot in the trade-off between
+For C, CodeQL exhibited the best performance, attaining detection                       detection ratios and marked function ratios, optimizing both metrics
+rates of 44.4% and 33.3% in Scenario 1 and 2. For Python, DevSkim                       for practical vulnerability detection scenarios.
+performed the best with detection rates of 30.0% and 20.0% in Sce-                         To comprehensively understand the capabilities of SAST tools
+nario 1 and 2. The advantage of SAST tools is they marked                               and LLMs, we plot the relationships between detection ratios (Sce-
+a small percentage of functions as vulnerable. Low marked                               nario 2) and marked function ratios in Figure 3. The optimal tool-
+function ratios could facilitate developers in identifying the actual                   s/models are those capable of detecting more vulnerabilities with
+vulnerability location by inspecting fewer marked functions. SAST                       fewer marked functions, typically occupying the upper-left areas of
+tools marked only 0.2% to 5.2% of all functions on average.                             Figure 3. In Figure 3, we exclude prompt-based large LLMs because
+
+=== [PDF page 8] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+
+       Better                                                 Better                                                Better
+
+
+
+
+                                              Worse                                                   Worse                                                 Worse
+
+
+
+
+                (a) Java Benchmark                                     (b) C Benchmark                                       (c) Python Benchmark
+     Figure 3: The Relationship between the Vulnerability Detection Ratios (Scenario 2) and the Marked Function Ratios
+
+they usually appear in the bottom-right area (low detection ratios
+with high marked function ratios).
+   We highlight the tools/models in red in the upper-right area of
+the figures, indicating those are more optimal when comprehen-
+sively considering both metrics. Our analysis reveals that the
+optimal approaches differ across programming languages.
+For instance, fine-tuned CodeLlama, fine-tuned DeepSeekCoder,
+and fine-tuned Llama3 emerge as the optimal choices for Java.
+Similarly, for C, the optimal models/tools include Infer, fine-tuned                 Figure 4: Vulnerability Detection Ratios in Different Classes
+Llama3, CodeQL, fine-tuned CodeLlama, CodeT5, and Unixcoder.
+                                                                                     classes. Both the SAST tool group and the 2 optimal LLMs group
+For Python, the optimal tools/models are Dlint, fine-tuned DeepSeek-
+                                                                                     failed to detect any vulnerabilities in these classes.
+Coder, fine-tuned StarCoder2, fine-tuned Llama3, and CodeT5. The
+best choice will depend on the user’s acceptance of the trade-                             Answer to RQ2: The choice of the best approach depends
+off between detection ratios and marked function ratios. For                               on the programming language. Fine-tuned DeepseekCoder,
+instance, for Java, if a user requires a model/tool with at most a                         UniXcoder, and Llama3 are the best approaches for Java, C,
+10% marked function ratio, the fine-tuned CodeLlama would be the                           and Python, respectively.
+best choice.
+   To identify the best approach objectively, we also propose a                      4.3     RQ3: Combining SAST Tools or LLMs
+ranking-based metric: 1) We rank each approach based on two                          4.3.1 Combining SAST Tools. The main limitation of SAST tools is
+criteria: the detection ratio in S2 and the marked function ratio. 2)                their low detection ratios. Thus, the goal of combining SAST tools
+We then sum the ranks of two criteria. The approach with the lowest                  is to improve the detection ratios, even if it comes at the cost of
+total rank is considered the best. According to this ranking-based                   higher marked function ratios. To achieve this goal, we employ the
+metric, fine-tuned DeepseekCoder, UniXcoder, and Llama3                              following combining strategy to fuse the predictions of SAST tools:
+are the best approaches for Java, C, and Python, respectively.                       if a function is marked as vulnerable by any of the SAST tools, the
+4.2.2 Best vs. Worst Detected Vulnerabilities. We studied the de-                    function is considered to be marked as vulnerable by the SAST
+tection rates of vulnerabilities belonging to different vulnerability                combination. The first two columns of Figures 5–7 show the detec-
+classes. Due to the page limit, we simplify the analysis by merg-                    tion ratios and marked ratios of the individual SAST tool with the
+ing the results corresponding to the three programming languages                     highest detection ratio, as well as the combination of all SAST tools,
+together. Additionally, we consider the combined results of SAST                     for Java, C, and Python, respectively. The results demonstrate
+tools: a vulnerability is considered detected if at least one SAST                   that combining all SAST tools substantially boosts detection
+tool can detect it. Similarly, we consider the combined results of                   ratios, ranging from 25.2% to 100.0%. For Java, the detection
+the 2 optimal LLMs. Specifically, we focus on the 2 optimal models                   ratio in Scenario 1 improved from 37.5% to 50.0%, at the cost of
+highlighted in Figure 3, which have the lowest marked function                       increasing the marked function ratio from 1.7% to 4.3%. For C, the
+ratios. For Java, the 2 optimal LLMs are fine-tuned CodeLlama                        detection ratios improved from 44.4% to 55.6% in Scenario 1 and
+and DeepSeekCoder. For C, the 2 optimal LLMs are fine-tuned                          from 33.3% to 44.4% in Scenario 2, at the cost of increasing the
+Llama3 and CodeLlama. For Python, the optimal LLMs are fine-                         marked function ratio from 5.2% to 7.2%. For Python, the detection
+tuned DeepSeekCoder and StarCoder2. A vulnerability is consid-                       ratios improved from 30.0% to 50.0% in S1 and from 20.0% to 40.0%
+ered detected if at least one of the 2 optimal LLMs can detect it.                   in S2, with an increase in the marked functions from 4.5% to 7.7%.
+   Figure 4 illustrates the detection rates of vulnerability classes                 4.3.2 Combining LLMs. Different from SAST tools, the main lim-
+that are best and worst detected by SAST tools and the 2 optimal                     itation of LLMs is their high marked function ratios. Thus, the
+LLMs. The most frequently detected vulnerability class in Scenarios                  goal of combining LLM models is to reduce the marked function
+1 and 2 is CWE-119. Notably, the LLM group can achieve 100% detec-                   ratios, even if it comes at the cost of sacrificing some detection
+tion rates for CWE-119. Additionally, CWE-476 is the second-best                     ratios. Specifically, we include 12 LLMs in the LLM combination:
+detected vulnerability class by both the SAST group and the LLM                      four fine-tuned lightweight LLMs and eight fine-tuned large LLMs.
+group. In contrast, CWE-835 and CWE-89 are the worst detected                        Regarding the combination strategies, we aim to reduce the number
+
+=== [PDF page 9] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+                                                                                        (fine-tuned CodeLlama for Java, fine-tuned Llama3 for C, and fine-
+                                                                                        tuned DeepSeekCoder for Python), indicating that the detection
+                                                                                        ratios are not significantly compromised in this C2 combination.
+                                                                                        The more models we require LLMs to agree on the vulnerable
+                                                                                        predictions, the lower detection ratio and marked function
+                                                                                        ratios we can obtain. For instance, when requiring agreement
+                                                                                        from more than 80% of LLMs for a vulnerable prediction, the marked
+                                                                                        function ratios become comparable to those of SAST tools (0.8%–
+           Horusec Combined CodeLlama Combined Combined               Combined
+                                                                                        9.2%). However, this stringent agreement criterion leads to poor
+                    SAST     (tuned)  LLM (>50%) LLM (>2/3)          LLM (>80%)         detection ratios, reaching only 0%–37.5% in Scenario 2.
+  Figure 5: Combinations of SAST Tools or LLMs for Java
+                                                                                        4.3.3 Combined SAST v.s. Combined LLMs. We discuss which com-
+                                                                                        bination strategy is better for each programming language. For
+                                                                                        Java, the C3 LLM combination is better than the SAST com-
+                                                                                        bination because it has higher detection ratios and comparable
+                                                                                        marked function ratios. For C, the SAST combination is better
+                                                                                        because it has higher detection ratios and a lower marked function
+                                                                                        ratio compared to the C1 LLM combination. In addition, the SAST
+                                                                                        combination obtains substantially higher detection ratios with an
+                                                                                        acceptable increase in marked function ratios compared to the C2
+                                                                                        and C3 LLM combinations. For Python, the SAST combination
+           CodeQL    Combined    Llama3     Combined    Combined       Combined         is better. Compared to the C2 and C3 LLM combinations, the SAST
+                      SAST       (tuned)   LLM (>50%)   LLM (>2/3)    LLM (>80%)
+                                                                                        combination has comparable detection ratios with a much lower
+    Figure 6: Combinations of SAST Tools or LLMs for C
+                                                                                        marked function ratio. Moreover, the marked function ratio of the
+                                                                                        C1 LLM combination is unacceptably high (i.e., 32.6%), making it
+                                                                                        an unfavorable choice.
+                                                                                               Answer to RQ3: Combining SAST tools substantially
+                                                                                               boosts detection ratios, ranging from 25.2% to 100.0%. Com-
+                                                                                               bining LLMs substantially reduces the marked function
+                                                                                               ratio by 40.9%–74.6% on average. The optimal approach
+                                                                                               differs across programming languages. For Java, the LLM
+                                                                                               combination provides the most effective solution, while for
+                                                                                               C and Python, the combination of SAST tools is better.
+           DevSkim   Combined   DeepSeek Combined Combined            Combined
+                      SAST       (tuned) LLM (>50%) LLM (>2/3)       LLM (>80%)
+Figure 7: Combinations of SAST Tools or LLMs for Python                                  5 DISCUSSION
+                                                                                         5.1 Evaluating Commercial LLM ChatGPT
+of marked functions. Thus, we employ three voting mechanisms on
+                                                                                        In this work, we focus on open-source LLMs because using com-
+the predictions of 12 fine-tuned LLMs: 1) C1 (voting>50%): if more
+                                                                                        mercial LLMs for this task would be very costly, considering the
+than half of the LLMs agree to mark one function as vulnerable,
+                                                                                        large number of functions in each repository. However, to make
+the combination of LLMs will mark the function as vulnerable; 2)
+                                                                                        our paper more self-contained, we also conducted small-scale ex-
+C2 (voting> 23 ): if more than 23 of LLMs agree to mark one function
+                                                                                        periments with the famous commercial LLM ChatGPT. Specifically,
+as vulnerable, the combination of LLMs will mark the function as
+                                                                                        we set the ratio of vulnerable functions to clean functions as 1:100
+vulnerable; 3) C3 (voting>80%): if more than 80% of LLMs agree
+                                                                                        and sampled the corresponding number of clean functions from the
+to mark one function as vulnerable, the combination of LLMs will
+                                                                                        repository. We used the gpt-3.5-turbo-0125 model [66], the latest
+mark the function as vulnerable.
+                                                                                        version of GPT-3.5, and set the temperature to 0 for more repro-
+   The last four columns of Figures 5–7 present the detection ratios
+                                                                                        ducible results. Table 4 presents the results of ChatGPT and two
+and marked function ratios for one of the best individual LLMs (as
+                                                                                        open-source LLMs, Llama3 and CodeBERT, with the same setting,
+determined from Figure 3), as well as for three different combina-
+                                                                                        averaged across Java, C, and Python. In general, the results show
+tions of multiple LLM models for Java, C, and Python. The results
+                                                                                        that the commercial LLM ChatGPT achieved lower vulnerability de-
+show that combining multiple LLMs can substantially reduce
+                                                                                        tection ratios and marked fewer functions as potentially vulnerable
+the marked function ratios compared to individual LLMs on
+                                                                                        compared to the open-source LLMs such as Llama3 and CodeBERT.
+average. For instance, in the C2 LLM combination, it could reduce
+                                                                                        Among different ways of using ChatGPT, the few-shot prompting
+the marked function ratios by 61.7%, 74.6%, and 40.9% in the Java,
+                                                                                        detects most vulnerabilities (i.e., 23.2%).
+C, and Python benchmarks, respectively, compared to the average
+marked function ratios of the 12 fine-tuned LLMs. Additionally, the                      5.2     Implications
+C2 LLM combination could achieve comparable detection ratios                             Repo-level vulnerability detection using LLMs holds substan-
+to the best-performing single LLM in each programming language                           tial potential. While LLMs may not yet outperform SAST tools in
+
+=== [PDF page 10] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+Table 4: Evaluating ChatGPT on A Small Detection Range.
+ Pos:Neg      CodeBERT       Llama3       GPT3.5       GPT3.5       GPT3.5           identify known vulnerabilities. Thus, it is reasonable to draw con-
+  =1:100       (Tuned)       (Tuned)    (Zero-shot)     (CoT)     (Few-shot)         clusions about the effectiveness of these tools/models in detecting
+  S1 D ↑         89.2          67.4         3.7           3.7        23.2            known vulnerabilities. Additionally, the potential for data leakage
+  S2 D ↑         66.3          56.6         3.7           3.7        11.1            poses another threat, where LLMs might have been exposed to our
+ Marked ↓        35.7          20.1         1.3           2.1        10.8            evaluation datasets during their pre-training. This risk of data leak-
+                                                                                     age is a widespread issue that affects numerous works related to
+every facet, as the first work exploring this direction, we have em-                 LLMs (e.g., [2, 31]). Unfortunately, directly addressing this concern
+ployed generic LLM techniques without incorporating specialized                      is almost impossible due to the non-public nature of pre-training
+designs to maximize their effectiveness. However, we have still ob-                  datasets used by LLMs, especially commercial models like ChatGPT.
+served that LLMs can achieve competitive performance compared                        Nevertheless, we observed that, compared to fine-tuning, LLMs
+to SAST tools, particularly when looking into individual SAST tools                  do not perform effectively under zero-shot, chain-of-thought, and
+and LLMs. This underscores the significant potential for advancing                   few-shot prompting. This suggests that memorization may not be a
+repo-level vulnerability detection through further development and                   significant factor; if the models had already been pre-trained on our
+refinement of LLM-based approaches.                                                  evaluation datasets, they would have achieved significantly better
+   Repo-level vulnerability detection is more practical than                         performance with the prompts, even without fine-tuning on our
+the function-level vulnerability detection. We recommend a                           training sets. Threats to external validity relate to the generalizabil-
+gradual shift in vulnerability detection efforts from the existing                   ity of our findings. To mitigate this potential concern, we employed
+function-level task formation to the repo-level vulnerability detec-                 a comprehensive list of 15 static analysis security testing tools and
+tion task formation introduced in this study. As shown in Figure 2,                  12 popular or state-of-the-art large language models in this study.
+datasets used in traditional function-level vulnerability detection                  Additionally, we utilized experimental datasets spanning three pop-
+studies rely on vulnerability-fixing commits to narrow the detection                 ular programming languages: Java, C, and Python. Our extensive
+scope from the entire repository to the specific files modified in                   and diverse experiments help to alleviate concerns regarding the
+those commits. However, when the goal is to detect vulnerabilities,                  generalizability of our findings.
+the corresponding vulnerability-fixing commit does not yet exist.
+Consequently, it is impractical to depend on such commits to limit                   6    RELATED WORK
+the detection range. The repo-level vulnerability detection forma-                   Studies of SAST Tools. There are many existing studies evaluating
+tion addresses this issue by eliminating the need to narrow down                     static analysis security testing (SAST) tools, e.g., [5, 8, 10, 13, 26,
+the detection scope based on the fixing commits.                                     32, 32, 36, 45, 46, 46, 48, 49, 51, 52, 61, 63, 68, 74, 76]. Some of these
+   Addressing the high marked function ratios of LLMs neces-                         studies utilize synthetic benchmarks to evaluate SAST tools, e .g., [5,
+sitates further investigation. While LLMs tend to detect more vul-                   8, 48]. Several studies have evaluated SAST tools on real-world
+nerabilities compared to SAST tools, they suffer from high marked                    vulnerability datasets in C/C++ or Java [32, 46, 49, 51, 74]. For
+function ratios, akin to high false positive rates. Although we man-                 instance, Lipp et al. [51] focused on SAST tools for C programs,
+aged to significantly reduce these ratios by combining multiple                      evaluating the effectiveness of six tools on real-world vulnerability
+LLMs, there remains large room for enhancement. Potential solu-                      datasets. Li et al. [49] evaluated the effectiveness of seven free
+tions may entail developing techniques such as, filtering out less                   or open-source SAST tools on real-world vulnerability datasets.
+trustworthy predictions from LLMs, integrating additional contex-                    Several studies have evaluated SAST tools in other research areas,
+tual information (e.e., the structural features in the repository) with              such as Android [13, 26, 68].
+LLMs, refining prompting strategies, or employing more advanced                         Our work distinguishes itself from existing studies in the fol-
+ensemble methods.                                                                    lowing aspects. Firstly, we evaluated SAST tools and LLM models
+    Exploring advanced combinations of LLMs and SAST tools                           on three popular programming languages: Java, C, and Python.
+holds promise. Each category of approach has its strengths and                       This ensures diversity in the experimental datasets, unlike many
+weaknesses in detecting vulnerabilities in software repositories:                    previous studies that focused on a single programming language.
+LLMs detect more vulnerabilities but with higher marked function                     Secondly, to the best of our knowledge, we are the first to evaluate
+ratios, whereas SAST tools detect fewer vulnerabilities but with                     SAST tools for Python vulnerability detection. Thirdly, we are the
+lower marked function ratios. Future research could propose meth-                    first to comprehensively compare SAST tools with LLMs, which
+ods that can effectively leverage the strengths of both approaches                   have demonstrated strong effectiveness in many other code-related
+for enhanced vulnerability detection.                                                tasks such as code generation [54] and automated repair [44].
+5.3     Threats to Validity                                                          LLM-based Vulnerability Detection. There are many existing
+Threats to internal validity relate to possible errors and biases in                 studies utilizing large language models (LLMs) for vulnerability
+our experiments. To mitigate these risks, we utilized the official                   detection, e.g., [27, 30, 35, 37, 55, 67, 84, 85, 87]. For instance, Liu et
+implementations of the studied tools and models to ensure correct-                   al. [55] leveraged the abstract syntax tree and program dependence
+ness. We have reviewed and validated our code and data, and they                     graph of functions to pre-train their LLM. The pre-training process
+are publicly accessible to promote transparency and reproducibility.                 enabled the LLM to predict dependencies within the functions effec-
+Another potential threat concerns the presence of undetected vul-                    tively. Peng et al. [67] employed program slicing, a technique that
+nerabilities in the vulnerability benchmarks. However, our objective                 extracts control and data dependency information, to enhance the
+was to assess whether the selected tools/models could accurately                     capability of LLMs in vulnerability detection. Additionally, Zhang
+
+=== [PDF page 11] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+et al. [85] proposed an approach that involved decomposing syntax-                        [8] Sindre Beba and Magnus Melseth Karlsen. 2019. Implementation analysis of
+based control flow graphs into multiple execution paths. These                                open-source Static analysis tools for detecting security vulnerabilities. Master’s
+                                                                                              thesis. NTNU.
+execution paths were then fed as input to LLMs for enhancement.                           [9] Guru Bhandari, Amara Naseer, and Leon Moonen. 2021. CVEfixes: automated
+Recently, a parallel work [81] proposed an approach to enhance                                collection of vulnerabilities and their fixes from open-source software. In Proceed-
+                                                                                              ings of the 17th International Conference on Predictive Models and Data Analytics
+the function-level vulnerability detection task by retrieving rele-                           in Software Engineering. 30–39.
+vant dependencies from the repository. Specifically, their approach                      [10] Tiago Brito, Mafalda Ferreira, Miguel Monteiro, Pedro Lopes, Miguel Barros,
+involves concatenating the target functions (those in files changed                           José Fragoso Santos, and Nuno Santos. 2023. Study of JavaScript Static Analysis
+                                                                                              Tools for Vulnerability Detection in Node. js Packages. IEEE Transactions on
+by vulnerability-fixing commits) with the relevant dependencies                               Reliability (2023).
+retrieved from the repository. In contrast to their work, our work                       [11] Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan,
+aims to assess and compare the effectiveness of SAST tools and                                Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda
+                                                                                              Askell, et al. 2020. Language models are few-shot learners. Advances in neural
+LLMs in detecting vulnerabilities from entire repositories rather                             information processing systems 33 (2020), 1877–1901.
+than from files changed by the fixing commits.                                           [12] Saikat Chakraborty, Rahul Krishna, Yangruibo Ding, and Baishakhi Ray. 2021.
+                                                                                              Deep learning based vulnerability detection: Are we there yet? IEEE Transactions
+   While numerous studies have explored the use of LLMs for vul-                              on Software Engineering 48, 9 (2021), 3280–3296.
+nerability detection, they have focused on identifying vulnerabili-                      [13] Sen Chen, Lingling Fan, Guozhu Meng, Ting Su, Minhui Xue, Yinxing Xue,
+ties within individual functions. In addition, existing works have                            Yang Liu, and Lihua Xu. 2020. An empirical assessment of security risks of
+                                                                                              global android banking apps. In Proceedings of the ACM/IEEE 42nd International
+not comprehensively compared their approaches with diverse SAST                               Conference on Software Engineering. 1310–1322.
+tools, and they have typically focused on one programming lan-                           [14] Yizheng Chen, Zhoujie Ding, Lamya Alowain, Xinyun Chen, and David Wagner.
+guage. Our research diverges from previous works by (1) evaluating                            2023. Diversevul: A new vulnerable source code dataset for deep learning based
+                                                                                              vulnerability detection. In Proceedings of the 26th International Symposium on
+the efficacy of LLMs in detecting vulnerabilities from entire reposi-                         Research in Attacks, Intrusions and Defenses. 654–668.
+tories (repo-level vulnerability detection), and (2) evaluating their                    [15] CodeChecker. null. CodeChecker. https://codechecker.readthedocs.io/en/latest/
+                                                                                         [16] CodeQL. null. CodeQL for Research. https://securitylab.github.com/tools/codeql/
+efficacy against a comprehensive list of 15 SAST tools, spanning                         [17] Cppcheck. null. A Tool for Static C/C++ Code Analysis. http://cppcheck.
+three widely-used programming languages: Java, C, and Python.                                 sourceforge.net/
+                                                                                         [18] Roland Croft, Dominic Newlands, Ziyu Chen, and M Ali Babar. 2021. An empirical
+7    CONCLUSION AND FUTURE WORK                                                               study of rule-based and learning-based approaches for static application security
+                                                                                              testing. In Proceedings of the 15th ACM/IEEE international symposium on empirical
+In this study, we compare the efficacy of 15 diverse SAST tools                               software engineering and measurement (ESEM). 1–12.
+alongside 12 popular or leading LLMs. Our experiments focus on                           [19] Dejian Yang Zhenda Xie Kai Dong Wentao Zhang Guanting Chen Xiao Bi Y.
+real-world vulnerabilities across three prevalent programming lan-                            Wu Y.K. Li Fuli Luo Yingfei Xiong Wenfeng Liang Daya Guo, Qihao Zhu. 2024.
+                                                                                              DeepSeek-Coder: When the Large Language Model Meets Programming – The
+guages: Java, C, and Python. Our findings indicate that SAST tools                            Rise of Code Intelligence. https://arxiv.org/abs/2401.14196
+exhibit low vulnerability detection ratios while maintaining a low                       [20] Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. 2023.
+marked function ratio, akin to a low false positive rate. In contrast,                        Qlora: Efficient finetuning of quantized llms. arXiv preprint arXiv:2305.14314
+                                                                                              (2023).
+LLMs demonstrate high vulnerability detection ratios but are ac-                         [21] DevSkim. null. DevSkim. https://github.com/microsoft/DevSkim
+companied by elevated marked function ratios (akin to high false                         [22] Ning Ding, Yujia Qin, Guang Yang, Fuchao Wei, Zonghan Yang, Yusheng Su,
+                                                                                              Shengding Hu, Yulin Chen, Chi-Min Chan, Weize Chen, et al. 2022. Delta tuning:
+positive rates). Through ensemble approaches, we demonstrate                                  A comprehensive study of parameter efficient methods for pre-trained language
+that combining SAST tools and LLMs mitigates their respective                                 models. arXiv preprint arXiv:2203.06904 (2022).
+limitations, resulting in improved overall vulnerability detection                       [23] Dlint. null. Dlint: a tool for encouraging best coding practices and helping ensure
+                                                                                              Python code is secure. https://github.com/dlint-py/dlint
+performance.                                                                             [24] Hugging Face. 2024. Hugging Face Transformers library. https://huggingface.
+   In the future, we aim to investigate more sophisticated methods                            co/docs/transformers/index
+for effectively combining multiple LLMs and SAST tools to further                        [25] Jiahao Fan, Yi Li, Shaohua Wang, and Tien N Nguyen. 2020. AC/C++ code
+                                                                                              vulnerability dataset with code changes and CVE summaries. In Proceedings of
+improve vulnerability detection performance.                                                  the 17th International Conference on Mining Software Repositories. 508–512.
+                                                                                         [26] Lingling Fan, Ting Su, Sen Chen, Guozhu Meng, Yang Liu, Lihua Xu, Geguang Pu,
+REFERENCES                                                                                    and Zhendong Su. 2018. Large-scale analysis of framework-specific exceptions
+                                                                                              in android apps. In Proceedings of the 40th International Conference on Software
+ [1] 2023. Tree-sitter. https://tree-sitter.github.io/tree-sitter/                            Engineering. 408–419.
+ [2] Toufique Ahmed, Kunal Suresh Pai, Premkumar Devanbu, and Earl Barr. 2024.           [27] Zhangyin Feng, Daya Guo, Duyu Tang, Nan Duan, Xiaocheng Feng, Ming Gong,
+     Automatic semantic augmentation of language model prompts (for code sum-                 Linjun Shou, Bing Qin, Ting Liu, Daxin Jiang, and Ming Zhou. 2020. CodeBERT:
+     marization). In Proceedings of the IEEE/ACM 46th International Conference on             A Pre-Trained Model for Programming and Natural Languages. In Findings of
+     Software Engineering. 1–13.                                                              the Association for Computational Linguistics: EMNLP 2020, Online Event, 16-20
+ [3] Mistral AI. 2023. Mistral. https://huggingface.co/mistralai/Mistral-7B-v0.1              November 2020 (Findings of ACL, Vol. EMNLP 2020), Trevor Cohn, Yulan He, and
+ [4] Bushra Aloraini, Meiyappan Nagappan, Daniel M German, Shinpei Hayashi,                   Yang Liu (Eds.). Association for Computational Linguistics, 1536–1547.
+     and Yoshiki Higo. 2019. An empirical study of security warnings from static         [28] Flawfinder. null. Flawfinder. https://dwheeler.com/flawfinder/
+     application security testing tools. Journal of Systems and Software 158 (2019),     [29] Michael Fu and Chakkrit Tantithamthavorn. 2022. LineVul: A Transformer-based
+     110427.                                                                                  Line-Level Vulnerability Prediction. In MSR. ACM, 608–620.
+ [5] Midya Alqaradaghi, Gregory Morse, and Tamás Kozsik. 2021. Detecting security        [30] Michael Fu, Chakkrit Tantithamthavorn, Van Nguyen, and Trung Le. 2023. Chat-
+     vulnerabilities with static analysis–A case study. Pollack Periodica (2021).             gpt for vulnerability detection, classification, and repair: How far are we? APSEC
+ [6] Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan,           (2023).
+     Wenbin Ge, Yu Han, Fei Huang, Binyuan Hui, Luo Ji, Mei Li, Junyang Lin, Runji       [31] Mingyang Geng, Shangwen Wang, Dezun Dong, Haotian Wang, Ge Li, Zhi
+     Lin, Dayiheng Liu, Gao Liu, Chengqiang Lu, Keming Lu, Jianxin Ma, Rui Men,               Jin, Xiaoguang Mao, and Xiangke Liao. 2024. Large language models are few-
+     Xingzhang Ren, Xuancheng Ren, Chuanqi Tan, Sinan Tan, Jianhong Tu, Peng                  shot summarizers: Multi-intent comment generation via in-context learning. In
+     Wang, Shijie Wang, Wei Wang, Shengguang Wu, Benfeng Xu, Jin Xu, An Yang,                 Proceedings of the 46th IEEE/ACM International Conference on Software Engineering.
+     Hao Yang, Jian Yang, Shusheng Yang, Yang Yao, Bowen Yu, Hongyi Yuan, Zheng               1–13.
+     Yuan, Jianwei Zhang, Xingxuan Zhang, Yichang Zhang, Zhenru Zhang, Chang             [32] Katerina Goseva-Popstojanova and Andrei Perhinschi. 2015. On the capability of
+     Zhou, Jingren Zhou, Xiaohuan Zhou, and Tianhang Zhu. 2023. Qwen Technical                static code analysis to detect security vulnerabilities. Information and Software
+     Report. arXiv preprint arXiv:2309.16609 (2023).                                          Technology 68 (2015), 18–33.
+ [7] Bandit. null. Bandit: a tool designed to find common security issues in Python
+     code. https://github.com/PyCQA/bandit
+
+=== [PDF page 12] ===
+
+ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, Xin
+                                                    USAZhou, Duc-Manh Tran, Thanh Le-Cong, Ting Zhang, Ivana Clairine IRSAN, Joshua SUMARLIN, Bach Le, and David Lo
+
+
+[33] Graudit. null. Graudit: source code auditing tool. https://github.com/wireghoul/             Processing Systems 35 (2022), 1950–1965.
+     graudit                                                                                 [54] Jiawei Liu, Chunqiu Steven Xia, Yuyao Wang, and Lingming Zhang. 2024. Is your
+[34] Daya Guo, Shuai Lu, Nan Duan, Yanlin Wang, Ming Zhou, and Jian Yin. 2022.                    code generated by chatgpt really correct? rigorous evaluation of large language
+     Unixcoder: Unified cross-modal pre-training for code representation. arXiv                   models for code generation. Advances in Neural Information Processing Systems
+     preprint arXiv:2203.03850 (2022).                                                            36 (2024).
+[35] Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long                [55] Zhongxin Liu, Zhijie Tang, Junwei Zhang, Xin Xia, and Xiaohu Yang. 2024.
+     Zhou, Nan Duan, Alexey Svyatkovskiy, Shengyu Fu, et al. 2020. Graphcodebert:                 Pre-training by Predicting Program Dependencies for Vulnerability Analysis
+     Pre-training code representations with data flow. arXiv preprint arXiv:2009.08366            Tasks. In Proceedings of the IEEE/ACM 46th International Conference on Software
+     (2020).                                                                                      Engineering. 1–13.
+[36] Andrew Habib and Michael Pradel. 2018. How many of all bugs do we find? a               [56] Anton Lozhkov, Raymond Li, Loubna Ben Allal, Federico Cassano, Joel Lamy-
+     study of static bug detectors. In Proceedings of the 33rd ACM/IEEE International             Poirier, Nouamane Tazi, Ao Tang, Dmytro Pykhtar, Jiawei Liu, Yuxiang Wei,
+     Conference on Automated Software Engineering. 317–328.                                       et al. 2024. StarCoder 2 and The Stack v2: The Next Generation. arXiv preprint
+[37] Hazim Hanif and Sergio Maffeis. 2022. VulBERTa: Simplified Source Code Pre-                  arXiv:2402.19173 (2024).
+     Training for Vulnerability Detection. In International Joint Conference on Neural       [57] Fanxu Meng, Zhaohui Wang, and Muhan Zhang. 2024. Pissa: Principal singular
+     Networks, IJCNN 2022, Padua, Italy, July 18-23, 2022. IEEE, 1–8. https://doi.org/            values and singular vectors adaptation of large language models. arXiv preprint
+     10.1109/IJCNN55064.2022.9892280                                                              arXiv:2404.02948 (2024).
+[38] Thong Hoang, Hoa Khanh Dam, Yasutaka Kamei, David Lo, and Naoyasu                       [58] Meta. 2023. CodeLlama. https://huggingface.co/samaxr/codellma-7b/
+     Ubayashi. 2019. Deepjit: an end-to-end deep learning framework for just-in-time         [59] Meta. 2024. Llama3. https://llama.meta.com/llama3/
+     defect prediction. In 2019 IEEE/ACM 16th International Conference on Mining             [60] Microsoft. 2024. Phi3. https://azure.microsoft.com/en-us/blog/introducing-phi-
+     Software Repositories (MSR). IEEE, 34–45.                                                    3-redefining-whats-possible-with-slms/
+[39] Xinyi Hou, Yanjie Zhao, Yue Liu, Zhou Yang, Kailong Wang, Li Li, Xiapu Luo,             [61] Anh Nguyen-Duc, Manh Viet Do, Quan Luong Hong, Kiem Nguyen Khac, and
+     David Lo, John Grundy, and Haoyu Wang. 2024. Large Language Models for                       Anh Nguyen Quang. 2021. On the adoption of static analysis for software security
+     Software Engineering: A Systematic Literature Review. arXiv:2308.10620 [cs.SE]               assessment–A case study of an open-source e-government project. computers &
+[40] Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean                security 111 (2021), 102470.
+     Wang, Lu Wang, and Weizhu Chen. 2021. Lora: Low-rank adaptation of large                [62] Georgios Nikitopoulos, Konstantina Dritsa, Panos Louridas, and Dimitris
+     language models. arXiv preprint arXiv:2106.09685 (2021).                                     Mitropoulos. 2021. CrossVul: a cross-language vulnerability dataset with commit
+[41] Huggingface. 2024. Huggingface Open LLM Leaderboard. https://huggingface.                    data. In Proceedings of the 29th ACM Joint Meeting on European Software Engi-
+     co/spaces/open-llm-leaderboard/open_llm_leaderboard                                          neering Conference and Symposium on the Foundations of Software Engineering.
+[42] Infer. null. A Tool to Detect Bugs in Java and C/C++/Objective-c Code. https:                1565–1569.
+     //fbinfer.com/                                                                          [63] Paulo Nunes, Ibéria Medeiros, José Fonseca, Nuno Neves, Miguel Correia, and
+[43] Insidersec. 2022. Insider. https://github.com/insidersec/insider/                            Marco Vieira. 2019. An empirical study on combining diverse static analysis tools
+[44] Nan Jiang, Kevin Liu, Thibaud Lutellier, and Lin Tan. 2023. Impact of code lan-              for web security vulnerabilities based on development scenarios. Computing 101
+     guage models on automated program repair. In 2023 IEEE/ACM 45th International                (2019), 161–185.
+     Conference on Software Engineering (ICSE). IEEE, 1430–1442.                             [64] The University of Maryland. 2022. SpotBugs. https://spotbugs.github.io/
+[45] Hong Jin Kang, Khai Loong Aw, and David Lo. 2022. Detecting false alarms                [65] National Institute of Standards and Technology. 2017. Juliet Test Suite. https:
+     from automatic static analysis tools: How far are we?. In Proceedings of the 44th            //samate.nist.gov/SARD/test-suites
+     International Conference on Software Engineering. 698–709.                              [66] OpenAI. 2024. OpenAI GPT-3.5 (gpt-3.5-turbo-0125). https://platform.openai.
+[46] Arvinder Kaur and Ruchikaa Nayyar. 2020. A comparative study of static code                  com/docs/guides/text-generation/chat-completions-api
+     analysis tools for vulnerability detection in c/c++ and java source code. Procedia      [67] Tao Peng, Shixu Chen, Fei Zhu, Junwei Tang, Junping Liu, and Xinrong Hu.
+     Computer Science 171 (2020), 2023–2029.                                                      2023. PTLVD:Program Slicing and Transformer-based Line-level Vulnerability
+[47] Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke                    Detection System. In 23rd IEEE International Working Conference on Source Code
+     Iwasawa. 2022. Large language models are zero-shot reasoners. Advances in                    Analysis and Manipulation, SCAM 2023, Bogotá, Colombia, October 2-3, 2023, Leon
+     neural information processing systems 35 (2022), 22199–22213.                                Moonen, Christian D. Newman, and Alessandra Gorla (Eds.). IEEE, 162–173.
+[48] Jingyue Li, Sindre Beba, and Magnus Melseth Karlsen. 2019. Evaluation of open-               https://doi.org/10.1109/SCAM59687.2023.00026
+     source IDE plugins for detecting security vulnerabilities. In Proceedings of the 23rd   [68] Lina Qiu, Yingying Wang, and Julia Rubin. 2018. Analyzing the analyzers: Flow-
+     International Conference on Evaluation and Assessment in Software Engineering.               droid/iccta, amandroid, and droidsafe. In Proceedings of the 27th ACM SIGSOFT
+     200–209.                                                                                     International Symposium on Software Testing and Analysis. 176–186.
+[49] Kaixuan Li, Sen Chen, Lingling Fan, Ruitao Feng, Han Liu, Chengwei Liu, Yang            [69] Contrast Security. 2022. Contrast Security. https://www.contrastsecurity.com/
+     Liu, and Yixiang Chen. 2023. Comparison and Evaluation on Static Application            [70] Semgrep. 2022. Semgrep. https://github.com/semgrep/semgrep
+     Security Testing (SAST) Tools for Java. In Proceedings of the 31st ACM Joint            [71] SonarSource. 2022. SonarQube. https://www.sonarqube.org/
+     European Software Engineering Conference and Symposium on the Foundations of            [72] Statista. 2023. Number of common IT security vulnerabilities and exposures
+     Software Engineering. 921–933.                                                               (CVEs) worldwide from 2009 to 2024 YTD. https://www.statista.com/statistics/
+[50] Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov,               500755/worldwide-common-vulnerabilities-and-exposures/
+     Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, Qian Liu,             [73] Darko Stefanović, Danilo Nikolić, Dušanka Dakić, Ivana Spasojević, and Sonja
+     Evgenii Zheltonozhskii, Terry Yue Zhuo, Thomas Wang, Olivier Dehaene, Mishig                 Ristić. 2020. Static code analysis tools: A systematic literature review. In Ann.
+     Davaadorj, Joel Lamy-Poirier, João Monteiro, Oleh Shliazhko, Nicolas Gontier,                DAAAM Proc. Int. DAAAM Symp, Vol. 31. 565–573.
+     Nicholas Meade, Armel Zebaze, Ming-Ho Yee, Logesh Kumar Umapathi, Jian Zhu,             [74] Ferdian Thung, Lucia, David Lo, Lingxiao Jiang, Foyzur Rahman, and Premku-
+     Benjamin Lipkin, Muhtasham Oblokulov, Zhiruo Wang, Rudra Murthy, Jason                       mar T Devanbu. 2012. To what extent could we detect field defects? an empirical
+     Stillerman, Siva Sankalp Patel, Dmitry Abulkhanov, Marco Zocca, Manan Dey,                   study of false negatives in static bug finding tools. In Proceedings of the 27th
+     Zhihan Zhang, Nour Fahmy, Urvashi Bhattacharyya, Wenhao Yu, Swayam Singh,                    IEEE/ACM International Conference on Automated Software Engineering. 50–59.
+     Sasha Luccioni, Paulo Villegas, Maxim Kunakov, Fedor Zhdanov, Manuel Romero,            [75] TIOBE. 2024. TIOBE Index for May 2024. https://www.tiobe.com/tiobe-index/
+     Tony Lee, Nadav Timor, Jennifer Ding, Claire Schlesinger, Hailey Schoelkopf, Jan        [76] David A Tomassi. 2018. Bugs in the wild: examining the effectiveness of static
+     Ebert, Tri Dao, Mayank Mishra, Alex Gu, Jennifer Robinson, Carolyn Jane Ander-               analyzers at finding real-world bugs. In Proceedings of the 2018 26th ACM Joint
+     son, Brendan Dolan-Gavitt, Danish Contractor, Siva Reddy, Daniel Fried, Dzmitry              Meeting on European Software Engineering Conference and Symposium on the
+     Bahdanau, Yacine Jernite, Carlos Muñoz Ferrandis, Sean Hughes, Thomas Wolf,                  Foundations of Software Engineering. 980–982.
+     Arjun Guha, Leandro von Werra, and Harm de Vries. 2023. StarCoder: may the              [77] Marcos Treviso, Ji-Ung Lee, Tianchu Ji, Betty van Aken, Qingqing Cao, Manuel R
+     source be with you! (2023). arXiv:2305.06161 [cs.CL]                                         Ciosici, Michael Hassid, Kenneth Heafield, Sara Hooker, Colin Raffel, et al. 2023.
+[51] Stephan Lipp, Sebastian Banescu, and Alexander Pretschner. 2022. An empirical                Efficient methods for natural language processing: A survey. Transactions of the
+     study on the effectiveness of static C code analyzers for vulnerability detection.           Association for Computational Linguistics 11 (2023), 826–860.
+     In Proceedings of the 31st ACM SIGSOFT International Symposium on Software              [78] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+     Testing and Analysis. 544–555.                                                               Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all
+[52] Han Liu, Sen Chen, Ruitao Feng, Chengwei Liu, Kaixuan Li, Zhengzi Xu, Liming                 you need. Advances in neural information processing systems 30 (2017).
+     Nie, Yang Liu, and Yixiang Chen. 2023. A comprehensive study on quality                 [79] Yue Wang, Weishi Wang, Shafiq Joty, and Steven CH Hoi. 2021. Codet5: Identifier-
+     assurance tools for java. In Proceedings of the 32nd ACM SIGSOFT International               aware unified pre-trained encoder-decoder models for code understanding and
+     Symposium on Software Testing and Analysis. 285–297.                                         generation. arXiv preprint arXiv:2109.00859 (2021).
+[53] Haokun Liu, Derek Tam, Mohammed Muqeeth, Jay Mohta, Tenghao Huang,                      [80] Jason Wei, Maarten Bosma, Vincent Y Zhao, Kelvin Guu, Adams Wei Yu, Brian
+     Mohit Bansal, and Colin A Raffel. 2022. Few-shot parameter-efficient fine-tuning             Lester, Nan Du, Andrew M Dai, and Quoc V Le. 2021. Finetuned language models
+     is better and cheaper than in-context learning. Advances in Neural Information               are zero-shot learners. arXiv preprint arXiv:2109.01652 (2021).
+
+=== [PDF page 13] ===
+
+Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection
+                                                                                                                   ESEC/FSE’23, 11 - 17 November, 2023, San Francisco, USA
+
+
+[81] Xin-Cheng Wen, Xinchen Wang, Yujia Chen, Ruida Hu, David Lo, and Cuiyun Gao.            [85] Junwei Zhang, Zhongxin Liu, Xing Hu, Xin Xia, and Shanping Li. 2023. Vulnera-
+     2024. VulEval: Towards Repository-Level Evaluation of Software Vulnerability                 bility Detection by Learning From Syntax-Based Execution Paths of Code. IEEE
+     Detection. arXiv:2404.15596 [cs.SE]                                                          Trans. Software Eng. 49, 8 (2023), 4196–4212. https://doi.org/10.1109/TSE.2023.
+[82] Martin Weyssow, Xin Zhou, Kisub Kim, David Lo, and Houari Sahraoui. 2023.                    3286586
+     Exploring parameter-efficient fine-tuning techniques for code generation with           [86] Xin Zhou, Kisub Kim, Bowen Xu, Jiakun Liu, DongGyun Han, and David Lo.
+     large language models. arXiv preprint arXiv:2308.10462 (2023).                               2023. The devil is in the tails: How long-tailed code distributions impact large
+[83] Haitao Xu, Ruifeng Duan, Shengsong Yang, and Lei Guo. 2021. An empirical                     language models. In 2023 38th IEEE/ACM International Conference on Automated
+     study on data sampling for just-in-time defect prediction. In Artificial Intelligence        Software Engineering (ASE). IEEE, 40–52.
+     and Security: 7th International Conference, ICAIS 2021, Dublin, Ireland, July 19–23,    [87] Xin Zhou, Ting Zhang, and David Lo. 2024. Large Language Model for Vul-
+     2021, Proceedings, Part II 7. Springer, 54–69.                                               nerability Detection: Emerging Results and Future Directions. ICSE NIER track
+[84] Xu Yang, Shaowei Wang, Yi Li, and Shaohua Wang. 2023. Does data sampling                     (2024).
+     improve deep learning-based vulnerability detection? Yeas! and Nays!. In 45th           [88] Yaqin Zhou, Shangqing Liu, Jingkai Siow, Xiaoning Du, and Yang Liu. 2019.
+     IEEE/ACM International Conference on Software Engineering, ICSE 2023, Melbourne,             Devign: Effective vulnerability identification by learning comprehensive program
+     Australia, May 14-20, 2023. IEEE, 2287–2298. https://doi.org/10.1109/ICSE48619.              semantics via graph neural networks. Advances in neural information processing
+     2023.00192                                                                                   systems 32 (2019).
+                                                                                             [89] Zupit. 2022. Horusec. https://docs.horusec.io/docs/overview/

@@ -1,0 +1,1116 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                         Understanding the Effectiveness of Large Language
+                                            Models in Detecting Security Vulnerabilities
+                                                             Avishree Khare∗                         Saikat Dutta∗                            Ziyang Li
+                                                        University of Pennsylvania                  Cornell University                University of Pennsylvania
+                                                           Philadelphia, USA                          Ithaca, USA                        Philadelphia, USA
+                                                        akhare@seas.upenn.edu                     saikatd@cornell.edu                 liby99@seas.upenn.edu
+
+                                                         Alaia Solko-Breslin                           Rajeev Alur                             Mayur Naik
+                                                      University of Pennsylvania                University of Pennsylvania               University of Pennsylvania
+                                                         Philadelphia, USA                         Philadelphia, USA                        Philadelphia, USA
+
+
+
+
+arXiv:2311.16169v3 [cs.CR] 23 Oct 2024
+                                                       alaia@seas.upenn.edu                      alur@seas.upenn.edu                     mhnaik@seas.upenn.edu
+
+
+
+                                            Abstract—Security vulnerabilities in modern software are            still caused by well-understood memory safety issues [3]. This
+                                         prevalent and harmful. While automated vulnerability detection         is alarming given the rapidly growing size and complexity of
+                                         techniques have made promising progress, their scalability and         modern software systems, encompassing numerous programs,
+                                         applicability remain challenging. The remarkable performance of
+                                         Large Language Models (LLMs), such as GPT-4 and CodeLlama,             libraries, and modules that interact with each other. Hence, we
+                                         on code-related tasks has prompted recent works to explore if          need major technical advances to effectively detect security
+                                         LLMs can be used to detect security vulnerabilities. In this paper,    vulnerabilities in such complex software.
+                                         we perform a more comprehensive study by examining a larger               Traditional techniques for automated vulnerability detection,
+                                         and more diverse set of datasets, languages, and LLMs, and             such as fuzzers [4], and static analyzers such as CodeQL [5]
+                                         qualitatively evaluating detection performance across prompts
+                                         and vulnerability classes. Concretely, we evaluate the effectiveness   and Semgrep [6] have made promising strides. For example,
+                                         of 16 pre-trained LLMs on 5,000 code samples—1,000 randomly            in the last two years, researchers found over 300 security vul-
+                                         selected each from five diverse security datasets. These balanced      nerabilities through custom CodeQL queries [7], [8]. However,
+                                         datasets encompass synthetic and real-world projects in Java and       these techniques face challenges in scalability and applicabil-
+                                         C/C++ and cover 25 distinct vulnerability classes.                     ity. Fuzzing requires manually crafted fuzz drivers and does
+                                            Our results show that LLMs across all scales and families
+                                         show modest effectiveness in end-to-end reasoning about vul-           not scale to large critical programs with complex inputs, such
+                                         nerabilities, obtaining an average accuracy of 62.8% and F1            as network servers, embedded firmware, and system services.
+                                         score of 0.71 across all datasets. LLMs are significantly better at    On the other hand, static analysis relies heavily on manual
+                                         detecting vulnerabilities that typically only need intra-procedural    API specifications, and skillfully crafted heuristics to balance
+                                         reasoning, such as OS Command Injection and NULL Pointer               precision and scalability. Until recently, GitHub paid a bounty
+                                         Dereference. Moreover, LLMs report higher accuracies on these
+                                         vulnerabilities than popular static analysis tools, such as CodeQL.    of over 7K USD for each CodeQL query that found new
+                                            We find that advanced prompting strategies that involve step-       critical security bugs [9].
+                                         by-step analysis significantly improve performance of LLMs on             Large Language Models (LLMs), including pre-trained
+                                         real-world datasets in terms of F1 score (by up to 0.18 on             models such as GPT-4 and CodeLlama, have made remarkable
+                                         average). Interestingly, we observe that LLMs show promising           advances in code-related tasks in a relatively short period. Such
+                                         abilities at performing parts of the analysis correctly, such as
+                                         identifying vulnerability-related specifications (e.g., sources and    tasks include code completion [12], automated program re-
+                                         sinks) and leveraging natural language information to understand       pair [13]–[15], test generation [16], [17], code evolution [18],
+                                         code behavior (e.g., to check if code is sanitized). We believe        and fault localization [19]. These results clearly show the
+                                         our insights can motivate future work on LLM-augmented                 promise of LLMs, opening up a new direction for exploring
+                                         vulnerability detection systems.                                       advanced techniques. Hence, an intriguing question is whether
+                                                                   I. I NTRODUCTION                             the state-of-the-art pre-trained LLMs can also be used for
+                                            Security vulnerabilities afflict software despite decades of        detecting security vulnerabilities in code.
+                                         advances in programming languages, program analysis tools,                To develop LLM-based solutions, an important first step is
+                                         and software engineering practices. Even well-tested and crit-         to systematically evaluate the ability of LLMs in detecting
+                                         ical software such as OpenSSL, a widely used library for ap-           known vulnerabilities. This is especially important in light
+                                         plications that provide secure communications, contains trivial        of the rapidly evolving landscape of LLMs in three aspects:
+                                         buffer overflow vulnerabilities, e.g., [1] and [2]. A recent study     scale, diversity, and applicability. First, scaling these models
+                                         by Microsoft showed that more than 70% of vulnerabilities are          to ever larger numbers of parameters has led to significant
+                                                                                                                improvements in their capabilities [20]. For instance, GPT-4,
+                                            * Equal contribution                                                which is presumably orders of magnitude larger than its 175-
+
+=== [PDF page 2] ===
+
+                                     TABLE I: Summary of our research questions and key findings
+   Research Questions                    Findings
+   RQ1: How do different pre-trained ✓ LLMs across all sizes report a mean accuracy of about 62.8% and a mean F1 score of 0.71 across all
+   LLMs perform in detecting security datasets.
+   vulnerabilities across different lan- ✗ Average accuracy on real-world datasets is 10.5% lower than that on synthetic datasets.
+   guages and datasets? (Section §III-A) ✓ In stark contrast to other domains, smaller models such as Qwen-2.5-14B and Qwen-2.5-32B report higher
+                                         accuracies on the real-world datasets than much larger models such as GPT-4.
+   RQ2: How do different prompting ✓ Using prompts that focus on detecting specific CWEs improves the performance of LLMs.
+   strategies affect the performance of ✓ The Dataflow analysis-based prompt prompt further improves results for larger LLMs with an increase of
+   LLMs? (Section III-B)                up to 0.18 in F1 score on real-world datasets.
+                                        ✓ We also observe that LLMs often infer the correct sources/sinks/sanitizers but fail in end-to-end reasoning.
+   RQ3: How does the performance of ✓ LLMs are better at detecting local vulnerabilities that require no global context across datasets (OS Command
+   LLMs vary across different vulnera- Injection, NULL Pointer Dereference, Out-of-bounds Read/Write, etc.).
+   bility classes? (Section III-C)     ✗ LLMs struggle to detect vulnerabilities that require additional context or reasoning about complex data
+                                       structures (Out-of-bounds Read/Write with C++ structs and pointers).
+                                       ✓ Certain LLMs are very good at detecting specific CWEs across datasets (Llama-3.1-70B on OS Command
+                                       Injection, DeepSeekCoder-7B on NULL Pointer Dereference, etc.).
+   RQ4: How do LLMs compare to ✗ LLMs report lower overall accuracies than CodeQL on all synthetic datasets.
+   state-of-the-art static analysis tools? ✓ LLMs report higher accuracies than CodeQL on certain vulnerability classes across datasets (Path Traversal,
+   (Section III-D)                         OS Command Injection, etc). CodeQL reports higher accuracies on Integer Overflow across datasets.
+
+   RQ5: How do LLMs compare to ✓ Deep Learning(DL)-based tools such as DeepDFA [10] and LineVul [11] report accuracies similar to Qwen-
+   state-of-the-art deep-learning-based 2.5-32B on CVEFixes C/C++ even after being trained on in-distribution samples whereas Qwen-2.5-32B reports
+   tools? (Section III-E)               higher F1 scores.
+                                        ✓ DL-based tools report lower accuracies and F1 scores than LLMs when trained and evaluated on different
+                                        datasets.
+                                        ✓ LLMs provide natural language explanations for their predictions while DL-based tools provide binary scores
+                                        and line numbers that are often difficult to interpret.
+
+
+
+billion predecessor GPT-3.5, significantly outperforms GPT-         vulnerability datasets across two languages, C/C++ and Java,
+3.5 on a wide range of code-understanding tasks [21]. Second,       and 25 vulnerability classes.
+the diversity of LLMs has grown rapidly and now includes not           We first study how LLMs perform on the task of vulnerabil-
+only proprietary general-purpose ones such as GPT-4 but also        ity detection using three prompting strategies and how these
+open-source code-specific LLMs such as CodeLlama [22] and           strategies qualitatively compare against each other. We also
+StarCoder [23]. Finally, the reasoning capabilities of LLMs         attempt to identify vulnerability classes that most benefit from
+(and hence their applicability) may vary significantly across       the use of LLMs and these prompting techniques. Our simplest
+different prompting strategies and programming languages.           prompting strategies include the Basic prompt, which simply
+All these factors open up a large exploration space for applying    asks an LLM to check for any vulnerabilities in the given code
+LLMs to the challenging task of vulnerability detection.            and the CWE specific prompt, which asks the LLM to check
+                                                                    for a specific class of vulnerabilities or CWEs (such as Buffer
+TABLE II: Comparison with other studies that focus on
+                                                                    Overflows). Inspired by the success of static analysis tools like
+vulnerability detection with LLMs. Superscript U indicates an
+                                                                    CodeQL that use dataflow analysis to detect vulnerabilities, we
+unbalanced dataset. Static Analysis is abbreviated as SA and
+                                                                    design a prompting strategy called Dataflow analysis-based
+Deep Learning as DL.
+                                                                    prompt. This prompt asks the LLM to simulate a source-sink-
+Study Features               [24] [25] [26] [27] [28] Our Work sanitizer based dataflow analysis on the target code snippet
+Languages                   C/C++ C/C++ C/C++ C,Py C/C++ C/C++,Java before predicting if it is vulnerable.
+#Samples                     368 347 100 96 25.9KU          5000       We next compare LLMs with existing vulnerability de-
+#CWEs                         25   N/A N/A     8    140      25
+                                                                    tection tools, namely static analysis-based CodeQL and two
+#LLMs (>1B parameters)         3    16    11   5     4       16     deep learning-based techniques, DeepDFA [10] and Line-
+Comparison of various LLMs ✓        ✓     ✓    ✓     ✓       ✓      Vul [11]. As discussed earlier, static vulnerability detection
+Qualitative prompt analysis   ✗     ✗     ✗    ✓     ✗       ✓
+CWE-wise analysis             ✗     ✗     ✗    ✗     ✗       ✓
+                                                                    tools are limited by the need for concrete API specifications
+Comparison with SA tools      ✗     ✓     ✗    ✗     ✗       ✓      and require compiling / building entire target projects before
+Comparison with DL tools      ✓     ✗     ✗    ✗     ✓       ✓      detection. Pre-LLM deep learning-based approaches such as
+                                                                    DeepDFA [10] and LineVul [11] attempt to mitigate some of
+Our Work. We study the vulnerability detection capabilities these limitations through fine-tuned neural representations of
+of 16 state-of-the-art LLMs across different scales and code. On the other hand, LLMs do not require the compilation
+families, including proprietary models such as Gemini of complete projects as they can be prompted to analyze partial
+and GPT-4, and open-source models like CodeLlama and code snippets. Moreover, they already have an internal model
+Qwen. We evaluate these models on five popular security of APIs through pre-training and do not need to be trained
+
+=== [PDF page 3] ===
+
+on large datasets from scratch. We analyze the benefits and          The synthetic benchmarks, OWASP and Juliet, allow for easy
+shortcomings of LLMs over CodeQL, including vulnerability            comparison with CodeQL and the real-world benchmarks,
+classes where they outperform each other. We also study how          CVEFixes, are useful for evaluating practical utility. While
+they compare against the deep learning based-approaches in           many real-world datasets have been proposed in the literature,
+terms of generalization across datasets.                             we selected CVEFixes because it is the only dataset that 1)
+Comparison with other studies. There are other studies that          contains vulnerability metadata such as CVE and CWE IDs, 2)
+also evaluate the effectiveness of LLMs on the task of vulner-       is two-sided, i.e., contains both vulnerable and non-vulnerable
+ability detection [24]–[28]. Table II presents a comparison of       code samples, and 3) covers multiple languages such as Java
+our work with these studies. We present our study as the most        and C/C++. Table IV shows a comparison of existing real-
+comprehensive on this topic for the following reasons:               world vulnerability datasets. We briefly describe each of the
+• Size and diversity of the datasets: We curate a dataset
+                                                                     selected datasets next:
+   of 5K samples, with equal number of vulnerable and non-                      TABLE III: Details of Selected Datasets
+   vulnerable snippets. The only larger dataset is from [28]          Dataset                     Language       Size   Vul/Non-Vul   CWEs
+   but only 695 of their 25.9K samples are vulnerable. Fur-           OWASP [29]                  Java         2740     1415/1325          11
+   thermore, our study is the first to include Java code.             SARD Juliet (C/C++) [30]    C/C++      81,280 40,640/40,640         118
+• Comparison with non-LLM-based tools: Our study is the               SARD Juliet (Java) [31]     Java       35,940 17,970/17,970         112
+                                                                      CVEFixes [32]               C/C++      19,576   8223/11,347         131
+   first to compare LLMs with CodeQL and specialized Deep             CVEFixes [32]               Java         3926     1461/2465          68
+   Learning-based tools. Moreover, we also find vulnerability
+   classes where LLMs outperform CodeQL and vice versa                  1) OWASP (Synthetic): The Open Web Application Secu-
+   which is useful for deployment.                                   rity Project (OWASP) benchmark [29] is a Java test suite
+• Qualitative analysis of prompts and vulnerability classes:
+                                                                     designed to evaluate the effectiveness of vulnerability detec-
+   While other studies quantitatively compare prompting strate-      tion tools. Each test represents a synthetically designed code
+   gies, we also attempt to qualitatively identify the benefits of   snippet containing a security vulnerability.
+   various prompt elements. Furthermore, we identify partial            2) Juliet (Synthetic): Juliet [33] is a widely-used vulnerabil-
+   capabilities offered by some of these prompts that can be         ity dataset developed by NIST with thousands of synthetically
+   leveraged in LLM-based detection tools. We also identify          generated test cases from various known vulnerability patterns.
+   vulnerability classes where LLMs perform well.                       3) CVEFixes (Real-World): Bhandari et al. [32] curated a
+Contributions. Our research questions and key findings are           dataset, known as CVEFixes, from 5365 Common Vulnerabil-
+summarized in Table I. To summarize, we make the following           ities and Exposures (CVE) records from the National Vulner-
+contributions in this paper:                                         ability Database (NVD). From each CVE, they automatically
+• Empirical Study: We conduct the largest comprehensive
+                                                                     extracted the vulnerable and patched versions of each method
+  study on how state-of-the-art LLMs perform in detecting se-        in open-source projects, along with extensive meta-data such
+  curity vulnerabilities across 5000 samples from five datasets,     as the corresponding CWEs, project information, and commit
+  two programming languages (C/C++ and Java) and covering            data. These methods span multiple programming languages but
+  25 unique vulnerability classes.                                   we only consider the C/C++ and Java methods in this work.
+• Comparison with other vulnerability detection tools:                      TABLE IV: Comparison of Real-World Datasets
+  We contrast the performance of LLMs against popular
+  static analysis and deep-learning-based vulnerability detec-        Dataset           Languages      CVE Metadata Two-Sided Multi-Lang
+  tion tools. We also identify vulnerability classes where            BigVul [34]         C/C++              ✓            ✗           ✗
+  LLMs perform better/worse than some of these tools.                 Reveal [35]         C/C++              ✗            ✗           ✗
+                                                                      DiverseVul [36]     C/C++              ✗            ✓           ✗
+• Qualitative comparison of prompting strategies: We
+                                                                      DeepVD [37]         C/C++              ✗            ✗           ✗
+  quantitatively and qualitatively compare three prompting
+                                                                      CVEFixes [32] C/C++, Java, ...         ✓            ✓           ✓
+  strategies, including a novel prompt inspired by dataflow
+  analysis-based vulnerability detection.
+• Insights: We perform a rigorous manual analysis of LLMs’           B. Metrics
+  predictions and highlight vulnerability patterns that impact          To evaluate the effectiveness of each tool, we use the
+  the performance of these models.                                   standard metrics used for classification problems. In this
+                                                                     work, a true positive represents a case when a tool detects
+                        II. A PPROACH
+                                                                     a true vulnerability. In contrast, a false positive is when the
+A. Datasets                                                          tool detects a vulnerability that is not exploitable. True and
+  For our study, we select five diverse synthetic/real-world         false negatives are defined analogously. We describe each
+vulnerability datasets from two languages: C++ and Java.             metric in the context of vulnerability detection.
+Table III presents the details of each dataset, such as the          • Accuracy: Accuracy measures how often the tool makes a
+dataset size, programming language, number of vulnerable and            correct prediction, i.e., whether a code snippet is vulnerable
+non-vulnerable samples, and the number of unique CWEs.                  or not. It is computed as: True Positives + True Negatives
+                                                                                                               #Samples            .
+
+=== [PDF page 4] ===
+
+• Precision: Precision represents what proportion of cases that          followed by an expected structure of the response from the
+  a tool detects as a vulnerability is a correct detection. It is        model. The system prompt is followed by a user prompt
+                              True Positives
+  computed as: True Positives        + False Positives .                 that varies across the various prompting strategies. In all our
+• Recall: Recall represents what proportion of vulner-                   experiments, we incorporate the target code snippet into the
+  abilities the tool can detect. It is computed as:                      user prompt without any changes.
+           True Positives
+  True Positives + False Negatives .                                        We construct three different prompting strategies:
+• F1 score: The F1 score is a harmonic mean of precision
+                                                  Precision * Recall
+                                                                            1) Basic prompt: We design a very simple prompt (shown
+  and recall. It is computed as: 2 ∗ Precision              + Recall .   in Listing 4 in the Appendix) to test if the model can take
+C. Large Language Models                                                 a target code snippet as input and detect if it is vulnerable
+                                                                         and determine the correct CWE as well. The prompt begins
+   We choose the most popular state-of-the-art pre-trained
+                                                                         with the message “Is the following code snippet prone to any
+Large Language Models (LLMs) for our evaluation.
+                                                                         security vulnerability?” followed by the code snippet.
+We choose three closed-source models (GPT-4, GPT-3.5
+and Gemini-1.5-Flash) and thirteen open-source models
+                                                                                 TABLE VI: Dataset Processing and Selection
+from the Codellama-x, Llama-3.1-x, Mistral-Codestral-x,
+DeepSeekCoder-x, Qwen2.5-x and Qwen2.5-Coder-x series.                   Steps              OWASP    Juliet Juliet CVEFixes CVEFixes   Total
+We use the “Instruct” variants of the models wherever appli-                                        C/C++ Java       C/C++      Java
+cable since they are fine-tuned to follow user instructions and          Original             2740 128,198 56,162   19,576     3926 210,602
+hence can better adapt to specific reasoning tasks. We access            Filtering            2740 81,280 35,940    19,576     3926 144,002
+                                                                         Top 25 CWE           1478 11,766 8,506     12,062     1810 23,560
+the GPT-x models and Gemini-1.5-Flash using the OpenAI                   Random Selection     1000    1000 1000       1000     1000    5000
+and Google Gemini APIs respectively and use the Hugging
+Face APIs [38] to access the open-source models. Table V
+presents more details about the models.                                     2) CWE specific prompt: The CWE specific prompt is
+                                                                         presented in Listing 5 in the Appendix. This prompt is similar
+    TABLE V: Details of LLMs (increasing order of size)                  to the Basic prompt except that it asks the model to predict if
+    Model                         Model Version Size Context Size        the given code snippet is vulnerable to a specific target CWE.
+    Qwen-2.5C-1.5B      qwen2.5-coder-1.5b 1.5B               128K       Hence, the user prompt starts with “Is the following code
+    Qwen-2.5C-7B          qwen2.5-coder-7b 7B                 128K       snippet prone to <CWE>?” followed by the code snippet. For
+    CodeLlama-7B     Codellama-7b-instruct 7B                  16K
+    DSCoder-7B            deepseekcoder-7b 7B                   4K
+                                                                         instance, for CWE-476, the user prompt would start with “Is
+    Llama-3.1-8B              llama-3.1-8b 8B                 128K       the following code snippet prone to CWE-476 (NULL Pointer
+    CodeLlama-13B CodeLlama-13B-Instruct 13B                   16K       Dereference)?” followed by the target code snippet.
+    Qwen-2.5-14B               qwen2.5-14b 14B                128K
+    DSCoder-15B       deepseekcoder-v2-15b 33B                128K          3) Dataflow analysis-based prompt: Dataflow analysis is
+    Codestral-22B    mistral-codestral-22b 22B                 32K       used by several static analysis tools to infer if there exists
+    Qwen-2.5-32B               qwen2.5-32b 32B                128K       an unsanitized path from a source to a target node. Further,
+    DSCoder-33B          deepseekcoder-33b 33B                 16K
+    CodeLlama-34B CodeLlama-34B-Instruct 34B                   16K       prior literature has shown step-by-step instructions can often
+    Llama-3.1-70B            llama-3.1-70b 70B                128K       elicit better reasoning from LLMs [40]. Motivated by these
+    Gemini-1.5-Flash      gemini-1.5-flash N/A                  1M       observations, we designed the CWE-DF prompt (shown in
+    GPT-3.5             gpt-3.5-turbo-0613 N/A                  4K
+    GPT-4                       gpt-4-0613 N/A                  8K       Listing 6 in Appendix) that prompts the model to simulate
+                                                                         a source-sink-sanitizer-based dataflow analysis on the target
+                                                                         code snippet before predicting if it is vulnerable. Naturally,
+D. Prompting Strategies for LLMs                                         this prompt is costlier since it generates more tokens than the
+   We explore various prompting strategies that can assist               other prompts. We provide the full prompts in Appendix B.
+LLMs in predicting if a given code snippet is vulnerable.                   4) Other prompting strategies: We also tried other
+The LLMs discussed in this study support chat interactions               prompting strategies such as Few-shot prompting
+with two major types of prompts: the system prompt can be                and Chain-of-thought prompting. In the few-shot
+used to set the context for the entire conversation while user           prompting setup, we include two examples of the task (one
+prompts can be used to provide specific details throughout               with a vulnerability and one without) in the CWE specific
+the chat session. We include a system prompt at the start                prompt before providing the target code snippet. With Chain-
+of each input to describe the task and expected structure of             of-thought prompting, we prompt the model to generate a
+the response. Since persona assignment has been shown to                 reasoning chain before the final answer by adding a “Let’s
+improve the performance of GPT-4 on specialized tasks [39],              think step-by-step” statement at the end of the CWE specific
+we add the line “You are a security researcher, expert in                prompt. Our initial experiments with GPT-4 prompted using
+detecting security vulnerabilities” at the start of every system         these techniques did not yield results better than the Dataflow
+prompt to assign a persona of a Security Researcher to the               analysis-based prompt on 100 random samples from two
+model. The system prompt for all experiments ends with the               datasets. Hence, we do not include these prompts in this study.
+statement “Provide response only in the following format:”               We refer readers to Appendix C for more details.
+
+=== [PDF page 5] ===
+
+Fig. 1: Effectiveness of LLMs in Predicting Security Vulnerabilities in Java and C/C++ (highest accuracy and F1 scores per
+model per dataset, across all prompting strategies).
+
+E. Dataset Processing and Selection                               C/C++ (65%) and Qwen-2.5-32B on CVEFixes C/C++ (56%).
+   We preprocess each dataset before evaluation by removing       This confirms that no model individually performs the best
+or anonymizing information such as commits, benchmark IDs,        across multiple datasets. Moreover, the best accuracies on
+or vulnerability names that may provide obvious hints about       synthetic datasets are 10.5% higher on average than those on
+the vulnerability. We also skip benchmarks that are spread        the real-world datasets, suggesting that these models might not
+across multiple files, due to limitations of prompt size. We      be suitable for real-world vulnerability detection yet.
+only consider samples corresponding to vulnerability types        Finding 1.2: Performance does not improve with scale.
+(CWEs) listed in MITRE’s Top 25 Most Dangerous Software           On the real-world datasets, Qwen-2.5-14B and Qwen-2.5-
+Weaknesses [41]. We then filter code snippets with more than      32B report higher accuracies than the GPT-x models despite
+2048 tokens due to prompt size limitations and randomly           being much smaller. We see many similar patterns across all
+sample 500 vulnerable and 500 non-vulnerable samples per          models studied implying that model scale does not impact
+dataset. Table VI presents the details of our selection stages.   performance. Within the same model class, the GPT-x models
+We provide more details for each dataset in Appendix A.           and the Llama-3.1-x models exhibit improvements in accuracy
+                                                                  as the size of the model increases on at least three datasets.
+F. Experimental Setup                                             However, this is not observed in other model classes, i.e., the
+Experiments with closed-source models. We use the Ope-            Qwen-2.5C-x, Qwen-2.5-x, Codellama-x and the DSCoder-
+nAI public API’s ChatCompletions endpoint to perform              x series. This is in stark contrast to other domains where
+the experiments with GPT-3.5 and GPT-4. We use Google’s           increasing model size leads to better performance. Listing 1
+Gemini API for the experiments with Gemini-1.5-Flash.             presents a representative example where CodeLlama-7B cor-
+Experiments with open-source models. We run all experi-           rectly predicts that an integer overflow vulnerability (CWE-
+ments with the open-source LLMs using the HuggingFace API         190) cannot occur in the given context while CodeLlama-13B
+on a cluster with A100, A6000, and RTX 2080 GPUs.                 does not.
+   In all our experiments, we set the sampling temperature to 0
+for obtaining deterministic predictions, the maximum number       B. RQ2: Comparison of Prompting Strategies
+of tokens to 1024, and use the default values for all other          Figure 2 presents the accuracy and F1 scores (averaged
+parameters. We use the top-1 predictions for evaluation.          across all LLMs) of the three prompting strategies across all
+                                                                  datasets. Overall, the three prompts perform similarly in terms
+                        III. R ESULTS
+                                                                  of accuracy on all datasets with CWE-DF reporting slightly
+A. RQ1: Effectiveness of LLMs                                     higher accuracies on the real-world datasets. Interestingly, the
+We evaluate the performance of pre-trained LLMs on five           CWE-DF prompt reports significantly higher F1 scores on
+open-source datasets discussed in Section II-A. Figure 1          average than CWE and Basic prompt on the real-world datasets
+presents the best accuracy and F1 scores (across prompts) of      (by upto 0.18 on CVEFixes C/C++ and 0.14 on CVEFixes
+the 16 models from Table V on all datasets. The more detailed     Java). Furthermore, CWE-DF reports the lowest variance in
+metrics for all prompts are presented in Appendix D.              accuracies and F1 scores across models, as suggested by the
+Finding 1.1: Modest Vulnerability Detection Performance           standard deviation bars in Figure 2. On the other hand, the
+Across LLMs. The best performing models and prompts per           Basic prompt reports the highest variance in F1 scores. We
+dataset report an accuracy of 62.8% on average. The highest       next highlight qualitative differences between prompts:
+of these is reported by Llama-3.1-70B (with CWE) on the           Finding 2.1: Specifying the CWE in the prompt reduces
+Juliet Java dataset (76%). The other best performing models       false alarms. Table VII presents the percentage of samples
+per dataset are: CodeLlama-13B on OWASP (60%), Gemini-            where the Basic prompt predicts the correct CWE, averaged
+1.5-Flash on CVEFixes Java (57%), Qwen-2.5-14B on Juliet          across datasets for 4 models. We observe that the Basic prompt
+
+=== [PDF page 6] ===
+
+                                                                  used in a vulnerable context. The CWE specific prompt (i.e.,
+private void func() throws Throwable {
+    int data;                                                     the Basic prompt with CWE) improves or retains accuracy
+    switch (5) {                                                  over the Basic prompt on all 5 datasets. GPT-4 with the
+    case 6:                                                       CWE specific prompt not only correctly predicts all the 20
+        data = 0; break; // Hardcoded values in
+        ,→   data                                                 samples discussed above but also provides useful high-level
+    default:                                                      explanations for why the snippet is vulnerable/not vulnerable
+        data = 2; break; // Hardcoded values in                   in 18 / 20 samples. The 2 incorrect explanations are artifacts
+        ,→   data
+    }                                                             of faulty reasoning or hallucination: for example, an Integer
+    switch (7) {                                                  Overflow due to addition to INT MAX in the function is
+    case 7: // POTENTIAL FLAW: Integer Overflow                   incorrectly attributed to subtracting from INT MIN in the
+        int result = (int)(data + 1); // But no
+        ,→   overflow due to hardcoded values in                  explanation. Based on these observations, specifying the CWE
+        ,→   data                                                 in the prompt can be helpful in reducing incorrect predictions.
+        IO.writeLine("result: " + result); break;
+    default:                                                      TABLE VII: Correct CWEs detected with Basic prompt (%)
+        IO.writeLine("fixed string"); break;
+                                                                  Language (Avg.) GPT-4 GPT-3.5 CodeLlama-34B CodeLlama-13B
+                                                                  Java              0.41    0.34         0.37             0.38
+   Codellama-7B’s response: The code snippet does not             C/C++             0.29    0.31         0.33             0.35
+   contain any obvious security vulnerabilities. ✓
+                                                                  Finding 2.2: Dataflow analysis identifies CWE-relevant
+   Codellama-13B’s response: The integer overflow oc-             textual cues and provides actionable explanations. The
+   curs when the value of ‘data’ exceeds the maximum              Dataflow analysis-based prompt (CWE-DF) performs better
+   value that can be stored in an integer, causing the value      than CWE specific prompt on the real-world datasets, CVE-
+   to wrap around to a negative number... potentially allow       Fixes C/C++ and CVEFixes Java. We inspect 10 vulnerable
+   an attacker to execute arbitrary code. ✗                       and 10 non-vulnerable samples from CVEFixes Java where
+                                                                  GPT-3.5 correctly predicts only with CWE-DF. We find that
+                                                                  the CWE-DF prompt leverages textual cues for sanitization
+Listing 1: CodeLlama-7B correctly predicts this code is not
+                                                                  (e.g., csrftokenhandler() suggests protection from CSRF) in
+vulnerable to Integer Overflow but CodeLlama-13B does not.
+                                                                  16/20 samples that are missed by CWE specific prompt.
+                                                                     Further, CWE-DF responses are more useful in localizing
+                                                                  the vulnerability as it correctly predicts the correct sources and
+detects incorrect CWEs in > 60% and > 53% of all Java and
+                                                                  sinks in 18 / 20 samples, sanitizers in 16 / 20 samples, and
+C/C++ samples across models. We further manually inspected
+                                                                  unsanitized flows in all samples. Listing 2 presents a response
+10 vulnerable and 10 non-vulnerable samples from Juliet Java
+                                                                  from GPT-4 using CWE-DF prompt that correctly identifies
+where GPT-4 with Basic prompt is incorrect. In only 4 or
+                                                                  the unsanitized flows between sources and sinks. We present
+the 20 samples, the Basic prompt predicts a plausible CWE.
+                                                                  more CWE-DF examples in Appendix F.
+However, these CWEs are unlikely due to the context. For
+example, it predicts that a value read from an input stream can   Finding 2.3: CWE-DF identifies the correct sources and
+be vulnerable if not validated (CWE-20) but this value is not     sinks even when the final prediction is incorrect. We
+                                                                  also inspect 10 vulnerable and 10 non-vulnerable samples
+                                                                  from Juliet C/C++ where CWE-DF’s predictions are incorrect.
+                                                                  Surprisingly, the sources, sinks and sanitizers are correctly
+                                                                  identified in 17 / 20 samples but the unsanitized flows are
+                                                                  incorrect in 12 / 20 samples. Hence, the final predictions are
+                                                                  incorrect only due to erroneous reasoning about the snippet /
+                                                                  false assumptions about the CWE. Listing 3 presents an exam-
+                                                                  ple where the vulnerability is not detected but the sources and
+                                                                  sinks are correctly identified. This suggests that the CWE-DF
+                                                                  prompt can be used to accurately identify sources/sinks/sani-
+                                                                  tizers and other dataflow analysis techniques can be used to
+                                                                  reason about unsanitized flows to predict the vulnerability.
+                                                                  C. RQ3: Performance of LLMs across CWEs
+                                                                     We next evaluate how the LLMs perform on different
+                                                                  classes of security vulnerabilities (CWEs). Because the CWE-
+                                                                  wise distribution of vulnerable and non-vulnerable samples can
+                                                                  be imbalanced, we compute balanced accuracy for each CWE
+    Fig. 2: Performance of different prompting strategies         (for ease of presentation, we refer to it as accuracy henceforth
+
+=== [PDF page 7] ===
+
+                                                                      LLMs on CVEFixes C/C++. Llama-3.1-70B reports the best
+// Code snippet prone to CWE-78 (OS Command
+,→  Injection)                                                        performance on CWE-78 with accuracies 64% and 78% on
+// Unverified data from socket is used as an                          CVEFixes Java and CVEFixes C/C++ respectively.
+,→  argument to _execvp                                             • Llama-3.1-8B and GPT-4 perform extremely well on Out-
+void func(){
+    char dataBuffer[100] = "dir ";                                    of-bounds Write (CWE-787) with accuracies of 89% and
+    char *data = dataBuffer; size_t dataLen =                         79% on CVEFixes Java and CVEFixes C/C++ respectively
+    ,→  strlen(data);                                                 and on Out-of-bounds Read (CWE-125) with accuracies of
+    int recvResult; SOCKET connectSocket =
+    ,→  INVALID_SOCKET;                                               84% and 78% respectively. Moreover, accuracies over 60%
+    do {// setup socket and receive user input                        are reported on CVEFixes Java by 5/16 LLMs for CWE-125
+        conn = socket(AF_INET, SOCK_STREAM,                           and 4/16 LLMs for CWE-787.
+         ,→  IPPROTO_TCP);
+                                                                    • NULL Pointer Dereference (CWE-476) sees accuracies
+        recvResult = recv (conn, (char *)(data +
+         ,→  dataLen), sizeof(char) * (100 - dataLen                  higher than 60% by 3/16 LLMs on CVEFixes C/C++,
+         ,→  - 1), 0)};                                               7/16 on Juliet C/C++ and 11/16 on OWASP. Interestingly,
+        // missing validation of recvResult
+        data[dataLen + recvResult / sizeof(char)] =
+                                                                      DSCoder-7B performs the best on all three datasets with
+         ,→  '\0';                                                    accuracies of 63%, 88% and 83% respectively.
+    } while (0)                                                     • GPT-3.5 reports the highest accuracy of 70% on SQL
+    char *args[] = {"%WINDIR%\\system32\\cmd.exe",
+                                                                      Injection (CWE-89) on CVEFixes Java and 7/16 LLMs
+    ,→  "/c", data , NULL};
+     _execvp ("cmd.exe", args);                                       report accuracies over 60%. Surprisingly, all LLMs report
+}                                                                     accuracies <60% on the same CWE on synthetic datasets
+                                                                      (OWASP and Juliet Java).
+                                                                    • Qwen-2.5-32B reports high accuracies of 67% and 66% on
+   GPT-4’s response: The data received from the socket                Cross-Site Scripting (CWE-79) on OWASP and CVEFixes
+   connection is directly used in the _execvp function                Java respectively. Accuracies over 60% are reported by 3/16
+   without proper sanitization. This could allow an attacker          LLMs on CVEFixes Java and 11/16 LLMs on OWASP.
+   to inject malicious commands. ✓
+                                                                    Finding 3.2: Poor performance on real-world C/C++ is due
+Listing 2: GPT-4 (CWE-DF) detects that this snippet is prone        to missing global context. We see that the performance of all
+to OS Command Injection due to unsanitized paths from a             LLMs on vulnerabilities in CVEFixes C/C++ is worse than
+ source to sink . CodeQL does not detect this vulnerability.        that on the same CWEs in CVEFixes Java and Juliet C/C++.
+                                                                    While GPT-4 and Llama-3.1-8B perform extremely well on
+in this section). For each dataset and model, we consider the       the Out-of-bounds Read / Write vulnerabilities in CVEFixes
+best-performing prompt for the analysis and only report CWEs        Java as discussed above, they report accuracies < 53% for
+with at least 10 samples. Figure 3 presents the CWE-wise            these CWEs on the CVEFixes C/C++ dataset. In fact, no
+distribution of accuracies on the real-world datasets, CVEFixes     LLMs report accuracies > 60% for these CWEs on CVEFixes
+Java and CVEFixes C/C++. Figure 4 reports the accuracies on         C/C++. We attribute this disparity to the nature of these
+the synthetic datasets, OWASP, Juliet Java and Juliet C/C++.        vulnerabilities in the two languages: Out-of-bounds Reads /
+Finding 3.1: LLMs perform well on vulnerabilities that              Writes in CVEFixes C/C++ require reasoning about pointers
+do not require additional context. These CWEs include OS            and structs which requires more context about the structs and
+Command Injection (CWE-78), Out-of-bounds Read / Write              their members. In CVEFixes Java, on the other hand, these
+(CWE-125, CWE-787), Null Pointer Dereference (CWE-476),             vulnerabilities arise primarily due to illegal array indexing.
+Cross-site Scripting (CWE-79), SQL Injection (CWE-89) and           This issue does not emerge in Juliet C/C++ because all the
+Incorrect Authorization (CWE-863). The higher performance           information about the pointers is presented in the snippet. We
+on these vulnerabilities can be attributed to the fact that these   present examples in Appendix G.
+are fairly self-contained and little additional context is needed   Finding 3.3: Some LLMs are better at detecting certain
+to detect them. For example, 4/16 LLMs report accuracies            CWEs. Concretely, the following LLMs report the best accu-
+> 60% on Incorrect Authorization (CWE-863) on CVEFixes              racies on certain CWEs across datasets:
+Java it is easier to validate if an implemented authorization       • Llama-3.1-70B on OS Command Injection (CWE-78)
+check is correct or not. On the other hand, no LLMs report          • DSCoder-7B on NULL Pointer Dereference (CWE-476)
+high accuracies on Missing Authorization (CWE-862) since            • Qwen-2.5-32B on Cross-Site Scripting (CWE-79)
+it’s not known if an input parameter has been authorized            • Llama-3.1-8B and GPT-4 on Java Out-of-bounds Read-
+outside the context of the target method and more context is          /Write (CWE-125/787)
+hence needed to detect this vulnerability class. The following
+summarizes how LLMs perform on these CWEs:                          D. RQ4: LLMs vs Static Analysis Tools
+• OS Command Injection (CWE-78) sees the highest perfor-            Experiment setup. We next explore how the LLMs compare
+   mance across models and datasets with >60% accuracies            against CodeQL. Since CodeQL requires building projects be-
+   reported by 5/16 LLMs on CVEFixes Java and 11/16                 fore analysis and the real-world datasets contain large projects,
+
+=== [PDF page 8] ===
+
+                               (a) CVEFixes Java                                              (b) CVEFixes C/C++
+                                   Fig. 3: Accuracy Across CWEs on real-world datasets.
+
+
+we limit our focus to the three synthetic datasets, namely        on CWE-78 (OS Command Injection) with Juliet Java, it
+OWASP, Juliet Java and Juliet C/C++. We use the official          is outperformed by CodeLlama-13B by 1% and Codestral-
+CodeQL queries designed for the top 25 CWEs. Table VIII           22B by 7% on OWASP and Juliet C/C++ respectively.
+presents results from CodeQL and the best performing LLM          Interestingly, 7 / 16 LLMs report higher accuracies (by upto
+on the three datasets: CodeLlama-13B on OWASP, Llama-3.1-         10%) at detecting CWE-22 (Path Traversal) on OWASP.
+70B on Juliet Java and Qwen-2.5-14B on Juliet C/C++.            • Similarly, 3 LLMs perform better on CWE-416 (Use After
+
+Finding 4.1: CodeQL performs better than the LLMs in              Free) from Juliet C/C++ with DSCoder-7B reporting a
+terms of accuracy on all three datasets. CodeQL reports           whopping 24% higher accuracy than CodeQL.
+0.07 and 0.15 higher F1 than CodeLlama-13B on OWASP and         Finding 4.3: CodeQL’s worse performance on some CWEs
+Llama-3.1-70B on Juliet Java respectively. However, Qwen-       can be attributed to the very specific manually-written
+2.5-14B reports a 0.11 higher F1 on Juliet C/C++.               queries which may not cover all possible scenarios of the
+Finding 4.2: LLMs perform better than CodeQL on certain         vulnerability. For example, CodeQL only detects CWE-78
+CWEs. A CWE-wise comparison of LLMs with CodeQL in              (OS Command Injection) in C/C++ snippets when there exist
+Figure 4 reveals that LLMs report higher accuracies on CWE-     system commands that take a string of arguments (execl).
+22 (Path Traversal), CWE-78 (OS Command Injection), CWE-        This query cannot handle commands that take a list of ar-
+476 (NULL Pointer Dereference), 416 (Use After Free) on at      guments (eg., _execvp). Listing 2 provides an example of
+least 2 / 3 datasets while CodeQL performs better on CWE-       this scenario where CodeQL does not detect that the snippet
+190 (Integer Overflow) on 2 datasets. Concretely,               is prone to OS Command Injection but GPT-4 (CWE-DF)
+• CodeQL performs better than the LLMs on CWE-190 (In-          correctly identifies _execvp as a vulnerable sink. Listing 3
+  teger Overflow) with 11% and 21% higher accuracies than       presents an example where CodeQL correctly predicts that the
+  Llama-3.1-70B on Juliet Java and Juliet C/C++ respectively.   target snippet is vulnerable to Integer Overflow while GPT-4
+• On the other hand, DSCoder-7B performs better than Cod-       with CWE-DF does not. However, the model correctly identi-
+  eQL on CWE-476 (NULL Pointer Dereference) with 12%            fies the sources, sinks and even unsanitized dataflows in this
+  higher accuracy on Juliet Java and only 1% lower accuracy     case but fails to faithfully reason over them when predicting
+  on Juliet C/C++. Moreover, 6 / 16 LLMs report accuracies      the vulnerability. These examples support the observation from
+  higher than CodeQL on CWE-476 from Juliet Java.               Section III-B that LLMs can be used to identify sources and
+• While CodeQL reports an extremely high accuracy of 95%        sinks relevant to the target vulnerability (which can be missed
+
+=== [PDF page 9] ===
+
+                                                                          // Code snippet prone to CWE-190 (Integer Overflow)
+                                                                          // data is incremented without verifying if data <
+                                                                          ,→  INT_MAX
+
+                                                                          static const int STATIC_CONST_FIVE = 5;
+                                                                          void f7909()
+                                                                          {
+                                                                              int64_t data;
+                                                                              data = 0LL;
+                                                                              if(STATIC_CONST_FIVE==5)
+                                                                              {
+                                                                                  data = (int64_t) RAND64() ;
+                                                                              }
+                                                                              if(STATIC_CONST_FIVE==5)
+                                                                              {
+                                                                                  {
+                                                                                      ++data;
+                                                                                      int64_t result = data;
+                                                                                       printLongLongLine (result);
+                                                                                  }
+                                                                              }
+                                                                          }
+
+
+
+
+                                                                             GPT-4’s response:
+                                                                             Unsanitized Data Flows ✓
+       (a) OWASP                 (b) Juliet Java      (c) Juliet C/C++       The data from RAND64() is directly used in
+   Fig. 4: Accuracy Across CWEs on synthetic datasets.                       printLongLongLine() without any sanitization
+                                                                             or checks for integer overflow.)
+
+by manually written queries) while static analysis tools like                Vulnerability analysis verdict ✗
+CodeQL can be used to reason over them. More examples are                    vulnerability: NO (CWE-190)
+presented in the Appendix E.
+                                                                             Explanation ✗
+TABLE VIII: CodeQL vs. best performing LLM on syn-                           The code does not perform any arithmetic operations
+thetic datasets (CodeLlama-13B on OWASP, Llama-3.1-70B                       that could lead to an integer overflow. The only oper-
+on Juliet Java, and Qwen-2.5-14B on Juliet C/C++)                            ation performed on the data variable is incrementing
+  Dataset/Model          CodeQL               Best performing LLM
+                                                                             it by one (++data), which is unlikely to cause an
+                    A      P      R     F1      A      P      R     F1       integer overflow given that data is a 64-bit integer.
+  OWASP           0.63   0.58   0.96   0.72   0.60   0.58   0.74   0.65
+  Juliet Java     0.94   0.92   0.95   0.94   0.76   0.71   0.89   0.79   Listing 3: CodeQL correctly predicts Integer Overflow while
+  Juliet C/C++    0.72   0.99   0.44   0.61   0.65   0.60   0.89   0.72
+                                                                          GPT-4 doesn’t. GPT-4, however, correctly identifies the
+                                                                          sources and sinks and the unsanitized paths.
+E. RQ5: LLMs vs Deep Learning-Based Tools
+   We compare LLMs against two prior deep learning-based                  artifact [42]. Table IX presents the results, averaged across
+approaches: 1) DeepDFA [10], which trains Graph Neural Net-               three runs.
+works using embeddings of control flow graphs and associated              Finding 5.1: DL-based approaches have limited effective-
+data flow facts, and 2) LineVul [11], which is a transformed-             ness on real-world datasets. DeepDFA and LineVul trained
+based model trained using token-based representation of code.             on CVEFixes C/C++ training set report accuracies of 51% and
+Experiment setup. Our main aim in this experiment is to                   59% on CVEFixes C/C++ test set respectively while the best
+check the generalizability of these techniques on real-world              performing LLM on this dataset, Qwen-2.5-32B, reports an
+datasets beyond the datasets they are trained on. We use                  accuracy of 56%. This is in stark contrast to the performance
+CVEFixes C/C++ with the 1000 samples from our main                        of these techniques on BigVul where they report accuracies
+evaluation §III-A as the real-world test set. We train on three           higher than 98%. Moreover, Qwen-2.5-32B reports an F1 score
+different datasets:Juliet C/C++, CVEFixes C/C++ (excluding                of 0.65 which is 0.42 and 0.04 higher than DeepDFA and
+samples in the test set) and BigVul [34](the original C/C++               LineVul respectively.
+dataset that these models were trained on). We use an 80/20               Finding 5.2: DL-based approaches do not generalize across
+train-validation split while training on these datasets. We use           datasets. When trained on Juliet C/C++ or BigVul, both
+the DeepDFA and LineVul versions from DeepDFA’s latest                    DeepDFA and LineVul report accuracies and F1 scores lower
+
+=== [PDF page 10] ===
+
+than Qwen-2.5-32B by upto 6% and 0.63 respectively.                 DeepDFA [10] and ContraFlow [53] learn specialized
+Finding 5.3: LLMs are preferable over DL-based ap-                  embeddings that can further improve the performance
+proaches due to low inference overheads and natural lan-            of Transformer-based vulnerability detection tools. These
+guage explanations. DeepDFA involves significant inference          techniques, however, provide binary labels for vulnerability
+overhead, due to the CFG extraction and dataflow analysis           detection and do not provide natural language explanations.
+steps. LLMs, however, can use the textual representation of         LLMs for automated software engineering. Recent ap-
+code and can operate on incomplete/partial programs. The            proaches have demonstrated the effectiveness of LLMs on
+use of data-flow and control-flow information in DeepDFA            software engineering tasks such as automated program re-
+is evidently useful. We made similar observations with LLMs         pair [13]–[15], test generation [16], [17], code evolution [18],
+when using the CWE-DF prompt. On the other hand, LineVul,           and fault localization [19]. However, unlike these approaches,
+like LLMs, can leverage natural language information but has        we find that scaling LLMs to larger sizes does not improve vul-
+a generalization problem. Finally, both DeepDFA and LineVul         nerability detection abilities. [54] explore whether Language
+provide binary labels and line numbers that are difficult to        Models fine-tuned on multi-class classification can perform
+interpret. LLMs can additionally provide explanations, which        well where the classes correspond to groups of similar types
+are useful for further debugging (as shown in prior sections).      of vulnerabilities. In contrast, we study whether LLMs can
+                                                                    perform a much granular CWE-level classification through
+TABLE IX: Qwen-2.5-32B vs DeepDFA vs LineVul on CVE-                prompting. Recent work combining LLMs with static analysis
+Fixes C/C++                                                         to detect Use Before Initialization (UBI) bugs in the Linux
+Model         Train/Prompt    Test              A    P    R   F1
+                                                                    Kernel [55] supports our claims in Section III-D (but focuses
+DeepDFA       BigVul          BigVul          0.98 0.53 0.92 0.67   on a specific class of bugs). There are other concurrent studies
+LineVul       BigVul          BigVul          0.99 0.96 0.88 0.92
+                                                                    evaluating LLMs on vulnerability detection [24]–[28]. Table II
+Qwen-2.5-32B CWE-DF           CVEFixes C/C++ 0.56 0.54 0.81 0.65    provides a comparison against these studies. Section III-A
+DeepDFA       CVEFixes C/C++ CVEFixes C/C++ 0.51 0.55 0.17 0.23     corroborates the common finding from these studies that
+DeepDFA       Juliet C/C++   CVEFixes C/C++ 0.53 0.53 0.65 0.58     LLMs do not perform well on real-world datasets. However,
+DeepDFA       BigVul         CVEFixes C/C++ 0.52 0.52 0.76 0.62
+                                                                    to the best of our knowledge, our study is the first work
+LineVul       CVEFixes C/C++ CVEFixes C/C++ 0.59 0.58 0.65 0.61     that qualitatively identifies prompts and vulnerability classes
+LineVul       Juliet C/C++   CVEFixes C/C++ 0.50 0.50 0.91 0.64
+LineVul       BigVul         CVEFixes C/C++ 0.50 0.63 0.01 0.02     where LLMs perform well (and often better than other tools).
+                                                                    Moreover, our study focuses on a larger/different class of state-
+                                                                    of-the-art LLMs, datasets, languages, and vulnerability classes.
+                       IV. R ELATED W ORK
+Static analysis tools for vulnerability detection. Tools such                        V. T HREATS TO VALIDITY
+as FlawFinder [43] and CppCheck [44] use syntactic and sim-
+ple semantic analysis techniques to find vulnerabilities in C++
+code. More advanced tools like CodeQL [5], Infer [45], and          External. The choice of LLMs and datasets may bias our
+CodeChecker [46] employ semantic analysis techniques and            evaluation and insights. To address this threat, we choose
+can detect vulnerabilities in multiple languages. Static analysis   multiple popular synthetic and real-world datasets across two
+tools rely on manually crafted rules and precise specifications     languages: Java and C++. We also choose both state-of-the-art
+of code behavior, which is difficult to obtain automatically. In    closed-source and open-source LLMs. However, our insights
+contrast, while LLMs cannot always reliably perform end-to-         may not generalize to other languages or datasets.
+end reasoning over code, we find that they are capable of           Internal. Owing to the non-deterministic nature of LLMs and
+automatically identifying these specifications which can be         single experiment runs per benchmark, our observations may
+leveraged to improve static analysis-based detection tools.         be biased. To mitigate this threat, we use a temperature of 0
+Deep Learning-based vulnerability detection. Several                to ensure determinism across all LLMs. While this works well
+works have focused on using Deep Learning techniques for            for locally run CodeLlama models, it is well-known that GPT-
+vulnerability detection. Earlier works such as Devign [47],         4 and GPT-3.5 might still return non-deterministic results.
+Reveal [48], LineVD [49] and IVDetect [50] leveraged                However, this should balance out across datasets and over the
+Graph Neural Networks (GNNs) for modeling dataflow                  large number of benchmarks we evaluate on. Further, given
+graphs, control flow graphs, abstract syntax trees and              similar results across LLMs on real-world-datasets, we do not
+program dependency graphs. Other works explored alternate           expect significant changes with re-runs.
+model architectures: VulDeePecker [51] and SySeVR [52]                 Our evaluation code and scripts may have bugs, which might
+used LSTM-based models on slices and data dependencies              bias our results. Our manual analysis of results may lead
+while Draper used Convolutional Neural Networks. Recent             to erroneous inferences. To address this threat, multiple co-
+works demonstrate that Transformer-based models fine-               authors reviewed the code regularly and actively fixed issues.
+tuned on the task of vulnerability detection can outperform         Further, multiple co-authors independently analyzed the results
+specialized techniques (CodeBERT, LineVul [11], UnixCoder).         and discussed them together to mitigate any discrepancies.
+
+=== [PDF page 11] ===
+
+                     VI. C ONCLUSION
+   In this work, we performed a comprehensive analysis of
+LLMs for security vulnerability detection. Our study reveals
+that both closed-source LLMs, such as GPT-4, and open-
+source LLMs, like CodeLlama, perform modestly at vul-
+nerability detection for both Java and C/C++. However, we
+find specific vulnerability classes where LLMs excel (often
+performing better than static analysis tools, such as CodeQL).
+Moreover, we find that even in cases where the models
+produce incorrect predictions, they are capable of identifying
+relevant sources, sinks and sanitizers that can be used for
+downstream dataflow analysis. Hence, we believe that an inter-
+esting future direction is to develop neuro-symbolic techniques
+that combine the intuitive reasoning abilities of LLMs with
+symbolic tools such as logical reasoning engines and static
+code analyzers for more effective and interpretable solutions.
+
+=== [PDF page 12] ===
+
+                               R EFERENCES                                         [21] S. Bubeck, V. Chandrasekaran, R. Eldan, J. Gehrke, E. Horvitz, E. Ka-
+                                                                                        mar, P. Lee, Y. T. Lee, Y. Li, S. Lundberg, H. Nori, H. Palangi, M. T.
+                                                                                        Ribeiro, and Y. Zhang, “Sparks of artificial general intelligence: Early
+ [1] 2022, https://nvd.nist.gov/vuln/detail/CVE-2022-3602.                              experiments with gpt-4,” 2023.
+ [2] 2022, https://nvd.nist.gov/vuln/detail/CVE-2022-3786.                         [22] B. Rozière, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan, Y. Adi,
+ [3] M. Miller, “Microsoft: 70 percent of all security bugs                             J. Liu, T. Remez, J. Rapin et al., “Code llama: Open foundation models
+     are     memory        safety     issues,”    https://www.zdnet.com/article/        for code,” arXiv preprint arXiv:2308.12950, 2023.
+     microsoft-70-percent-of-all-security-bugs-are-memory-safety-issues/,          [23] R. Li, L. B. Allal, Y. Zi, N. Muennighoff, D. Kocetkov, C. Mou,
+     2019.                                                                              M. Marone, C. Akiki, J. Li, J. Chim et al., “Starcoder: may the source
+ [4] V. J. Manes, H. Han, C. Han, S. K. Cha, M. Egele, E. J. Schwartz,                  be with you!” arXiv preprint arXiv:2305.06161, 2023.
+     and M. Woo, “Fuzzing: Art, science, and engineering,” arXiv preprint          [24] X. Zhou, T. Zhang, and D. Lo, “Large language model for vulnerability
+     arXiv:1812.00140, 2018.                                                            detection: Emerging results and future directions,” in Proceedings of the
+ [5] P. Avgustinov, O. de Moor, M. P. Jones, and M. Schäfer, “Ql: Object-              2024 ACM/IEEE 44th International Conference on Software Engineer-
+     oriented queries on relational data,” in European Conference on Object-            ing: New Ideas and Emerging Results, 2024, pp. 47–51.
+     Oriented Programming, 2016.                                                   [25] Z. Gao, H. Wang, Y. Zhou, W. Zhu, and C. Zhang, “How far have
+ [6] Semgrep, “The semgrep platform,” https://semgrep.dev/, 2023.                       we gone in vulnerability detection using large language models,” arXiv
+ [7] Semmle, “Vulnerabilities discovered by CodeQL,” https://securitylab.               preprint arXiv:2311.12420, 2023.
+     github.com/advisories/, 2023.                                                 [26] B. Steenhoek, M. M. Rahman, M. K. Roy, M. S. Alam, E. T. Barr, and
+ [8] L. Leong, “Mindshare: When mysql cluster encounters taint                          W. Le, “A comprehensive study of the capabilities of large language
+     analysis,”              https://www.zerodayinitiative.com/blog/2022/2/10/          models for vulnerability detection,” arXiv preprint arXiv:2403.17218,
+     mindshare-when-mysql-cluster-encounters-taint-analysis, 2022.                      2024.
+ [9] GitHub, “The bug slayer,” 2023, https://securitylab.github.com/bounties.      [27] S. Ullah, M. Han, S. Pujar, H. Pearce, A. Coskun, and G. Stringhini,
+[10] B. Steenhoek, H. Gao, and W. Le, “Dataflow analysis-inspired deep                  “Llms cannot reliably identify and reason about security vulnerabilities
+     learning for efficient vulnerability detection,” in Proceedings of the 46th        (yet?): A comprehensive evaluation, framework, and benchmarks,”
+     IEEE/ACM International Conference on Software Engineering, 2024, pp.               in 2024 IEEE Symposium on Security and Privacy (SP). Los
+     1–13.                                                                              Alamitos, CA, USA: IEEE Computer Society, may 2024, pp. 862–
+[11] M. Fu and C. Tantithamthavorn, “Linevul: A transformer-based line-                 880. [Online]. Available: https://doi.ieeecomputersociety.org/10.1109/
+     level vulnerability prediction,” in 2022 IEEE/ACM 19th International               SP54263.2024.00210
+     Conference on Mining Software Repositories (MSR). IEEE, 2022.                 [28] Y. Ding, Y. Fu, O. Ibrahim, C. Sitawarin, X. Chen, B. Alomair,
+[12] M. Chen, J. Tworek, H. Jun, Q. Yuan, H. Ponde, J. Kaplan, H. Edwards,              D. Wagner, B. Ray, and Y. Chen, “Vulnerability detection with code
+     Y. Burda, N. Joseph, G. Brockman, A. Ray, R. Puri, G. Krueger,                     language models: How far are we?” arXiv preprint arXiv:2403.18624,
+     M. Petrov, H. Khlaaf, G. Sastry, P. Mishkin, B. Chan, S. Gray, N. Ryder,           2024.
+     M. Pavlov, A. Power, L. Kaiser, M. Bavarian, C. Winter, P. Tillet, F. P.      [29] 2023, https://owasp.org/www-project-benchmark.
+     Such, D. W. Cummings, M. Plappert, F. Chantzis, E. Barnes, A. Herbert-        [30] 2023, https://samate.nist.gov/SARD/test-suites/112.
+     Voss, W. H. Guss, A. Nichol, I. Babuschkin, S. A. Balaji, S. Jain,            [31] 2023, https://samate.nist.gov/SARD/test-suites/111.
+     A. Carr, J. Leike, J. Achiam, V. Misra, E. Morikawa, A. Radford, M. M.        [32] G. P. Bhandari, A. Naseer, and L. Moonen, “Cvefixes: automated
+     Knight, M. Brundage, M. Murati, K. Mayer, P. Welinder, B. McGrew,                  collection of vulnerabilities and their fixes from open-source software,”
+     D. Amodei, S. McCandlish, I. Sutskever, and W. Zaremba, “Evaluating                Proceedings of the 17th International Conference on Predictive Models
+     large language models trained on code,” ArXiv, vol. abs/2107.03374,                and Data Analytics in Software Engineering, 2021.
+     2021.                                                                         [33] T. Boland and P. E. Black, “Juliet 1.1 c/c++ and java test suite,”
+[13] C. S. Xia, Y. Wei, and L. Zhang, “Automated program repair in                      Computer, 2012.
+     the era of large pre-trained language models,” in Proceedings of the          [34] J. Fan, Y. Li, S. Wang, and T. N. Nguyen, “A c/c++ code
+     45th International Conference on Software Engineering (ICSE 2023).                 vulnerability dataset with code changes and cve summaries,” in
+     Association for Computing Machinery, 2023.                                         Proceedings of the 17th International Conference on Mining Software
+[14] H. Joshi, J. C. Sanchez, S. Gulwani, V. Le, G. Verbruggen, and                     Repositories, ser. MSR ’20. New York, NY, USA: Association
+     I. Radiček, “Repair is nearly generation: Multilingual program repair             for Computing Machinery, 2020, p. 508–512. [Online]. Available:
+     with llms,” in Proceedings of the AAAI Conference on Artificial Intelli-           https://doi.org/10.1145/3379597.3387501
+     gence, 2023.                                                                  [35] S. Chakraborty, R. Krishna, Y. Ding, and B. Ray, “Deep learning
+[15] C. S. Xia and L. Zhang, “Less training, more repairing please: revisiting          based vulnerability detection: Are we there yet?” IEEE Transactions
+     automated program repair via zero-shot learning,” in Proceedings of                on Software Engineering, vol. 48, no. 9, pp. 3280–3296, 2021.
+     the 30th ACM Joint European Software Engineering Conference and               [36] Y. Chen, Z. Ding, L. Alowain, X. Chen, and D. A. Wagner, “Diversevul:
+     Symposium on the Foundations of Software Engineering, 2022, pp. 959–               A new vulnerable source code dataset for deep learning based vulner-
+     971.                                                                               ability detection,” Proceedings of the 26th International Symposium on
+[16] C. Lemieux, J. P. Inala, S. K. Lahiri, and S. Sen, “Codamosa: Escaping             Research in Attacks, Intrusions and Defenses, 2023.
+     coverage plateaus in test generation with pre-trained large language          [37] W. Wang, T. N. Nguyen, S. Wang, Y. Li, J. Zhang, and A. Yadavally,
+     models,” in International conference on software engineering (ICSE),               “Deepvd: Toward class-separation features for neural network vulnera-
+     2023.                                                                              bility detection,” in 2023 IEEE/ACM 45th International Conference on
+[17] Y. Deng, C. S. Xia, H. Peng, C. Yang, and L. Zhang, “Large language                Software Engineering (ICSE), 2023.
+     models are zero-shot fuzzers: Fuzzing deep-learning libraries via large       [38] 2023, https://huggingface.co/.
+     language models,” in Proceedings of the 32nd ACM SIGSOFT Interna-             [39] L. Salewski, S. Alaniz, I. Rio-Torto, E. Schulz, and Z. Akata, “In-context
+     tional Symposium on Software Testing and Analysis, 2023, pp. 423–435.              impersonation reveals large language models’ strengths and biases,”
+[18] J. Zhang, P. Nie, J. J. Li, and M. Gligoric, “Multilingual code co-                Advances in Neural Information Processing Systems, vol. 36, 2024.
+     evolution using large language models,” in Proceedings of the 31st ACM        [40] J. Wei, X. Wang, D. Schuurmans, M. Bosma, F. Xia, E. Chi, Q. V. Le,
+     Joint European Software Engineering Conference and Symposium on the                D. Zhou et al., “Chain-of-thought prompting elicits reasoning in large
+     Foundations of Software Engineering, 2023, pp. 695–707.                            language models,” Advances in neural information processing systems,
+[19] A. Z. Yang, C. Le Goues, R. Martins, and V. Hellendoorn, “Large                    vol. 35, pp. 24 824–24 837, 2022.
+     language models for test-free fault localization,” in Proceedings of the      [41] 2023. [Online]. Available: https://cwe.mitre.org/top25/archive/2023/
+     46th IEEE/ACM International Conference on Software Engineering,                    2023 top25 list.html
+     2024, pp. 1–12.                                                               [42] 2024, https://github.com/ISU-PAAL/DeepDFA/tree/master.
+[20] J. Wei, Y. Tay, R. Bommasani, C. Raffel, B. Zoph, S. Borgeaud, D. Yo-         [43] 2023. [Online]. Available: https://dwheeler.com/flawfinder
+     gatama, M. Bosma, D. Zhou, D. Metzler, E. H. hsin Chi, T. Hashimoto,          [44] 2023, https://cppcheck.sourceforge.io/.
+     O. Vinyals, P. Liang, J. Dean, and W. Fedus, “Emergent abilities of large     [45] 2023, https://fbinfer.com/.
+     language models,” Trans. Mach. Learn. Res., vol. 2022, 2022.                  [46] 2023, https://github.com/Ericsson/codechecker.
+
+=== [PDF page 13] ===
+
+[47] Y. Zhou, S. Liu, J. Siow, X. Du, and Y. Liu, “Devign: Effective vul-
+     nerability identification by learning comprehensive program semantics
+     via graph neural networks,” in Neural Information Processing Systems,
+     2019.
+[48] S. Chakraborty, R. Krishna, Y. Ding, and B. Ray, “Deep learning
+     based vulnerability detection: Are we there yet?” IEEE Transactions
+     on Software Engineering, vol. 48, pp. 3280–3296, 2020.
+[49] D. Hin, A. Kan, H. Chen, and M. A. Babar, “Linevd: Statement-level
+     vulnerability detection using graph neural networks,” 2022 IEEE/ACM
+     19th International Conference on Mining Software Repositories (MSR),
+     2022.
+[50] Y. Li, S. Wang, and T. N. Nguyen, “Vulnerability detection with fine-
+     grained interpretations,” Proceedings of the 29th ACM Joint Meeting
+     on European Software Engineering Conference and Symposium on the
+     Foundations of Software Engineering, 2021.
+[51] Z. Li, D. Zou, S. Xu, Z. Chen, Y. Zhu, and H. Jin, “Vuldeelocator: A
+     deep learning-based fine-grained vulnerability detector,” IEEE Transac-
+     tions on Dependable and Secure Computing, 2020.
+[52] Z. Li, D. Zou, S. Xu, H. Jin, Y. Zhu, Z. Chen, S. Wang, and J. Wang,
+     “Sysevr: A framework for using deep learning to detect software vul-
+     nerabilities,” IEEE Transactions on Dependable and Secure Computing,
+     vol. 19, pp. 2244–2258, 2018.
+[53] X. Cheng, G. Zhang, H. Wang, and Y. Sui, “Path-sensitive code
+     embedding via contrastive learning for software vulnerability detection,”
+     Proceedings of the 31st ACM SIGSOFT International Symposium on
+     Software Testing and Analysis, 2022.
+[54] C. Thapa, S. I. Jang, M. E. Ahmed, S. A. Çamtepe, J. Pieprzyk, and
+     S. Nepal, “Transformer-based language models for software vulnera-
+     bility detection,” Proceedings of the 38th Annual Computer Security
+     Applications Conference, 2022.
+[55] H. Li, Y. Hao, Y. Zhai, and Z. Qian, “Enhancing static analysis for
+     practical bug detection: An llm-integrated approach,” Proceedings of
+     the ACM on Programming Languages, vol. 8, no. OOPSLA1, 2024.
+
+=== [PDF page 14] ===
+
+                       VII. A PPENDIX                              System: You are a security researcher, expert in
+                                                                   detecting security vulnerabilities.
+A. Dataset Processing and Selection                                Provide response only in following format:
+   We perform a data processing and cleaning step for each         vulnerability: <YES or NO> | vulnerability type:
+                                                                   <CWE ID> | vulnerability name: <CWE NAME> |
+dataset before evaluating them with LLMs.                          explanation: <explanation for prediction>.
+OWASP. We remove or anonymize information in OWASP                 Use N/A in other fields if there are no
+                                                                   vulnerabilities. Do not include anything else in
+benchmarks that may provide obvious hints about the vulner-        response.
+ability in a file. For instance, we change package, variable
+names, and strings such as “owasp”, “testcode”, and “/sqli-        User: Is the following code snippet prone to any
+                                                                   security vulnerability?
+06/BenchmarkTest02732” to other pre-selected un-identifying        <CODE_SNIPPET>
+names such as “pcks”, “csdr”, etc. We remove all comments in       Response:
+the file because they may explicitly highlight the vulnerable
+                                                                                  Listing 4: Basic LLM Prompt
+line of code or may have irrelevant text (such as copyright
+info), which may leak information. These changes, however,
+do not change the semantics of the code snippets.                  System: [Same as above]
+Juliet Java and C/C++. Similar to OWASP, we                        User: Is the following code snippet prone to <CWE>?
+                                                                   <CODE_SNIPPET>
+remove all comments and transform all identifiers                  Response:
+that leak identifying information in all test cases in
+the Juliet benchmark. For instance, we change “class                          Listing 5: CWE-specific LLM Prompt
+CWE80 XSS CWE182 Servlet connect tcp 01” to “class
+MyClass”. The Juliet benchmark provides the vulnerable
+                                                                   System: You are a security researcher, expert in
+(named as “bad”) and non-vulnerable (named as “good*”)             detecting security vulnerabilities. Carefully
+methods in the same file. For easier evaluation, we perform a      analyze the given code snippet and track the data
+pre-processing step to split each file into two, each containing   flows from various sources to sinks. Assume that
+                                                                   any call to an unknown external API is unsanitized.
+either a vulnerable or non-vulnerable method. Juliet also
+contains special benchmarks that have dependencies across          Please provide a response only in the following
+multiple (2-5) files. We skip these benchmarks because they        itemized OUTPUT FORMAT. Use N/A in other fields if
+                                                                   there are no vulnerabilities. DO NOT INCLUDE
+are typically too big to fit into the LLM prompt. Hence, the       ANYTHING ELSE IN YOUR RESPONSE.
+number of test cases after the data processing step in Juliet      <OUTPUT FORMAT>
+is reduced (as shown in Table VI).                                 Data flow analysis of the given code snippet:
+                                                                   1. Sources:
+CVEFixes. For each CVE, CVEFixes provides the methods              <numbered list of input sources>
+that were involved in the fix commit. It also includes the         2. Sinks:
+                                                                   <numbered list of output sinks>
+method code in the parent commit, i.e., the method version         3. Sanitizers:
+before the fix. We collect all methods in the fix commit and       <numbered list of sanitizers, if any>
+the parent commit and label them as vulnerable and non-            4. Unsanitized Data Flows:
+                                                                   <numbered list of data flows that are not sanitized
+vulnerable, respectively. Similar to other datasets, we also       in the format (source, sink, why this flow could be
+remove all comments in the method code. While CVEFixes             vulnerable)>
+contains methods across multiple programming languages, we         5. Final Vulnerability analysis verdict:
+                                                                   vulnerability: <YES or NO> | vulnerability type:
+only collect C/C++ and Java methods for our study.                 <CWE_ID> | vulnerability name: <NAME_OF_CWE> |
+                                                                   explanation: <explanation for prediction>
+B. Prompting Strategies                                            </OUTPUT FORMAT>
+                                                                   User: Is the following code snippet prone to <CWE>?
+  The Basic prompt is presented in Listing 4, CWE specific         <CODE_SNIPPET>
+prompt in Listing 5 and Dataflow analysis-based prompt in          Response:
+Listing 6.
+                                                                         Listing 6: Dataflow analysis-based LLM Prompt
+C. Other Prompting Strategies
+  In addition to the prompting strategies presented
+in our main evaluation, we considered other popular                a “Let’s think step-by-step” statement at the end of the CWE
+prompting strategies such as Few-shot prompting                    specific prompt. The CWE-CoT and CWE-Few-shot prompts
+and Chain-of-thought prompting in a limited                        are provided in Listing 7 and Listing 8 respectively.
+experimental setting. For the few-shot prompt (CWE-Few-               Table X and Table XI present the results from GPT-4
+shot), we included two examples of the task (one with a            with various prompting strategies on a random subset of 100
+vulnerability and one without) in the CWE specific prompt          samples of the Juliet Java and CVEFixes C/C++ datasets re-
+before providing the target code snippet. For the chain-of-        spectively. The CWE-DF prompt reports the highest accuracy
+thought prompt (CWE-CoT), we explicitly ask the model to           of 69% and the highest F1 score of 0.75 on the Juliet Java
+provide a reasoning chain before the final answer by adding        dataset. The CWE-DF prompt reports a 0.05 higher F1 score
+
+=== [PDF page 15] ===
+
+                                                                   TABLE XI: All prompting strategies on 100 samples from
+System: [Same as the Basic prompt]
+User: Is the following code snippet prone to <CWE>?                CVEFixes C/C++.
+<CODE_SNIPPET>                                                               Model   Prompt                Metrics
+Let's think step by step.
+Response:                                                                                             A     P    R    F1
+                                                                             GPT-4   CWE          0.55 0.54 0.58 0.56
+             Listing 7: CWE-CoT LLM Prompt                                   GPT-4   CWE-Few-shot 0.49 0.38 0.34 0.36
+                                                                             GPT-4   CWE-CoT      0.52 0.37 0.30 0.33
+                                                                             GPT-4   CWE-DF       0.56 0.56 0.83 0.67
+System: [Same as the Basic prompt]
+User:
+
+Query: Is the following code snippet prone to                      to the Basic prompt, for our main evaluation with LLMs.
+<CWE1>?
+Code snippet: <CODE_SNIPPET1>                                      D. Detailed metrics across all LLMs and Datasets
+Vulnerability analysis verdict: $ vulnerability:                     Table XII presents the metrics for all LLMs and Datasets
+YES | vulnerability type: <CWE1> . . .                             across all prompts.
+Query: Is the following code snippet prone to                      E. More examples of CodeQL vs. LLMs
+<CWE2>?
+Code snippet: <CODE_SNIPPET2>
+
+Vulnerability analysis verdict: $ vulnerability: NO                // Code snippet prone to CWE-476 (NULL Pointer
+| vulnerability type: N/A . . .                                    ,→  Dereference)
+                                                                   // Both the conditions are evaluated due to the
+Query: Is the following code snippet prone to <CWE>?               ,→  bitwise & operator
+Code snippet: <CODE_SNIPPET>
+                                                                   if( globalReturnsTrue() )
+Vulnerability analysis verdict:                                    {
+           Listing 8: CWE-Few-shot LLM Prompt                          twoIntsStruct *twoIntsStructPointer = NULL;
+                                                                       if ( (twoIntsStructPointer != NULL)
+                                                                           &
+                                                                            (twoIntsStructPointer->intOne == 5) )
+than the CWE-CoT prompt and a 0.03 higher F1 score than                {
+the CWE-Few-shot prompt. This difference is much more                      printLine("intOne == 5");
+prominent on the CVEFixes C/C++ dataset where the CWE-                 }
+                                                                   }
+DF prompt reports a 0.34 higher F1 score than the CWE-
+CoT prompt and a 0.31 higher F1 score than the CWE-Few-
+shot prompt. Moreover, the CWE-Few-shot prompt reported
+a 0.2 lower F1 score than the CWE specific prompt on                  GPT-4’s           response:          The        pointer
+the CVEFixes C/C++ dataset while requiring more tokens.               twoIntsStructPointer is initialized as NULL
+Our analysis of the few-shot prompts suggests that providing          and then checked if it’s not NULL before dereferencing.
+more examples may not be a useful strategy for vulnerability          However, the pointer is not assigned any value other
+detection. Because the potential set of vulnerable code patterns      than NULL, so it’s not actually a risk of NULL pointer
+is quite large, the provided examples hardly make a difference        dereference. ✗
+to LLMs’ reasoning abilities. Hence, it may be more useful
+to use prompts that instead elicit reasoning or explanations of    Listing 9: CodeQL correctly predicts Null Pointer Dereferenc-
+some kind before detecting if the given snippet is vulnerable.     ing while GPT-4 doesn’t. GPT-4, however, correctly identifies
+The CWE-CoT prompt, however, does not help with reasoning          the sources and sinks .
+always, as it either performed at par or worse than the Dataflow
+analysis-based prompt.                                                In Listing 9, the model incorrectly reasons about the san-
+                                                                   itization by overlooking the & which would cause both the
+TABLE X: All prompting strategies on 100 samples from              expressions to be evaluated. The identified sources and sinks
+Juliet Java.                                                       are correct, however.
+          Model   Prompt                  Metrics
+                                                                   F. Qualitative analysis of GPT-4 responses
+                                A     P       R     F1
+                                                                     We first present examples where the dataflow analysis from
+          GPT-4   CWE          0.65 0.58 0.96 0.72                 the CWE-DF prompt is useful. Consider the code snippet in
+          GPT-4   CWE-Few-shot 0.65 0.58 0.94 0.72
+          GPT-4   CWE-CoT      0.69 0.64 0.79 0.70                 Listing 10. In this snippet, the variable dir is indirectly being
+          GPT-4   CWE-DF       0.69 0.61 0.96 0.75                 used to create a directory via the dirToCreate variable.
+                                                                   GPT-4 correctly identifies that this path is not sanitized and
+  Learning from these experiments, we selected the CWE             could be used to create a directory in otherwise restricted
+specific prompt, Dataflow analysis-based prompt, in addition       locations. This could lead to CWE-22 (path traversal) as
+
+=== [PDF page 16] ===
+
+TABLE XII: Effectiveness of LLMs in Predicting Security Vulnerabilities (Java and C++). The highest accuracy and F1 scores
+(as well as ones within 0.1 range of the highest values) for each dataset are highlighted in blue.
+ Model           Prompt         OWASP                Juliet Java            CVEFixes Java              Juliet C/C++        CVEFixes C/C++
+                            A     P    R   F1    A      P    R     F1      A    P   R       F1     A      P     R     F1   A    P   R   F1
+ Qwen-2.5C-1.5B Basic  0.50 0.50 0.82 0.62 0.50 0.50 0.99 0.66 0.49 0.49 0.68 0.57               0.49 0.50 0.99 0.66 0.51 0.51 0.78 0.61
+ Qwen-2.5C-1.5B CWE    0.49 0.49 0.79 0.61 0.50 0.50 1.00 0.67 0.51 0.50 0.92 0.65               0.50 0.50 1.00 0.67 0.51 0.50 0.89 0.64
+ Qwen-2.5C-1.5B CWE-DF 0.47 0.48 0.75 0.59 0.55 0.54 0.67 0.60 0.50 0.50 0.80 0.62               0.57 0.55 0.79 0.65 0.52 0.51 0.77 0.62
+ Qwen-2.5C-7B    Basic  0.50 0.50 1.00 0.67 0.50 0.50 0.99 0.67 0.47 0.48 0.79 0.60              0.50 0.50 1.00 0.67 0.50 0.50 0.95 0.66
+ Qwen-2.5C-7B    CWE    0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.48 0.49 0.53 0.51              0.50 0.50 1.00 0.66 0.51 0.50 0.77 0.61
+ Qwen-2.5C-7B    CWE-DF 0.54 0.52 1.00 0.68 0.52 0.51 0.99 0.67 0.52 0.52 0.49 0.50              0.50 0.50 0.99 0.67 0.54 0.53 0.62 0.57
+ CodeLlama-7B    Basic  0.51 0.87 0.03 0.05 0.51 0.59 0.09 0.15 0.47 0.29 0.04 0.06              0.50 0.50 0.12 0.19 0.49 0.33 0.02 0.03
+ CodeLlama-7B    CWE    0.50 0.50 1.00 0.67 0.52 0.51 0.99 0.67 0.51 0.51 0.84 0.63              0.51 0.50 0.99 0.67 0.50 0.50 0.85 0.63
+ CodeLlama-7B    CWE-DF 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67              0.50 0.50 1.00 0.67 0.51 0.50 0.97 0.66
+ DSCoder-7B      Basic  0.50 0.50 0.99 0.66 0.57 0.56 0.69 0.62 0.48 0.47 0.30 0.36              0.57 0.55 0.77 0.64 0.49 0.47 0.24 0.32
+ DSCoder-7B      CWE    0.56 0.54 0.87 0.66 0.54 0.53 0.75 0.62 0.48 0.43 0.15 0.22              0.58 0.56 0.70 0.62 0.51 0.53 0.18 0.27
+ DSCoder-7B      CWE-DF 0.51 0.50 0.98 0.66 0.52 0.51 0.91 0.65 0.49 0.50 0.90 0.64              0.50 0.50 0.98 0.66 0.53 0.52 0.90 0.66
+ Llama-3.1-8B    Basic  0.50 0.50 1.00 0.67 0.48 0.49 0.94 0.65 0.52 0.51 0.80 0.62              0.49 0.49 0.97 0.65 0.52 0.51 0.92 0.66
+ Llama-3.1-8B    CWE    0.53 0.52 1.00 0.68 0.52 0.51 0.97 0.67 0.53 0.56 0.29 0.38              0.54 0.52 0.98 0.68 0.55 0.55 0.58 0.56
+ Llama-3.1-8B    CWE-DF 0.49 0.50 0.93 0.65 0.50 0.50 0.97 0.66 0.51 0.50 0.93 0.65              0.50 0.50 0.99 0.67 0.50 0.50 0.95 0.65
+ CodeLlama-13B   Basic  0.60 0.58 0.74 0.65 0.48 0.48 0.41 0.44 0.50 0.51 0.08 0.14              0.47 0.47 0.51 0.49 0.50 0.50 0.07 0.12
+ CodeLlama-13B   CWE    0.52 0.51 0.98 0.67 0.50 0.50 0.89 0.64 0.48 0.47 0.29 0.36              0.53 0.51 0.98 0.67 0.53 0.52 0.56 0.54
+ CodeLlama-13B   CWE-DF 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67              0.50 0.50 1.00 0.67 0.50 0.50 0.96 0.66
+ Qwen-2.5-14B    Basic  0.54 0.52 1.00 0.68 0.50 0.50 0.74 0.60 0.53 0.54 0.43 0.48              0.48 0.49 0.74 0.59 0.52 0.52 0.53 0.52
+ Qwen-2.5-14B    CWE    0.57 0.54 0.92 0.68 0.71 0.65 0.87 0.75 0.55 0.62 0.25 0.36              0.65 0.60 0.89 0.72 0.52 0.52 0.32 0.39
+ Qwen-2.5-14B    CWE-DF 0.55 0.52 1.00 0.69 0.66 0.61 0.88 0.72 0.56 0.58 0.42 0.49              0.64 0.59 0.95 0.73 0.55 0.56 0.45 0.50
+ DSCoder-15B     Basic  0.50 0.50 1.00 0.67 0.54 0.52 0.97 0.68 0.44 0.44 0.44 0.44              0.51 0.50 0.98 0.67 0.49 0.49 0.26 0.34
+ DSCoder-15B     CWE    0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.52 0.51 0.93 0.66              0.50 0.50 1.00 0.67 0.50 0.50 0.95 0.66
+ DSCoder-15B     CWE-DF 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.51 0.51 0.86 0.64              0.50 0.50 1.00 0.67 0.51 0.50 0.94 0.66
+ codestral-22b   Basic  0.50 0.50 1.00 0.67 0.52 0.51 0.91 0.65 0.49 0.49 0.63 0.55              0.50 0.50 0.93 0.65 0.50 0.50 0.40 0.44
+ codestral-22b   CWE    0.52 0.51 0.98 0.67 0.52 0.51 0.96 0.67 0.50 0.50 0.37 0.43              0.57 0.54 0.93 0.69 0.52 0.56 0.16 0.25
+ codestral-22b   CWE-DF 0.53 0.52 1.00 0.68 0.50 0.50 0.99 0.67 0.53 0.52 0.89 0.65              0.50 0.50 0.99 0.67 0.52 0.51 0.87 0.64
+ Qwen-2.5-32B    Basic  0.52 0.51 1.00 0.67 0.48 0.49 0.77 0.60 0.52 0.53 0.38 0.44              0.50 0.50 0.84 0.63 0.47 0.46 0.36 0.41
+ Qwen-2.5-32B    CWE    0.56 0.53 1.00 0.69 0.58 0.55 0.93 0.69 0.53 0.55 0.30 0.39              0.63 0.58 0.87 0.70 0.53 0.54 0.35 0.43
+ Qwen-2.5-32B    CWE-DF 0.55 0.52 1.00 0.69 0.59 0.55 1.00 0.71 0.55 0.54 0.62 0.58              0.54 0.52 0.98 0.68 0.56 0.54 0.81 0.65
+ DSCoder-33B     Basic  0.52 0.51 0.97 0.67 0.56 0.53 0.94 0.68 0.50 0.50 0.60 0.55              0.42 0.46 0.81 0.58 0.51 0.51 0.75 0.60
+ DSCoder-33B     CWE    0.53 0.52 0.86 0.65 0.56 0.54 0.85 0.66 0.49 0.49 0.39 0.43              0.44 0.46 0.78 0.58 0.52 0.52 0.56 0.54
+ DSCoder-33B     CWE-DF 0.51 0.51 0.75 0.60 0.46 0.47 0.63 0.54 0.53 0.53 0.64 0.58              0.50 0.50 0.78 0.61 0.49 0.49 0.54 0.52
+ CodeLlama-34B   Basic  0.51 0.50 1.00 0.67 0.47 0.48 0.85 0.62 0.50 0.50 0.28 0.36              0.50 0.50 0.93 0.65 0.51 0.52 0.20 0.29
+ CodeLlama-34B   CWE    0.57 0.54 0.94 0.69 0.49 0.49 0.94 0.65 0.50 0.51 0.17 0.25              0.53 0.52 0.98 0.68 0.51 0.54 0.08 0.14
+ CodeLlama-34B   CWE-DF 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67 0.50 0.50 1.00 0.67              0.50 0.50 1.00 0.67 0.50 0.50 0.99 0.67
+ Llama-3.1-70B   Basic  0.51 0.50 1.00 0.67 0.51 0.51 0.84 0.63 0.51 0.51 0.71 0.59              0.53 0.52 0.92 0.66 0.51 0.51 0.90 0.65
+ Llama-3.1-70B   CWE    0.58 0.54 0.99 0.70 0.76 0.71 0.89 0.79 0.52 0.53 0.43 0.48              0.59 0.55 0.95 0.70 0.52 0.51 0.71 0.60
+ Llama-3.1-70B   CWE-DF 0.54 0.52 0.99 0.68 0.72 0.68 0.84 0.75 0.55 0.54 0.63 0.58              0.59 0.55 0.96 0.70 0.54 0.53 0.77 0.63
+ Gemini-1.5-Flash Basic  0.54 0.52 0.98 0.68 0.47 0.48 0.76 0.59 0.52 0.52 0.53 0.52             0.44 0.46 0.81 0.59 0.47 0.47 0.51 0.49
+ Gemini-1.5-Flash CWE    0.57 0.54 1.00 0.70 0.51 0.51 0.91 0.65 0.54 0.57 0.31 0.40             0.50 0.50 0.89 0.64 0.51 0.51 0.52 0.51
+ Gemini-1.5-Flash CWE-DF 0.54 0.52 1.00 0.68 0.50 0.50 1.00 0.67 0.57 0.55 0.79 0.65             0.50 0.50 0.99 0.66 0.51 0.50 0.86 0.64
+ GPT-3.5         Basic  0.52 0.52 0.72 0.60 0.58 0.57 0.71 0.63 0.46 0.35 0.09 0.15              0.49 0.49 0.64 0.56 0.52 0.56 0.20 0.29
+ GPT-3.5         CWE    0.55 0.54 0.62 0.58 0.52 0.52 0.55 0.54 0.47 0.41 0.12 0.19              0.49 0.49 0.70 0.58 0.52 0.54 0.19 0.28
+ GPT-3.5         CWE-DF 0.51 0.50 0.93 0.65 0.40 0.44 0.73 0.55 0.54 0.53 0.66 0.59              0.40 0.44 0.77 0.56 0.52 0.52 0.75 0.61
+ GPT-4           Basic  0.52 0.51 1.00 0.67 0.56 0.54 0.85 0.66 0.50 0.50 0.34 0.41              0.54 0.52 0.92 0.67 0.51 0.51 0.57 0.54
+ GPT-4           CWE    0.54 0.52 1.00 0.68 0.69 0.63 0.97 0.76 0.55 0.56 0.44 0.49              0.58 0.54 0.95 0.69 0.52 0.52 0.52 0.52
+ GPT-4           CWE-DF 0.55 0.52 1.00 0.69 0.70 0.63 0.98 0.76 0.53 0.53 0.59 0.56              0.59 0.55 0.98 0.70 0.52 0.51 0.76 0.61
+
+
+
+is rightly predicted by GPT-4. In Listing 11, the method                multiple array accesses that could lead to CWE-125 (Out-of-
+write takes an array b and integers offset and length as                bounds read). GPT-4 correctly identifies that the expression
+inputs. The expression offset + length > b.length                       ciphertextOffset + length + index could exceed
+can lead to an Integer Overflow (CWE-190) if offset +                   the size of the ciphertext array, leading to this vulnera-
+length exceeds the maximum integer value and this is                    bility.
+correctly identified by GPT-4. Finally, in Listing 12, there are
+
+=== [PDF page 17] ===
+
+                                                             public void write(byte[] b, int offset, int length)
+ // CVE-2021-39180                                                 throws IOException {
+                                                                 if (b == null) {
+ // CODE SNIPPET                                                    throw new NullPointerException();
+                                                                 }
+ public FileVisitResult preVisitDirectory(Path dir,
+     BasicFileAttributes attrs) throws IOException {             if (offset < 0 || offset + length > b.length) {
+     Path relativeDir = source.relativize(dir);                    throw new ArrayIndexOutOfBoundsException();
+     final Path dirToCreate = Paths.get(destDir.                 }
+     toString(), relativeDir.toString());
+     if(!dirToCreate.toFile().exists()) {                        write(fd, b, offset, length);
+         Files.createDirectory(dirToCreate);                 }
+     }
+     return FileVisitResult.CONTINUE;                        // RESPONSE WITH DATAFLOW ANALYSIS INSPIRED PROMPT
+ }                                                           Here is a data flow analysis of the given code
+                                                                 snippet:
+ // RESPONSE WITH DATAFLOW ANALYSIS INSPIRED PROMPT          A. Sources:
+ Here is a data flow analysis of the given code              1. The byte array 'b'
+     snippet:                                                2. The integer 'offset'
+ A. Sources:                                                 3. The integer 'length'
+ 1. The `dir` parameter in the `preVisitDirectory`
+     method.                                                 B. Sinks:
+ 2. The `source` variable.                                   1. The 'write' function
+ 3. The `destDir` variable.
+                                                             C. Sanitizers:
+ B. Sinks:                                                   1. The condition 'if (offset < 0 || offset + length
+ 1. The `Files.createDirectory` method.                           > b.length)'
+
+ C. Sanitizers:                                              D. Unsanitized Data Flows:
+ No sanitizers are present in the code snippet.              1. (offset, write, The offset value is directly
+                                                                 used in the write function without any
+ D. Unsanitized Data Flows:                                      sanitization)
+ 1. (dir, Files.createDirectory, The `dir` parameter         2. (length, write, The length value is directly
+      is used to create a new directory without any              used in the write function without any
+     sanitization or validation. If an attacker can              sanitization)
+     control the `dir` parameter, they could
+     potentially create directories in unintended            E. Vulnerability analysis verdict: $$ vulnerability
+     locations.)                                                 : YES | vulnerability type: CWE-190 |
+ 2. (source, Files.createDirectory, The `source`                 vulnerability name: Integer Overflow or
+     variable is used to create a relative path                  Wraparound | explanation: The code does not
+     without any sanitization or validation. If an               properly handle the case where 'offset + length
+     attacker can control the `source` variable,                 ' could overflow.
+     they could potentially manipulate the path                  If ’offset’ and ’length’ are both very large,
+     creation process.)                                          their sum could wrap around to a negative value,
+ 3. (destDir, Files.createDirectory, The `destDir`                passing the bounds check and leading to an
+     variable is used to create a new directory                  ArrayIndexOutOfBoundsException at runtime. $$'
+     without any sanitization or validation. If an
+     attacker can control the `destDir` variable,           Listing 11: GPT-4 with CWE-DF prompt on a real-world
+     they could potentially create directories in           Integer Overflow vulnerability
+     unintended locations.)
+
+ E. Vulnerability analysis verdict: $$ vulnerability
+     : YES | vulnerability type: CWE-22 |                    // TARGET CWE: CWE-125 (Out-of-bounds Read)
+     vulnerability name: Improper Limitation of a
+     Pathname to a Restricted Directory ('Path               // CODE SNIPPET
+     Traversal') | explanation:                              public int encryptWithAd(byte[] ad, byte[]
+     The code does not validate or sanitize the                  plaintext, int plaintextOffset,
+     ‘dir‘, ‘source‘, and ‘destDir‘ variables before                      byte[] ciphertext, int ciphertextOffset
+     using them to create a new directory. This                  , int length)
+     could allow an attacker to manipulate the path                       throws ShortBufferException {
+     and create directories in unintended locations,                 int space;
+      leading to a path traversal vulnerability. $$                  if (ciphertextOffset > ciphertext.length)
+                                                                          space = 0;
+Listing 10: Correct response by GPT-4 on a Path Traversal            else
+vulnerability                                                             space = ciphertext.length -
+                                                                 ciphertextOffset;
+                                                                     if (!haskey) {
+                                                                                  if (length > space)
+                                                                              throw new ShortBufferException();
+                                                                          if (plaintext != ciphertext ||
+ // TARGET CWE: CWE-190 (Integer Overflow or                     plaintextOffset != ciphertextOffset)
+     Wraparound)                                                              System.arraycopy(plaintext,
+                                                                 plaintextOffset, ciphertext, ciphertextOffset,
+ // CODE SNIPPET                                                 length);
+
+=== [PDF page 18] ===
+
+              return length;                                  vulnerable. Listing 13 presents an example from CVEFixes
+          }                                                   C/C++ where Out-of-bounds read vulnerability is not possible
+          if (space < 16 || length > (space - 16))
+              throw new ShortBufferException();               but this is not evident from context. Codellama-34B’s expla-
+          setup(ad);                                          nation seems plausible given that little is known about the
+          encryptCTR(plaintext, plaintextOffset,              pointers in question.
+     ciphertext, ciphertextOffset, length);
+          ghash.update(ciphertext, ciphertextOffset,           // CODE SNIPPET NOT VULNERABLE TO CWE-125 (Out-of-
+     length);                                                      bounds Read)
+          ghash.pad(ad != null ? ad.length : 0,                // The pointers cannot be reasoned about with this
+     length);                                                      snippet alone
+          ghash.finish(ciphertext, ciphertextOffset +
+       length, 16);                                            snmp_ber_decode_length(snmp_packet_t *snmp_packet,
+          for (int index = 0; index < 16; ++index)                 uint8_t *length)
+              ciphertext[ciphertextOffset + length +           {
+     index] ˆ= hashKey[index];                                   if(snmp_packet->used == 0) {
+          return length + 16;                                      return 0;
+     }                                                           }
+
+ // RESPONSE WITH DATAFLOW ANALYSIS INSPIRED PROMPT                *length = *snmp_packet->in++;
+ Here is a data flow analysis of the given code                    snmp_packet->used--;
+     snippet:
+ A. Sources:                                                       return 1;
+ 1. The `plaintext` array                                      }
+ 2. The `ciphertext` array
+ 3. The `ad` array                                             // CODELLAMA-34B WITH THE DATAFLOW ANALYSIS BASED
+ 4. The `plaintextOffset` integer                                  PROMPT
+ 5. The `ciphertextOffset` integer
+ 6. The `length` integer                                       Here is a data flow analysis of the given code
+                                                                   snippet:
+ B. Sinks:
+ 1. The `System.arraycopy` method                              A. Sources:
+ 2. The `encryptCTR` method
+ 3. The `ghash.update` method                                  1. snmp_packet->in
+ 4. The `ghash.pad` method                                     2. snmp_packet->used
+ 5. The `ghash.finish` method
+ 6. The `ciphertext` array                                     B. Sinks:
+
+ C. Sanitizers:                                                1. *length
+ 1. The `if (ciphertextOffset > ciphertext.length)`            2. snmp_packet->used
+     check
+ 2. The `if (length > space)` check                            C. Sanitizers:
+ 3. The `if (space < 16 || length > (space - 16))`
+     check                                                     1. None
+
+ D. Unsanitized Data Flows:                                    D. Unsanitized Data Flows:
+ 1. (plaintext, System.arraycopy, if plaintext is
+     larger than the destination array, it could               1. (snmp_packet->in, *length, This flow could be
+     lead to an out-of-bounds read)                                vulnerable to Out-of-bounds Read (CWE-125) if
+ 2. (ciphertext, ghash.finish, if ciphertextOffset +               the value of snmp_packet->in is not properly
+      length + 16 is larger than the size of                       validated and could be pointing to an invalid
+     ciphertext, it could lead to an out-of-bounds                 memory location.)
+     read)                                                     2. (snmp_packet->used, snmp_packet->used--, This
+                                                                   flow could be vulnerable to Out-of-bounds Read
+ E. Vulnerability analysis verdict: vulnerability:                 (CWE-125) if the value of snmp_packet->used is
+     YES | vulnerability type: CWE-125 |                           not properly validated and could be pointing to
+     vulnerability name: Out-of-bounds Read |                       an invalid memory location.)
+     explanation: The code does not properly check
+     the boundaries of the ‘ciphertext‘ array before           E. Vulnerability analysis verdict: $$ vulnerability
+     reading from it, which could lead to an out-of-               : YES | vulnerability type: CWE-125 |
+     bounds read if `ciphertextOffset + length + 16`               vulnerability name: Out-of-bounds Read |
+      is larger than the size of the `ciphertext`                  explanation: The code snippet does not properly
+     array.                                                         validate the input values, which could lead to
+                                                                    an Out-of-bounds Read vulnerability. $$
+Listing 12: GPT-4 with CWE-DF prompt on a real-world Out
+of Bounds vulnerability                                       Listing 13: Codellama-34B with CWE-DF prompt on a real-
+                                                              world Out of Bounds vulnerability (incorrect)
+
+G. CWE-125 (Out-of-bounds Read in Java vs. C++)
+  Listing 12 presents an example of Out-of-bounds read vul-
+nerability in CVEFixes Java which GPT-4 predicts correctly.
+Codellama-34B also correctly predicts that this snippet is

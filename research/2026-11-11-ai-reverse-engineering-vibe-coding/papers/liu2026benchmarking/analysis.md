@@ -1,12 +1,12 @@
 ---
 key: liu2026benchmarking
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction (requirements and BDD tests derived from existing open-source web apps) + comparative evaluation of 6 frameworks x 6 LLMs, 3 runs each; human failure analysis
 dataset: E2EDev, 46 small front-end web apps from GitHub (>500 stars) with 244 fine-grained requirements and 703 executable Gherkin/Behave (Selenium) tests
 sample_size: 46 projects x 36 framework-backbone settings x 3 runs; human failure analysis on 360 generated projects; test-quality audit on 100 tests by 10 experts
 metrics: Req.Acc (share of requirements with all tests passing), Test.Acc, Balanced score (0.6/0.4), Soft Req.Acc, cost, CO2, duration
-main_finding: Best setting (GPT-Engineer + Claude-Haiku 4.5) fully satisfies 53.75% of requirements; multi-agent frameworks rarely beat a plain prompted LLM and cost more.
+main_finding: Best setting (GPT-Engineer + Claude-Haiku 4.5) fully satisfies 53.75% of requirements; multi-agent frameworks do not consistently beat a plain prompted LLM (9 of 24 cells higher, mostly by small margins); most cost several times more.
 relevance: high
 analysed: 2026-11-11
 ---
@@ -21,7 +21,7 @@ analysed: 2026-11-11
 - Year / venue: 2026, Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) (published)
 - DOI: 10.18653/v1/2026.acl-long.1618 · URL: https://doi.org/10.18653/v1/2026.acl-long.1618
 - Source text: `fulltext.txt` (page refs = PDF page index)
-- Identity note: `metadata.json` lists identity as "probable"; PDF page 1 shows the exact title, the five authors and the ACL 2026 proceedings footer (pages 35032–35068), so identity is confirmed (p. 1). The PDF is the ACL Anthology version.
+- Identity note: `metadata.json` lists identity as "probable"; PDF page 1 shows the exact title, the five authors and the ACL 2026 proceedings footer (pages 35032–35068), so identity is confirmed (p. 1). The PDF analysed is the published ACL Anthology version (aclanthology.org/2026.acl-long.1618.pdf, retrieved 2026-11-11). It is not the arXiv preprint 2510.14509, and page refs use its PDF page index.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -64,8 +64,13 @@ No formal RQs or hypotheses. The work addresses two stated problems of prior ben
 
 ## 7. Key findings
 1. Best effectiveness: GPT-Engineer + Claude-Haiku 4.5, Req.Acc 53.75 ± 0.43, Test.Acc 69.41 ± 1.07 (p. 6, Table 3). [V] Excluding MetaGPT, all Claude-Haiku 4.5, GPT-4o and Qwen-Max settings fall between 42.30 and 53.75 Req.Acc (p. 6). [V] The authors summarise: "achieving only 30%–50% Req. Acc." and no model exceeds 60% (p. 5). [A]
-2. Soft Req.Acc exceeds Req.Acc by about 25–33 points in most settings (e.g. GPT-Engineer + Claude-Haiku 4.5: 0.5402 vs 0.7991), meaning partially working requirements are common (p. 25, Table 10). [V] The authors attribute this to failing edge cases and fine details (p. 6). [A]
-3. Agentic frameworks do not reliably beat a plain prompted LLM: e.g. GPT-4o-mini Vanilla 44.82 Req.Acc vs ChatDev 33.16 and MapCoder 41.30; GPT-4o Vanilla 45.95 vs ChatDev 42.71 (p. 6, Table 3). [V] Multi-agent frameworks cost up to ~12x more and take longer (e.g. GPT-4o ChatDev $0.1947 vs Vanilla $0.0160) (p. 6). [V]
+2. Soft Req.Acc exceeds Req.Acc by about 25–33 points in most settings (e.g. GPT-Engineer + Claude-Haiku 4.5: 0.5402 vs 0.7991), meaning partially working requirements are common (p. 25, Table 10). [V] Table 10's strict Req.Acc (0.5402) differs from the Table 3 value for the same setting (53.75, p. 6); see §9. The authors attribute this to failing edge cases and fine details (p. 6). [A]
+3. Agentic frameworks do not reliably beat a plain prompted LLM: e.g. GPT-4o-mini Vanilla 44.82 Req.Acc vs ChatDev 33.16 and MapCoder 41.30; GPT-4o Vanilla 45.95 vs ChatDev 42.71 (p. 6, Table 3). [V] Cost (Table 3, p. 6) [V]: most multi-agent frameworks (MapCoder, ChatDev, MetaGPT) cost several times more than Vanilla, but the absolute costs are small:
+   - GPT-4o ChatDev costs $0.1947 vs Vanilla $0.0160, about 12x.
+   - Claude-Haiku 4.5 ChatDev costs $0.174 vs $0.015, about 11.6x.
+   - On Qwen-7B, ChatDev costs $0.0075 vs $0.0003 (about 25x) and MetaGPT $0.0207 vs $0.0003 (about 69x). The Vanilla cost is rounded to 4 decimals, so these two ratios are imprecise.
+
+   Self-Collaboration, also a multi-agent framework (p. 5), costs about the same as Vanilla (Claude-Haiku 4.5 $0.014 vs $0.015; GPT-4o $0.0155 vs $0.0160) (p. 6). The paper itself states no cost ratio; the ratios above are our arithmetic on Table 3 [I]. All four multi-agent frameworks take longer than Vanilla on every backbone, e.g. GPT-4o: Vanilla 28 s; Self-Collaboration 37 s; MapCoder 93 s; ChatDev 114 s; MetaGPT 66 s (p. 6). [V]
 4. MetaGPT almost completely fails (0.00–5.39 Req.Acc), attributed to inter-agent communication breakdowns: 44% of its failures are code inconsistency (missing files, syntax errors) (p. 6, p. 8). [V]/[A]
 5. The same frameworks reach 71–91% Pass@1 on HumanEval (except MetaGPT), far above their E2EDev scores (p. 27, Table 12). [V]
 6. OpenHands and SWE-Agent underperform the Vanilla baseline (Claude-Haiku 4.5: 43.45 and 44.73 vs 48.69 Req.Acc) (p. 23, Table 8). [V] The authors explain this by task mismatch with their original design (p. 22). [A]
@@ -81,7 +86,12 @@ No formal RQs or hypotheses. The work addresses two stated problems of prior ben
 ## 9. Limitations we identified
 - [I] Tests are coupled to `data-testid` DOM anchors from the original app, and the prompt tells the model these IDs (p. 3, p. 16–17). A functionally correct app that names elements differently fails. Scores therefore mix behavioural correctness with instruction-following of naming conventions; how many failures are anchor mismatches is not reported.
 - [I] The "human vs automatic" Cohen's kappa of 0.74 (p. 22) is the only direct validation of the automated oracle against human judgement, but its sample, unit and procedure are not described; Cohen's kappa is used although five annotators are involved, and 295 instances were "evenly distributed" (single-labelled) with only 5 shared calibration examples (p. 21). The kappa 0.86 among humans may therefore rest on very few items.
-- [I] Inconsistent reporting: "four domain experts" in the main text (p. 7) vs "5 professional annotators" in the appendix (p. 21); "30 different models (6 backbones × 6 frameworks)" (p. 21) where 6 × 6 = 36; "10% of the full dataset (158 projects)" (p. 12) vs 158 shortlisted (p. 13).
+- [I] Inconsistent reporting: "four domain experts" in the main text (p. 7) vs "5 professional annotators" in the appendix (p. 21); "30 different models (6 backbones × 6 frameworks)" (p. 21) where 6 × 6 = 36; "10% of the full dataset (158 projects)" (p. 12) vs 158 shortlisted (p. 13). The strict Req.Acc values in Table 10 (p. 25) do not match Table 3 (p. 6). Most cells differ by under 1 point; some match exactly; a few differ more:
+  - GPT-Engineer + Claude-Haiku 4.5: 0.5402 vs 53.75.
+  - GPT-Engineer + GPT-4o: 0.5037 vs 50.83.
+  - Qwen-7B ChatDev: 0.1803 vs 10.96, about 7 points.
+
+  This may be a single run vs the three-run mean, but the paper does not explain it.
 - [I] Possible contamination: source projects are popular public GitHub repositories (> 500 stars) whose reference implementation is linked (p. 12, p. 17); models may have seen them. Not discussed.
 - [I] Backbones are small or older models (Claude-Haiku 4.5, GPT-4o, Qwen2.5); no frontier coding models, so absolute ceilings are uncertain.
 - [I] Projects are small, front-end-only apps that run from a local file without setup (p. 12, p. 17); backend, persistence beyond local storage, auth and deployment are out of scope.
@@ -109,7 +119,7 @@ No formal RQs or hypotheses. The work addresses two stated problems of prior ben
 |---|---|---|---|---|
 | RQ2 | Best setting (GPT-Engineer + Claude-Haiku 4.5) fully satisfies 53.75% of requirements (Test.Acc 69.41%) when rebuilding 46 small web apps from fine-grained requirements | 6 | V | moderate |
 | RQ2 | Partial fulfilment is common: Soft Req.Acc exceeds strict Req.Acc by ~25–33 points across settings | 25 | V | moderate |
-| RQ1 | Multi-agent frameworks do not reliably beat a plain prompted LLM and cost up to ~12x more; MetaGPT nearly always fails (0–5.4% Req.Acc) | 6 | V | moderate |
+| RQ1 | Multi-agent frameworks do not reliably beat a plain prompted LLM. MapCoder, ChatDev and MetaGPT cost several times more than Vanilla, but on small absolute costs: about 12x for GPT-4o ChatDev ($0.1947 vs $0.0160), about 25x for ChatDev and about 69x for MetaGPT on Qwen-7B. Self-Collaboration costs about the same as Vanilla. Ratios are our arithmetic on Table 3. MetaGPT nearly always fails (0–5.4% Req.Acc) | 6 | V | moderate |
 | RQ1 | Same frameworks score 71–91% Pass@1 on HumanEval but ~10–54% Req.Acc on E2EDev | 27 | V | moderate |
 | RQ4 | Functional oracle = Gherkin/Behave tests with Selenium, derived from the original app's code via LLM agents plus human review, passing 100% on the original projects; no LLM judge | 5 | V | moderate |
 | RQ4 | Test-quality audit by 10 experts on 100 sampled tests gives Fleiss' kappa 0.81; a manual-only annotation pilot gave kappa 0.23 | 14 | V | moderate |

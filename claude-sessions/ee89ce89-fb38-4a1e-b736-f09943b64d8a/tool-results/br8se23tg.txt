@@ -1,0 +1,330 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+Article
+
+A Real CVE-Backed Benchmark for WordPress Plugin
+Vulnerability Detection: Re-Evaluating Static and
+Learning-Based Detectors Under Leakage-Controlled Evaluation
+Zhuldyz Tashenova 1 , Aisultan Aitmagambetuly 1 , Altyn Urynbassarova 1 , Askhat Zhetkerbay 1, *,
+Shirin Amanzholova 2, * and Akerke Kerim 1
+
+                                         1   Department of Information Security, L. N. Gumilyov Eurasian National University,
+                                             Astana 010000, Kazakhstan; zhuldyz_tm@mail.ru (Z.T.)
+                                         2   Department of Information Technologies, Kurmangazy Kazakh National Conservatory,
+                                             Almaty 050000, Kazakhstan
+                                         *   Correspondence: askhatzh9898@gmail.com (A.Z.); sh.amanzholova@gmail.com (S.A.)
+
+
+                                         Abstract
+                                         Background: WordPress plugins account for the large majority of disclosed CMS vul-
+                                         nerabilities, and learning-based detectors report high accuracy on synthetic corpora and
+                                         random splits. Methods: We build a benchmark from 1757 real plugin CVEs (6666 indexed
+                                         identifiers, 1281 plugins), yielding 30,860 labeled PHP functions in two negative-sampling
+                                         variants. An audit of the released artifacts found exact normalized-code duplicates crossing
+                                         test folds (166 groups/1086 records in Variant A; 151/676 in Variant B) and identical code
+                                         carrying contradictory labels (730 and 456 groups). After removing conflicting groups,
+                                         merging exact duplicates and collapsing token- and AST-level clone families, the corpora
+                                         contain 15,294 (Variant A) and 24,917 (Variant B) records with zero shared hashes, clone
+                                         families or plugins across folds. Ten detectors are compared under plugin-grouped five-
+                                         fold cross-validation on complete held-out folds: a static taint analyzer, TF-IDF Random
+                                         Forest and SVM, Bi-LSTM, unidirectional LSTM, a taint-augmented neural model, a nested
+                                         out-of-fold stacking ensemble, and three baselines (majority class, a source/sink presence
+                                         rule, and a single-feature function-length classifier). Results: The best macro-F1 is 0.563
+                                         (Variant A, binary, SVM) and 0.601 (Variant B, binary, nested stacking). Neural models do
+                                         not lead in any of the six configurations, and the single-feature length baseline matches
+                                         or exceeds the TF-IDF Random Forest in four of six. The source/sink rule attains an MCC
+                                         close to zero, and the taint analyzer misses about 98% of vulnerabilities. Manual review
+                                         of 400 functions finds 48.8% of cleaned positive labels to be genuine vulnerabilities. Con-
+                                         clusions: Under duplicate-controlled evaluation, the differences between detector families
+                                         are small compared with the variation attributable to label quality, which appears to be
+                                         the more binding constraint. All data, folds, predictions and fingerprinted result files
+Academic Editor: Francesco               are released.
+Cauteruccio
+
+Received: 3 July 2026                    Keywords: vulnerability detection; WordPress plugins; PHP static analysis; taint analysis;
+Revised: 14 August 2026                  CVE dataset; leakage-controlled evaluation; duplicate detection; label noise; benchmark
+Accepted: 31 August 2026
+Published: 4 September 2026
+Copyright: © 2026 by the authors.
+Licensee MDPI, Basel, Switzerland.       1. Introduction
+This article is an open access article
+distributed under the terms and
+                                             Content Management Systems (CMSs) underpin a large share of the public web,
+conditions of the Creative Commons       and WordPress alone serves a substantial fraction of all websites. Empirical studies of
+Attribution (CC BY) license.             deployed installations show that the core platform is usually patched promptly, whereas
+
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                       https://doi.org/10.3390/bdcc10090303
+
+=== [PDF page 2] ===
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                                             2 of 15
+
+
+
+                                       third-party plugins lag far behind and account for the overwhelming majority of reported
+                                       vulnerabilities [1,2]. Cross-site scripting (XSS) and SQL injection (SQLi) dominate the
+                                       reported classes, with a smaller but more severe tail of remote code execution (RCE) [3].
+                                            Prevailing defenses are predominantly reactive. Signature-based scanners and web
+                                       application firewalls act after a vulnerability is public, and vulnerability databases catalog
+                                       flaws only after disclosure. This motivates proactive detection directly on plugin source
+                                       code. In earlier work we proposed SentinelCMS [4], a detector combining static taint
+                                       analysis with a bidirectional LSTM, which reached approximately 93% accuracy on a
+                                       synthetic corpus of 600 generated snippets.
+                                            Whether such results transfer to real, disclosed vulnerabilities is the question this
+                                       paper addresses. We assemble a benchmark from real plugin CVEs, evaluate a range of
+                                       detector families on it, and—prompted by an audit of our own released artifacts—pay
+                                       particular attention to duplication and evaluation leakage, which turned out to affect the
+                                       measurements substantially.
+                                            An audit of the first release showed that grouping cross-validation folds by plugin slug
+                                       does not prevent exact code duplicates from crossing fold boundaries, because WordPress
+                                       plugins routinely vendor shared libraries and administrative menus. It also showed that
+                                       identical functions sometimes carry contradictory class labels, and that a stacking ensemble
+                                       described as out-of-fold was in fact trained on in-sample predictions. The present version
+                                       rebuilds the corpus and the entire benchmark with these problems corrected, and quantifies
+                                       how much they inflated the earlier numbers.
+                                            We address four research questions. RQ1 (transfer): does training on real CVE data
+                                       outperform training on synthetic data? RQ2 (detector families): how do static, classical
+                                       and neural detectors compare under duplicate-controlled evaluation? RQ3 (negatives and
+                                       granularity): how do the negative-sampling variant and label granularity affect the results?
+                                       RQ4 (evaluation validity): how much do duplicate leakage and in-sample stacking inflate
+                                       reported performance?
+                                            This study makes four contributions. (1) A real, duplicate-controlled benchmark of
+                                       WordPress plugin CVEs with verified zero overlap of code hashes, clone families and
+                                       plugins across folds. (2) A comparison of ten detectors, including three deliberately trivial
+                                       baselines, on complete held-out folds. (3) A direct measurement of how much duplicate
+                                       leakage and in-sample stacking inflate performance. (4) An expert validation of the la-
+                                       bel pipeline on 400 manually reviewed functions. All artifacts are released with input
+                                       fingerprints so that any result can be traced to the data from which it was computed.
+
+                                       2. Related Work
+                                       2.1. Vulnerabilities in CMS Ecosystems
+                                            Large-scale measurements of deployed websites show that outdated third-party com-
+                                       ponents, rather than CMS cores, dominate the exposure surface [1,5]. Industry reports on
+                                       the WordPress ecosystem quantify the same pattern, with plugins responsible for the large
+                                       majority of newly disclosed issues each year [2].
+
+                                       2.2. Static Analysis for PHP
+                                            Static detection of injection flaws in PHP has a long history, from early taint-tracking
+                                       tools such as Pixy [6] to graph-based frameworks. Code-property-graph approaches [7]
+                                       generalize this by combining syntax, control flow and data dependence in a single queryable
+                                       structure. Such analyzers are precise when the vulnerable data flow is local and syntactically
+                                       explicit, but degrade on dynamic dispatch, framework callbacks and flows that cross file
+                                       boundaries—all common in plugin code.
+
+
+
+
+                                                                                                   https://doi.org/10.3390/bdcc10090303
+
+=== [PDF page 3] ===
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                                             3 of 15
+
+
+
+                                       2.3. Learning-Based Vulnerability Detection
+                                            VulDeePecker [8] introduced slice-level neural detection; graph neural networks (e.g.,
+                                       Devign [9]) encode structural dependencies; and line-level transformer variants such as
+                                       LineVul [10] report F1 above 0.90 on Big-Vul under random splits. Most of this work targets
+                                       C/C++. For PHP, DeepTective [11] combines gated graph networks with sequence models
+                                       on a corpus assembled from plugin sources.
+
+                                       2.4. Pre-Trained Code Models
+                                            CodeBERT [12] provides bimodal pre-training over code and natural language,
+                                       GraphCodeBERT [13] injects data-flow structure, and instruction-tuned large language
+                                       models [14] have been applied to vulnerability reasoning. On established benchmarks such
+                                       as CodeXGLUE [15] these models reach roughly 62% accuracy on defect detection, a level
+                                       far below the numbers reported on curated corpora.
+
+                                       2.5. Data Quality and Evaluation Validity
+                                            A growing body of work questions whether reported gains reflect detection ability or
+                                       evaluation artifacts. Chakraborty et al. [16] show that models trained on curated datasets
+                                       degrade sharply on real-world code. Arp et al. [17] catalog recurring methodological
+                                       pitfalls in machine learning for security, including sampling bias and spurious correla-
+                                       tions. Croft et al. [18] measure label accuracy and duplication in widely used vulnerability
+                                       datasets and find both to be substantial problems, and Ding et al. [19] report that bench-
+                                       mark scores fall considerably once duplicates and unrealistic splits are removed. The
+                                       present study contributes a domain-specific instance of this critique, with a measured
+                                       decomposition of duplication, label noise and ensemble leakage in a PHP/CMS corpus.
+
+                                       3. Materials and Methods
+                                       3.1. Dataset Construction
+                                            Candidate vulnerabilities were indexed from the NVD CVE API v2 [20] and the
+                                       public CVE list (CVEProject/cvelistV5) [21]. The two sources overlap because the same
+                                       CVE is frequently listed in both; after removing duplicate identifiers the merged index
+                                       contains 6666 unique records, which reconciles the 5839 and 853 source counts (26 shared
+                                       identifiers). Of these, 1757 CVEs across 1281 plugins could be resolved to downloadable
+                                       pre-fix and post-fix source pairs (1234 of these plugins still carry vulnerable records after
+                                       the deduplication of Section 3.2); approximately 54% of indexed CVEs were unrecoverable
+                                       because old releases and SVN tags had been pruned.
+                                            Function-level labels were derived by differencing the vulnerable and patched versions
+                                       with a tree-sitter PHP parser: functions touched by the security fix receive the CVE’s
+                                       vulnerability type, and untouched functions provide negatives. Two negative-sampling
+                                       variants are retained: Variant A uses the patched twin of each vulnerable function, and
+                                       Variant B uses functions from the same plugin that were not modified by the fix. Each
+                                       variant contains 30,860 snippets before deduplication. A per-record provenance manifest
+                                       (CVE id, source, plugin slug, version, file, function name and code hash) accompanies
+                                       the release.
+                                            The dataset construction and leakage-control procedure used in this study is illustrated
+                                       in Figure 1. The workflow shows how function-level labels are derived from vulnerable
+                                       and patched releases, followed by consistency checks, duplicate removal, clone-family
+                                       auditing, and fold assignment to minimize potential data leakage.
+
+
+
+
+                                                                                                   https://doi.org/10.3390/bdcc10090303
+
+=== [PDF page 4] ===
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                                                   4 of 15
+
+
+
+
+                                       Figure 1. Dataset construction and leakage control. Function-level labels are derived by differencing
+                                       patched and vulnerable releases; the corpus is then audited for contradictory labels, exact duplicates
+                                       and clone families before folds are assigned. Blue boxes represent dataset construction steps, and the
+                                       red box indicates the leakage control stage.
+
+                                       3.2. Duplicate Audit and Leakage Control
+                                            Cross-validation folds in the first release partitioned plugin slugs. An audit of the
+                                       published code_hash fields showed that this is insufficient: identical normalized code
+                                       appearing under two different plugin slugs is split across training and test folds. Table 1
+                                       reports the audit. Beyond exact duplicates, identical code was found carrying contradictory
+                                       class labels, because diff-based labeling assigns the CVE’s type to every changed function,
+                                       so a function touched by several CVEs receives several types.
+
+                                       Table 1. Duplicate and label-conflict audit of the originally released indices. Exact duplicates are
+                                       computed on whitespace-normalized code (SHA-256).
+
+                                                          Audit Quantity                             Variant A              Variant B
+                                        Duplicate groups spanning more than one fold                     166                    151
+                                                   Records in those groups                              1086                   676
+                                               All duplicate groups (any fold)                          2022                    983
+                                                    All duplicated records                              5735                   2756
+                                           Distinct normalized hashes (of 30,860)                      27,147                 29,087
+                                              Groups with contradictory labels                           730                    456
+                                              Records with contradictory labels                         1852                   1199
+
+
+                                             Three corrections were applied before any model was retrained. First, every hash
+                                       group carrying contradictory labels was removed in full: identical code with mutually
+                                       exclusive labels is unreliable supervision, and retaining either side would inject known-
+                                       incorrect labels. Second, exact duplicates were merged into a single record. Third, near-
+                                       duplicates were identified at both the token level (MinHash over 5-token shingles, Jaccard
+                                       similiarity of at least 0.9) and the AST level (tree-sitter node-type sequences, Jaccard
+                                       similiarity of at least 0.9) and grouped into clone families.
+                                             Grouping folds by the connected components of plugin slug and clone family is
+                                       leakage-free by construction but produces a giant component: cross-plugin copy-paste,
+                                       mainly vendored libraries and shared administrative menus, chains most plugins together,
+                                       so one component covers 59.4% (Variant A) and 72.1% (Variant B) of the corpus and per-
+                                       fold statistics become meaningless. We therefore collapse each clone family to a single
+                                       representative record, after which a family exists only once and grouping by plugin slug
+                                       suffices. Table 2 reports the resulting corpora. The merged-component grouping was
+                                       therefore rejected rather than adopted, and the decision, together with the component
+                                       statistics, is recorded in the released collapse report; the collapsed corpora are the ones
+                                       used throughout and the ones released.
+
+
+                                                                                                        https://doi.org/10.3390/bdcc10090303
+
+=== [PDF page 5] ===
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                                                  5 of 15
+
+
+
+                                       Table 2. Corpora after leakage control. Collapsing near-duplicates removes proportionally more of
+                                       Variant A, whose patched-twin negatives are highly repetitive; as a consequence, the majority class of
+                                       Variant A changes from Safe to vulnerable, so accuracy values are not comparable with the previously
+                                       published version, and macro-F1, balanced accuracy and MCC should be used instead.
+
+                       Corpus Quantity                                            Variant A                         Variant B
+                       Published records                                            30,860                            30,860
+       After conflict removal and exact deduplication                               26,417                            28,631
+              Near-duplicate records collapsed                                      11,123                             3714
+                         Final records                                              15,294                            24,917
+                 Reduction versus published                                         50.4%                             19.3%
+        Distinct plugins (total/vulnerability-bearing)                            1254/1234                         1745/1234
+    Plugins with both classes/vulnerable only/Safe only                          740/494/20                       1116/118/511
+         Class distribution (Safe/XSS/SQLi/RCE)                              3895/8446/2104/849               13,396/8531/2142/848
+       Cross-fold overlap (hash/clone family/plugin)                                0/0/0                             0/0/0
+
+
+                                            The two variants share exactly the same vulnerable material: 1234 plugins carry at
+                                       least one vulnerable record in both, which serves as a consistency check on the rebuild.
+                                       They differ only in how negatives are drawn, and this is why the plugin totals differ.
+                                       Variant A takes negatives from the patched twin of each vulnerable function, so almost
+                                       every plugin contributes both classes (740 of 1254 mixed, only 20 Safe-only). Variant B
+                                       draws negatives from functions never touched by a security fix, which admits 511 further
+                                       plugins contributing Safe records only, giving 1745 in total. The distinction also shapes
+                                       fold composition: 494 Variant A plugins contain vulnerable records exclusively, and since
+                                       grouping assigns each plugin entirely to one fold, Variant A folds are less balanced across
+                                       classes than those of Variant B.
+
+                                       3.3. Detectors and Baselines
+                                            Ten configurations are evaluated. Static taint analyzer: a two-pass intra-procedural
+                                       analyzer that propagates taint from user-controlled sources and reports a finding when
+                                       a tainted value reaches a security-sensitive sink without sanitization. TF-IDF classifiers:
+                                       Random Forest and a linear-kernel SVM over character n-gram TF-IDF features (char_wb
+                                       analyzer, 2–4 g over the raw code). Neural models: a Bi-LSTM with attention, a unidirec-
+                                       tional ablation, and a combined model that concatenates the taint verdict to the Bi-LSTM
+                                       representation. Stacking: a logistic-regression meta-learner over base-model predictions,
+                                       evaluated in two forms described below.
+                                            Three baselines are added deliberately because a benchmark is only informative if
+                                       trivial predictors are shown to be insufficient. The majority baseline always predicts the
+                                       most frequent training class. The source/sink baseline predicts a vulnerability whenever
+                                       a taint source and a type-matching sink are both present—this is exactly the rule used
+                                       to clean labels in Section 4.5, so its standalone detection ability is directly relevant. The
+                                       function-length baseline is a logistic regression on a single feature, the number of tokens in
+                                       the function.
+                                            The stacking ensemble is reported in two forms. The in-sample form reproduces the
+                                       originally released implementation, in which the base models are fitted on the complete
+                                       outer training fold and their predictions on those same records become the meta-features.
+                                       The nested form generates meta-features strictly out of fold, using an inner Stratified-
+                                       GroupKFold within each outer training fold, and refits the base models on the full outer
+                                       training fold only to score the test fold. Only the nested form is citable; the in-sample
+                                       form is retained solely to quantify the bias in Section 4.4. Both forms use the same base
+
+
+
+                                                                                                        https://doi.org/10.3390/bdcc10090303
+
+=== [PDF page 6] ===
+
+Big Data Cogn. Comput. 2026, 10, 303                                                                                                6 of 15
+
+
+
+                                       set; the LSTM tower is omitted from both because nested generation requires twenty-five
+                                       times more base fits than the available CPU budget allowed, so this row is not directly
+                                       comparable with the previously published stacking row.
+
+                                       3.4. Experimental Protocol
+                                            All models are evaluated with StratifiedGroupKFold (it is the cross-validation splitter
+                                       from scikit-learn version 1.8.0.) (five folds, seed 42) grouped by plugin slug on the collapsed
+                                       corpora. Test folds are always the complete held-out set: no balancing or subsampling
+                                       is applied to any test fold, so all reported metrics are prevalence-preserving. Where the
+                                       training budget required it, neural models subsample the training side only (at most
+                                       4000 records per fold, 40 epochs, sequence length 128); each such decision is recorded
+                                       in the released sampling manifest. The 128-token bound was chosen for computational
+                                       tractability on a CPU-only host rather than by tuning, so that the sequence models could
+                                       be trained across all folds and configurations within the available budget; its effect on
+                                       the ranking has not been measured, and a 256-token sensitivity analysis is reported as
+                                       outstanding in Section 5.2. Configurations span the two variants and three granularities:
+                                       binary (Safe versus vulnerable), three-class (Safe, SQLi, XSS) and four-class (adding RCE).
+                                            We report accuracy and macro-F1 as fold means with standard deviation and 95%
+                                       confidence intervals (t distribution, four degrees of freedom), per-class precision, recall and
+                                       F1, vulnerable-class recall and false-negative rate, balanced accuracy, Matthews correlation
+                                       coefficient and PR-AUC. Model comparisons use paired tests both across folds and across
+                                       plugins, with Cohen’s d as effect size; the plugin-level test is the better-powered of the
+                                       two, since fold-level tests have only five paired observations. Per-fold predictions and class
+                                       scores are released, so every reported number can be recomputed.
+                                            Result files are keyed to input fingerprints. Each artifact records the SHA-256 of the
+                                       dataset index and of the fold assignment file, and a cached result is reused only if both

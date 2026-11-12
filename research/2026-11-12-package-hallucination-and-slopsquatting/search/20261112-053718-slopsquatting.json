@@ -1,0 +1,352 @@
+{
+  "query": "slopsquatting",
+  "sources": [
+    "arxiv",
+    "crossref"
+  ],
+  "year_from": 2025,
+  "year_to": null,
+  "run_at": "2026-11-12T05:37:18+06:00",
+  "raw_hits": 10,
+  "unique": 10,
+  "errors": {},
+  "results": [
+    {
+      "title": "Names Can Hurt: Spotting Slopsquatting Risks Caused by Package Name Hallucinations in Local Coding LLMs",
+      "authors": [
+        {
+          "family": "Raj",
+          "given": "Akash"
+        },
+        {
+          "family": "Sahu",
+          "given": "Sargam"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.5281/zenodo.22087562",
+      "arxiv_id": "2608.23897",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2608.23897",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.23897",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "When a code generating language model fabricates a Python package name, an adversary who has pre-registered that name on PyPI can convert that hallucination into a supply chain compromise. This event has been termed as 'slopsquatting'. We propose a two layer detector to counter this issue. The first layer performs a deterministic PyPI existence check. The second is a Random Forest classifier trained on ten features derived from the package name and its PyPI metadata. An import name reconciler bridges the two, resolving cases such as 'import cv2' versus 'pip install opencv-python' without a security bypass. The detector is embedded in a LangGraph state machine that retries at escalating temperatures and, on repeated failure, routes to a stronger fallback model. Across 300 curated prompts, the pipeline produces hallucination free code on 76% of runs. The primary exhausts its retry budget on 28.7%; intra model retries recover roughly a quarter of those, and cross model fallback recovers a further 16.5% of the remainder. Four findings have been observed. First, half of the flagged hallucinations are packages already registered on PyPI, as low quality lookalikes of well known projects, caught by the classifier rather than the deterministic layer (e.g., pil, faiss, tabula, haystack). Second, hallucination rate scales almost linearly with prompt adversariality, from 0 to 10% on routine coding to 40 to 73% on slopsquat baits. Third, the weaker primary refused 6 of 10 direct baits unaided, suggesting recent instruction tuning provides a baseline defense. Fourth, when primary and fallback share a model family, approximately 84% of primary failures recur on the fallback, motivating cross family pairing. A user study (n = 24) reports mean satisfaction 4.4 out of 5 and 21 of 24 stated adoption intent.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 1,
+      "in_project": "raj2026names"
+    },
+    {
+      "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+      "authors": [
+        {
+          "family": "Churilov",
+          "given": "Aleksandr"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.17062",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.17062",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.17062",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Package hallucinations, LLM-generated references to packages that do not exist, enable slopsquatting: an attacker registers the hallucinated name. We replicate Spracklen et al. (USENIX Security '25) on five 2026 frontier models over 199,840 Python and JavaScript generations. This version reports a preregistered live revalidation that replaces the static package lists of earlier versions with two independent checks against the live PyPI and npm registries. Hallucination rates are 3.6-5.0% of package mentions (2.2-3.4% of generations): the 2026 frontier sits at the level of 2024's commercial models, and the open-weight gap seen in 2024 has disappeared. Python exceeds JavaScript for every model. The set of names hallucinated by all five models shrinks from the 127 reported earlier to 104; 26 earlier entries were correct import statements whose module name differs from the package name. Using the accidental six-month public exposure of our own list as a natural experiment, we find no detectable effect of publication: about 1% of hallucinated names were registered within six months, at the same rate for published and unpublished names, and the 95% interval excludes increases above 2.5 percentage points. Still, at least 23 package names that the models suggest had previously hosted malware later removed by the registries, and one hallucinated name was registered with malware after our runs.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 2,
+      "in_project": "churilov2026range"
+    },
+    {
+      "title": "LLM Ghostbusters: Surgical Package Hallucination Suppression via Adaptive Unlearning",
+      "authors": [
+        {
+          "family": "Spracklen",
+          "given": "Joseph"
+        },
+        {
+          "family": "Aghazadeh",
+          "given": "Pedram"
+        },
+        {
+          "family": "Koushanfar",
+          "given": "Farinaz"
+        },
+        {
+          "family": "Jadliwala",
+          "given": "Murtuza"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.01047",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.01047",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.01047",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Hallucinations remain an unsolved problem for LLMs, and package hallucinations are a particularly dangerous instance of this phenomenon. Package hallucinations occur during code generation when a model fabricates non-existent software packages, recommending imports and installation commands for fictional libraries. This creates a critical supply-chain vulnerability; an attacker can proactively register such packages on public registries with malicious payloads that are subsequently installed and executed by developers or autonomous agents. These hallucinations enable a class of package confusion attack known as slopsquatting. To address this issue, we present Adaptive Unlearning (AU), a post-deployment framework that surgically suppresses package hallucinations while preserving general model utility. AU introduces a hybrid token-level objective that simultaneously reinforces valid outputs and suppresses hallucinated ones. Combined with an adaptive discovery loop that continuously surfaces new hallucination-inducing contexts without human supervision, AU enables generalization to unseen prompts and hallucinations. We demonstrate that AU reduces package hallucination rates by 88%, while maintaining performance on standard coding benchmarks. Our analysis shows that distributional changes are concentrated on package-related generations, leaving general coding behavior largely unaffected and confirming that AU's effect is isolated to the targeted distribution. AU relies entirely on model-generated data and requires no human annotation, representing a post-deployment hallucination mitigation framework.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 3,
+      "in_project": "spracklen2026llm"
+    },
+    {
+      "title": "Library Hallucinations in LLM-Generated Code: A Risk Analysis Grounded in Developer Queries",
+      "authors": [
+        {
+          "family": "Twist",
+          "given": "Lukas"
+        },
+        {
+          "family": "Harman",
+          "given": "Mark"
+        },
+        {
+          "family": "Yannakoudakis",
+          "given": "Helen"
+        },
+        {
+          "family": "Zhang",
+          "given": "Jie M."
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2509.22202",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2509.22202",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.22202",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language models (LLMs) now play a central role in code generation, yet they continue to hallucinate, frequently inventing non-existent libraries. Such library hallucinations are not just benign errors: they can mislead developers, break builds, and expose systems to supply chain threats such as slopsquatting. Despite growing awareness of these risks, there is limited understanding of how library hallucinations manifest under realistic usage conditions. To fill this gap, we present the first systematic study of how user-level prompt variations influence library hallucinations in LLM-generated code. Across seven diverse LLMs, we analyse library name hallucinations (invalid imports) and library member hallucinations (invalid calls from valid libraries), examining the effects of realistic developer language and controlled user mistakes, including misspellings and fabricated libraries or members. Our findings expose systemic vulnerabilities: one-character misspellings trigger hallucinations in up to 26% of tasks; fabricated library names are accepted in up to 99%; and time-based prompts induce hallucinations in up to 85%. Grounded in the highest-risk prompts identified in our study, we introduce LibHalluBench, a benchmark that enables a systematic and reproducible evaluation of these library hallucinations. Our findings underscore the fragility of LLMs to natural prompt variation and highlight the urgent need for safeguards against library-related hallucinations and their downstream risks.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 4,
+      "in_project": "twist2026library"
+    },
+    {
+      "title": "Bayesian-Calibrated Detection of Hallucinated Package Imports in AI-Assisted Code",
+      "authors": [
+        {
+          "family": "Hillah",
+          "given": "Lom M."
+        },
+        {
+          "family": "Richard",
+          "given": "Jean-Marc"
+        },
+        {
+          "family": "Hasnaoui",
+          "given": "Ryan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.13918",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.13918",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.13918",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We present a Bayesian calibration layer for slopsquat detectors -- those that flag hallucinated package imports in code produced by large language models (LLMs). Where existing pipelines emit binary decisions (flag / do-not-flag), our layer emits a Beta-posterior probability per detection, derived from a 3-category epistemic taxonomy that explicitly classifies each prior as empirically calibrated, constructively argued, or engineering-judgement-traced. Beyond the primary 200/404 registry channel, the calibrated layer exploits PyPI metadata signals -- package age, release count, author descriptor, summary -- to surface registered-but-suspicious packages that a binary registry detector misses, which is the realistic post-LLM-emission attacker regime. The resulting risk-aware primitive is directly consumable by downstream CI gates and supports principled threshold decisions across detection rules. We evaluate the calibration on a merged corpus of 1,734 Python snippets -- a stratified 189-prompt BigCodeBench slice plus a 100-prompt niche-library stress-test set, generated across a six-model panel spanning four cloud models (Claude-Sonnet-4.6, Mistral-Large, DeepSeek-v4-pro, DeepSeek-R1) and two local open-weight code models (Mistral Codestral, Meta CodeLlama). Against a re-implemented binary baseline inspired by Mahmud et al. -- which shares its registry oracle with our ground truth and therefore serves as a degenerate upper bound rather than a genuine competitor -- the calibrated layer reproduces the strict-registry detections and introduces well-calibrated additional flags on the metadata channel. We assess detector asymmetry with a McNemar paired test and calibration with both a flagged-subset Expected Calibration Error and a strictly proper full-corpus Brier score.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Slopsquatting and package-hallucination in LLMS",
+      "authors": [],
+      "year": 2026,
+      "venue": "International Journal of Innovative Research in Technology",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.64643/ijirtv12i7-191660-459",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.64643/ijirtv12i7-191660-459",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "AI-Induced Supply-Chain Compromise: A Systematic Review of Package Hallucinations and Slopsquatting Attacks",
+      "authors": [
+        {
+          "family": "Al-Zofi",
+          "given": "Wadhah"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-8007192/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-8007192/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Abstract The adoption of large language models (LLMs) and AI‑assisted programming has accelerated software production, but it has also created a novel supply‑chain vulnerability: package hallucination. When an LLM generates code, it may recommend nonexistent third‑party packages that “sound” plausible. Adversaries can register these phantom names in public registries, thereby poisoning the open‑source software supply chain. This attack pattern, termed \\textit{slopsquatting}, combines aspects of typosquatting and dependency confusion but is triggered by AI hallucinations rather than human error. We systematically review this emerging threat. Following PRISMA‑2020 guidelines, we searched IEEE Xplore, ACM Digital Library, SpringerLink, Scopus and arXiv for publications (2018–Oct 2025) on package hallucination, typosquatting, dependency confusion, supply‑chain compromise and registry policies. Twenty‑one peer‑reviewed papers and seven credible industry reports met the inclusion criteria. We synthesize definitions, threat models and observed incidents; report empirical evidence of hallucination prevalence across LLMs (e.g., GPT‑series models hallucinate 5.2 \\% of packages versus 21.7 \\% for open‑source models); and map defenses at IDE, registry, CI/CD and runtime layers. We compare slopsquatting with typosquatting and dependency confusion using a new taxonomy and highlight gaps in current safeguards. Official policies from npm, PyPI, Maven Central, RubyGems, NuGet and CRAN show varying levels of name reservation, deletion and immutability. Our review exposes an urgent need for package‑existence validation within AI coding tools, stricter registry name policies and standardized provenance attestations.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Slopsquatting assurance",
+      "authors": [
+        {
+          "family": "Armstrong",
+          "given": "Thomas E."
+        }
+      ],
+      "year": 2025,
+      "venue": "EDPACS",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1080/07366981.2025.2510097",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1080/07366981.2025.2510097",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Hal-Detector: Is Explainable AI Helping Detect Slopsquatting?",
+      "authors": [
+        {
+          "family": "Bonfanti",
+          "given": "Chiara"
+        },
+        {
+          "family": "Colaiacomo",
+          "given": "Davide"
+        },
+        {
+          "family": "Cagliero",
+          "given": "Luca"
+        },
+        {
+          "family": "Basile",
+          "given": "Cataldo"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 International Conference on Cybersecurity and AI-Based Systems (Cyber-AI)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/cyber-ai70573.2026.11755213",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/cyber-ai70573.2026.11755213",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Slopsquatting en código generado por modelos de lenguaje: análisis empírico de la alucinación de paquetes npm en el desarrollo web",
+      "authors": [
+        {
+          "family": "Logroño",
+          "given": "Robinson José"
+        },
+        {
+          "family": "Salazar",
+          "given": "Carlos Eduardo"
+        }
+      ],
+      "year": 2026,
+      "venue": "MQRInvestigar",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.56048/mqr.2026.e396",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.56048/mqr.2026.e396",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "El slopsquatting consiste en el registro malicioso de nombres de paquetes inexistentes que los modelos de lenguaje recomiendan por error al generar código. Esta investigación evalúa de forma empírica la frecuencia, los patrones y las implicaciones de seguridad de este fenómeno en código JavaScript/TypeScript generado por cuatro modelos vigentes en 2026 (Claude, ChatGPT, Gemini y DeepSeek), con foco en el desarrollo web full-stack. Se diseñó un experimento controlado con un banco de prompts estandarizados y un script automatizado que extrae los nombres de paquetes y verifica su existencia contra el registro npm. El experimento se ejecutó sobre 320 generaciones de código y registró 1007 menciones, de las cuales se obtuvieron 200 nombres únicos. La verificación identificó una tasa global de alucinación del 4,50% a nivel de paquetes únicos (9 de 200), con mayor incidencia en tareas utilitarias. Los nueve nombres inexistentes estaban disponibles para ser registrados por cualquier persona, lo que representa un riesgo activo del 100%, pues un atacante podría aprovecharlos para engañar a los desarrolladores. Llamó la atención que seis de esos nueve nombres estaban en español, lo que sugiere que los desarrolladores hispanohablantes también están expuestos, sobre todo al usar código generado por IA sin revisar las librerías recomendadas. En conclusión, el slopsquatting se puede detectar y medir, y esta evidencia constituye una alerta útil para estudiantes, desarrolladores y comunidades académicas de la región.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 10,
+      "in_project": null
+    }
+  ]
+}

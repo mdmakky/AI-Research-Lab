@@ -1,0 +1,1041 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                          Top Score on the Wrong Exam: On Benchmarking
+                                           in Machine Learning for Vulnerability Detection
+                                                                Niklas Risse                                  Jing Liu                                    Marcel Böhme
+                                                                 MPI-SP                                     MPI-SP                                          MPI-SP
+                                                             Bochum, Germany                            Bochum, Germany                                 Bochum, Germany
+
+
+
+                                            Abstract—According to our survey of machine learning for                  1 TfLiteStatus ResizeOutputTensors(TfLiteContext* context, TfLiteNode* node,
+                                         vulnerability detection (ML4VD), 9 in every 10 papers published              2                                const TfLiteTensor* axis,
+
+
+
+
+arXiv:2408.12986v2 [cs.CR] 23 Apr 2025
+                                                                                                                      3                                const TfLiteTensor* input, int num_splits) {
+                                         in the past five years define ML4VD as a function-level binary               4   int axis_value = GetTensorData<int>(axis)[0];
+                                                                                                                      5   // [...]
+                                         classification problem:                                                      6   const int input_size = SizeOfDimension(input, axis_value);
+                                                                                                                      7   TF_LITE_ENSURE_MSG(context, input_size % num_splits == 0,
+                                                 Given a function, does it contain a security flaw?                   8
+                                                                                                                      9
+                                                                                                                                             "Not an even split");
+                                                                                                                          const int slice_size = input_size / num_splits;
+                                                                                                                     10   for (int i = 0; i < NumOutputs(node); ++i) {
+                                         From our experience as security researchers, faced with deciding            11     TfLiteIntArray* output_dims = TfLiteIntArrayCopy(input->dims);
+                                                                                                                     12     output_dims->data[axis_value] = slice_size;
+                                         whether a given function makes the program vulnerable to                    13     // [...]
+                                         attacks, we would often first want to understand the context                14
+                                                                                                                     15   }
+                                                                                                                            TF_LITE_ENSURE_STATUS(context->ResizeTensor(context, output, output_dims));
+
+                                         in which this function is called.                                           16   return kTfLiteOk;
+                                                                                                                     17 }
+                                            In this paper, we study how often this decision can really
+                                         be made without further context and study both vulnerable
+                                         and non-vulnerable functions in the most popular ML4VD                       Fig. 1: Context-dependent vulnerability (CVE-2021-29599)
+                                         datasets. We call a function “vulnerable” if it was involved in              in DiverseVul dataset. If the function is called with
+                                         a patch of an actual security flaw and confirmed to cause the
+                                                                                                                      num_splits=0, it crashes with a division-by-zero in Line 7.
+                                         program’s vulnerability. It is “non-vulnerable” otherwise. We find
+                                         that in almost all cases this decision cannot be made without
+                                         further context. Vulnerable functions are often vulnerable only
+                                         because a corresponding vulnerability-inducing calling context
+                                                                                                                      define ML4VD as a function-level binary classification prob-
+                                         exists while non-vulnerable functions would often be vulnerable
+                                         if a corresponding context existed.                                          lem: Given only the function f , decide whether f contains a
+                                            But why do ML4VD techniques achieve high scores even                      security vulnerability or not. The technique with the lowest
+                                         though there is demonstrably not enough information in these                 classification error on the evaluation dataset is considered the
+                                         samples? Spurious correlations: We find that high scores can be              best at detecting security vulnerabilities.
+                                         achieved even when only word counts are available. This shows
+                                         that these datasets can be exploited to achieve high scores without             However, based on our experience, we hypothesized that it
+                                         actually detecting any security vulnerabilities.                             might not always be possible to determine whether a function
+                                            We conclude that the prevailing problem statement of ML4VD                is vulnerable or not without additional context. We call these
+                                         is ill-defined and call into question the internal validity of this          vulnerabilities context-dependent. Consider the example in
+                                         growing body of work. Constructively, we call for more effective
+                                                                                                                      Figure 1. If this function from the DiverseVul benchmark
+                                         benchmarking methodologies to evaluate the true capabilities of
+                                         ML4VD, propose alternative problem statements, and examine                   dataset [1] is called with num_splits set to zero, it will
+                                         broader implications for the evaluation of machine learning and              crash with a division-by-zero in Line 7. However, with-
+                                         programming analysis research.                                               out knowing whether this function can ever be called with
+                                                                                                                      num_splits set to zero, we cannot reliably decide if the
+                                                                  I. I NTRODUCTION                                    division-by-zero could actually be observed. This function
+                                            In recent years, the number of papers published on the topic              parameter might as well be properly validated by every caller
+                                         of machine learning for vulnerability detection (ML4VD) has                  function. This context-dependency problem is well-studied for
+                                         dramatically increased. Because of this rise in popularity, the              other approaches to vulnerability detection, such as static
+                                         validity and soundness of the underlying methodologies and                   analysis [2], [3] (where it is handled, e.g., by defining suitable
+                                         datasets becomes increasingly important. So then, how exactly                preconditions) or software testing [4] (which distinguishes,
+                                         is the problem of ML4VD defined and thus evaluated?                          e.g., between system- and unit-level testing).
+                                            In our survey of all ML4VD papers (81) published in the top                  In this paper, we set out to quantify the prevalence of
+                                         Software Engineering and Security conferences and journals                   context-dependent vulnerabilities in the most popular datasets
+                                         between January 2020 and December 2024,1 we find that the                    and end up revealing a fundamental flaw in the most-widely
+                                         great majority (88%) of state-of-the-art ML4VD techniques                    used evaluation methodology that is underpinning the progress
+                                           1 Software Engineering conferences: ICSE, FSE, ASE, and ISSTA; Security
+                                                                                                                      of the nascent research area of ML4VD. We find that the
+                                         conferences: S&P, USENIX, NDSS, and CCS; Software Engineering and            vulnerability of a function cannot be decided without further
+                                         Security journals: TSE, TOSEM, TDSC, and TIFS.                               context for more than 90% of functions. This includes func-
+
+=== [PDF page 2] ===
+
+tions with both types of labels, vulnerable or secure: If          analysis tools often struggle with false positives due to context-
+the right context existed, a function labeled as secure would      dependency. This is a core problem in static analysis, which
+make the program vulnerable. Respectively, only because            has received much attention in the literature [5]. In practice,
+the right context exists, a function labeled as vulnerable         the context-dependency check is ultimately delegated to the
+makes the program actually vulnerable.                             user of the tool (which, however, similarly complicates the
+   Given our findings, we conclude that the prevailing problem     experimental evaluation in the absence of a user). A program-
+statement of ML4VD as a function-level classification problem      matic approach is to (manually or automatically) annotate the
+is inadequate. The reported results in the literature, which are   function with a precondition (e.g., in the style of Hoare logic
+based on this problem statement, may not accurately reflect        [6]) that encodes assumptions about the valid state space at
+the true capabilities of the evaluated techniques at the task      the start of the function call. Function summaries or type
+of vulnerability detection. In other words, there is currently     systems provide other mechanisms to encode the valid context
+no evidence that ML4VD techniques are actually capable of          under which the function is (meant to be) called. Despite these
+identifying security vulnerabilities at the function-level.        efforts, discerning the specific conditions under which a bug
+   But why do ML4VD techniques still achieve high scores           manifests remains a challenge. For example, a static analyzer
+at this binary classification task when there is demonstrably      might flag potential bugs based on the analysis of code patterns
+not enough information in over 90% of samples (even after          but cannot always discern the specific conditions under which
+addressing label inaccuracies)? We identify spuriously corre-      a bug manifests [7], [8]. Hence, Le et al. [2] propose to differ-
+lated features as a potential reason. Training simple models,      entiate between manifest bugs, which are context-independent,
+like a gradient boosting classifier using only word counts and     and latent bugs, which depend on preconditions in the calling
+disregarding code structure, we achieved results comparable        context. Manifest bugs can be reported without making any
+to those of state-of-the-art ML4VD models. This suggests           assumptions about the calling context, whereas latent bugs
+that ML4VD techniques only appear to perform well due              cannot.
+to the chosen evaluation methodology. During classification,          Software Testing. We distinguish between system- and
+ML4VD techniques rely on spuriously correlated features to         unit-level testing [9], where the former is concerned with
+achieve high scores and do not genuinely detect vulnerabilities.   testing the entire system [10], [11] and the latter with testing
+   To shift the field towards more context-aware evaluation of     individual system units, like functions [12], [13]. Automated
+vulnerability detection methods, we discuss potential alterna-     unit test generation often falls short of identifying issues
+tive problem statements and suggest ideas for future work.         that only occur under specific conditions or in particular
+We also examine the broader implications for ML4VD and             environments. As noted by Harrold and Orso [14], unit tests
+other fields. By discussing these aspects we aim to foster more    can produce false positives when they are not adequately
+valid and reliable research in the area of machine learning for    designed to account for the broader context in which a function
+vulnerability detection.                                           operates. This can lead to an inflated number of reported issues
+In summary, this paper makes the following contributions:          that are not actual bugs, thereby complicating the debugging
+   ⋆ We analyze all papers published at the top Software           process. Hence, property-based testing [15], [16], [17] requires
+      Engineering conferences, Security conferences, and jour-     users to define function preconditions in addition to assertions
+      nals over the last five years and find that the great        to ensure that the assertions fire only under valid function
+      majority (88%) of state-of-the-art ML4VD techniques          parameters (i.e., under valid context).
+      define ML4VD as a function-level classification problem.        To summarize, both the static analysis and software testing
+   ⋆ We reveal a fundamental flaw of the function-level clas-      research communities acknowledge the problem of context-
+      sification problem: The vulnerability of a function cannot   dependency and address it through various techniques aimed
+      be decided without further context for more than 90% of      at reducing the number of false positives.
+      functions in the top-most widely-used datasets.                 Machine Learning (ML4VD). Several colleagues have
+   ⋆ Why do ML4VD techniques still achieve high scores at          previously raised concerns about the validity of this growing
+      the function-level classification problem? We demonstrate    body of work. Ullah et al. [18] study the performance of
+      that they may rely on spurious features to achieve high      LLMs for vulnerability detection and find that results are
+      scores without genuinely detecting vulnerabilities.          nondeterminstic, the reasoning is incorrect and unfaithful, and
+                                                                   that they perform poorly in real-world scenarios. Risse and
+                       II. BACKGROUND                              Böhme [19] find that the capability of state-of-the-art ML4VD
+   The context dependency problem—i.e., the determination          techniques to distinguish between buggy and patched function
+whether a function causes a program to be vulnerable depends       is barely better than a coin flip. Croft et al. [20] study the qual-
+on the context that is external to the given function—has been     ity of benchmark datasets used in the evaluation of ML4VD
+well-studied in static analysis and software testing.              techniques. They find that a large percentage of vulnerability
+   Static Analysis. We distinguish between inter-procedural        labels in real-world datasets are in fact inaccurate and many
+and intra-procedural analysis, where the former is concerned       data points were even duplicated (sometimes with inconsistent
+with the analysis of the entire system and the latter with         labels). In this paper, we reproduce their experiment which
+the analysis of individual functions. Intra-procedural static      allows us to identify and study actually vulnerable functions
+
+=== [PDF page 3] ===
+
+in terms of their context-dependence. However, our question                        remove code that is not related to the vulnerability from
+remains: Can the vulnerability of a function be decided without                    the code of the vulnerable function during training by
+further context in the first place? Only if it can, we need to                     leveraging patch commit information. They develop a novel
+be concerned about the quality of our datasets and evaluation                      graph-based neural network architecture for the function-level
+procedures.                                                                        vulnerability classification task to classify vulnerabilities based
+   Another stream of works studies the assumption that a                           on causal features only.
+vulnerability is localized within a single function. For instance,                    While existing work studies and minimizes the impact
+Sejfia et al. [21] realize that the patches of some vulnerabilities                of spurious correlations using structural representations or
+span across multiple “base units” (e.g, functions) and measure                     semantic-preserving transformations of the vulnerable code
+the performance of vulnerability detectors to individually                         (i.e., perturbations on train and/or test data), we provide
+classify all units belonging to the same vulnerability as                          substantial evidence of this phenomenon using an even sim-
+vulnerable—observing a substantial drop in performance.                            pler and technique-independent method: A high measure of
+They also recommend to ensure that the train/validation/test                       classifier performance is achieved even by a simple classifier if
+split honors the grouping of units by vulnerability. Li et al. [22]                there are no program semantics but only word counts available
+study the default assumption that the vulnerability-patching                       as features. In this way, our work provides an orthoganal
+functions are labeled as vulnerable and find that the                              explanation of the surprising results of ML4VD even though
+patch and its ”trigger” (i.e., the code where the vulnerability                    the problem statement is ill-defined.
+manifests, e.g., as an array out-of-bounds write, a double-
+free, etc.) exist in different functions for about a quarter of                                      III. L ITERATURE S URVEY
+studied vulnerabilities.2 If we labeled functions containing the                      Based on our prior knowledge of the literature, we hypothe-
+vulnerability-triggering code as vulnerable, function-level                        sized that the majority of recent studies in machine learning for
+vulnerability detectors would turn out much less effective, they                   vulnerability detection (ML4VD) define ML4VD as a binary
+find.                                                                              classification problem; given a function, determine whether
+   However, they still define ML4VD as a unit-level classifi-                      the function contains a security vulnerability. To determine
+cation problem. How prevalent is the function-level problem                        the prevalence of this approach in the ML4VD literature, we
+statement for ML4VD in the literature (§III)? Is it a valid                        conducted a literature survey. Our goal was to address the
+problem statement to begin with (§IV, §V)? In answering these                      following two research questions:
+questions, our paper aims to uncover the shortcomings of cur-
+                                                                                     1) Problem Statement: What proportion of ML4VD pub-
+rent evaluation methodologies and emphasizes the urgent need
+                                                                                        lications defines ML4VD as deciding whether a given
+for more context-aware approaches to accurately assess the
+                                                                                        function contains a vulnerability?
+true capabilities of ML4VD techniques in detecting security
+                                                                                     2) Datasets: Which datasets do they use to evaluate their
+vulnerabilities.
+                                                                                        techniques empirically?
+   Spurious features. If we find that the decision whether
+a function is vulnerable or not cannot be made without                             A. Methodology
+further context that is external to that function, then how do
+we explain the high values of classifier performance? Maybe                           To ensure a thorough and unbiased analysis of the re-
+a classifier learns to predict well based on features that are                     cent literature on machine learning for vulnerability detection
+spuriously correlated with the vulnerable label. Indeed,                           (ML4VD), we adopted a systematic methodology based on
+the phenomenon of spurious correlations in ML4VD is well-                          established guidelines for conducting literature reviews in
+studied. For instance, Arp et al. [23] provide initial evidence                    Software Engineering research [27], [28]. Our approach en-
+that machine learning techniques can learn to predict labels                       compassed three primary phases: defining the scope, selecting
+correctly based on artifacts in code snippets without addressing                   relevant papers, and systematically analyzing the selected
+the actual security task at hand (spurious correlation). Risse                     papers.
+et al. [19], [24] demonstrate that ML4VD techniques overfit                           Scope. Our literature survey focuses on the past five years,
+to label-unrelated features using semantic-preserving transfor-                    targeting publications from 2020 to 2024. Given the promi-
+mations and further that making the models robust against                          nence and impact of certain venues in the fields of Software
+semantic-preserving transformation only introduces overfitting                     Engineering and Security, we selected a set of the most
+to the specific transformations used.                                              impactful conferences and journals. For Software Engineer-
+   Furthermore, several studies have proposed ML4VD tech-                          ing, we included International Conference on Software Engi-
+niques that are aimed to be less affected by spurious corre-                       neering (ICSE), Foundations of Software Engineering (FSE),
+lations. For example, Rahman et al. [25] identify spuriously                       International Symposium on Software Testing and Analysis
+correlated variable and API names and disable their use during                     (ISSTA), and Automated Software Engineering (ASE). For
+inference time of their model. Cao et al. [26] completely                          Security, we incorporated Symposium on Security and Privacy
+                                                                                   (S&P), Network and Distributed System Security Symposium
+  2 To facilitate this evaluation, they also introduce a slicing-based approach,   (NDSS), Computer and Communications Security (CCS), and
+VulTrigger, to identify the trigger given the patch.                               USENIX Security Symposium (USENIX). Additionally, we
+
+=== [PDF page 4] ===
+
+                                                                                                                      40
+                           Function                                                  71 (87.7%)                                  SE Conferences
+                                                                                                                                 Journals
+                   Line/Statement                     15 (18.5%)                                                                 Security Conferences
+                                                                                                                      30
+
+
+
+
+                                                                                                   Number of Papers
+              Inter-procedural Slice              13 (16.0%)
+
+
+Granularity
+                                File        4 (4.9%)                                                                  20
+                           Program          3 (3.7%)
+
+                                           1 (1.2%)                         SE Conferences                            10
+                           Commit
+                                                                            Journals
+                        Repository         1 (1.2%)                         Security Conferences
+                                                                                                                       0
+                                       0               20         40         60          80                                    2020          2021        2022         2023            2024
+                                                               Number of Papers                                                                          Year
+                       (a) ML4VD papers per problem statement granularity.                                                                  (b) ML4VD papers per year.
+
+Fig. 2: Literature survey results for the 81 ML4VD papers we identified in the top Software Engineering (SE) and Security
+conferences and journals. Figure 2a shows how the papers define the problem of ML4VD. Note that a paper may use multiple
+granularities, which explains why the numbers in Figure 2a do not add up to 100%. Figure 2b shows how many papers were
+published each year since 2020.
+
+
+considered the top journals in these domains, including Trans-                                     TOSEM) and Google Scholar Advanced Search 6 for the
+actions on Software Engineering and Methodology (TOSEM),                                           independent venues (NDSS and USENIX). This resulted in
+Transactions on Software Engineering (TSE), Transactions on                                        more than 2500 potential papers, which were flagged for
+Information Forensics and Security (TIFS), and Transactions                                        further review.
+on Dependable and Secure Computing (TDSC). These venues                                               Filtering Process. As a first step, we manually filtered the
+were chosen for their reputation in publishing high-quality and                                    flagged titles to specifically exclude those that most likely do
+influential research in the Software Engineering and Security                                      not fit the topic of ML4VD. One of the co-authors of this pa-
+fields (CORE3 rank A* or A).                                                                       per, a Software Security researcher with publications at the top
+   Criteria for Paper Selection. To identify relevant papers,                                      Software Engineering and Security conferences on the topic of
+we established clear selection criteria. The papers must be                                        ML4VD, manually checked each of the paper titles to facilitate
+full-length papers published in the proceedings of the listed in-                                  the first round of filtering. This resulted in a preliminary list
+scope conferences or journals between 2020 and 2024. We do                                         of 109 papers, which we include as supplementary material to
+not include short papers (e.g. for PhD student competitions),                                      this paper. The author then reviewed each of the 109 abstracts
+since they usually represent work-in-progress. We also do                                          and, where necessary, the full texts to assess their relevance
+not include pure literature reviews if they do not present                                         based on our selection criteria. This resulted in a final list
+new experimental data. The papers must fit the topic of                                            of 81 papers matching the selection criteria. The 28 excluded
+machine learning for vulnerability detection (ML4VD), which                                        papers are either off-topic (e.g. vulnerablity management) or
+means that they either propose a new ML-based technique                                            do not leverage ML-based techniques (e.g. static analysis).
+for vulnerability detection, or that they present experiments                                         To answer research questions 1) and 2), we documented
+which use existing techniques. We include all types of machine                                     how ML4VD is defined, and the datasets used for empirical
+learning techniques, e.g. graph neural networks, large language                                    evaluation within each of the 81 identified ML4VD papers.
+models, or convolutional neural networks. We explicitly focus
+on vulnerability detection for software, which excludes related                                    B. Results
+fields, e.g. hardware or blockchain vulnerability detection. To                                       Our literature survey identified 81 papers that met our
+facilitate the paper identification process, we defined a set of                                   selection criteria and were included in our analysis. The full
+keywords that are indicative of the research focus in this area:                                   list of papers is part of the supplementary material of this
+vulnerability, vulnerable, detect, detection, discovery, machine,                                  paper. 39 papers were published in the Software Engineering
+learning, artificial, intelligence, AI, ML, deep, graph, neural,                                   conferences, 8 in the Security conferences, and 34 in the
+network, large, language, model. We scanned the titles and                                         journals. The distribution of these papers across the years and
+abstracts of all in-scope papers using multiple tools: IEEE                                        conferences, as displayed in Figure 2b, indicates a clear trend:
+Xplore Advanced Search4 for the IEEE venues (ICSE, ASE,                                            the number of papers focused on ML4VD is increasing annu-
+S&P, TSE, TDSC, and TIFS), ACM DL Advanced Search5                                                 ally. This upward trajectory underscores the growing interest
+for the ACM venues (ICSE, FSE, ASE, ISSTA, CCS, and                                                and significance of this research area within the Software En-
+              3 CORE: https://www.core.edu.au/home                                                 gineering and Security communities. Additionally, we found a
+  4 IEEE Xplore Advanced Search: https://ieeexplore.ieee.org/search/                               large variety of machine learning techniques being employed,
+advanced
+  5 ACM DL Advanced Search: https://dl.acm.org/search/advanced                                                        6 Google Scholar Advanced Search: https://scholar.google.com/
+
+=== [PDF page 5] ===
+
+                   40    36   36                                                                   Literature Survey. The great majority of ML4VD papers
+
+
+
+Number of Papers
+                                                                                                   (88%) published at top Software Engineering conferences
+                   30
+                                   23                                                              (ICSE, FSE, ISSTA, and ASE), Security conferences (S&P,
+                                        22
+                   20                        17                                                    USENIX, NDSS, and CCS), and journals (TSE, TOSEM,
+                                                  13                                               TIFS, and TDSC) over the past five years define ML4VD
+                   10                                  8                                           as a binary classification problem: Given an isolated
+                                                             6
+                                                                     4   3   2   2   2   2   2
+                    0
+                                                                                                   function f , decide whether f contains a security vul-
+                         lf       ev
+                                Bi n
+                             Co u  gV
+                                lle l
+                               R deV
+                                     ig
+                                    ct e                                                           nerability. Moreover, three datasets—BigVul, Devign, and
+                                SA l  ea
+                                                                                                   ReVeal—are overwhelmingly favored, with 53 out of the 81
+                                 O   R
+                                    th  D
+                                       er
+                    D        Cr DJu
+                                osN
+                                   D  2A
+                                     lie
+                                     V   t
+                        CG Dr l     sV
+                                   ap  u
+                                                                                                   papers using at least one of these datasets for empirical
+                             D at er
+                            9 bas
+                              pr ea
+                                 oj
+                        Se   CW ects
+                                  E
+                             CW 119
+                                  E3   99
+                                                           Dataset                                 evaluation.
+Fig. 3: Datasets that are used by ML4VD papers published
+at the top Software Engineering and Security conferences and                                                    IV. E MPIRICAL S TUDY D ESIGN
+journals over the last five years. Datasets that were used only                                      We study how prevalent context-dependent vulnerabilities
+once are displayed as ”Other”.                                                                   are in the top-most widely-used benchmarks for ML4VD and
+                                                                                                 evaluate the degree to which we can correctly classify even
+                                                                                                 when the vulnerable code is hidden, i.e., even when only
+                                                                                                 coarse feature values such as word counts are available to
+                                                                                                 a simple classifier. More generally, we are interested in the
+utilizing different data representations (graph-based, token-                                    threats to validity of the benchmarking methodology that is
+based), model architectures (e.g., large language models, graph                                  used most-widely in ML4VD research: Are empirical claims
+neural networks, convolutional neural networks), and learning                                    from benchmarking results about the real-world performance
+algorithms (e.g., contrastive learning).                                                         of ML4VD techniques actually reliable?
+                                                                                                 Specifically, we ask the following research questions:
+   Problem Statement. Figure 2a shows how the 81 papers in-
+                                                                                                 ⋆ RQ.1 Can we cast vulnerability detection as a function-
+cluded in our literature survey define the problem of ML4VD.
+                                                                                                    level binary classification problem in ML4VD?
+To our surprise, the great majority (88%) of papers across the
+in-scope Software Engineering conferences (92%), Security                                          (a) Noisy Labels. What proportion of functions labeled as
+conferences (75%) and journals (85%) define ML4VD as                                                    vulnerable actually contain security vulnerabilities? Be-
+a binary function-level classification problem. This problem                                            fore we can study the prevalence of context-dependency,
+statement, which focuses on determining whether a given                                                 we first address the noisy-label problem [20] and identify
+function contains a security vulnerability, has become the                                              those functions that are actually vulnerable.
+dominant problem statement in the field. The yearly trend                                          (b) Context-dependent Vulnerability. What proportion of
+seems to be increasing since 2021, with 95% of papers relying                                           vulnerable functions would not be vulnerable if the
+on a function-level problem statement in 2024 (2020: 100%,                                              appropriate external context did not exist? Given a
+2021: 57%, 2022: 75%, 2023: 88%, 2024: 95%). 15 out of                                                  function that is actually vulnerable (because it is later
+81 (19%) papers define ML4VD at the line-/statement-level                                               fixed to remove a vulnerability), how often can we decide
+and 13 out of 81 papers (16%) at the inter-procedural slice-                                            vulnerability based on the function’s code alone?
+level. A inter-procedural slice is a subset of a program’s                                         (c) Context-dependent Security. What proportion of non-
+statements affecting a particular computation, spanning across                                          vulnerable functions could be vulnerable if an appropri-
+multiple functions or procedures. Notably, the two most pop-                                            ate external context would exist? Given a function that is
+ular problem statements (function-level and line-/statement-                                            not vulnerable within the context of this program, how
+level) exclusively rely on information within a single function                                         often can we find a setting in which this function would
+for classification (intra-procedural). The remaining problem                                            be considered to contain a vulnerability?
+statements (file-, program-, commit-, and repository-level) all                                  ⋆ RQ.2 Can we achieve a high classification performance
+rely on inter-procedural information, but are only used by a                                        even when the root cause of the vulnerability is hidden?
+minority of papers (10 out of 81).                                                                  How can we explain the excellent performance of ML4VD
+                                                                                                    on these widely-used benchmarks despite this severe flaw
+   Datasets. Regarding datasets, the majority of the papers                                         in the problem statement? Do the popular datasets contain
+relied on a limited set of popular datasets for empirical                                           properties that ML4VD techniques can exploit to achieve
+evaluation. Figure 3 shows all datasets that were used by the 81                                    high scores without actually detecting vulnerabilities?
+papers and the number of times they were used. Specifically,
+BigVul [29] and Devign [30] were both used by 36 papers, and                                     A. Methodology RQ.1
+ReVeal [31] by 22 papers. Notably, 53 out of the 81 papers                                         Selection Criteria. In order to select datasets that represent
+utilized at least one of these three datasets, reflecting their                                  the state-of-the-art of ML4VD benchmarks, we chose the top-
+dominance in the field.                                                                          most widely-used datasets from the ML4VD literature (via our
+
+=== [PDF page 6] ===
+
+                                   Devign                                         Figure 5 visualizes the complete process that the two
+
+
+
+Number of Citations
+                      600          BigVul                                      researchers employed for each individual function. In all cases
+                                   DiverseVul                                  where the patch commit was available, and a decision could
+                      400                                                      be made within 15 minutes, they assigned one of the following
+                                                                               labels:
+                      200
+                                                                                  ⋆ Secure (0): The function was not the source of the secu-
+                        0
+                                                                                     rity vulnerability, or there was no vulnerability addressed
+                                  2020             2021   2022   2023   2024         by the patch commit.
+                                                          Year
+                                                                                  ⋆ Vulnerable (1): The function was the source of the
+Fig. 4: Popularity measured by citations of the datasets we                          security vulnerability.
+selected for our empirical study.                                              Additionally, they added a short explanation in natural lan-
+                                                                               guage to justify the assigned label, which we used to analyze
+                                                                               the results more in-depth. For the first labelling step (secure
+literature survey) for which the authors provide links to patch                or vulnerable), the labels of the two researchers agreed for
+commits and/or CVE websites (required for manual labeling).                    82% of all functions, resulting in a Cohen Kappa value of
+Additionally, we reviewed unpublished literature for emerging                  0.64 [32], which implies substantial agreement according to
+datasets (pre-prints from arXiv7 ).                                            the guidelines provided by Landis and Koch [33]. All cases
+   Selected datasets. Based on our selection criteria, we chose                of disagreement were resolved through discussion and resulted
+the BigVul [29], Devign [30], and DiverseVul [1] datasets. The                 in a single label/explanation for each function. In the case that
+selection of BigVul and Devign resulted from our literature                    only one of the researchers was able to make a decision within
+survey, as these datasets were the most popular among the 81                   15 minutes, the researchers also entered a discussion for res-
+ML4VD papers we analyzed. However, we excluded ReVeal                          olution, which resulted in a joint decision (vulnerable/secure)
+[31] from our study since the authors did not publish patch                    for all of these cases. Only if both researchers were unable
+commit IDs or CVEs, which are necessary for determining                        to make a decision after 15 minutes, the final label was ”No
+vulnerability and context dependence. Additionally, we in-                     decision”. In cases where the source of a vulnerability was
+cluded the DiverseVul dataset [1], a recently published dataset                ambiguous, e.g. if a vulnerability in a function could be fixed
+(2023) that has seen significant use in many yet unpublished                   both by adding a check within the function (callee) or within
+papers based on our review of unpublished literature. Figure 4                 a calling function (caller), the researchers only considered the
+illustrates the citations of the selected datasets measured by                 callee to be vulnerable.
+Google Scholar on January 16, 2025. All three datasets are                        For functions labeled as vulnerable (indicating they actually
+becoming increasingly popular, with each having more than                      were the source of the vulnerability), the two researchers
+100 citations in 2024 alone.                                                   conducted a second round of labeling to determine context
+   Sampling. From each of the three datasets, we randomly                      dependency:
+selected 100 samples labeled as vulnerable, using a sample                        ⋆ Context-independent (0): The vulnerability could be de-
+size inspired by related studies on data quality, such as the one                    tected without considering any additional context beyond
+by Croft et al., which used a sample size of 70 [20]. We have                        the function itself. These vulnerabilities are self-contained
+published the reproducible script and the sampled functions                          within the function’s code.
+as part of our GitHub repository, which is available at https:                    ⋆ Context-dependent (1): The security vulnerability can-
+//github.com/niklasrisse/TopScoreWrongExam. The resulting                            not be accurately identified without considering addi-
+300 functions come from patch commits published between                              tional context beyond the function. This category includes
+2010 and 2022, covering 80 unique open-source projects                               vulnerabilities that rely on external functions, global
+(BigVul: 25, Devign: 2, DiverseVul: 60). While we did not                            variables, or interactions with other parts of the codebase.
+formally categorize the vulnerability types, we frequently                        Again, the researchers provided a short explanation in
+observed issues such as out-of-bounds writes/reads, improper                   natural language to justify the context label. For the second
+restriction of operations within memory buffer bounds, im-                     labelling step (context dependence), the labels of the two
+proper input validation, and use-after-free vulnerabilities.                   researchers agreed for 98% of all functions, resulting in a
+   Labeling Process. In a time-intensive process (more than                    Cohen Kappa value of 0.96 [32], which implies almost perfect
+150 hours), two Software Security researchers (co-authors of                   agreement according to the guidelines provided by Landis and
+this paper) reviewed each of the 300 functions independently.                  Koch [33]. Again, all cases of disagreement were resolved
+The process involved opening and understanding the corre-                      through discussion and resulted in a single label/explanation
+sponding patch commit on GitHub and, if available, reviewing                   for each function.
+the CVE (Common Vulnerabilities and Exposures) report for                         Labeling Expertise. Both Software Security researchers
+additional context.                                                            that carried out the labeling process have considerable experi-
+                                                                               ence in the Software Security research field (C/C++ security, in
+                      7 arXiv: https://arxiv.org                               particular). The first researcher has three years of experience
+
+=== [PDF page 7] ===
+
+                                       Yes                     Yes                   Yes                                           Yes
+ Function labeled as   Patch commit          Decision within                                                    Vulnerability
+                                                                     Vulnerable?            Vulnerable                                   Context-dependent
+    vulnerable           available?           15 minutes?                                                    depends on context?
+
+
+
+                             No                      No                   No                                          No
+
+                       Not available           No decision             Secure                                Context-independent
+
+
+Fig. 5: Empirical Study Design: Our manual labeling process to determine what proportion of security vulnerabilities in
+popular datasets can be detected without considering additional context beyond the function-level.
+
+
+in Software Security research, published multiple papers on                 CodeT5 Small [37] is the best performing technique for the
+the topic of vulnerability detection at the top Security and                DiverseVul dataset with 48.28% f1-score.
+Software Engineering conferences, and worked as a Software
+Engineer in industry for two years. The second researcher                                                V. R ESULTS
+has five years of experience in Software Security, published                  The goal of our empirical study was to investigate whether
+multiple pre-prints on the topic (currently under submission at             vulnerability detection as a function-level binary classification
+top conferences), and participated in discovering three CVEs,               problem is an adequate problem statement for ML4VD.
+which are actually part of at least one of the three datasets we
+                                                                            RQ.1-a     Noisy Labels
+investigated for the empirical study.
+   Reproducibility. To ensure the reproducibility of our em-                   The first decision for each function included in our empirical
+pirical study and to provide transparency in our research,                  study was to determine whether the function, in fact, contains
+we have made all related scripts and data publicly avail-                   a security vulnerability. This is necessary since one of the main
+able. All resources can be accessed as part of our GitHub                   goals of our study is to determine the proportion of actually
+repository, which is available at https://github.com/niklasrisse/           vulnerable functions that are dependent on additional context.
+TopScoreWrongExam.                                                          From Croft et al. [20], we know that for popular datasets only
+                                                                            a subset of functions labeled as vulnerable actually contains
+B. Methodology RQ.2                                                         security vulnerabilities. Specifically, they found at least 20%
+   In order to test whether the three widely-used datasets (De-             of labels for the Devign dataset and 45.7% of labels for the
+vign, BigVul, and DiverseVul) contain spuriously correlated                 BigVul dataset to be inaccurate.
+features that can be exploited to achieve a high performance                   Results. Figure 6 shows the results of our empirical study.
+without actually detecting security vulnerabilities, we trained             We were able to find the patch commit for all functions
+a simple classifier (Gradient Boosting Classifier) to detect                included in the empirical study, which is why the label
+vulnerabilities based on word counts only, completely disre-                ”Not Available” was omitted from Figure 6. For RQ.1-a),
+garding the structure of the code. After training, we evaluated             we are interested in the proportion of functions labeled as
+the resulting models on the evaluation subsets of the respective            vulnerable that actually contain security vulnerabilities, which
+datasets, again based on word counts only.                                  are displayed in the left part of each subfigure (vulnerable
+   Metrics. We selected the f1-score as our primary perfor-                 vs. secure). Out of the 100 functions per dataset that were
+mance metric, since it is the dominant metric in the literature             originally labeled as vulnerable, we found only 39%-65%
+we surveyed for Section III. Additionally, we report accuracy               to actually contain security vulnerabilities. 35%-61% do not
+for the Devign dataset, because it is a relatively balanced                 contain security vulnerabilities and were therefore labeled to
+dataset (47.9% vulnerable functions). Since both BigVul (4.5%               be secure. For 0%-3%, we were not able to make a decision
+vulnerable functions) and DiverseVul (5.4% vulnerable func-                 after 15 minutes.
+tions) are heavily imbalanced towards functions labeled as
+secure, using accuracy as a performance metric for model                        Noisy Labels (RQ1-a). Out of the 100 functions per dataset
+comparison could be misleading [34]. For example, in a                          that were originally labeled as vulnerable, only 39%-65%
+dataset with 95.5% of functions labeled as secure (such as                      (Devign: 47%, BigVul: 39%, DiverseVul: 65%) actually
+BigVul), a technique can achieve an accuracy of 95.5% by                        contain security vulnerabilities.
+classifying all functions as secure. This is why we chose to
+omit accuracy for BigVul and DiverseVul.                                       Based on our evidence, we can confirm the findings of Croft
+   Selected Techniques. Based on the literature we surveyed                 et al. [20]. The differences in label accuracy, especially for the
+for Section III, the state-of-the-art techniques for the Devign             Devign dataset (80% accurate labels found by them vs. 47%
+dataset are SNOPY [26] with 67.86% f1-score and PDBERT                      found by us), might be explained by two reasons: First, Croft
+[35] with 67.61% accuracy. For the BigVul dataset, the state-               et al. considered label accuracy for all functions, and secure
+of-the-art technique is DeepDFA [36] with 96.46% f1-score.                  functions are more likely correctly labeled. In RQ.1-a, we only
+According to the benchmark provided by Chen et al. [1],                     establish label accuracy for functions labeled as vulnerable.
+
+=== [PDF page 8] ===
+
+                                         Context-                                               Context-
+                Vulnerable: 39                                         Vulnerable: 47
+                                         dependent:39                                           dependent:47                                            Context-
+                                                                                                                                   Vulnerable: 65
+                                                                                                                                                        dependent:65
+
+
+                                                                                                                DiverseVul: 100
+BigVul: 100                              Context-        Devign: 100
+                                         independent:0                                          Context-
+                                                                                                independent:0
+                                                                                                                                                        Context-
+                        Secure: 61                                             Secure: 50                                                               independent:0
+                                                                                                                                           Secure: 35
+
+
+
+
+                        No Decision: 0                                         No Decision: 3                                              No Decision: 0
+
+                  (a) BigVul                                             (b) Devign                                               (c) DiverseVul
+
+Fig. 6: Empirical Study Results: For each dataset, we manually analyzed 100 functions that were labeled as vulnerable. For the
+subset of functions that were actually vulnerable (red), we then determined whether the vulnerability could be detected based
+on the function’s code alone. If yes, we marked the function as context-independent (yellow). Otherwise, as context-dependent
+(purple).
+
+
+Second, Croft et al. establish label accuracy more conservative                  TABLE I: Reasons for Inaccurate Labels. The different
+than us, where a function can be considered correctly labeled                    reasons for inaccurate labels we observed and their prevalence
+as vulnerable if it calls a function known to be vulnerable. In                  in the three datasets.
+this case, we decided that only the actual vulnerable function                                                  Patch Commit      Structural    Unrelated
+should be labeled as vulnerable because the calling function                                    Dataset         Identification    Changes       Changes
+would not be vulnerable if the actual vulnerable function                                       BigVul            13 (21%)        29 (48%)      19 (31%)
+would be fixed.                                                                                 Devign            27 (54%)        19 (38%)       4 (8%)
+   Based on our quantitative results and the explanations we                                    DiverseVul         1 (3%)         23 (66%)      11 (31%)
+generated for each of the functions, we performed an in-depth
+analysis to determine potential reasons for the label inaccuracy
+we observed. The results are displayed in Table I.                               changed by the patch commit are considered to be vulnerable
+   Patch Commit Identification. The first reason for label                       before the patch was applied. In fact, 38%-66% of falsely
+inaccuracy are errors during the process of identifying patch                    labeled functions can be attributed to structural changes.
+commits. From the original papers [30], [1], [29], we know                          Unrelated Changes. The third reason for label inaccu-
+that all three datasets start their data collection process by                   racy are other unrelated changes to functions in vulnerability
+identifying vulnerability-patching commits in popular open-                      patch commits. These include stylistic changes, e.g. removing
+source software repositories. However, the Devign dataset                        whitespace or adding comments. According to our study, 8%-
+identifies these commits only by filtering the commit messages                   31% of falsely labeled functions can be attributed to such
+for security-related keywords. We observe that 54% of falsely                    unrelated changes.
+labeled functions in our sample of the Devign dataset originate                     Croft et al. [20] also investigate reasons for label inaccuracy
+from this automatic identification process. The triangulation                    and list irrelevant code changes (our structural changes),
+via other data sources (e.g. CVE databases) makes this reason                    inaccurate fix identification (our patch commit identification),
+occur less frequently for the other datasets (21% for BigVul                     and clean-up changes (our unrelated changes). Based on our
+and 3% for DiverseVul).                                                          evidence, we can confirm these findings.
+   Structural Changes. The second reason for label inaccu-
+racy is structural changes. All three datasets included in our                   RQ.1-b          Context-Dependent Vulnerability
+study assume that all functions changed by a vulnerability-                        The main goal of our empirical study was to find out
+patching commit were vulnerable before the patch was applied.                    what proportion of the functions labeled as vulnerable in
+However, according to our results, only a subset of the                          the top-most widely-used datasets actually can be detected
+functions changed by a patch commit is actually vulnerable,                      without considering additional context. In other words, what
+while other functions could be changed to address structural                     proportion of vulnerable functions would not be vulnerable if
+changes that are a consequence of fixing the actual vulnerable                   the appropriate external context did not exist?
+function. For instance, fixing a buffer overflow may require                       Results. Each of the actual vulnerable functions that re-
+adding a buffer size parameter to the function call wherever the                 sulted from the first step of our empirical study (RQ.1 (a)) was
+function is called. This can lead to false labels if all functions               assigned one of two labels: Context-independent or context-
+
+=== [PDF page 9] ===
+
+TABLE II: Reasons for Context-dependence. The different
+                                                                         1 static int mwifiex_update_vs_ie(const u8 *ies, int ies_len,
+types of context dependence we observed and their prevalence             2                                  struct mwifiex_ie **ie_ptr, u16 mask,
+                                                                         3                                  unsigned int oui, u8 oui_type)
+in the three datasets.                                                   4 {
+                                                                         5     struct ieee_types_header *vs_ie;
+                                                                         6     struct mwifiex_ie *ie = *ie_ptr;
+            Function   External     Type                   Execution     7     const u8 *vendor_ie;
+                                                                         8
+ Dataset    Argument   Function   Declaration   Globals   Environment    9     vendor_ie = cfg80211_find_vendor_ie(oui, oui_type, ies, ies_len);
+                                                                        10     if (vendor_ie) {
+ BigVul     16 (41%)   19 (49%)     1 (2%)       3 (8%)     0 (0%)      11         if (!*ie_ptr) {
+                                                                        12             *ie_ptr = kzalloc(sizeof(struct mwifiex_ie),
+ Devign     22 (47%)   20 (43%)     0 (0%)      5 (10%)     0 (0%)      13                                GFP_KERNEL);
+ DiverseVul 26 (40%)   34 (52%)     2 (3%)       1 (2%)     2 (3%)      14             if (!*ie_ptr)
+                                                                        15                      return -ENOMEM;
+                                                                        16             ie = *ie_ptr;
+                                                                        17          }
+                                                                        18
+                                                                        19          vs_ie = (struct ieee_types_header *)vendor_ie;
+dependent. Figure 6 show the results of this second labeling            20
+                                                                        21
+                                                                                    memcpy(ie->ie_buffer + le16_to_cpu(ie->ie_length),
+                                                                                           vs_ie, vs_ie->len + 2);
+round. To our surprise, all 151 vulnerable functions in our             22
+                                                                        23
+                                                                                    le16_unaligned_add_cpu(&ie->ie_length, vs_ie->len + 2);
+                                                                                    ie->mgmt_subtype_mask = cpu_to_le16(mask);
+study required additional context to be accurately identified           24
+                                                                        25     }
+                                                                                    ie->ie_index = cpu_to_le16(MWIFIEX_AUTO_IDX_MASK);
+
+(context-dependent). Not a single function could be detected            26
+                                                                        27     *ie_ptr = ie;
+without considering any additional context beyond the function          28
+                                                                        29 }
+                                                                               return 0;
+
+itself (context-independent)
+                                                                        Fig. 7: Dependence on external functions: The heap-based
+ Context Dependence (RQ1-b). All 151 vulnerable functions               buffer overflow (CVE-2019-14816) in lines 20-21 of this
+ in our empirical study required additional context to be               function from the BigVul dataset depends on the external
+ identified. Without this additional context, it was impossi-           function cfg80211_find_vendor_ie. Without knowing
+ ble to determine whether these functions actually contain              this external function, we do not know what values vs_ie can
+ security vulnerabilities.                                              have, and consequently, we do not know whether the buffer
+                                                                        overflow can ever be triggered.
+   Based on the explanations we generated for each of the
+functions, we performed an in-depth analysis and identified
+the most prevalent types of context dependence in our sample.           ceeds the range of menu->items, the operation overflows. In
+The results are shown in Table II.                                      our empirical study, 0-3% of context-dependent vulnerabilities
+   Dependence on External Functions. The first and most                 can be attributed to dependence on type declarations.
+prevalent type of dependence we identified is dependence on
+                                                                           Dependence on Globals. The fourth type of dependence
+external functions. Consider the example in Figure 7. The
+                                                                        we identified is dependence on globals, such as macros and
+heap-based buffer overflow in lines 20-21 of this function
+                                                                        global variables. Consider the example in Figure 10. Line 7 of
+from the BigVul dataset depends on the external function
+                                                                        this function from the Devign dataset is the cause of multiple
+cfg80211_find_vendor_ie. Without knowing this ex-
+                                                                        buffer overflows in the JasPer repository (CVE-2014-8158).
+ternal function, we do not know what values vs_ie can
+                                                                        If HAVE_VLA is not defined and QMFB_JOINBUFSIZE
+have, and consequently, we do not know whether the buffer
+                                                                        is smaller than bufsize but still used without success-
+overflow can ever be triggered. In our empirical study, 43%-
+                                                                        ful dynamic allocation, any attempt to use joinbuf for
+52% of context-dependent vulnerabilities can be attributed to
+                                                                        storing data will result in writing beyond its allocated size
+dependence on external functions.
+                                                                        (QMFB_JOINBUFSIZE). In our empirical study, 2-10% of
+   Dependence on Function Arguments. The second type                    context-dependent vulnerabilities can be attributed to depen-
+of dependence we identified is dependence on function argu-             dence on globals.
+ments. Consider the example in Figure 8. The null-pointer-
+                                                                           Dependence on the Execution Environment. The fifth
+dereference vulnerability in line 8 of this function from the
+                                                                        type of dependence we identified is dependence on the exe-
+BigVul dataset depends on the function argument sprinc.
+                                                                        cution environment. For example, a vulnerability may depend
+However, without knowing the context in which this function
+                                                                        on the fulfillment of specific conditions in the system of the
+can be called, we do not know whether sprinc can ever
+                                                                        user (e.g., the presence of a file in a directory) outside of the
+be NULL. For example, it could be properly validated before
+                                                                        code. In our empirical study, 0-3% of context-dependent vul-
+passing it to the function in all cases where this function is
+                                                                        nerabilities can be attributed to dependence on the execution
+actually called. In that case, there would be no vulnerability. In
+                                                                        environment.
+our empirical study, 40%-47% of context-dependent vulnera-
+bilities can be attributed to dependence on function arguments.
+                                                                        RQ.1-c      Context-dependent Security
+   Dependence on Type Declarations. The third type
+of dependence we identified is dependence on type                         Now we know that the vulnerability of all 151
+declarations. Consider the example in Figure 9. The                     vulnerable functions in our empirical study could not be
+integer overflow vulnerability in line 20 depends on                    decided without considering additional context, but what about
+the type declaration of PP_Flash_MenuItem. Only if                      secure functions? What proportion of functions labeled as
+sizeof(PP_Flash_MenuItem) * menu->count ex-                             secure—because they are not known to cause a vulnerability
+
+=== [PDF page 10] ===
+
+ 1   setup_server_realm(krb5_principal sprinc)                                     1    void jpc_qmfb_join_col(jpc_fix_t *a, int numrows, int stride,
+ 2   {                                                                             2      int parity)
+ 3       krb5_error_code     kret;                                                 3    {
+ 4       kdc_realm_t         *newrealm;                                            4
+ 5                                                                                 5            int bufsize = JPC_CEILDIVPOW2(numrows, 1);
+ 6         kret = 0;                                                               6    #if !defined(HAVE_VLA)
+ 7         if (kdc_numrealms > 1) {                                                7            jpc_fix_t joinbuf[QMFB_JOINBUFSIZE];
+ 8             if (!(newrealm = find_realm_data(sprinc->realm.data, (krb5_ui_4)    8    #else
+              sprinc->realm.length)))                                              9            jpc_fix_t joinbuf[bufsize];
+ 9                 kret = ENOENT;                                                 10    #endif
+10             else                                                               11            jpc_fix_t *buf = joinbuf;
+11                 kdc_active_realm = newrealm;                                   12
+12         }                                                                      13            // [...]
+13         else                                                                   14
+14             kdc_active_realm = kdc_realmlist[0];                               15    }
+15         return(kret);
+16   }
+
+                                                                                  Fig. 10: Dependence on globals: Line 7 of this function is
+Fig. 8: Dependence on function argument: The null pointer                         the cause of multiple buffer overflows in the JasPer reposi-
+dereference (CVE-2013-6800) in line 8 of this function from                       tory (CVE-2014-8158). Whether line 7 is actually compiled
+the BigVul dataset depends on the function argument sprinc.                       depends on whether the macro HAVE_VLA is defined.
+Only if sprinc=NULL it crashes with a null pointer deref-
+erence in line 8.
+                                                                                  tried to construct an artificial vulnerable context for each of
+                                                                                  them. Consider the example in Figure 11. In this artificially
+ 1   PP_Flash_Menu* ReadMenu(int depth, const IPC::Message* m, PickleIterator*
+            iter) {                                                               crafted context, the function HTTP_Clone (marked in green)
+ 2     if (depth > kMaxMenuDepth)
+ 3       return NULL;                                                             contains a null pointer dereference vulnerability. However, it
+ 4     ++depth;
+ 5                                                                                is labeled as secure in the DiverseVul dataset because in
+ 6       PP_Flash_Menu* menu = new PP_Flash_Menu;
+ 7       menu->items = NULL;                                                      its original context8 it is not known to contain a security
+ 8
+ 9       if (!m->ReadUInt32(iter, &menu->count)) {                                vulnerability. Just looking at that function itself, without any
+10         FreeMenu(menu);
+11         return NULL;                                                           external context, we cannot decide whether this function does
+12       }
+13                                                                                not actually cause a vulnerability in the program. Similar to
+14       if (menu->count == 0)
+15         return menu;                                                           this example, we manually tried to construct a vulnerable con-
+16
+17       menu->items = new PP_Flash_MenuItem[menu->count];                        text for all 90 functions in our sample. For full transparency,
+18       memset(menu->items, 0, sizeof(PP_Flash_MenuItem) * menu->count);
+19       for (uint32_t i = 0; i < menu->count; ++i) {                             we include the generated vulnerable settings (as explanations
+20         if (!ReadMenuItem(depth, m, iter, menu->items + i)) {
+21           FreeMenu(menu);                                                      in natural language) in our artifact.
+22           return NULL;
+23         }                                                                         Results. For 82 out of the 90 functions that were labeled
+24       }
+25       return menu;                                                             as secure in the original datasets, we were able to construct a
+26   }
+                                                                                  context in which they contain a security vulnerability.
+Fig. 9: Dependence on type declaration: The integer
+                                                                                   Secure Functions (RQ1-c). 82 out of 90 secure functions
+overflow (CVE-2013-0892) in line 20 of this function from
+                                                                                   contain context-dependent vulnerabilities, i.e., they would
+the BigVul dataset depends on PP_Flash_MenuItem,
+                                                                                   make the program vulnerable if the appropriate external
+menu->items       and     menu->count.         Only     if
+                                                                                   context existed. In isolation, it is not possible to determine
+sizeof(PP_Flash_MenuItem) * menu->count
+                                                                                   whether these functions are actually secure.
+exceeds the range of menu->items, the operation
+overflows.
+                                                                                  RQ.1        Result Summary
+                                                                                     Within our sample of functions, about half of those la-
+in the program—could potentially cause a vulnerability if an                      beled as vulnerable did not actually contain the security
+appropriate external context existed?                                             vulnerabilities they were claimed to have. All of those that
+   Methodology. From each of the three datasets (BigVul,                          do are context-dependent vulnerabilities, i.e., these functions
+Devign, and DiverseVul), we randomly selected 30 samples                          are vulnerable only because an appropriate context exists
+that were labeled as secure and checked if we could come                          under which the function is vulnerable. Similarly, the majority
+up with a reasonable context for that function that would cause                   of secure functions contain context-dependent vulnerabilities
+a vulnerability in the program. We note that we did not attempt                   that would make that function vulnerable if an appropriate
+to verify whether a function that was labeled as secure was                       context existed. As there is evidently insufficient information
+actually not causing a vulnerability in the program. There can                    in the base units—that are used for training, validation, and
+only be certainty about the presence of vulnerabilities (e.g., via                testing in these datasets—to decide their vulnerability without
+a triggering input). In practice, there is no certainty about their               further context, we conclude that ML4VD cannot be soundly
+absence. However, we publish the reproducible script and the                      evaluated as a classic binary classification problem on the
+sampled functions as part of our artifact for full transparency.                  function-level.
+   To find out what proportion of secure functions could be
+vulnerable if an appropriate external context would exist, we                          8 https://github.com/varnishcache/varnish-cache/commit/c5fd097e
+
+=== [PDF page 11] ===
+
+                                                                   TABLE III: Spurious Correlations. The performance of a
+ 1   #include <stdio.h>
+ 2   #include <stdlib.h>                                           simple model (Gradient Boosting Classifier) trained on word
+ 3
+ 4   struct http {                                                 counts only (no information on code structure and/or semantics
+ 5       int vsl;
+ 6       int ws;                                                   available during training).
+ 7   };
+ 8
+ 9
+10
+     void HTTP_Dup(struct http *to, const struct http *fm) {
+         return;
+                                                                       Dataset                 State-of-the-art   Without Structure
+11   }
+12   void HTTP_Clone(struct http *to, const struct http *fm) {         BigVul (f1-score)            0.96                0.86
+13       HTTP_Dup(to, fm);
+14       to->vsl = fm->vsl;
+                                                                       Devign (f1-score)            0.68                0.62
+15       to->ws = fm->ws;                                              DiverseVul (f1-score)        0.48                0.11
+16   }
+18   int main() {                                                      Devign (accuracy)            0.68                0.63
+19       struct http *source = NULL;
+20       struct http destination;
+21
+22       HTTP_Clone(&destination, source);
+23                                                                 level datasets while completely disregarding the structure and
+24       return 0;
+25   }                                                             semantics of the code.
+                                                                      For the DiverseVul dataset, the Gradient Boosting Classifier
+Fig. 11: Context-dependent security: In this artificially          was not able to achieve a comparable performance to the
+crafted context, the function HTTP Clone contains a null           state-of-the-art techniques. This suggests that the dataset may
+pointer dereference vulnerability. However, it is labeled as       contain fewer exploitable spurious features. However, this is
+’secure’ in the DiverseVul dataset because in its original         not definitive proof. What the result does show is that state-
+context (see https://github.com/varnishcache/varnish-cache/        of-the-art performance cannot be reached using a Gradient
+commit/c5fd097e) it is not known to contain a security vul-        Boosting Classifier based solely on word count features.
+nerability.
+                                                                    Spurious Features (RQ2). Using word counts only, we were
+                                                                    able to achieve 62.2% f1-score on the Devign dataset and
+ Problem statement (RQ.1). ML4VD techniques cannot be               86% f1-score on the BigVul dataset with a simple Gradient
+ soundly evaluated as a classic binary classification problem       Boosting Classifier. These results show that the top-most
+ on intra-procedural base units, such as functions.                 widely-used function-level datasets can be exploited to
+                                                                    achieve high scores without actually detecting security
+                                                                    vulnerabilities.
+RQ.2       Classifier Performance on Spurious Features
+   Since it is impossible for most functions to decide without       Our results provide an alternative explanation for the results
+further context whether they contain a vulnerability, there is     reported in the literature. While we did not prove that state-of-
+currently no evidence that ML4VD techniques are actually           the-art ML4VD techniques actually achieve their high scores
+capable of identifying security vulnerabilities in functions.      by relying on spuriously correlated features, we have shown
+But why do ML4VD papers still report high scores when              that it is possible to exploit these datasets to achieve high
+evaluating their techniques using function-level datasets? What    scores without actually detecting security vulnerabilities.
+happens if we hide the code and only expose some features
+                                                                                 VI. T HREATS TO THE VALIDITY
+of the code, such as word counts?
+   Results. Table III shows the results for RQ.2. The Gradi-         As for any empirical study, there are various threats to the
+ent Boosting Classifier achieved a f1-score of 86% on the          validity of our results and conclusions.
+evaluation subset of BigVul, a f1-score of 62.2% and an
+accuracy of 63.2% on the evaluation subset of Devign, and          A. Internal validity
+a f1-score of 11.1% on the evaluation subset of DiverseVul.           Selection Bias. The random sampling of 100 functions
+For Devign and BigVul, the observed performances are only          from each dataset (BigVul, Devign, and DiverseVul) for our
+4.4% (Devign, accuracy), 5.7% (Devign, f1-score), and 10%          empirical study could introduce selection bias. Although ran-
+(BigVul) lower than the performances of recently published         dom sampling aims to create a representative subset, it is
+state-of-the-art techniques. Surprisingly, for an effective vul-   possible that our sample may not fully capture the diversity
+nerability detection model, the whole process of training and      and characteristics of the entire dataset. To mitigate this, we
+evaluation only took 30 minutes on a MacBook Pro, which is         ensured that our sampling method was strictly random and
+extremely fast compared to training times of state-of-the-art      publish the reproducible script and the sampled functions as
+ML-based techniques. State-of-the-art ML-based techniques          part of our GitHub repository: https://github.com/niklasrisse/
+require expensive Hardware (GPUs), weeks of computing              TopScoreWrongExam.
+time to pre-train, and at least multiple hours of computing           Manual Labeling Errors. Labeling functions as vulnerable
+time to finetune. Additionally, the Gradient Boosting Classifier   or secure and distinguishing between context-dependent and
+was only trained on the training subset of the two datasets        context-independent vulnerabilities involves subjective judg-
+without any pre-training. These results show that it is possible   ment. To address this, we employed a cross-labeling process
+to achieve high performance on the most popular function-          where all 300 functions were independently labeled by two
+
+=== [PDF page 12] ===
+
+Software Security researchers, achieving substantial agree-            Implications for general ML. Are we truly measuring the
+ment (82%) for labeling functions as vulnerable or secure           effectiveness of ML techniques in solving the specific tasks
+and almost perfect agreement (98%) for distinguishing be-           we expect them to solve? The issue of spurious correlations is
+tween context-dependent and context-independent vulnerabili-        not limited to ML4VD but extends to other areas of machine
+ties. Discrepancies were resolved through discussion, but some      learning, where it has been explored in depth by several
+human error may still be present. For full transparency, we         studies [39], [40]. It is crucial to continue the development
+publish all labels and explanations as part of our artifact.        of methods to identify and measure these correlations during
+                                                                    the benchmarking of ML techniques to ensure that we are
+B. External validity                                                genuinely evaluating their performance in solving the tasks
+   Datasets. Our study focuses on three specific datasets           they are intended to address.
+(BigVul, Devign, and DiverseVul), which are widely used in             Implications for Program Analysis. The prevalence of
+the ML4VD community (cf. Fig. 3). However, the findings             the context-dependency problem suggests that an effective
+may not generalize to other datasets or real-world software         function-level program analysis, such as an intra-procedural
+systems. Future studies should replicate our methodology on         static analysis, must consider a reasonable approximation of
+additional datasets and real-world codebases to validate our        the space of valid external states during the average function
+conclusions.                                                        call, e.g., encoded as a function precondition, function sum-
+   Programming languages. The datasets analyzed primar-             mary, or type system. While the context-dependency check
+ily contain C code. Our findings might not generalize to            can ultimately be delegated to the user in practice, given
+other programming languages with different syntactic and            our results, we suggest that particular care is taken when
+semantic properties. Future research should include datasets        evaluating such tools at the function-level in the absence of
+from various programming languages to evaluate the broader          users. In addition to function-level program analysis, there are
+applicability of our results.                                       inter-procedural, or whole-program analyses, which consider
+   Problem Statements. Our study focuses on the most preva-         interactions between multiple procedures, and thus implicitly
+lent problem statement of ML4VD as function-level binary            resolve the context-dependency problem during the search for
+classification problem (cf. §III and Fig. 2) where the classifier   security vulnerabilities.
+makes the decision exclusively based on information within             Abstention. What could be possible ways forward for
+the given function. However, there exist other definitions of       ML4VD? A simple possible solution to the context-
+ML4VD (e.g., at other granularities, such as line- or file-         dependency problem of function-level vulnerability detection
+level, and even some that explicitly consider context, such         could be to cast it as binary classification with abstention.
+as vulnerability-specific inter-procedural slicing [38]). While     Given a function, an ML4VD technique could either decide
+we discuss our perspective for other definitions of ML4VD in        the vulnerability of the function or abstain from this decision.
+Section VII, future studies should carry out similar investiga-     However, the obvious disadvantage of this approach is that
+tions to validate how reasonable these problem statements are       only context-independent security vulnerabilities could actu-
+indeed.                                                             ally be detected, which appear to be very rare (cf. RQ.1-b). The
+                                                                    context-dependency labels generated by our empirical study
+C. Construct Validity                                               could be used as a starting point to explore this direction.
+                                                                       Other Base Units. Instead of deciding whether a function
+   Spurious Correlations. Our results suggest that ML4VD            is vulnerable, we could decide whether other types of
+techniques might achieve high scores by exploiting spurious         base units are vulnerable, such as lines, statements, files,
+correlations rather than genuinely detecting vulnerabilities.       modules, commits, or vulnerability-specific inter-procedural
+While we demonstrated this using word counts, further re-           slices (cf. Fig. 2). However, for smaller base units, such as line-
+search should investigate other features that might be spu-         , statement-, or commit-level, there is no reason to believe that
+riously correlated with the vulnerable label. We discuss            the context-dependency problem is resolved (subject to further
+some related work in Section II.                                    study) while for larger base units, such as files or modules, the
+                                                                    context-dependency problem may be much less pronounced
+           VII. D ISCUSSION AND F UTURE W ORK
+                                                                    (subject to further study), although the vulnerability
+   The goal of empirical evaluation in ML4VD is to assess           label at that such coarse granularity may be less actionable
+the capabilities of specific techniques by putting them to the      for the security researcher. For alternative granularities, future
+test on real-world data. However, if the evaluation is based        work shall determine if they offer a true advantage or merely
+on incorrect assumptions, the results become meaningless.           shift the problem to a different level of abstraction.
+Our findings demonstrate that this is precisely the issue with         The vulnerability-specific inter-procedural slice [38] (at
+ML4VD. Techniques can achieve ‘top scores’ by exploiting            least conceptually) includes all required context to trigger a
+spurious features, even without possessing the capabilities the     vulnerability of a specific type at a specific code location,
+test aims to measure. In our specific case, the only plausible      and thus resolves the context-dependency problem. However,
+explanation for the good performance of ML4VD techniques            it also somewhat delegates the detection problem because it re-
+are spurious correlations.                                          quires, as slicing criterion, a (vulnerability-specific) statement-
+
+=== [PDF page 13] ===
+
+of-interest where a vulnerability may be triggered. In general,                              ACKNOWLEDGMENTS
+we believe that a combination of static analysis and machine
+learning [41] offers a promising avenue for future research in          Funded by the Deutsche Forschungsgemeinschaft (DFG,
+vulnerability detection.                                             German Research Foundation) under Germany’s Excellence
+   Context-conditional Classification. We could define               Strategy - EXC 2092 CASA - 390781972. This research
+ML4VD as a base-unit-level classification problem given,             is also partially funded by the European Union. Views and
+e.g., the entire software repository as context. Due to the          opinions expressed are however those of the author(s) only
+hierarchical nature of software, determining the vulnerability       and do not necessarily reflect those of the European Union
+of a given base unit (e.g., function) may require considering        or the European Research Council Executive Agency. Neither
+a large scope of context, such as the complete state of a            the European Union nor the granting authority can be held
+repository at a given commit ID and all other dependencies           responsible for them. This work is supported by ERC grant
+that might exist outside of the code (e.g. system of the             (Project AT SCALE, 101179366).
+user, dependencies of the repository, etc.). Since the Devign,
+BigVul, and DiverseVul benchmarks all include patch commit                                         R EFERENCES
+IDs, the complete context for a given function could be
+                                                                      [1] Y. Chen, Z. Ding, L. Alowain, X. Chen, and D. Wagner, “Diversevul: A
+reconstructed, so that they could be used to evaluate ML4VD               new vulnerable source code dataset for deep learning based vulnerability
+based on this alternative problem statement. Future research              detection,” in Proceedings of the 26th International Symposium on
+is needed to find optimal ways to include this context into               Research in Attacks, Intrusions and Defenses, ser. RAID ’23. New
+                                                                          York, NY, USA: Association for Computing Machinery, 2023, p.
+state-of-the-art techniques.                                              654–668. [Online]. Available: https://doi.org/10.1145/3607199.3607242
+   However, adding repository-level context alone may not             [2] Q. L. Le, A. Raad, J. Villard, J. Berdine, D. Dreyer, and P. W.
+resolve the benchmarking problem. Evidently, ML4VD tech-                  O’Hearn, “Finding real bugs in big programs with incorrectness logic,”
+                                                                          Proc. ACM Program. Lang., vol. 6, no. OOPSLA1, apr 2022. [Online].
+niques that disregard this context still appear to perform well           Available: https://doi.org/10.1145/3527325
+(likely due to spurious correlations; RQ.2). Addressing this          [3] P. D. Schubert, B. Hermann, and E. Bodden, “Phasar: An inter-
+challenge will require ensuring that the evaluation metrics               procedural static analysis framework for c/c++,” in International
+                                                                          Conference on Tools and Algorithms for Construction and Analysis
+and benchmarks actually capture the vulnerability detection               of Systems, 2019. [Online]. Available: https://api.semanticscholar.org/
+capabilities of the techniques that are tested.                           CorpusID:93002205
+   Overcoming Classification. Even using different types of           [4] S. Desikan and G. Ramesh, Software Testing: Principles and
+                                                                          Practice. Pearson Education Canada, 2006. [Online]. Available:
+base units and providing the entire repository as context,                https://books.google.de/books?id=Yt2yRW6du9wC
+ML4VD would still be a binary classification task: Given a            [5] F. Nielson, H. R. Nielson, and C. Hankin, Principles of Program
+unit, decide whether the unit is vulnerable or secure. Al-                Analysis. Springer Publishing Company, Incorporated, 2010.
+                                                                      [6] C. A. R. Hoare, “An axiomatic basis for computer programming,”
+ternatively, an ML4VD technique could provide the condition               Communications of the ACM, vol. 12, no. 10, pp. 576–580, 1969.
+under which a given function would actually be vulnerable,            [7] S. Lipp, S. Banescu, and A. Pretschner, “An empirical study on the
+e.g., by generating an example context: Given a function,                 effectiveness of static c code analyzers for vulnerability detection,” in
+                                                                          Proceedings of the 31st ACM SIGSOFT International Symposium on
+an ML4VD technique may generate a complete executable                     Software Testing and Analysis, ser. ISSTA 2022. New York, NY, USA:
+program which is vulnerable to attack due to the code in that             Association for Computing Machinery, 2022, p. 544–555. [Online].
+function. This generated context could then be compared with              Available: https://doi.org/10.1145/3533767.3534380
+                                                                      [8] B. Johnson, Y. Song, E. Murphy-Hill, and R. Bowdidge, “Why don’t
+the actual context to see whether the vulnerability exists in             software developers use static analysis tools to find bugs?” in Proceed-
+the real context. A much stronger approach could be the (ML-              ings of the 2013 International Conference on Software Engineering, ser.
+assisted) generation of a proof of vulnerability in form of a test        ICSE ’13. IEEE Press, 2013, p. 672–681.
+                                                                      [9] M. Böhme, C. Cadar, and A. Roychoudhury, “Fuzzing: Challenges and
+case, which demonstrates the exploitation of the vulnerability            opportunities,” IEEE Software, pp. 1–9, 2021.
+in the given context.                                                [10] H. Zheng, F. Toffalini, M. Böhme, and M. Payer, “Mendelfuzz: The re-
+   In conclusion, addressing the issues of context dependency             turn of the deterministic stage,” in Proceedings of the ACM International
+                                                                          Conference on the Foundations of Software Engineering, ser. FSE’25,
+and spurious correlations is critical for the advancement of              2025.
+ML4VD and other ML applications. By exploring alternative            [11] R. Meng, M. Mirchev, M. Böhme, and A. Roychoudhury, “Large
+methodologies and improving our evaluation frameworks, we                 language model guided protocol fuzzing,” in Proceedings of the Network
+                                                                          and Distributed System Security Symposium, ser. NDSS’24, 2024.
+can ensure more robust and reliable assessments, ultimately          [12] O. Galland and M. Böhme, “Invivo fuzzing by amplifying actual
+leading to more secure and effective solutions.                           executions,” in Proceedings of the 47th International Conference on
+                                                                          Software Engineering, ser. ICSE’25, 2025.
+                                                                     [13] M. Böhme, V. J. M. Manès, and S. K. Cha, “Boosting fuzzer
+                 VIII. DATA AVAILABILITY                                  efficiency: An information theoretic perspective,” Communications of
+                                                                          the ACM, vol. 66, no. 11, p. 89–97, oct 2023. [Online]. Available:
+                                                                          https://doi.org/10.1145/3611019
+   To ensure the reproducibility of our results and to provide       [14] M. J. Harrold and A. Orso, “Retesting software during development
+transparency in our research, we have made all related scripts            and maintenance,” in 2008 Frontiers of Software Maintenance, 2008,
+and data publicly available. All resources can be accessed as             pp. 99–108.
+                                                                     [15] K. Claessen and J. Hughes, “Quickcheck: a lightweight tool for random
+part of our GitHub repository, which is available at https://             testing of haskell programs,” SIGPLAN Not., vol. 35, no. 9, p. 268–279,
+github.com/niklasrisse/TopScoreWrongExam.                                 sep 2000. [Online]. Available: https://doi.org/10.1145/357766.351266
+
+=== [PDF page 14] ===
+
+[16] R. Padhye, C. Lemieux, and K. Sen, “Jqf: coverage-guided property-              Graph Neural Networks. Red Hook, NY, USA: Curran Associates Inc.,
+     based testing in java,” in Proceedings of the 28th ACM SIGSOFT                  2019.
+     International Symposium on Software Testing and Analysis, ser. ISSTA       [31] S. Chakraborty, R. Krishna, Y. Ding, and B. Ray, “Deep learning
+     2019. New York, NY, USA: Association for Computing Machinery,                   based vulnerability detection: Are we there yet?” IEEE Transactions
+     2019, p. 398–401. [Online]. Available: https://doi.org/10.1145/3293882.         on Software Engineering, vol. 48, no. 09, pp. 3280–3296, sep 2022.
+     3339002                                                                    [32] J. Cohen, “A coefficient of agreement for nominal scales,” Educational
+[17] R. Padhye, C. Lemieux, K. Sen, M. Papadakis, and Y. Le Traon,                   and Psychological Measurement, vol. 20, pp. 37 – 46, 1960. [Online].
+     “Semantic fuzzing with zest,” in Proceedings of the 28th ACM                    Available: https://api.semanticscholar.org/CorpusID:15926286
+     SIGSOFT International Symposium on Software Testing and Analysis,          [33] J. R. Landis and G. G. Koch, “The measurement of observer agreement
+     ser. ISSTA 2019. New York, NY, USA: Association for Computing                   for categorical data.” Biometrics, vol. 33 1, pp. 159–74, 1977. [Online].
+     Machinery, 2019, p. 329–340. [Online]. Available: https://doi.org/10.           Available: https://api.semanticscholar.org/CorpusID:11077516
+     1145/3293882.3330576                                                       [34] H. He and E. A. Garcia, “Learning from imbalanced data,” IEEE
+[18] S. Ullah, M. Han, S. Pujar, H. Pearce, A. Coskun, and G. Stringhini,            Transactions on Knowledge and Data Engineering, vol. 21, no. 9, pp.
+     “Llms cannot reliably identify and reason about security vulnerabilities        1263–1284, 2009.
+     (yet?): A comprehensive evaluation, framework, and benchmarks,” in         [35] Z. Liu, Z. Tang, J. Zhang, X. Xia, and X. Yang, “Pre-training
+     2024 IEEE Symposium on Security and Privacy (SP), 2024, pp. 862–                by predicting program dependencies for vulnerability analysis tasks,”
+     880.                                                                            in Proceedings of the IEEE/ACM 46th International Conference
+[19] N. Risse and M. Böhme, “Uncovering the limits of machine learning for          on Software Engineering, ser. ICSE ’24. New York, NY, USA:
+     automatic vulnerability detection,” in Proceedings of the 33rd USENIX           Association for Computing Machinery, 2024. [Online]. Available:
+     Security Symposium, ser. USENIX Sec’24, 2024.                                   https://doi.org/10.1145/3597503.3639142
+[20] R. Croft, M. A. Babar, and M. M. Kholoosi, “Data quality                   [36] B. Steenhoek, H. Gao, and W. Le, “Dataflow analysis-inspired deep
+     for software vulnerability datasets,” in Proceedings of the 45th                learning for efficient vulnerability detection,” in Proceedings of the
+     International Conference on Software Engineering, ser. ICSE ’23.                IEEE/ACM 46th International Conference on Software Engineering, ser.
+     IEEE Press, 2023, p. 121–133. [Online]. Available: https://doi.org/10.          ICSE ’24. New York, NY, USA: Association for Computing Machinery,
+     1109/ICSE48619.2023.00022                                                       2024. [Online]. Available: https://doi.org/10.1145/3597503.3623345
+[21] A. Sejfia, S. Das, S. Shafiq, and N. Medvidović, “Toward improved         [37] Y. Wang, W. Wang, S. Joty, and S. C. Hoi, “CodeT5: Identifier-aware
+     deep learning-based vulnerability detection,” in Proceedings of the             unified pre-trained encoder-decoder models for code understanding
+     IEEE/ACM 46th International Conference on Software Engineering, ser.            and generation,” in Proceedings of the 2021 Conference on
+     ICSE ’24. New York, NY, USA: Association for Computing Machinery,               Empirical Methods in Natural Language Processing, M.-F. Moens,
+     2024. [Online]. Available: https://doi.org/10.1145/3597503.3608141              X. Huang, L. Specia, and S. W.-t. Yih, Eds. Online and
+[22] Z. Li, N. Wang, D. Zou, Y. Li, R. Zhang, S. Xu, C. Zhang, and                   Punta Cana, Dominican Republic: Association for Computational
+     H. Jin, “On the effectiveness of function-level vulnerability detectors         Linguistics, Nov. 2021, pp. 8696–8708. [Online]. Available: https:
+     for inter-procedural vulnerabilities,” in Proceedings of the IEEE/ACM           //aclanthology.org/2021.emnlp-main.685
+     46th International Conference on Software Engineering, ser. ICSE ’24.      [38] B. Wu, S. Liu, Y. Xiao, Z. Li, J. Sun, and S.-W. Lin, “Learning
+     New York, NY, USA: Association for Computing Machinery, 2024.                   program semantics for vulnerability detection via vulnerability-specific
+     [Online]. Available: https://doi.org/10.1145/3597503.3639218                    inter-procedural slicing,” in Proceedings of the 31st ACM Joint
+[23] D. Arp, E. Quiring, F. Pendlebury, A. Warnecke, F. Pierazzi,                    European Software Engineering Conference and Symposium on the
+     C. Wressnegger, L. Cavallaro, and K. Rieck, “Dos and don’ts                     Foundations of Software Engineering, ser. ESEC/FSE 2023. New York,
+     of machine learning in computer security,” in 31st USENIX                       NY, USA: Association for Computing Machinery, 2023, p. 1371–1383.
+     Security Symposium (USENIX Security 22). Boston, MA: USENIX                     [Online]. Available: https://doi.org/10.1145/3611643.3616351
+     Association, Aug. 2022, pp. 3971–3988. [Online]. Available: https:         [39] P. Izmailov, P. Kirichenko, N. Gruver, and A. G. Wilson, “On feature
+     //www.usenix.org/conference/usenixsecurity22/presentation/arp                   learning in the presence of spurious correlations,” in Proceedings of
+[24] N. Risse, “Detecting overfitting of machine learning techniques for             the 36th International Conference on Neural Information Processing
+     automatic vulnerability detection,” in Proceedings of the 31st ACM Joint        Systems, ser. NIPS ’22. Red Hook, NY, USA: Curran Associates Inc.,
+     European Software Engineering Conference and Symposium on the                   2024.
+     Foundations of Software Engineering, ser. ESEC/FSE 2023. New York,         [40] S. Sagawa, A. Raghunathan, P. W. Koh, and P. Liang, “An investigation
+     NY, USA: Association for Computing Machinery, 2023, p. 2189–2191.               of why overparameterization exacerbates spurious correlations,” in
+     [Online]. Available: https://doi.org/10.1145/3611643.3617845                    Proceedings of the 37th International Conference on Machine
+[25] M. M. Rahman, I. Ceka, C. Mao, S. Chakraborty, B. Ray, and                      Learning, ser. Proceedings of Machine Learning Research, H. D. III
+     W. Le, “Towards causal deep learning for vulnerability detection,”              and A. Singh, Eds., vol. 119. PMLR, 13–18 Jul 2020, pp. 8346–8356.
+     in Proceedings of the IEEE/ACM 46th International Conference                    [Online]. Available: https://proceedings.mlr.press/v119/sagawa20a.html
+     on Software Engineering, ser. ICSE ’24. New York, NY, USA:                 [41] W. Zheng, Y. Jiang, and X. Su, “Vu1spg: Vulnerability detection based
+     Association for Computing Machinery, 2024. [Online]. Available:                 on slice property graph representation learning,” in 2021 IEEE 32nd
+     https://doi.org/10.1145/3597503.3639170                                         International Symposium on Software Reliability Engineering (ISSRE),
+[26] S. Cao, X. Sun, X. Wu, D. Lo, L. Bo, B. Li, X. Liu, X. Lin,                     2021, pp. 457–467.
+     and W. Liu, “Snopy: Bridging sample denoising with causal graph
+     learning for effective vulnerability detection,” in Proceedings of the
+     39th IEEE/ACM International Conference on Automated Software
+     Engineering, ser. ASE ’24. New York, NY, USA: Association
+     for Computing Machinery, 2024, p. 606–618. [Online]. Available:
+     https://doi.org/10.1145/3691620.3695057
+[27] B. Kitchenham and S. Charters, “Guidelines for performing systematic
+     literature reviews in software engineering,” vol. 2, 01 2007.
+[28] K. Petersen, S. Vakkalanka, and L. Kuzniarz, “Guidelines for conduct-
+     ing systematic mapping studies in software engineering: An update,”
+     Information and Software Technology, vol. 64, 08 2015.
+[29] J. Fan, Y. Li, S. Wang, and T. N. Nguyen, “A c/c++ code
+     vulnerability dataset with code changes and cve summaries,” in
+     Proceedings of the 17th International Conference on Mining Software
+     Repositories, ser. MSR ’20. New York, NY, USA: Association
+     for Computing Machinery, 2020, p. 508–512. [Online]. Available:
+     https://doi.org/10.1145/3379597.3387501
+[30] Y. Zhou, S. Liu, J. Siow, X. Du, and Y. Liu, Devign: Effective Vulnera-
+     bility Identification by Learning Comprehensive Program Semantics via

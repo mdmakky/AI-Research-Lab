@@ -1,0 +1,356 @@
+=== [PDF page 1] ===
+
+                                                         Evaluating Inference-Time Defenses against Package
+                                                               Hallucination in LLM-Generated Code
+                                                   Alberick Euraste Djire✉                                         Iyiola E. Olatunji                                   Melissa Tessa
+                                                     University of Luxembourg                                 University of Luxembourg                           University of Luxembourg
+                                                    Luxembourg, Luxembourg                                    Luxembourg, Luxembourg                             Luxembourg, Luxembourg
+                                                         AI4D (CITADEL)                                       emmanuel.olatunji@uni.lu                             melissa.tessa@uni.lu
+                                                    Ouagadougou, Burkina Faso
+                                                       euraste.djire@uni.lu
+
+                                                              Earl T. Barr                                            Jacques Klein                            Tegawendé F. Bissyandé
+
+
+
+
+arXiv:2608.22652v1 [cs.SE] 23 Aug 2026
+                                                    University College London                                 University of Luxembourg                           University of Luxembourg
+                                                    London, United Kingdom                                    Luxembourg, Luxembourg                            Luxembourg, Luxembourg
+                                                        e.barr@ucl.ac.uk                                        jacques.klein@uni.lu                           tegawende.bissyande@uni.lu
+
+                                         Abstract                                                                                CCS Concepts
+                                         LLMs are increasingly used for code generation, yet they frequently                     • Software and its engineering → Software usability; Software
+                                         hallucinate non-existent software packages, creating exploitable                        libraries and repositories; • Security and privacy → Software
+                                         entry points into the software supply chain. We make four con-                          security engineering.
+                                         tributions to this problem. First, we show that prior evaluation
+                                         methodologies systematically inflate hallucination rates by mis-                        Keywords
+                                         classifying standard-library modules as hallucinations in some                          LLM, Package Hallucination, Guided Decoding, Supply Chain Se-
+                                         languages. For Python, the overestimation reaches 9.4 percent-                          curity, Adversarial Prompts
+                                         age points. Second, we evaluate seven inference-time defenses for
+                                                                                                                                 ACM Reference Format:
+                                         mitigating package hallucinations, including five guided decod-
+                                                                                                                                 Alberick Euraste Djire, Iyiola E. Olatunji, Melissa Tessa, Earl T. Barr, Jacques
+                                         ing strategies (Greedy, Contrastive, DoLa, Nudging, and Active                          Klein, and Tegawendé F. Bissyandé. 2026. Evaluating Inference-Time De-
+                                         Layer-Contrastive Decoding), an iterative self-refinement approach                      fenses against Package Hallucination in LLM-Generated Code. In Proceed-
+                                         (Self-Refine), and a Retrieval-Augmented Generation (RAG)-based                         ings of the 41st IEEE/ACM International Conference on Automated Software
+                                         defense.. Across eight models spanning five families and four pro-                      Engineering (ASE ’26), October 12–16, 2026, Munich, Germany. ACM, New
+                                         gramming languages (Python, JavaScript, Ruby, Rust), RAG reduces                        York, NY, USA, 13 pages. https://doi.org/10.1145/3832783.3837555
+                                         the package hallucination rate (PHR) in 18 of 32 model–language
+                                         configurations. Third, we introduce Package Utility (PU) to assess                      1    Introduction
+                                         whether defenses preserve valid and task-relevant recommenda-                           Code-generating large language models (LLMs) have become a
+                                         tions. Among strategies evaluated, Greedy decoding provides the                         part of software development, powering IDE assistants, automated
+                                         strongest average mitigation–utility trade-off. Fourth, we stress-                      pipelines, and interactive chat-based programming workflows [9,
+                                         test all strategies under adversarial prompts seeded with fabricated                    11, 28, 31, 37, 38]. When a model produces code, it implicitly selects
+                                         package names and find that PHR surges by up to 45 percentage                           which external dependencies a developer will import, install, and
+                                         points relative to standard prompts, with Ruby consistently the                         ultimately trust. This selection is driven by the model’s paramet-
+                                         most vulnerable language (80.9–95.2%). Under adversarial condi-                         ric memory rather than by verified package metadata, and it can
+                                         tions, RAG and Self-Refine outperform all decoding-only strategies,                     go wrong in a way that is difficult to detect and easy to exploit.
+                                         indicating that robust defense requires either external grounding                       When an LLM recommends a package that does not exist in any
+                                         or iterative self-verification when prompts are actively hostile.                       legitimate registry, the result is a package hallucination [34]. If an
+                                            Our results recast package hallucination as both a measurement                       attacker registers that hallucinated name on a public registry and
+                                         problem and a decoding-time control problem, and they demon-                            uploads a malicious payload, any developer who blindly installs
+                                         strate that the choice of defense must be matched to the threat                         the LLM’s recommendation executes attacker-controlled code. This
+                                         model and recommendation utility.                                                       attack pattern, variously called slopsquatting or AI-induced pack-
+                                                                                                                                 age squatting [1, 2], is a growing threat to the software supply
+                                                                                                                                 chain [18, 40].
+                                                                                                                                    Empirical evidence shows that package hallucination is neither
+                                                                                                                                 rare nor confined to weak models. Spracklen et al. [34] found that
+                                                                                                                                 at least 5.2% of packages recommended by commercial LLMs and
+                                         This work is licensed under a Creative Commons Attribution 4.0 International License.   21.7% of those from open-source models were hallucinated, across
+                                         ASE ’26, Munich, Germany                                                                more than 576,000 code samples. Krishna et al. [17] showed that
+                                         © 2026 Copyright held by the owner/author(s).
+                                         ACM ISBN 979-8-4007-2882-2/2026/10                                                      hallucination rates vary with programming language, model size,
+                                         https://doi.org/10.1145/3832783.3837555                                                 and prompt specificity. Haque et al. [13] demonstrated that the
+
+=== [PDF page 2] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                            Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+phenomenon extends to shell-command generation for Go, where               • Inference-time defenses based on guided decoding for
+fabricated module paths take realistic URL-style forms. The problem          smaller LLMs. We adapt and evaluate five inference-time de-
+is compounded by the fact that hallucinated names are often per-             coding strategies (Greedy, Contrastive Decoding, DoLa, ALCD
+sistent across repeated generations [34], making them predictable            and Nudging) that intervene directly in token selection to re-
+targets for attackers. Recent work has also shown that package               duce package hallucinations without model retraining or depen-
+hallucination is more prevalent in smaller language models than in           dence on external retrieval. We compare them against standard
+larger ones, making them a particularly challenging setting for miti-        baselines, including Vanilla decoding, RAG, and Self-Refine.
+gation [17, 34]. Therefore, we focus our evaluation on smaller open-       • A utility-aware evaluation of package-hallucination de-
+source models. Beyond providing a stringent testbed for inference-           fenses. We introduce package utility (PU), a precision–recall
+time defenses, these models remain attractive in practice because            measure of valid and task-relevant recommendations, and show
+of their lower computational requirements and widespread deploy-             that reducing PHR does not necessarily preserve recommenda-
+ment in resource-constrained environments.                                   tion usefulness.
+   Several defenses have been proposed. Retrieval-augmented gen-           • A multilingual evaluation under both standard and adver-
+eration (RAG) grounds the model in verified registry data and can            sarial prompts. We assess all strategies across four program-
+sharply reduce hallucination rates [20, 34]. Self-refinement asks            ming languages with distinct package ecosystems and under
+the model to critique and revise its own output [24, 34]. Supervised         adversarial prompts seeded with fabricated package names, pro-
+fine-tuning updates model weights with package-aware supervi-                viding a comparative view of when guided decoding is effective
+sion [34]. Each of these approaches has clear merits, but each also          and where it fails.
+has structural limitations. RAG introduces an external retrieval
+pipeline that may not be available in all deployment settings and
+that can itself be poisoned. Self-refinement operates post-hoc and is
+unreliable for small models that cannot detect their own errors [19].     2    Related Work
+Fine-tuning is expensive and couples the defense to a specific model      Package Hallucination. Package hallucination occurs when an
+checkpoint.                                                               LLM generates imports or dependency recommendations for pack-
+   A largely unexplored alternative is to intervene during genera-        ages that do not exist in the target software ecosystem [17, 34].
+tion itself, at the point where the model commits to dependency           It represents a specialized form of code hallucination, alongside
+tokens. Guided decoding strategies modify the token selection pol-        broader syntactic, semantic, and requirement-level failures in LLM-
+icy at inference time without retraining the model and without            generated code [23, 35, 42]. Unlike syntactic errors, which can often
+relying on external knowledge. Contrastive Decoding [21] re-ranks         be detected through static analysis and iterative feedback [4, 6],
+candidate tokens by contrasting a larger “expert” model against a         package hallucinations are typically syntactically valid and only
+smaller “amateur” model, favoring tokens that reflect the expert’s        become apparent during installation or execution [13, 17, 34]. This
+superior factual grounding. DoLa [3] contrasts logits from late           makes them a software supply-chain security concern, enabling
+and early transformer layers within a single model, amplifying            attacks such as slopsquatting [1, 2, 36] and related forms of package
+factual knowledge encoded in deeper layers while suppressing sur-         squatting including typosquatting, impersonation squatting, and
+face patterns from shallower ones. Zhang et al. [41] extended this        compound squatting [15, 25]. Empirical studies have shown that
+idea with Active Layer-Contrastive Decoding (ALCD), which uses            package hallucination is prevalent across models, programming
+reinforcement learning to decide when to apply layer contrasts.           languages with over 19.7% of recommended packages for Python
+Nudging [10] uses a small aligned surrogate model to replace to-          and JavaScript prompting strategies and more severe for smaller
+kens whenever the base model’s confidence falls below a threshold.        LLMs [13, 17, 34, 39]. Prior work further attributes hallucinations
+All four methods were originally developed for natural-language           to both generation-time uncertainty [8, 16] and incorrect factual
+factuality tasks; none has been evaluated for package hallucination.      associations stored in parametric memory [8, 34]. Our work builds
+Beyond mitigation, we identify a fundamental measurement flaw.            on this literature by correcting evaluation artifacts that inflate hallu-
+Existing evaluation frameworks classify recommended packages              cination rates and by studying inference-time mitigation strategies.
+absent from the target registry (e.g., PyPI or npm) as hallucinated.      Defenses Against Package Hallucination. Existing defenses
+This misclassifies standard-library modules (e.g. os, math, and json      against package hallucination fall into three broad families. First,
+in Python) which appear in no registry. Consequently, reported            knowledge-grounding methods supplement the model with verified
+rates are inflated by up to 7.6 percentage points under default decod-    package information. Spracklen et al. [34] showed that Retrieval-
+ing, distorting baselines and apparent defense effectiveness. This        Augmented Generation (RAG) [20] substantially reduces hallucina-
+paper makes four contributions:                                           tions while largely preserving code quality. Second, post-hoc detec-
+                                                                          tion and correction methods validate or revise generated dependen-
+                                                                          cies. Krishna et al. [17] proposed checking dependencies against
+ • A corrected evaluation framework for package halluci-                  time-aware package registries, while Self-Refine [24] iteratively
+   nation. We identify a systematic source of false positives in          critiques and revises outputs without additional training. However,
+   registry-based evaluation, namely the misclassification of standard-   smaller models often fail to detect their own hallucinations and
+   library imports as hallucinated packages, and reduce this bias         may enter repetitive refinement loops [19]. Third, parameter-based
+   by augmenting registry-based validation with language-specific         methods modify the model itself. Supervised fine-tuning achieves
+   standard-library manifests.                                            strong reductions in package hallucination but requires training
+
+=== [PDF page 3] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                       ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+data, computational resources, and model-specific checkpoint main-                       4      Methodology
+tenance [34]. Lower-temperature decoding can also reduce hallu-                          We evaluated open-weight models across five families, seven strate-
+cination frequency, although sampling-parameter changes alone                            gies, and four programming languages: Python, JavaScript, Ruby,
+are insufficient [34]. In contrast, decoding-time mitigation remains                     and Rust. Hallucination detection uses enhanced ground-truth reg-
+comparatively underexplored. Our work addresses this gap by eval-                        istry snapshots to mitigate false-positive biases, with each strategy
+uating guided decoding as an inference-time defense that requires                        tested on the complete dataset Deval over three independent runs.
+no model retraining or external retrieval.
+Guided Decoding. Guided decoding modifies token selection at
+inference time without retraining the model. Standard approaches                         4.1      Dataset Construction
+include deterministic methods such as greedy and beam search,                            Following Spracklen et al. [34], we construct an evaluation dataset
+and stochastic methods such as top-𝑘 sampling, nucleus sampling,                         spanning four programming languages. Python and JavaScript
+and temperature scaling; their effectiveness depends on the task,                        are chosen for their popularity and the size of their package ecosys-
+model size, alignment, and quantization [33]. More recent methods                        tems (PyPI and npm, respectively). Ruby and Rust are chosen
+use model outputs or internal representations to improve factuality.                     as languages with smaller, more structured, and easily verifiable
+Contrastive Decoding contrasts an expert model with a smaller                            package namespaces (RubyGems and Crates.io, respectively). This
+amateur model [21] and has also been shown to improve reason-                            selection provides diversity in registry size, naming conventions,
+ing [26]. DoLa contrasts early and late transformer layers within a                      and ecosystem maturity. Our dataset construction pipeline consists
+single model [3], while Active Layer-Contrastive Decoding (ALCD)                         of three steps.
+learns when such contrasts should be applied [41]. Nudging instead                       Step 1: Package Sampling. For each language, we retrieved the
+uses a small aligned model to replace tokens when the base model                         top 1,000 most popular packages from the corresponding registries
+is uncertain [10]. In code generation, guided and constrained de-                        (PyPI, npm, RubyGems, and Crates.io) using the Libraries.io
+coding has been used to enforce syntax [12, 29], improve program                         API, which provides unified access to package metadata across
+structure through tree search [30], generate secure code through                         more than 36 package managers. Each retrieved record consists of
+supervised co-decoding [14], and adjust line-level logits to pro-                        a (package_name, description) pair, which serves as the seed
+mote essential control structures [22]. However, prior work has                          for prompt generation in Step 3.
+not systematically evaluated these techniques as defenses against                        Step 2: Ground-Truth Registry Snapshot. To enable reliable
+package hallucination. We address this gap by studying Contrastive                       hallucination detection, we collected the complete list of package
+Decoding, DoLa, ALCD, and Nudging in this setting.                                       names available in each registry as of March 4, 2026. We further aug-
+                                                                                         ment each registry snapshot with the standard-library module list
+3    Research Questions                                                                  for the corresponding language. This augmentation is critical to our
+To the best of our knowledge, this is the first study to systematically                  corrected evaluation methodology: without it, legitimate standard-
+evaluate guided decoding strategies as defenses against package                          library imports such as os, math, and json in Python would be erro-
+hallucination and to compare them against both pre-generation and                        neously flagged as hallucinated. The resulting ground-truth package
+post-generation baselines. Our evaluation spans four programming                         set Pℓ for each language ℓ ∈ {Python, JavaScript, Ruby, Rust} is
+languages (JavaScript, Python, Ruby, and Rust) across five model                         the union of registry packages and standard-library modules.
+families, enabling an analysis of how ecosystem characteristics                          Step 3: Prompt Generation. Starting from each (package_name,
+such as registry size, naming conventions, and package distribution                      description) pair, we used GPT-4o-mini to synthetically gener-
+interact with model behavior. We further assess the robustness of                        ate a natural-language coding instruction that reflects the package’s
+all mitigation strategies under adversarial prompts, where the user                      functionality. The system prompt used for this step was:
+explicitly steers the model toward non-existent packages. Our study                          System Prompt: Package Recommendation
+is organized around four research questions:                                                 You are a coding assistant that recommends packages useful to solve given prob-
+                                                                                             lems. Respond with only a list of <language> packages, separated by commas,
+RQ1 (Baseline Characterization). How does the package halluci-                               enclosed in square brackets, no additional text.
+                                                                                             Example output: [package1, package2]
+nation rate vary across model families and programming languages
+when evaluation accounts for standard-library imports?                                   This procedure yields a final evaluation dataset Deval of 4,000 in-
+                                                                                         structions, with |Dℓ | = 1,000 for each language ℓ.
+RQ2 (Defense Effectiveness). How effective are guided decod-
+ing strategies in reducing package hallucination compared with pre-
+generation (RAG) and post-generation (Self-Refine) baselines?                            4.2      Models
+                                                                                         We evaluate eight instruction-tuned, open-weight language models
+RQ3 (Mitigation–Utility Trade-off). What trade-offs arise be-                            from five families, spanning a range of parameter scales:
+tween the effectiveness of package-hallucination mitigation strategies
+and the utility of their generated package recommendations?                               • Gemma 3 (Google): gemma-1b, gemma-4b
+                                                                                          • DeepSeek-Coder (DeepSeek): deepseek-1.3b, deepseek-6.7b
+RQ4 (Adversarial Robustness). How robust are existing and pro-                            • Qwen 2.5 (Alibaba): qwen-1.5b, qwen-3b
+posed mitigation strategies when prompts are deliberately seeded with                     • Mistral (Mistral) : mistral-7b we used Instruct-v0.3.
+fabricated package names?                                                                 • Llama 3.1 (Meta) : llama-8b
+
+=== [PDF page 4] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                          Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+We focus on lightweight models (1b–8b parameters) for two rea-            them using an F1-style score:
+sons. First, prior work has shown that package hallucination rates
+decrease with model scale, with larger models generally exhibiting                                         PUP𝑖 × PUR𝑖
+                                                                                               PU𝑖 = 2 ×               .
+greater resistance to fabricated recommendations [17, 34]. Smaller                                         PUP𝑖 + PUR𝑖
+models are therefore a harder and more practically important test
+                                                                          We set PU𝑖 = 0 when 𝐺𝑖 = ∅ or both precision and recall are
+bed for mitigation strategies, since they are widely deployed on
+                                                                          zero. That is, an empty output avoids hallucination but provides
+resource-constrained hardware. Second, several of our guided de-
+                                                                          no package utility. Precision penalizes hallucinated or unrelated
+coding strategies (Contrastive Decoding, Nudging) require running
+                                                                          packages; recall penalizes output collapse. Because 𝑅𝑖 uses vetted
+two models simultaneously, and limiting parameter counts keeps
+                                                                          registry metadata, PU is reproducible and independent of LLM-
+inference within the memory budget of a single GPU.
+                                                                          generated reference labels, but remains a semantic proxy rather
+                                                                          than complete ground truth. To complement this, we also evaluate
+4.3     Hallucination Detection
+                                                                          recommendation utility through generated code. Specifically, after
+For each (model, language, strategy) triple, the model is                 removing hallucinated packages, we ask the same model to solve the
+queried on the full dataset Deval and asked to recommend packages.        original task using the recommended packages and count how many
+The raw outputs are parsed to extract the set of recommended pack-        are imported or otherwise used. This operationally complements
+age names. Each name is then checked against the ground-truth             description similarity.
+set Pℓ , which includes both registry packages and standard-library
+modules. A recommended name is classified as hallucinated if and
+only if it is absent from Pℓ .
+                                                                          4.5    Baselines and Decoding Strategies
+   We report the following metrics for each configuration                 We compare five guided decoding strategies against three baselines.
+                                                                          Baselines. Vanilla Decoding uses the model’s standard generation
+• Micro PHR (benchmark level). Computed over the full output
+                                                                          configuration, with temperature set to 1.0, top-𝑘 set to 50, and
+  of a given (model, language, strategy) configuration:
+                                                                          top-𝑝 set to 1.0, and serves as the non-deterministic reference set-
+                                            𝑁 hall                        ting. Self-Refine [24, 34] is a post-generation iterative correction
+                           micro-PHR =
+                                            𝑁 gen                         approach where the model critiques and revises its own output over
+• Macro PHR (sample level). Computed per prompt 𝑖 and then                multiple passes, included as a representative post-hoc mitigation
+  averaged:                                                               technique. RAG [20, 34] supplements the prompt with retrieved
+                                                                          package information from the registry, included as a representative
+              𝑛 hall,𝑖                 1 ∑︁
+       PHR𝑖 =          , macro-PHR =            PHR𝑖                      pre-generation grounding technique.
+              𝑛 gen,𝑖                |Deval | 𝑖
+                                                                          Guided Decoding Strategies. Greedy Decoding selects the highest-
+  where 𝑛 gen,𝑖 and 𝑛 hall,𝑖 are the number of generated and halluci-     probability token at each step, yielding a more deterministic al-
+  nated packages for prompt 𝑖, respectively. If 𝑛 gen,𝑖 = 0, the prompt   ternative. Contrastive Decoding (CD) [21, 26] generates tokens by
+  contributes 0 to the sum.                                               subtracting the log-probability distribution of a smaller amateur
+                                                                          model from that of the expert (target) model, penalizing tokens that
+4.4     Package Utility Score (PU)                                        are probable under both models and rewarding tokens specific to
+PHR measures the fraction of generated package names that are             the expert. DoLa [3] computes a contrastive distribution between an
+invalid but not their usefulness. A defense can lower PHR by pro-         early and a late transformer layer within the same model, amplify-
+ducing fewer packages or suppressing recommendations. We intro-           ing factual knowledge encoded in deeper layers while suppressing
+duce the Package Utility Score (PU), measuring whether generated          surface patterns from shallower ones. Active Layer-Contrastive De-
+packages are valid and task-relevant. For prompt 𝑖, let 𝐺𝑖 be the         coding (ALCD) [41] is built upon DoLa and consisted of a selection
+generated package set and Pℓ the language-specific universe of            of tokens where to apply the contrastive distribution decoding
+registry packages and standard-library modules. Since each prompt         based on predefined policy. Nudging [10] uses a small aligned sur-
+is derived from seed package 𝑠𝑖 and its description 𝑑 (𝑠𝑖 ) [34], we      rogate model to generate replacement tokens whenever the base
+construct a task-specific reference set 𝑅𝑖 ⊆ Pℓ by computing cosine       model’s confidence falls below a calibrated threshold, effectively
+similarity between 𝑑 (𝑠𝑖 ) and every verified same-language pack-         steering generation toward more grounded outputs at points of
+age description 𝑑 (𝑝) using text-embedding-3-small embedder,              high uncertainty.
+then selecting 𝑠𝑖 and the 𝑘 − 1 most similar packages. Therefore, 𝑅𝑖      Experimental Configuration. To ensure a fair comparison across
+contains only valid packages and approximates those functionally          strategies, we fix a single hyperparameter configuration per strategy
+related to the seed, crediting valid alternatives while excluding hal-    and apply it uniformly across all eight models and four languages
+lucinations. The useful generated set is 𝑈𝑖 = 𝐺𝑖 ∩ 𝑅𝑖 ∩ Pℓ = 𝐺𝑖 ∩ 𝑅𝑖 ,    considered. This choice trades a small amount of per-configuration
+where the explicit intersection with Pℓ emphasizes validity because       optimality for comparability: a strategy that wins under a shared
+𝑅𝑖 ⊆ Pℓ . Package precision and recall are defined as                     configuration is evidence of genuine robustness rather than an
+                                                                          artifact of grid search. Table 1 summarizes the configuration used
+                              |𝑈𝑖 |                  |𝑈𝑖 |                for each strategy. Our choice of decoding hyperparameters is based
+                    PUP𝑖 =          ,     PUR𝑖 =           .
+                              |𝐺𝑖 |                  |𝑅𝑖 |                on the previous study made by Shi et al. [33]. For RAG, we follow
+Precision is the fraction of generated dependencies in the reference      the retrieval configuration of Spracklen et al. [34], adopting their
+set, whereas recall is the fraction of that set recovered. We combine     top-𝑘 retrieval setup.
+
+=== [PDF page 5] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                 ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+      Table 1: Hyperparameter configuration per strategy.                                Table 2: Micro PHR with and without standard library (stdlib)
+                                                                                         correction, averaged over all models. Δ > 0 means overesti-
+       Strategy                    Hyperparameters                                       mation without the correction.
+       Baseline (Vanilla)          𝑇 =1.0, top-𝑘=50, top-𝑝=1.0
+       Greedy                      𝑇 =0                                                   Lang.    Strategy   𝑁 gen    PHRw/ stdlib (%)   PHRw/o stdlib (%)   Δ (pp)
+
+       Contrastive Decoding (CD)   𝛼=0.5; amateur/expert layer                                     Vanilla    79,965          24.7±0.67           32.3±0.53     +7.6
+                                   pairing (model-specific)                                        Greedy     47,796          19.3±0.00           27.4±0.00     +8.1
+                                                                                                   S-Ref      39,465          19.0±1.14           28.4±1.26     +9.4
+       DoLa                        mature_layer = final layer of                                   CD         24,489          26.7±0.55           32.6±0.50     +5.9
+                                                                                          Python
+                                   target model;                                                   DoLa       51,540          32.3±0.60           38.9±0.58     +6.6
+                                   early_exit_layers= {4, 8, 12, 16} ;                             Nudge      17,628          21.3±1.40           30.4±0.91     +9.1
+                                   𝛿=0.1; repetition_penalty= 1.2                                  RAG        59,910          11.5±0.04           14.3±0.02     +2.8
+                                                                                                   ALCD       49,257          27.6±0.71           34.8±0.79     +7.1
+       ALCD                        mature_layer = final layer of
+                                   target model;                                                   Vanilla    69,072          38.2±0.89           40.4±0.96     +2.2
+                                   early_exit_layers= {4, 8, 12, 16} ;                             Greedy     39,771          30.3±0.00           32.8±0.00     +2.5
+                                   𝛿=0.1; repetition_penalty= 1.2;                                 S-Ref      34,596          31.9±0.29           34.1±0.32     +2.2
+                                   active decision policy => 𝑒𝑛𝑡𝑟𝑜𝑝𝑦 ≥ 1                           CD         16,596          40.9±0.53           42.6±0.58     +1.7
+                                                                                          Ruby
+                                                                                                   DoLa       47,223          46.6±0.39           49.0±0.38     +2.4
+       Nudging                     surrogate_model = largest in
+                                                                                                   Nudge      19,446          38.0±0.87           40.3±1.09     +2.2
+                                   family; top_prob_threshold= 0.4
+                                                                                                   RAG        61,260          11.7±0.03           13.3±0.01     +1.6
+       RAG                         retrieval_𝑘=5; corpus =                                         ALCD       43,110          39.3±0.21           41.8±0.20     +2.5
+                                   per-language package registry
+       Self-Refine                 max_refinement_iterations= 5
+                                                                                         dataset Deval and extracting recommended package names, val-
+                                                                                         idated against ground-truth registry snapshots Pℓ . The result is
+5     Experiments and Results                                                            shown in Table 3.
+This section presents experimental results aligned with the four                         PHR varies across models and languages. Mistral-7b exhibits
+research questions from Section 3. We repeat each experiment three                       the lowest Overall micro PHR (16.1%), while Qwen-1.5b achieves
+times and report the mean and standard deviation across runs. For                        the highest (47.9%). Scaling from smaller to larger models correlates
+large tables where space is limited, we report the mean in the main                      with a reduction in average micro PHR: DeepSeek shows a decrease
+paper and provide the full per-run values and standard deviations in                     of 18.3 pp (39.2% to 20.9%), Gemma 19.8 pp (38.2% to 18.4%), and
+the artifact. We first quantify the impact of standard-library correc-                   Qwen 20.3 pp (47.9% to 27.6%). Among programming languages,
+tion on package hallucination measurement. We then characterize                          Rust has the highest micro PHR of 63.1% on Qwen-1.5b, followed by
+the baseline performance across multiple models and languages                            Ruby on Gemma-1b (53.9%), indicating that more than half of the
+(RQ1), compare inference-time defenses for package recommen-                             recommended packages are hallucinated. Javascript has the least
+dation and code generation (RQ2), evaluate package utility across                        micro PHR of 7.6%.
+different reference sets (RQ3), and assess the robustness of defenses                    Package-generation volume varies across models. The mean
+to adversarial prompts involving fabricated package names (RQ4).                         number of packages generated per prompt (macro) ranges from
+                                                                                         approximately 1 for DeepSeek-1.3b to 12 for Llama-8b. Overall,
+5.1     The Impact of Standard-Library Correction                                        Qwen-1.5b produces the most packages (100,896), including 48,330
+                                                                                         hallucinations, while DeepSeek-1.3b produces the fewest. Micro-
+Prior evaluations can overestimate package hallucination by treat-
+                                                                                         and macro-PHR capture complementary perspectives. Micro-PHR
+ing standard-library imports as invalid because they are absent from
+                                                                                         measures hallucination across all generated packages at the bench-
+centralized registries. For example, Python modules such as os and
+                                                                                         mark level and therefore gives greater weight to prompts producing
+math do not appear on PyPI despite being valid dependencies. To
+                                                                                         longer recommendation lists. Macro-PHR instead averages per-
+quantify this bias, we collected standard-library manifests for the
+                                                                                         prompt rates, reflecting hallucination for a typical prompt regard-
+two applicable languages and computed PHR with and without cor-
+                                                                                         less of output length. For most configurations, micro-PHR exceeds
+rection. Table 2 reports the overestimation Δ by language and strat-
+                                                                                         macro-PHR, indicating that high-volume prompts are also more
+egy. For Python, excluding standard-library modules inflates PHR
+                                                                                         hallucination-prone. The largest gaps occur for Qwen-1.5b on Rust
+by up to 9.4 pp, compared with 2.5 pp for Ruby, reflecting Python’s
+                                                                                         (+23.3 pp), DeepSeek-1.3b on Ruby (+23.2 pp), and Gemma-1b on
+larger and more frequently imported standard library. RAG shows
+                                                                                         Ruby (+22.7 pp). Reporting both metrics therefore distinguishes ag-
+the smallest overestimation in both languages, consistent with its
+                                                                                         gregate package-level exposure from typical prompt-level behavior.
+reliance on verified package information. Standard-library misclas-
+sification can also alter the relative ranking of mitigation strategies,
+affecting both measurement accuracy and comparative evaluation.                              RQ1 Summary
+We therefore apply standard-library correction throughout our
+evaluation.                                                                                  Package hallucination is pervasive across all eight models
+                                                                                             and four languages Rust and Ruby are challenging for the
+                                                                                             different studied models and scaling from smaller to larger
+5.2     Baseline Package Hallucination                                                       variants reduces hallucination by 16–21 pp within each
+We characterize the hallucination behavior of eight models un-                               family. Yet no model is hallucination-free.
+der vanilla conditions by querying them on the full evaluation
+
+=== [PDF page 6] ===

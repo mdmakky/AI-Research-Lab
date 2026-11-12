@@ -1,6 +1,6 @@
 ---
 key: si2025benchmarking
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + automatic metrics + human evaluation (comparative evaluation of MLLMs and prompting methods)
 dataset: Design2Code: 484 manually curated real-world webpages from C4 validation set; Design2Code-HARD: 80 harder webpages
@@ -37,13 +37,13 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - Baselines or comparison conditions: commercial GPT-4o, GPT-4V, Claude 3 Opus, Gemini 1.0 Pro Vision; open models LLaVA-V1.6-Mixtral-7B, DeepSeek-VL-7B, Idefics2-8B; fine-tuned WebSight VLM-8B and Design2Code-18B [V] (p. 5). On Design2Code-HARD: GPT-4o, GPT-4o Mini, Claude 3.5 Sonnet, Claude 3 Opus, Gemini 1.5 Pro, Gemini 1.5 Flash [V] (p. 8). Authors state comparisons are "not apple-to-apple" because of model size and training-data differences [A] (p. 5). Human pairwise comparisons use Gemini Pro Vision Direct as the single reference baseline [V] (p. 5).
 
 ## 4. Dataset and sample
-- Data source(s): webpages linked from the C4 validation set; CSS embedded into one HTML file per page, giving 127.9k pages [V] (p. 2). Design2Code-HARD source is listed as "Real-World (GitHub)" in Table 4 (p. 14), while the main text says it uses "the same filtering process" (p. 8) — the exact origin of HARD pages is not further described [V] (pp. 8, 14).
+- Data source(s): webpages linked from the C4 validation set; CSS embedded into one HTML file per page, giving 127.9k pages [V] (p. 2). Design2Code-HARD pages are sourced from GitHub ("Real-World (GitHub)", Table 4, p. 14) and filtered "using the same filtering process" (p. 8) [V]; how the GitHub pages were found and selected is not described.
 - Sample size (N) and unit: 484 webpages (test cases) [V] (p. 3); HARD: 80 webpages [V] (p. 8). Average 31,216 GPT-2 tokens per file (min 784, max 98,637), 158 tags on average, 84 HTML5 tag types, DOM depth 13 on average [V] (p. 3). Domain annotation on a random 25% subsample (N=120): company/org 27.7%, blog 25.3%, homepage 13.3% most common [V] (p. 3).
 - Sampling / selection method: automatic filtering (drop files >100k tokens, image-only or text-only layouts, deduplication) → 14k pages; strip external dependencies (script, iframe, svg, external links, href, media replaced by placeholders); first two authors manually curated a random 7k of the 14k for stand-alone rendering, no sensitive content and good formatting, after reaching 75% agreement on 200 jointly annotated pages → 484 pages; about one week of work [V] (pp. 2–3, 13). Diversity was sought "as possible" but no formal stratification is described [V] (p. 13).
 - Data availability (public? link?): authors state they release the dataset under the ODC-By license [A] (p. 10); no URL is given in our PDF [V] (p. 10).
 
 ## 5. Experimental setup
-- Procedure, settings, hyper-parameters, tools: commercial models with greedy decoding and max 4,096 new tokens; model versions gpt-4o-2024-05-13, gpt-4-1106-vision-preview, claude-3-opus-20240229, gemini-1.0-pro-vision [V] (p. 14). Open models: temperature 0.5, repetition penalty 1.1; reference and generated screenshots concatenated into one image for single-image models; Qwen-VL-Chat and Mantis excluded because they failed to produce HTML in >80% of cases [V] (pp. 14–15). Fine-tuning: batch 32, lr 1e-5, 5,000 steps, 4× A6000 for about 2 days, checkpoint chosen on a 20-example dev set [V] (p. 15). Gemini 1.5 gave empty responses in the main experiment [V] (p. 14). Human evaluators: Prolific, US only, ≥2,500 surveys with ≥98% pass rate, 60 participants, $16/hour, 5 annotators per item, majority vote [V] (pp. 5, 15).
+- Procedure, settings, hyper-parameters, tools: commercial models with greedy decoding and max 4,096 new tokens; model versions gpt-4o-2024-05-13, gpt-4-1106-vision-preview, claude-3-opus-20240229, gemini-1.0-pro-vision [V] (p. 14). Open models: temperature 0.5, repetition penalty 1.1; reference and generated screenshots concatenated into one image for single-image models; Qwen-VL-Chat and Mantis excluded because they failed to produce HTML in >80% of cases [V] (pp. 14–15). Fine-tuning: batch 32, lr 1e-5, 5,000 steps, 4× A6000 for about 2 days, checkpoint chosen on a 20-example dev set [V] (p. 15). Gemini 1.5 is absent from the 484-page table; a footnote reports "empty responses with unexplained errors while testing Gemini 1.5" (p. 14), although Gemini 1.5 Pro/Flash results appear on HARD (Table 3, p. 8) [V]. Human evaluators: Prolific, US only, ≥2,500 surveys with ≥98% pass rate, 60 participants, $16/hour, 5 annotators per item, majority vote [V] (pp. 5, 15).
 - Code availability: authors promise "clear ethical use guidelines for all data, code, and model releases" [A] (p. 10); no repository link in our PDF — not reported.
 
 ## 6. Evaluation metrics
@@ -60,9 +60,9 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 
 ## 7. Key findings
 1. GPT-4o is best on every automatic dimension (Direct: Block 93.0, Text 98.2, Position 85.5, Color 84.1, CLIP 90.4) [V] (p. 6); in human pairwise evaluation GPT-4o Direct wins 92% vs the Gemini baseline [V] (p. 7).
-2. Text-augmented prompting raises Block-Match and Text for most models (e.g. GPT-4V Block 85.8 → 87.6; Gemini 80.2 → 84.8); self-revision helps GPT-4V and Claude 3 a little and does not help Gemini or open models (DeepSeek-VL self-revision collapses to Block 30.1) [V] (pp. 5–6).
-3. Main weakness: models "mostly lag in recalling visual elements ... and generating correct layout designs" [A] (p. 1); on Design2Code-HARD, state-of-the-art models miss 30–40% of block elements (GPT-4o Direct Block 56.6) [V] (p. 8).
-4. Fine-tuned open models (WebSight VLM-8B, Design2Code-18B) roughly match Gemini 1.0 Pro Vision Direct (Block 55.9 / 78.5 vs 80.2; CLIP 87.6 / 85.8 vs 84.4) [V] (p. 6).
+2. [A] Text-augmented prompting "increases the block-match score and text similarity score on most tested models" (p. 5). [V] Block-Match rises for 4 of 7 prompted models (e.g. GPT-4V 85.8 → 87.6; Gemini 80.2 → 84.8) but falls for GPT-4o (93.0 → 92.4), Claude 3 Opus (90.2 → 89.8) and Idefics2 (46.7 → 23.6); Text rises for all except Idefics2 (80.3 → 55.6) (Table 1, p. 6). [V] Self-revision helps GPT-4V and Claude 3 a little and does not help Gemini or open models (DeepSeek-VL self-revision collapses to Block 30.1) [V] (pp. 5–6).
+3. Main weakness: models "mostly lag in recalling visual elements ... and generating correct layout designs" [A] (p. 1); on Design2Code-HARD, the authors state that state-of-the-art models "fail to generate 30% - 40% of the block elements" [A] (p. 8). Block-Match is an area-weighted share that also penalises hallucinated blocks (pp. 4–5), so it is not a count of missed elements [I]. [V] HARD Block-Match ranges 56.6–75.1 across configurations (GPT-4o Direct 56.6, i.e. more than 40% unmatched area) (Table 3, p. 8).
+4. [A] Authors state that WebSight VLM-8B and Design2Code-18B "match Gemini direct prompting" (p. 6). [V] Design2Code-18B is close on Block (78.5 vs 80.2), but WebSight VLM-8B is far lower on Block (55.9) and Text (86.6 vs 94.6), though higher on CLIP (87.6 vs 84.4), Position (77.3 vs 72.3) and Color (79.4 vs 66.2) (Table 1, p. 6).
 5. Direct assessment: 49% of GPT-4V self-revision pages judged interchangeable with the reference; generated pages preferred over the original in 64% of cases [V] (p. 6). Kappa for these questions is low (0.32, 0.26) [V] (p. 16).
 6. Humans weight high-level layout and presence of content, not exact text: text similarity has a negative coefficient in predicting preference [V] (p. 7). Human and automatic rankings disagree in places (e.g. humans prefer WebSight VLM-8B over Design2Code-18B despite worse Block-Match/Text) [V] (pp. 6–7).
 7. Total tag count is the strongest difficulty indicator (r = −0.28 with Block-Match for GPT-4V self-revision); non-English pages are harder [V] (pp. 8, 15).
@@ -82,14 +82,15 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [I] Human validation is modest: 100 pages, Fleiss' κ only 0.46/0.32/0.26 (p. 16), logistic regression accuracy 79.9% on a 50-page test half (p. 7). The very high Pearson r = 0.975 is computed over only 10 system-level points (p. 17) and compares predicted wins with human "win + tie" — an aggregation that inflates agreement.
 - [I] Test pages come from C4, a common pretraining corpus; data contamination is not discussed (grep for "contamin" finds nothing).
 - [I] Single run per configuration with greedy decoding; no variance or significance testing between models (pp. 5–6, 14).
-- [I] Design2Code-HARD origin is inconsistent: "same filtering process" (p. 8) vs source "GitHub" (p. 14).
+- [I] Design2Code-HARD pages are sourced from GitHub (p. 14) and filtered "using the same filtering process" (p. 8); how the GitHub pages were found and selected is not described, so the HARD set's representativeness cannot be judged.
+- [I] The metric-validation agreement is not out-of-sample. The logistic regression is trained on 50 of the 100 human-annotated pages (p. 7); the linear model for simulated win rates is refit "on the same training examples" and applied to "all 484 examples", which include those training pages (p. 17); and the human "win + tie" rates it is compared with come from the same 100 pages (Table 8, p. 17). So r = 0.975 / τ = 0.931 partly reflects fit on the training data, on top of being computed over only 10 system-level points.
 - [I] Element metrics are text-anchored (blocks come from text segments, p. 13); images, icons and non-text elements are only covered by CLIP.
 
 ## 10. Threats to validity
 - Internal (confounds, leakage, selection): manual curation by the authors (selection bias towards well-formatted pages) (p. 13); possible C4 pretraining contamination (not discussed); Design2Code-18B checkpoint chosen on a 20-example dev set (p. 15) [I].
 - External (generalisability of sample/context): static, single-page, English-dominant web pages with placeholders for media; HARD set of 80 (p. 8); no mobile apps, multi-page or interactive apps [I].
 - Construct (do metrics measure the concept?): metrics measure visual similarity of a rendered screenshot, not functional fidelity or code quality; Text metric is negatively associated with human preference (p. 7), so the five metrics do not all point the same way [I].
-- Statistical conclusion (power, multiple comparisons, variance): no CIs or tests for model differences; low-moderate inter-annotator agreement (p. 16); system-level correlation on n = 10 (p. 17) [I].
+- Statistical conclusion (power, multiple comparisons, variance): no CIs or tests for model differences; low-moderate inter-annotator agreement (p. 16); system-level correlation on n = 10 (p. 17), and that correlation is not an out-of-sample validation because the simulating model was fit on 50 of the same 100 annotated pages and applied to all 484 pages including them (pp. 7, 17) [I].
 - Reproducibility (data/code/setup reported?): prompts, model versions and decoding settings reported (p. 14); fine-tuning hyper-parameters reported (p. 15); dataset release claimed but no link in our PDF (p. 10); commercial model versions may be deprecated [I].
 
 ## 11. Future research directions
@@ -106,11 +107,12 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 | RQ1 | Screenshot-to-HTML/CSS with MLLMs via direct, text-augmented and self-revision prompting, plus fine-tuned open models | p. 4–5 | V | moderate |
 | RQ2 | Visual fidelity measured by Block-Match, Text, Position, Color (CIEDE2000) and CLIP on rendered screenshots | p. 3–5 | V | moderate |
 | RQ2 | GPT-4o Direct best: Block 93.0, Text 98.2, Position 85.5, Color 84.1, CLIP 90.4 on 484 pages | p. 6 | V | moderate |
-| RQ2 | On 80 HARD pages SOTA models miss 30–40% of blocks (GPT-4o Direct Block 56.6) | p. 8 | V | moderate |
+| RQ2 | Authors state SOTA models fail to generate 30–40% of block elements on 80 HARD pages | p. 8 | A | weak |
+| RQ2 | HARD Block-Match (area-weighted, also penalises hallucinated blocks) ranges 56.6–75.1 across configurations (GPT-4o Direct 56.6) | p. 8 | V | moderate |
 | RQ2 | 49% of GPT-4V self-revision pages judged interchangeable with the original (κ = 0.32) | p. 6, 16 | V | weak |
 | RQ3 | No code quality or maintainability measure; only rendered visual similarity | p. 3–4 | V | moderate |
 | RQ4 | Metrics predict human Win/Lose with 79.9% accuracy (logistic regression, 50-page test half); Text coefficient negative | p. 7 | V | moderate |
-| RQ4 | Simulated vs human win rates: Pearson r = 0.975, Kendall τ = 0.931 over 10 systems | p. 17 | V | weak |
+| RQ4 | Simulated vs human win rates: Pearson r = 0.975, Kendall τ = 0.931 over 10 systems; not out-of-sample (model fit on 50 of the same 100 annotated pages, applied to all 484 incl. them) | p. 7, 17 | V | weak |
 | RQ4 | Human agreement low-moderate: Fleiss' κ 0.46 / 0.32 / 0.26 | p. 16 | V | moderate |
 | RQ4 | No significance tests or variance across runs for model comparisons | p. 5–6 | I | moderate |
 | RQ5 | Authors call for dynamic webpages evaluated on interactive functions beyond visual similarity | p. 10 | A | moderate |
@@ -122,4 +124,5 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 
 ## Analyst notes
 - Reading coverage: whole PDF read (pp. 1–19), including appendices A–I; reference list skimmed only.
-- Uncertainties: dataset/code URL not given in our ACL PDF (the arXiv version may differ); HARD-set source inconsistent between p. 8 and p. 14; the logistic-regression test-set size in pairs is not stated separately (435 is the total of usable pairs). Peer-reviewed (NAACL 2025, tier 1).
+- Source version: ACL Anthology PDF of the NAACL 2025 long paper (ACL proceedings page numbers printed in the footer, e.g. 3960 on PDF p. 5), not the arXiv preprint; all page refs follow this PDF.
+- Uncertainties: dataset/code URL not given in our ACL PDF (the arXiv version may differ); how HARD pages were found on GitHub (pp. 8, 14); the logistic-regression test-set size in pairs is not stated separately (435 is the total of usable pairs). Peer-reviewed (NAACL 2025, tier 1).

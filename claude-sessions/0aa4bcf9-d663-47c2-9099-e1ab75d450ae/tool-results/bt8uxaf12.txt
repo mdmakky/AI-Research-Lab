@@ -1,0 +1,471 @@
+# Research standards
+
+The rules every skill and agent in this workspace follows. One source of truth: change rules here, not in individual skills.
+
+## 1. Evidence labels
+Every substantive statement about a paper or the literature carries one label:
+
+| Label | Short | Meaning | Requirement |
+|---|---|---|---|
+| VERIFIED | [V] | Checked against the paper's own data, tables, figures or results text. | Page ref `(key, p. N)` |
+| AUTHOR-CLAIM | [A] | The authors state it; we cannot independently check it (e.g. claims of novelty, interpretations, conclusions beyond the data). | Page ref |
+| INTERPRETATION | [I] | Our own reasoning, synthesis or critique. | Say what it is based on |
+
+Page refs use the `=== [PDF page N] ===` markers in `fulltext.txt` (PDF page index, not printed page number). When a quote is used, it is copied verbatim from `fulltext.txt`.
+
+Citation syntax:
+- Inside a paper's own `analysis.md`: `(p. N)`.
+- Everywhere else (evidence matrix, reports, reviews): pandoc style `[@key, p. N]` or `[@key1; @key2]`. Keys are the folder names under `papers/`. This works with `references.bib` and pandoc.
+- `rlab cite-check <project> <file...>` must pass before any written document is handed to the user.
+
+## 2. Never invent
+- Every DOI, title, author, year and venue comes from `metadata.json` (resolved by `rlab add` from Crossref/OpenAlex/arXiv/PubMed). Never type a DOI from memory.
+- Every finding, number, limitation and quote comes from the paper text. If the paper does not report something, write "not reported".
+- Every citation in written output uses an existing paper key in the project. A claim with no source is either removed or labelled [I].
+- If something cannot be found or verified, say so plainly. An honest "unknown" beats a plausible guess.
+
+## 3. Source quality tiers
+Prefer higher tiers; state the tier when it matters to the argument.
+
+1. Peer-reviewed journal articles and full papers at reputable conferences (`venue_kind: published`); systematic reviews and meta-analyses at the top for evidence synthesis.
+2. Peer-reviewed workshop papers, book chapters from academic publishers.
+3. Preprints (`venue_kind: preprint`, e.g. arXiv): usable, always flagged "not peer-reviewed". If a published version exists, use it instead.
+4. Theses, technical reports, grey literature: background only, flagged.
+5. Blogs, news, Wikipedia, vendor material: never cited as evidence. May guide searching.
+
+`venue_kind: published` means the work appeared in a journal or proceedings; it is not proof of rigorous review. Watch for predatory venues (unknown publisher, implausibly fast review, no indexing) and flag them.
+Retracted papers (`RETRACTED` flag from `rlab`) are excluded from evidence; mention only as retracted.
+
+## 4. Reading depth
+- Detailed methodology, dataset, setup, metrics, findings and limitations require the full text (`evidence_basis: full-text`).
+- Abstract-only analysis (`evidence_basis: abstract-only`) may fill objective and headline claims labelled [A] only. All method sections say "full text not available". Abstract-only papers carry less weight in synthesis and gap claims; say so.
+- Read the whole paper: methods, results, tables, limitations, appendix if relevant. Note skipped parts in "Analyst notes".
+
+## 5. Critical appraisal checklist
+For every empirical paper check and record:
+- Sample size and how it was chosen; power or uncertainty reporting.
+- Baselines and whether they are fair and current.
+- Evaluation design: train/test separation, leakage, cross-validation, held-out data, blinding, control groups.
+- Statistical testing: tests, effect sizes, confidence intervals, multiple comparisons.
+- Reproducibility: data, code, hyper-parameters, protocol available?
+- Conflicts of interest and funding where relevant.
+- Whether conclusions go beyond the data (mark those [A] and note it).
+
+Evidence strength: **strong** = adequate N, sound design, replicated or consistent across studies; **moderate** = sound design but single study or limited N; **weak** = small/unclear N, design flaws, abstract-only, or preprint without replication.
+
+## 6. Contradictions
+When papers disagree: record both sides in the evidence matrix "Contradictions" section with page refs, then compare data, population, method, metric and time. Offer an explanation only as [I]. Never silently pick a side.
+
+## 7. Research gaps and novelty
+A gap is reported only when:
+1. It is supported by evidence from analysed papers (explicit future-work statements, consistent limitations, contradictions, untested populations/conditions, missing method comparisons).
+2. A dedicated novelty check was run: at least 3 targeted searches (`rlab search`) across at least 2 sources, recent years included, plus a web search for very recent work. Queries, date and closest hits are recorded in the gap entry.
+3. Confidence is stated. "No paper found" is phrased as "we found no paper that ... (searches on DATE)", never "this has never been studied".
+
+## 8. Copyright and access
+- Download only legal open-access copies: OpenAlex/Unpaywall OA locations, arXiv, Europe PMC, publisher OA pages. `rlab fetch` enforces this and refuses shadow libraries.
+- Never bypass paywalls, logins, CAPTCHAs, or rate limits. Never use Sci-Hub, LibGen, Anna's Archive or similar.
+- When no OA copy exists: tell the user and ask them to obtain it through their library, then `rlab attach`. Otherwise analyse abstract-only and label it.
+- Quotes stay short and attributed. PDFs stay inside the project folder and are not redistributed.
+
+## 9. Preservation
+- Original PDFs (`paper.pdf`), extracted text (`fulltext.txt`) and completed analyses (`status: complete`) are never overwritten or deleted without the user's explicit permission. A hook asks the user first (once `setup/claude-settings.json` is installed).
+- Analysis status flow: `draft` (in progress) -> `ready` (analyst self-check passed) -> `complete` (critical review passed). Fix review findings while the analysis is `ready`.
+- Revisions to a completed analysis go in a new section `## Revision YYYY-MM-DD` with what changed and why, after the user agrees.
+- `research-log.md` is append-only.
+
+## 10. Talking to the user (a beginner researcher)
+- Progress updates: short, what was done, what was found, what is next.
+- Explain research terms on first use in one plain sentence (e.g. "a *systematic review* is a study that collects and evaluates all studies on a question").
+- Explain important decisions and their reason: scope cuts, exclusions, weak evidence, gaps.
+- Ask only for: scope or research-question choices that change the direction, missing full-text access, paid or restricted resources, and anything destructive.
+---
+name: analyze-paper
+description: Analyse one research paper in depth (objective, method, data, setup, metrics, findings, limitations, validity threats, future work, relevance) with page-cited evidence. Use when a project paper needs its analysis.md written or completed.
+---
+
+# Analyse a paper
+
+`rlab` = `python3 scripts/rlab.py`. Rules: [docs/research-standards.md](../../../docs/research-standards.md) — labels §1, never invent §2, reading depth §4, appraisal checklist §5.
+
+Input: project id + paper key. Files live in `research/<id>/papers/<key>/`.
+
+## 1. Prepare
+- `rlab scaffold <id> <key>` (creates `analysis.md`; never overwrites an existing one).
+- Read `metadata.json`. Note `venue_kind`, `is_retracted`, `fulltext.status`, `fulltext.identity`, `fulltext.text_layer`.
+- `identity` UNCONFIRMED → read PDF page 1 and confirm it is this paper; if not, stop and report.
+- `text_layer` POOR → read pages from `paper.pdf` with the Read tool (`pages` parameter) instead of `fulltext.txt`.
+- No full text → `evidence_basis: abstract-only`; fill objective and headline claims as [A] from the abstract in `metadata.json`, write "full text not available" in sections 3–6, 8 and 10, and stop at step 4.
+
+## 2. Read the whole paper
+Read `fulltext.txt` in chunks (Read with offset/limit) from start to end: abstract, introduction, method, results, tables, discussion, limitations, conclusion. Use Grep for `limitation|threat|future work|we did not|sample|dataset|N =` to make sure nothing is missed. For tables or figures garbled by text extraction, read that PDF page directly. Page numbers come from the nearest preceding `=== [PDF page N] ===` marker.
+
+## 3. Write the analysis
+Fill every section of `analysis.md`. Each [V]/[A] item ends with `(p. N)`. Use "not reported" when the paper is silent — that absence is itself useful information (e.g. no sample size reported). Separate author-stated limitations (section 8, [A]) from limitations you identify (section 9, [I]). Apply the appraisal checklist to section 10. Fill the evidence table (section 13) with rows linked to project RQ ids from `RESEARCH-QUESTIONS.md`.
+
+## 4. Frontmatter
+Fill the single-line frontmatter fields: `design`, `dataset`, `sample_size`, `metrics`, `main_finding` (≤25 words), `relevance` (high/medium/low). These feed the literature matrix.
+
+## 5. Self-check
+- Every [V]/[A] has a page ref; `rlab cite-check <id> research/<id>/papers/<key>/analysis.md` passes.
+- Grep `fulltext.txt` for 3 of your quotes/numbers: each is found on the cited page.
+- No template placeholder or empty required section remains.
+Then set `status: ready` and run `rlab index <id>`.
+
+Done when: `status: ready` and the self-check passed — or `status: draft` with the blocking reason written in "Analyst notes".
+
+## 6. Return
+Report: key, 2-line summary, evidence-table rows, anything surprising (contradicts other work, suspicious results, missing data).
+# Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+
+- Project id: `2026-11-12-package-hallucination-and-slopsquatting`
+- Started: 2026-11-12
+- Owner: the user (beginner researcher). Claude manages the workflow.
+
+## Topic in plain language
+AI coding assistants (ChatGPT, Copilot, Claude Code, Cursor) sometimes recommend software packages that do not exist; this is called *package hallucination*. If an attacker registers that made-up name on a public package registry (PyPI for Python, npm for JavaScript) and fills it with malware, every developer who trusts the AI and runs `pip install` / `npm install` gets infected; this attack is called *slopsquatting*. It is a new kind of *software supply-chain attack* (an attack through the third-party code a project depends on). This project reviews how often hallucinated packages occur, how exploitable they are, and which defences work, so that a small laptop-scale measurement + defence study can be designed.
+
+## Scope
+- In scope: package/dependency/import hallucination by LLMs and coding agents; its exploitation (slopsquatting, registry squatting) on package registries (PyPI, npm, others); detection, measurement methods and mitigations (model-side and tool-side); closely related supply-chain background (typosquatting, malicious packages) only where needed for the attack model.
+- Out of scope: general LLM hallucination in natural language; general code-correctness hallucination unless it reports package/API-existence results; general software-supply-chain work with no LLM link (except 1–2 background papers).
+- Time window (publication years): 2023–2026 (the topic emerged with ChatGPT-era code assistants); older supply-chain background allowed if seminal.
+- Disciplines / venues of interest: software engineering (ICSE, FSE, ASE, TSE, TOSEM), security (USENIX Security, CCS, S&P, NDSS), NLP (ACL/EMNLP) and arXiv preprints (flagged).
+- Target size for the first pass: up to 20 included papers (raise only with a reason).
+
+## Objectives
+1. O1 — Map the evidence on how often LLMs and coding agents hallucinate packages, and what drives it (model, language, prompt, quantization, agentic setting). (RQ1)
+2. O2 — Understand the attack model: persistence/repeatability of hallucinated names and evidence of real-world exploitability on registries. (RQ2)
+3. O3 — Compare existing defences (model-side and tool/registry-side) on effectiveness, cost and deployability on ordinary hardware. (RQ3)
+4. O4 — Consolidate measurement methodology and identify a novelty-checked, laptop-scale implementation gap (measurement and/or lightweight defence). (RQ4, RQ5)
+
+## Inclusion / exclusion criteria
+| Include if | Exclude if |
+|---|---|
+| peer-reviewed journal/conference paper, or a preprint that is highly relevant and flagged as such | not about the topic; no empirical or methodological contribution; retracted; duplicate version |
+
+## Search strategy
+- Sources: OpenAlex, Crossref, arXiv (+ PubMed for biomedical topics)
+- Query strings (one per facet):
+  - F1 measurement: "package hallucination large language model code generation", "LLM hallucinated dependencies import nonexistent library"
+  - F2 exploitation: "slopsquatting", "LLM package confusion supply chain attack PyPI npm", "typosquatting malicious packages registry"
+  - F3 defences: "mitigating package hallucination", "package hallucination unlearning model editing retrieval", "LLM API hallucination mitigation retrieval documentation"
+  - F4 agents/tools: "coding agent dependency installation security", "AI coding assistant supply chain security dependencies"
+  - F5 benchmarks/testing: "code hallucination benchmark taxonomy", "fuzzing LLM package hallucination"
+- Snowballing: references/citations of the most central papers.
+- Every executed search is recorded automatically in `search/search-log.md`.
+
+## Key decisions
+- 2026-11-12 — Topic chosen by the user from four candidate security topics (option A, slopsquatting) — fits low-compute, short-time, implementation-oriented goal; small literature (~33 title hits since 2024 in OpenAlex).
+- 2026-11-12 — Defaults: 2023–2026, peer-reviewed first, ≤20 papers, preprints allowed but flagged — the field is young, so many key works are arXiv preprints.
+- 2026-11-12 — Novelty check to be run early (during gap phase) because the field moves fast.
+# Research questions — Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+
+<!-- 3-5 questions. Each must be answerable from literature evidence. -->
+
+## RQ1: How often do LLMs and coding agents hallucinate package names, and how does the rate vary by model, programming language/ecosystem, prompt type, quantization and agentic setting?
+- Type: descriptive
+- Why it matters: Base rate and drivers define the size of the threat and where to measure.
+- Linked objective: O1
+- Status: open
+- Current answer:
+
+## RQ2: What makes hallucinated packages exploitable: are names repeated across runs and models, do they collide with registered or malicious packages, and is there evidence of real-world slopsquatting?
+- Type: descriptive
+- Why it matters: Only persistent, predictable names are worth squatting; this defines the attack model.
+- Linked objective: O2
+- Status: open
+- Current answer:
+
+## RQ3: Which defences against package hallucination have been proposed (fine-tuning, model editing, unlearning, RAG/self-check, registry-side checks), and how effective, costly and deployable are they?
+- Type: comparative
+- Why it matters: A beginner implementation study needs a cheap defence that works on ordinary hardware.
+- Linked objective: O3
+- Status: open
+- Current answer:
+
+## RQ4: How do studies measure package hallucination (prompt sources, ground-truth registry snapshots, metrics, deduplication), and what methodological weaknesses threaten their validity?
+- Type: methodological
+- Why it matters: A new measurement must avoid known pitfalls (stale registry snapshots, name normalisation, contamination).
+- Linked objective: O4
+- Status: open
+- Current answer:
+
+## RQ5: What has not yet been tested — e.g. agentic tools that install dependencies automatically, newer models, other ecosystems, lightweight client-side defences — that a laptop-scale study could address?
+- Type: methodological
+- Why it matters: Directly yields the implementation project (answered via gap report + novelty check).
+- Linked objective: O4
+- Status: open
+- Current answer:
+
+=== spracklen2024we
+total 1640
+drwxr-xr-x@  6 makky  staff     192 Nov 12 04:57 .
+drwxrwxr-x@ 23 makky  staff     736 Nov 12 04:55 ..
+-rw-r--r--@  1 makky  staff    2607 Nov 12 04:57 analysis.md
+-rw-r--r--@  1 makky  staff  144967 Nov 12 04:56 fulltext.txt
+-rw-r--r--@  1 makky  staff    3631 Nov 12 04:56 metadata.json
+-rw-r--r--@  1 makky  staff  679962 Nov 12 04:56 paper.pdf
+{
+  "title": "We Have a Package for You! A Comprehensive Analysis of Package Hallucinations by Code Generating LLMs",
+  "authors": [
+    {
+      "family": "Spracklen",
+      "given": "Joseph"
+    },
+    {
+      "family": "Wijewickrama",
+      "given": "Raveen"
+    },
+    {
+      "family": "Sakib",
+      "given": "A H M Nazmus"
+    },
+    {
+      "family": "Maiti",
+      "given": "Anindya"
+    },
+    {
+      "family": "Viswanath",
+      "given": "Bimal"
+    },
+    {
+      "family": "Jadliwala",
+      "given": "Murtuza"
+    }
+  ],
+  "year": 2024,
+  "venue": "arXiv",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.48550/arxiv.2406.10279",
+  "arxiv_id": "2406.10279",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W4399795583",
+  "url": "https://arxiv.org/abs/2406.10279",
+  "oa_pdf_url": "https://arxiv.org/pdf/2406.10279",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 52,
+  "abstract": "The reliance of popular programming languages such as Python and JavaScript on centralized package repositories and open-source software, combined with the emergence of code-generating Large Language Models (LLMs), has created a new type of threat to the software supply chain: package hallucinations. These hallucinations, which arise from fact-conflicting errors when generating code using LLMs, represent a novel form of package confusion attack that poses a critical threat to the integrity of the software supply chain. This paper conducts a rigorous and comprehensive evaluation of package hallucinations across different programming languages, settings, and parameters, exploring how a diverse set of models and configurations affect the likelihood of generating erroneous package recommendations and identifying the root causes of this phenomenon. Using 16 popular LLMs for code generation and two unique prompt datasets, we generate 576,000 code samples in two programming languages that we analyze for package hallucinations. Our findings reveal that that the average percentage of hallucinated packages is at least 5.2% for commercial models and 21.7% for open-source models, including a staggering 205,474 unique examples of hallucinated package names, further underscoring the severity and pervasiveness of this threat. To overcome this problem, we implement several hallucination mitigation strategies and show that they are able to significantly reduce the number of package hallucinations while maintaining code quality. Our experiments and findings highlight package hallucinations as a persistent and systemic phenomenon while using state-of-the-art LLMs for code generation, and a significant challenge which deserves the research community's urgent attention.",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "key": "spracklen2024we",
+  "added": "2026-11-12T04:55:10+06:00",
+  "added_reason": "F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)",
+  "found_via": "package hallucination large language model code generation; LLM hallucinated dependencies nonexistent library import",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T04:55:10+06:00",
+    "cross_checks": {
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2406.10279",
+    "retrieved": "2026-11-12T04:56:40+06:00",
+    "sha256": "2a51e89d21bc18736a8995ed8be026e8a0e31b166a621df83a7a132ba631dfe6",
+    "pages": 20,
+    "text_layer": "ok",
+    "identity": "match (arXiv id printed in PDF)"
+  }
+}
+    1411 research/2026-11-12-package-hallucination-and-slopsquatting/papers/spracklen2024we/fulltext.txt
+=== churilov2026range
+total 1320
+drwxr-xr-x@  6 makky  staff     192 Nov 12 04:57 .
+drwxrwxr-x@ 23 makky  staff     736 Nov 12 04:55 ..
+-rw-r--r--@  1 makky  staff    2526 Nov 12 04:57 analysis.md
+-rw-r--r--@  1 makky  staff   64554 Nov 12 04:56 fulltext.txt
+-rw-r--r--@  1 makky  staff    2948 Nov 12 04:56 metadata.json
+-rw-r--r--@  1 makky  staff  601271 Nov 12 04:56 paper.pdf
+{
+  "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+  "authors": [
+    {
+      "family": "Churilov",
+      "given": "Aleksandr"
+    }
+  ],
+  "year": 2026,
+  "venue": "arXiv",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.48550/arxiv.2605.17062",
+  "arxiv_id": "2605.17062",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7161692241",
+  "url": "https://arxiv.org/abs/2605.17062",
+  "oa_pdf_url": "https://arxiv.org/pdf/2605.17062",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 1,
+  "abstract": "Package hallucinations, LLM-generated references to packages that do not exist, enable slopsquatting: an attacker registers the hallucinated name. We replicate Spracklen et al. (USENIX Security '25) on five 2026 frontier models over 199,840 Python and JavaScript generations. This version reports a preregistered live revalidation that replaces the static package lists of earlier versions with two independent checks against the live PyPI and npm registries. Hallucination rates are 3.6-5.0% of package mentions (2.2-3.4% of generations): the 2026 frontier sits at the level of 2024's commercial models, and the open-weight gap seen in 2024 has disappeared. Python exceeds JavaScript for every model. The set of names hallucinated by all five models shrinks from the 127 reported earlier to 104; 26 earlier entries were correct import statements whose module name differs from the package name. Using the accidental six-month public exposure of our own list as a natural experiment, we find no detectable effect of publication: about 1% of hallucinated names were registered within six months, at the same rate for published and unpublished names, and the 95% interval excludes increases above 2.5 percentage points. Still, at least 23 package names that the models suggest had previously hosted malware later removed by the registries, and one hallucinated name was registered with malware after our runs.",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "key": "churilov2026range",
+  "added": "2026-11-12T04:55:11+06:00",
+  "added_reason": "F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)",
+  "found_via": "package hallucination large language model code generation; LLM hallucinated dependencies nonexistent library import",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T04:55:11+06:00",
+    "cross_checks": {
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2605.17062",
+    "retrieved": "2026-11-12T04:56:16+06:00",
+    "sha256": "2302a8a3c897afa3bf6a3de2893c4d7256ee291d0c8b6acaeca1a04c85ee042d",
+    "pages": 18,
+    "text_layer": "ok",
+    "identity": "probable (title found on first pages)"
+  }
+}
+     798 research/2026-11-12-package-hallucination-and-slopsquatting/papers/churilov2026range/fulltext.txt
+=== okwor2026hallucination
+total 312
+drwxr-xr-x@  6 makky  staff     192 Nov 12 04:57 .
+drwxrwxr-x@ 23 makky  staff     736 Nov 12 04:55 ..
+-rw-r--r--@  1 makky  staff    2563 Nov 12 04:57 analysis.md
+-rw-r--r--@  1 makky  staff   27067 Nov 12 04:57 fulltext.txt
+-rw-r--r--@  1 makky  staff    3359 Nov 12 04:57 metadata.json
+-rw-r--r--@  1 makky  staff  118968 Nov 12 04:57 paper.pdf
+{
+  "title": "From Hallucination to Registration: Do the Package Names That LLMs Invent Actually Get Claimed?",
+  "authors": [
+    {
+      "family": "Okwor",
+      "given": "Daniel"
+    }
+  ],
+  "year": 2026,
+  "venue": "Zenodo (CERN European Organization for Nuclear Research)",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.5281/zenodo.21199426",
+  "arxiv_id": null,
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7167421216",
+  "url": "https://doi.org/10.5281/zenodo.21199426",
+  "oa_pdf_url": null,
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 0,
+  "abstract": "Large language models routinely invent software package names that do not exist. The security concern, called slopsquatting, is that an attacker registers one of these hallucinated names and waits for a developer, or an AI coding agent, to install it on a model's recommendation. Prior work measures how often models hallucinate. We measure what happens next: of the names models invent, how many are actually registered on the package index, and by whom? Using five open-weight code models we generate 6,800 samples and extract 1,641 distinct invented names that are confirmed absent from the registry; the invented-name space does not saturate. We then ask who has claimed them. Re-checking all 1,641 live, every one is still unregistered (a 95% upper bound below 0.2% on the fraction claimed by anyone), so the names an attacker would have to invent independently sit unclaimed. Separately, from public datasets of previously reported hallucinated names, we take 149 that have circulated long enough to attract registration; 22 are registered, and adjudicating each by true registration date and static content inspection, zero are malicious (a 95% upper bound of roughly 14% on the registered-name malice fraction), with 19 of the 22 traced to a single anonymous benign-placeholder operation and the other three (an organic collision, an individual reservation, and a 2019 pre-AI typosquat) unrelated to slopsquatting. We also confirm the install-to-execution primitive in a sealed offline lab using only our own benign package. The picture in this data: exposure is large and growing, but claiming is essentially absent, and the hallucinated names that do get claimed are, so far, benign rather than weaponized. We are explicit that the 149-name census is drawn from public lists that defenders preferentially scrape, and is a small registered sample. We release the code, the frozen snapshot hashes, and aggregate statistics, and we withhold the raw name list to avoid handing attackers a target menu.",
+  "sources": [
+    "openalex"
+  ],
+  "key": "okwor2026hallucination",
+  "added": "2026-11-12T04:55:34+06:00",
+  "added_reason": "F2/F4 exploitation of hallucinated packages and agent-side attacks (RQ2, RQ5)",
+  "found_via": "slopsquatting; coding agent dependency installation malicious package",
+  "verification": {
+    "status": "single-source (openalex)",
+    "checked": "2026-11-12T04:55:34+06:00",
+    "cross_checks": {}
+  },
+  "fulltext": {
+    "status": "user-supplied",
+    "source": "user-supplied: okwor.pdf",
+    "retrieved": "2026-11-12T04:57:18+06:00",
+    "sha256": "7449811b5ba5346f3308f2926cdfd72bb7cf5bc5944cee3fd04ebdc9e68599cc",
+    "pages": 9,
+    "text_layer": "ok",
+    "identity": "probable (title found on first pages)"
+  }
+}
+     479 research/2026-11-12-package-hallucination-and-slopsquatting/papers/okwor2026hallucination/fulltext.txt
+=== krishna2025importing
+total 592
+drwxr-xr-x@  6 makky  staff     192 Nov 12 04:57 .
+drwxrwxr-x@ 23 makky  staff     736 Nov 12 04:55 ..
+-rw-r--r--@  1 makky  staff    2534 Nov 12 04:57 analysis.md
+-rw-r--r--@  1 makky  staff   73537 Nov 12 04:56 fulltext.txt
+-rw-r--r--@  1 makky  staff    2954 Nov 12 04:56 metadata.json
+-rw-r--r--@  1 makky  staff  217125 Nov 12 04:56 paper.pdf
+{
+  "title": "Importing Phantoms: Measuring LLM Package Hallucination Vulnerabilities",
+  "authors": [
+    {
+      "family": "Krishna",
+      "given": "Arjun"
+    },
+    {
+      "family": "Galinkin",
+      "given": "Erick"
+    },
+    {
+      "family": "Derczynski",
+      "given": "Leon"
+    },
+    {
+      "family": "Martin",
+      "given": "Jeffrey"
+    }
+  ],
+  "year": 2025,
+  "venue": "arXiv",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.48550/arxiv.2501.19012",
+  "arxiv_id": "2501.19012",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W4407090931",
+  "url": "https://arxiv.org/abs/2501.19012",
+  "oa_pdf_url": "https://arxiv.org/pdf/2501.19012",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 28,
+  "abstract": "Large Language Models (LLMs) have become an essential tool in the programmer's toolkit, but their tendency to hallucinate code can be used by malicious actors to introduce vulnerabilities to broad swathes of the software supply chain. In this work, we analyze package hallucination behaviour in LLMs across popular programming languages examining both existing package references and fictional dependencies. By analyzing this package hallucination behaviour we find potential attacks and suggest defensive strategies to defend against these attacks. We discover that package hallucination rate is predicated not only on model choice, but also programming language, model size, and specificity of the coding task request. The Pareto optimality boundary between code generation performance and package hallucination is sparsely populated, suggesting that coding models are not being optimized for secure code. Additionally, we find an inverse correlation between package hallucination rate and the HumanEval coding benchmark, offering a heuristic for evaluating the propensity of a model to hallucinate packages. Our metrics, findings and analyses provide a base for future models, securing AI-assisted software development workflows against package supply chain attacks.",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "key": "krishna2025importing",
+  "added": "2026-11-12T04:55:14+06:00",
+  "added_reason": "F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)",
+  "found_via": "package hallucination large language model code generation; LLM hallucinated dependencies nonexistent library import",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T04:55:14+06:00",
+    "cross_checks": {
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2501.19012",
+    "retrieved": "2026-11-12T04:56:27+06:00",
+    "sha256": "553a17a6c612106566fdf1dd8db3360434b22b43b6d1af4d1f1318863f456494",
+    "pages": 23,
+    "text_layer": "ok",
+    "identity": "match (arXiv id printed in PDF)"
+  }
+}
+     840 research/2026-11-12-package-hallucination-and-slopsquatting/papers/krishna2025importing/fulltext.txt

@@ -1,0 +1,752 @@
+=== [PDF page 1] ===
+
+                                             ProgramBench: Can Language Models Rebuild
+                                             Programs From Scratch?
+                                             John Yang1,3∗ , Kilian Lieret1∗ , Jeffrey Ma1,4 , Parth Thakkar1 , Dmitrii Pedchenko1 , Sten Sootla1 , Emily
+                                             McMilin1 , Pengcheng Yin2 , Rui Hou2 , Gabriel Synnaeve1 , Diyi Yang3 , Ofir Press1
+                                             1
+                                                 Meta FAIR, 2 Meta TBD, 3 Stanford University, 4 Harvard University
+                                             ∗
+                                                 Equal Contribution
+
+                                             Turning ideas into full software projects from scratch has become a popular use case for language
+                                             models. Agents are being deployed to seed, maintain, and grow codebases over extended periods
+                                             with minimal human oversight. Such settings require models to make high-level software architecture
+
+
+
+
+arXiv:2605.03546v1 [cs.SE] 5 May 2026
+                                             decisions. However, existing benchmarks measure focused, limited tasks such as fixing a single bug or
+                                             developing a single, specified feature. We therefore introduce ProgramBench to measure the ability of
+                                             software engineering agents to develop software holisitically. In ProgramBench, given only a program
+                                             and its documentation, agents must architect and implement a codebase that matches the reference
+                                             executable’s behavior. End-to-end behavioral tests are generated via agent-driven fuzzing, enabling
+                                             evaluation without prescribing implementation structure. Our 200 tasks range from compact CLI
+                                             tools to widely used software such as FFmpeg, SQLite, and the PHP interpreter. We evaluate 9 LMs
+                                             and find that none fully resolve any task, with the best model passing 95% of tests on only 3% of tasks.
+                                             Models favor monolithic, single-file implementations that diverge sharply from human-written code.
+
+                                             Date: May 6, 2026
+                                             Correspondence: John Yang at johnby@meta.com, Kilian Lieret at klieret@meta.com
+                                             Code: https://github.com/facebookresearch/ProgramBench
+
+
+
+
+                                        1    Introduction
+                                        Language Models (LMs) are increasingly being used to turn ideas expressed in natural language into full-
+                                        fledged code repositories (Carlini, 2026; Lin, 2026; Replit, 2026). Unlike smaller scope tasks such as function
+                                        generation (Hendrycks et al., 2021) or GitHub issue resolution (Jimenez et al., 2024), which typically demand
+                                        understanding a pre-existing codebase well enough to make localized changes, building a functional application
+                                        from scratch requires models to engage heavily with software design (Jansen and Bosch, 2005).
+
+                                                                               Invoke binary,
+                                    Write, test,
+
+                                                  Specification                  read docs                                       compile code                 Repository
+                                                                                Probe                   SWE-agent                 Build
+                                                                                                       Task: Write code to
+                                            Program         Docs                 Outputs,
+
+                                                                                 Behavior
+                                                                                                       reproduce program          Standard
+
+                                                                                                                                   Output
+                                                                                                                                                        Source          build.sh
+                                                                                                          Inference
+                                                                                             Evaluation (Behavioral Equivalence)
+                                            Program      $ ./program --help → Usage: program [OPTS]
+
+                                                         $ ./program input.txt → Result: 42                      ?           Solution      $ ./solution --help → Usage: program [OPTS]
+
+                                                                                                                                           $ ./solution input.txt → Result: 42
+
+                                        Figure 1 ProgramBench evaluates models on their ability to write software projects from scratch. Given a software
+                                        program (e.g., executable) and its documentation, a software engineering agent (SWE-agent) is tasked with producing
+                                        source code and a build script that reconstructs the original program’s behavior.
+
+
+
+                                                                                                                1
+
+=== [PDF page 2] ===
+
+To understand what this entails, consider how a human programmer approaches the same task. Before a
+single line is written, she asks herself a series of important questions: What programming language and build
+system should be used? How should the codebase be organized? What data structures should represent the
+program’s core entities? How should errors be detected and communicated? Such requisite questions, which
+developers constantly revisit throughout the development lifecycle, lead to pivotal design decisions that shape
+the codebase far more profoundly than any individual code change. Although we are progressively entrusting
+LMs to similarly build software from the ground up, the ability of LMs to make such architectural decisions,
+choose abstractions, and decompose a system into coherent modules has not been studied extensively.
+To bridge this gap, we introduce ProgramBench, a benchmark that challenges software engineering (SWE)
+agents to produce code that recovers the functionality of a software program (e.g., executables, .dmg’s, .pkg’s).
+Given a program and documentation, a SWE-agent, defined as an LM equipped with an agent scaffold to
+interact with a terminal environment (Yang et al., 2024a), must write source code and a compile script that
+reproduces the original program’s behavior. Every software design decision is entirely the model’s to make.
+We synthesize ProgramBench tasks from open-source GitHub repositories. First, we identify repositories
+written in compiled languages (e.g., C/C++, Golang, Rust, Java) that build a program. Next, to convert a
+repository into a task instance, we compile the program, then strip away all source code and tests, leaving
+only the program and its documentation as the task’s starting point.
+To evaluate a model’s solution, we generate behavioral tests by prompting a SWE-agent to systematically probe
+the original program with varied inputs and codify the observed input-output behavior into assertions that a
+candidate reconstruction must satisfy. Crucially, these tests are never revealed to the task worker. Since tests
+target executable behavior rather than source code, evaluation is entirely implementation agnostic; a model
+may use different algorithms, abstractions, or even programming languages than the original codebase, and
+still pass as long as the input-output behavior matches. While any test suite necessarily under-approximates
+an executable’s full specification, we empirically demonstrate that our test generation pipeline creates large
+suites that reliably capture core functionality.
+Using our pipeline, we collect 200 task instances, ranging from compact CLI tools to complex, widely used
+software including language interpreters (PHP, Lua, tinycc), databases (DuckDB, SQLite), media and
+compression utilities (FFmpeg, zstd, xz), and developer tools (ripgrep, fzf, jq). We evaluate 9 language
+models equipped with mini-SWE-agent, a widely adopted coding agent scaffold for open source SWE-agent
+research. The results resoundingly confirm ProgramBench’s difficulty for today’s models; no task instance is
+fully resolved. However, test pass rates are significantly different between models. The best model, Opus 4.7,
+manages to pass 95% of tests for 3% of task instances. Further analysis reveals that model-written codebases
+diverge significantly from human-written ones, favoring monolithic file structures with longer functions. Our
+trajectory analyses showcase how models vary in the length and make up of the way they develop software.
+We open source ProgramBench to enable the community to reproduce and build upon our investigations.
+
+
+2     ProgramBench
+This section describes ProgramBench in detail. We first formalize the task (§2.1), then explain how task in-
+stances are semi-automatically constructed from open-source repositories (§2.2). Finally, we review benchmark
+statistics (§2.3) and distinguishing features (§2.4).
+
+2.1   Task Formulation
+Given a gold (reference) executable and its usage documentation, a task worker is asked to write source code
+and a build script that constructs a candidate executable which should reproduce the behavior of the gold
+executable. The task worker does not have access to the internet and is free to implement the solution in
+any programming language. The task worker is informed of these conditions via the initial prompt, and
+no-internet is enforced by running the Docker container without internet.
+To evaluate, we run a generated test suite, where each test checks whether the candidate executable exhibits
+the same observable behavior as the gold executable for a given input (e.g., matching standard output, exit
+
+
+                                                       2
+
+=== [PDF page 3] ===
+
+  GitHub Repository
+
+
+
+      Source Code
+                          ./executable                      tests/         docs/
+                                                                                                      3) “Remove
+                         1) “Build .exe;
+                       2) “Write
+
+       Documentation
+                                                                                                     implementation
+                         record steps”                          tests for
+
+                                                                                                        details”
+                                                               executable”
+
+
+
+
+Figure 2 ProgramBench task collection pipeline. To turn a GitHub repository into an ProgramBench task, we use a
+SWE-agent to compile an executable, generate behavioral tests, and strip away implementation details. The sourcing
+workflow only requires a repository to produce an executable or program, making it extensible to many codebases.
+
+
+codes, or file system side effects). The test suite is never revealed at any point to the task worker. While any
+test suite checks a finite set of inputs and therefore necessarily under-approximates the gold executable’s full
+specification, ProgramBench’s framing makes extending test coverage trivial.
+
+2.2    Benchmark Construction
+Next, we discuss our four-stage pipeline for converting open source GitHub repositories into ProgramBench
+task instances, as visualized in Figure 2. All construction steps use the mini-SWE-agent1 harness with Claude
+Sonnet 4.5, operating inside a Docker container based on ubuntu:22.04.
+Identify candidate repositories. We synthesize ProgramBench tasks from open source GitHub repositories.
+First, we filter for repositories that may produce a standalone executable or program. A strong heuristic is to
+look for projects written in compiled languages (e.g., C/C++, Golang, Rust).
+Construct executable from source. Given a repository, we task a SWE-agent with compiling the gold executable
+and, if successful, record the commands that reproduce the build in a single build script (Step 1 in Figure 2).
+Generate behavioral tests. We use an agent to explore the program, its source code, existing tests, and
+documentation, and then generate behavioral tests (Step 2 of Figure 2). The test assertions target externally
+observable effects rather than source-level internals. For example, a test might assert that specific strings
+appear in stdout or stderr, or that an invocation produces expected files. The agent is also prompted to
+identify and include in its test suite any existing behavioral tests defined in the repository (harvesting).
+The agent continuously measures the line coverage of the current test suite and iteratively writes new tests to
+invoke missing code paths, attempting to achieve full coverage.
+Some tests may have missing or trivially true assertions. Therefore, to ensure assertion quality, tests are
+flagged if they fail the gold binary or trigger our assertion quality linter (Appendix A.3.5), which detects
+structurally weak assertion patterns such as exit-code-only checks, short substring matches, and disjunctive
+assertions. The agent is prompted to revise all flagged tests. At the end, any remaining tests that do not pass
+with the gold binary deterministically or pass a dummy binary are discarded. More details in §A.3.
+Prior work has shown that coding benchmarks, such as SWE-bench, have some test suites with one of the
+following two shortcomings (Chowdhury et al., 2024). First, a task’s test suite could be overly stringent,
+meaning it checks for criteria not apparent from the initial task definition. Second, a task’s test suite might
+not fully check whether a solution actually solves the initially stated task. For the first case, ProgramBench
+tests assert only on observable behavior of the reference executable, precluding overspecification of source-level
+internals. A subtler concern is whether tests demand exact reproduction of implementation-dependent output
+(e.g., floating point precision or rendering discretization). We address this directly: the model has full access
+to the gold executable at inference time, so any behavior a behavioral test expects is discoverable by running
+that same command. An audit of all 200 task instances found zero tests that invoke flags or subcommands not
+surfaced by the executable’s documentation, and only 5 instances where implementation-dependent output
+could plausibly appear, none of which contained such assertions in practice (§A.3.4). For the second case, a
+finite test suite necessarily under-approximates an executable’s full specification (Liu et al., 2023; Le Goues
+
+   1 https://mini-swe-agent.com
+
+
+
+
+                                                           3
+
+=== [PDF page 4] ===
+
+                               C/C++
+                                (45)                       Metric                     Median    Min         Max
+
+                                                           Code lines                  8,635    212    2,701,283
+                                                           Code files                     50      1        5,342
+                                                           Runtime dependencies           10      0          113
+   Rust                                                    Max directory depth             3      0           13
+   (107)
+                                                           Tests                         770    224       14,645
+                                     Go                    GitHub stars                2,124    202       79,693
+                                    (46)                   Contributors                   22      1          422
+                                                           Commits                       646     13      145,991
+                       Other (2)                           Repo age (years)              7.9    0.3         17.8
+
+Figure 3 Distribution of programming lan-          Table 1 Summary statistics for the 200 ProgramBench task instances,
+guages across ProgramBench task instances.         illustrating the diversity of the dataset across codebase scale, depen-
+To solve the task, models may write their so-      dency complexity, and development history. Top rows cover codebase
+lution in any language they choose.                statistics, while bottom rows quantify community contribution.
+
+
+et al., 2015). We quantify this risk in §5: our generated suites achieve line coverage broadly comparable to
+the native test suites shipped by developers in the same repositories.
+Build an inference environment. The starting state for each task consists of the gold executable and usage-
+related documentation. To construct the Docker image for the starting state, we first obtain usage-related
+documentation removing source code and any implementation details from the repository with a SWE-agent
+(Step 3 in Figure 2). The compiled executable is then injected into an independent docker image as the only
+artifact carried over from the build step (Step 1). The reason for copying the executable over, rather than
+simply rebuilding from source code, is to ensure there are no local build artifacts or dependency caches that
+could reveal the original program’s implementation. The executable is also set to execute-only permissions
+to prevent reading or reverse engineering of the binary with a tool like ghidra2 . Lastly, we also include test
+assets that a model cannot reasonably synthesize on its own (e.g., images, domain-specific binary formats).
+We review inference guidelines thoroughly in §A.2.
+
+2.3   Dataset Statistics
+We created 200 task instances from open-source repositories spanning compression, language interpreters,
+visualization, linting, text processing, and more (Figure 3, Table 1). Tasks range from small CLI tools to
+large-scale projects such as FFmpeg and the PHP interpreter, and are mostly written in Rust, Go, or C/C++,
+with one project in Java and one in Haskell. Our evaluation suite totals 248,853 test functions across all
+instances (median 770 per task); additional test generation analyses and dataset statistics in §A.3 and §A.4.
+
+2.4   Task Features
+Open-ended software design. In ProgramBench, models receive only an executable and documentation. Every
+architectural decision, from choice of language to module decomposition to data structure design, is the
+model’s to make. There is no skeleton, mandated abstractions, or preset file organization. Because evaluation
+compares executable behavior rather than source code, ProgramBench admits many valid solutions; a model
+may choose entirely different languages, algorithms, or architecture and still pass, making models’ design
+choices directly comparable across the same task. This is what makes ProgramBench a test of software design,
+not just implementation alone.
+Burden to discover specifications. In ProgramBench, the executable serves as a comprehensive but opaque
+oracle. Expected behavior is fully encoded, but must be queried to be understood. Importantly, the model is
+not probing blindly: it has access to the program’s documentation and help output, which surface available
+flags and subcommands (§2.2). In practice, interacting with the executable resembles how a developer
+   2 https://github.com/nationalsecurityagency/ghidra
+
+
+
+
+                                                            4
+
+=== [PDF page 5] ===
+
+queries a product manager: “when a user runs X with flag -y, what should the output be?” The model
+must decide which questions to ask and in what order. This setting tests a model’s ability to infer behavior
+through systematic, hypothesis-driven exploration, mirroring challenges developers routinely face when probing
+partially documented APIs or onboarding to unfamiliar systems by observing behavior in the absence of
+complete specifications.
+Simple collection criteria. Our collection pipeline requires only that a repository produce a standalone
+executable. No existing test suite, language-specific AST tooling, or ecosystem-reliant test frameworks are
+needed. The benchmark is therefore straightforward to extend with new instances over time, a valuable
+property for sustaining benchmark relevance (Deng et al., 2025; Zhang et al., 2025). The same pipeline can
+also generate training data, similar to how prior benchmark collection schemas have been repurposed for
+training (Badertdinov et al., 2025; Pham et al., 2025; Yang et al., 2025).
+
+
+3     Experiments
+Models. We evaluate 9 recent language models that are regarded as strong coding models based on rank on
+existing benchmarks, including SWE-bench and Terminal-bench. These include Claude Opus 4.7, Claude
+Opus 4.6, Claude Sonnet 4.6, Claude Haiku 4.5, Gemini 3.1 Pro, Gemini 3 Flash, GPT 5.4, GPT 5.4 mini,
+and GPT 5 mini. All models use vendor-default hyperparameters.
+Agent scaffold. We use mini-SWE-agent because it is both widely adopted as a baseline by other benchmarks
+(SWE-bench Verified, Multilingual2 , Terminal-bench3 ), and deliberately minimal in its scaffolding, reducing
+confounds between model capability and harness design. Each model runs inside a container with 20 CPUs
+and 60GB RAM, with a limit of 1,000 steps and 6 hours per run; full configuration details are in §B.1.
+Metrics. We primarily report % Resolved, which refers to the percentage of task instances where the model’s
+codebase passes all associated test cases and is not flagged as cheating. Due to the challenging nature of this
+benchmark, we also report % Tests Passed per task instance, which captures partial progress even when no
+task is fully resolved. However, we note that this softer metric is only meaningful for relative comparisons
+between models; even a single failed test can imply a fundamental flaw in a model’s solution. As discussed in
+§2.2, % Tests Passed also does not reliably correlate with percentage of working functionality.
+
+
+4     Results
+Our main results are shown in Table 2. ProgramBench is extremely challenging; across the board, no model
+fully solves any single ProgramBench task instance. That said, from Figure 4, we find that models make
+meaningful progress on a significant proportion of tasks, with Claude Opus 4.7 achieving the highest proportion
+of solutions that pass 95+% of tests, at 3.0%.
+Task difficulty is largely model-agnostic. As shown in Figure 5, models consistently score higher on simpler
+CLI utilities like nnn, fzf, and gron, while complex systems such as FFmpeg, php-src, typst, and ast-grep
+remain out of reach. These trends suggest that ProgramBench captures intrinsic variation in task difficulty
+that is independent of model choice. The rank order of tasks by pass rate is broadly consistent across models.
+
+4.1    Ablations
+We review two alternative evaluation settings to investigate the impact the availability of certain tools and
+resources has on solutions and cheating rates.
+Different-language constraint. In this setting, we force models to implement their solutions in a different
+programming language from the reference repository. In theory, this measure should obviate models’ ability
+to simply regurgitate reference code from their pre-training corpora, requiring them to demonstrate deep
+understanding of program behavior rather than surface-level recall.
+
+
+    3 https://tbench.ai
+
+
+
+
+                                                      5
+
+=== [PDF page 6] ===
+
+                                                                                                200
+                                                                                                                 Claude Opus 4.7          Gemini 3 Flash
+                                                                                                175              Claude Opus 4.6          GPT 5.4
+  Model                 % Res.    % Almost      Calls     $                                                      Claude Sonnet 4.6        GPT 5.4 mini
+                                                                                                                 Claude Haiku 4.5         GPT 5 mini
+
+
+
+
+                                                                    Instances above threshold
+  Claude Opus 4.7        0.0%        3.0%        93      3.81                                   150              Gemini 3.1 Pro
+  Claude Opus 4.6        0.0%        2.5%       260     11.38                                   125
+  Claude Sonnet 4.6      0.0%        1.6%       475     27.09
+  Claude Haiku 4.5       0.0%        0.0%       124      0.80                                   100
+  Gemini 3.1 Pro         0.0%        0.0%        94      1.51                                    75
+  Gemini 3 Flash         0.0%        0.0%        89      0.33
+  GPT 5.4                0.0%        0.0%        16      0.33                                    50
+  GPT 5.4 mini           0.0%        0.0%        18      0.04                                    25
+  GPT 5 mini             0.0%        0.0%        15      0.03
+                                                                                                 0
+                                                                                                      0   20          40             60     80         100
+Table 2 Main results on ProgramBench. % Resolved is the primary                                                Pass rate threshold (%)
+metric: the fraction of 200 tasks where all tests pass. % Almost
+relaxes this to instances with ≥95% of tests passing. We also            Figure 4 Cumulative distribution of test pass
+report average API calls and cost per task.                              rates across models on ProgramBench.
+
+                         C/C++                     Go                                                     Rust
+  Claude Opus 4.7                                                                                                                                   100%
+  Claude Opus 4.6
+ Claude Sonnet 4.6                                                                                                                                  75%
+ Claude Haiku 4.5
+    Gemini 3.1 Pro                                                                                                                                  50%
+    Gemini 3 Flash
+          GPT 5.4                                                                                                                                   25%
+     GPT 5.4 mini
+       GPT 5 mini
+               ma lz4 nn t
+                    bro ig  n
+                           tli
+                                                                                                                                                    0%
+               Du jqssc  an
+                         a
+                      zstg
+                fas ninja
+                    tTe
+                    c
+                FFmkDB
+                ph peg
+                    p-s     d
+                           xt
+                           r
+                     gro c
+                  laz fzf
+                      ygi
+                    chefx
+                  dir at
+                       env
+                       age
+                  zox yqid
+                      du e  nt
+                 rip eix
+                   gp sv
+                       in
+                    bro g
+                    tok d
+               one grep
+              hyp baefetc
+                      borhfst
+                           ot
+                   erf t
+                  g ine
+               mdenact
+              tre Boo
+                  e k
+               mo-sitte
+                   nol r
+                    delth
+                    t
+                ast ypst
+                    -gr  i
+                         epta
+
+Figure 5 Per-task pass rates for the 40 most-starred repositories in ProgramBench, grouped by reference language and
+sorted by average model score within each group. Each cell shows one model’s test pass rate on one task.
+
+
+Unexpectedly, the constraint does not uniformly decrease scores. As shown in Figure 6, while Claude Opus 4.7
+and 4.6 see meaningful drops, all three GPT models surprisingly each improve by 4.2%. Remaining models are
+roughly unchanged. Under this constraint, we observe a noticeable shift towards Python as the implementation
+language of choice, from 36% of main result runs (Figure 8) to an outstanding majority of 51% runs in
+this setting (Figure 27). The mixed results suggest that models may not have a reliable sense of which
+implementation language best suits a given task and their own capabilities; forcing a language switch can
+inadvertently steer a model toward a language it has more success with.
+Open internet with cheating detection. We repeat evaluation for one model per provider family with a key
+distinction: models are given unrestricted internet access. Note that in the system prompt, we still explicitly
+tell models that cheating is disallowed. To detect cheating, we run an LM-as-a-judge pipeline where 9 judges
+independently inspect a trajectory for whether the model looked up source code or submitted a wrapper
+around the reference executable as a solution; a task is flagged if a majority identify a violation. With this
+setting, our goals are to understand, first, how often models cheat, and second, how reliable our cheating
+detection mechanisms are.
+As shown in Table 3, cheating is widespread: 20–36% of tasks are flagged for the three stronger models, with
+source code lookup accounting for the vast majority of violations. At the same time, judges disagree on
+40–57% of tasks for these models, indicating that even with 9 judges across three model families, reliable
+detection remains elusive. The combination of high cheating rates and unreliable detection gives us confidence
+that blocking internet access entirely is the appropriate default for ProgramBench. We document additional
+details about the evolution of our mitigation efforts in §A.2.
+
+
+                                                         6
+
+=== [PDF page 7] ===
+
+        Claude Opus 4.6                                                                                 -3.5%
+        Claude Opus 4.7                                                                                -8.0%
+                                                                                                                             Model                  % Cheat
+       Claude Sonnet 4.6                                                                             +1.4%
+                GPT 5.4                                                                    +4.2%                             Claude Sonnet 4.6          36%
+          Gemini 3.1 Pro                                                           +0.3%                                     Claude Opus 4.6            21%
+          Gemini 3 Flash                                                   -1.5%                                             Gemini 3 Flash             20%
+       Claude Haiku 4.5                                                    +2.3%
+                                                                                                                             GPT 5 mini                  1%
+                                                                                              Default (any language)
+           GPT 5.4 mini                               +4.2%
+                                                                                              Different language required
+             GPT 5 mini                              +4.2%
+                                 10%            20%              30%               40%             50%          60%          Table 3 Cheating rates when mod-
+
+                                                             Mean % tests passed                                             els are given internet access, as
+                                                                                                                             flagged by majority vote of 9 LM
+                                                                                                                             judges. Source code lookup is the
+   Figure 6 Effect of requiring a different implementation language. Filled circles                                          dominant strategy, accounting for
+   show default scores; open circles show scores under the constraint.                                                       79–95% of flagged runs.
+
+                100% pier (569) melody (1k) go-critic (6k)                                    Repository                     Gen.    Native       ∆
+                                                     tinycc (16k)                             ariga/atlas                   54.15    28.25    +25.90
+                 80%                            miller (49k) ctags (63k)
+                                                              sqlite (75k)                    johnkerl/miller               85.90    72.18    +13.72
+                                                            cppcheck (72k)                    stacked-git/stgit             85.54    82.43     +3.11
+
+
+
+Line coverage
+                                                           typst (56k)
+                 60%                    hashcards (2k)       php-src (278k)
+                                                                                              rvben/rumdl                   68.23    66.80     +1.43
+                                                                                              facebook/zstd                 76.32    75.10     +1.22
+                                                             ffmpeg (486k)
+                                                                                              jqlang/jq                     82.15    81.69     +0.46
+                 40%                              calcurse (11k)                              php/php-src                   61.60    64.60     −3.00
+                                                             proj (62k)                       stranger6667/jsonschema       72.63    78.79     −6.16
+                 20%                                                                          doxygen/doxygen               13.00    24.80    −11.80
+                                                                                              ffmpeg/ffmpeg                 46.70    58.97    −12.27
+                                                                                              jesseduffield/lazygit         62.23    74.60    −12.37
+                  0%                                                                          typst/typst                   65.68    85.12    −19.44
+                              500          5k            50k              500k
+                        Source code, excl. deps (log scale)                                   Median                        66.96    73.39    −1.27
+
+   Figure 7 Line coverage of our generated test                                    Table 4 Line coverage (%) for generated vs. native behavioral suites
+   suites versus project size (source lines excluding                              across 12 repositories that maintain an identifiable integration or
+   dependencies) for a sample of 100 tasks.                                        end-to-end test suite, sorted by ∆.
+
+
+   5              Analysis
+   We study test generation artifacts and evaluation outcomes to better understand the utility of our generated
+   tests and gauge how performance varies across different tasks and models.
+
+   5.1              Test Suite Comparisons
+   We assess how effective our generated test suites are by measuring two complementary properties: how much of
+   each program they exercise (coverage), and whether they actually reject incorrect implementations (assertion
+   strength). Full details on how each analysis was carried out are included in §A.3.2.
+   Generated test suites achieve comparable line coverage to developer-written test suites. While most ProgramBench
+   repositories lack a dedicated end-to-end test suite, many maintain unit and integration tests, making them a
+   natural baseline. We instrument each task’s executable with coverage tracking and measure the fraction of
+   source lines exercised by our generated suite versus the project’s native suite across 100 repositories (§A.3.2).
+   Our generated suites average 79.7% line coverage with a median of 86.2% (Figure 7), compared to native
+   suites that average 56.8% with a median of 64.3%. This places our generated suites comfortably within, and
+   often above, the coverage range of typical developer-written tests.
+   Coverage remains comparable even against dedicated behavioral test suites. The comparison above includes many
+   unit test suites, which can exercise internal code paths that black-box tests structurally cannot reach. To
+
+
+                                                                                              7
+
+=== [PDF page 8] ===
+
+                                                                                                    105         Claude Opus 4.7           Claude Haiku 4.5     GPT 5.4
+                                                                                                                Claude Opus 4.6           Gemini 3.1 Pro       GPT 5.4 mini
+                                                                                                                Claude Sonnet 4.6         Gemini 3 Flash       GPT 5 mini
+
+
+                      Rust   44%       4%       5%         41%       6%
+
+
+
+
+Reference language
+                             (412)     (34)     (52)       (387)     (60)                           104
+
+
+
+                                                                                 Model code lines
+                     C/C++   6%       46%       2%         40%       6%
+                             (22)     (184)     (10)       (160)     (23)                           103
+
+                       Go    2%        4%      70%         20%       3%
+                             (9)       (17)    (285)       (84)      (14)                           102
+                             Rust    C/C++      Go        Python    Shell
+                                        Model's language
+                                                                                                                  102               103          104         105          106
+   Figure 8 Confusion matrix of reference vs. model language.                                                                  Reference code lines
+   Each cell shows the percentage (and count) of runs per refer-
+   ence language. Models generally prefer, in descending order, Figure 9 Reference vs. model code lines on a log–log
+   Python, Go, Rust, Shell, C/C++. Model-specific breakdowns scale. The y=x diagonal indicates parity. Only solu-
+   are visualized in Figure 28.                                  tions passing ≥75% of tests are shown.
+
+                                                     Opus 4.7         Sonnet 4.6                           Gemini 3.1 Pro                         GPT 5.4
+                                               Ref       Model      Ref         Model                     Ref          Model              Ref            Model
+                         Function count        133     39 (0.29×)   182     44 (0.24×)                    63        10 (0.16×)             88           9 (0.10×)
+                         Avg. length (lines)   25      29 (1.16×)    24     35 (1.46×)                    26        42 (1.62×)             24          26 (1.08×)
+
+   Table 5 Median function count and average function length of solutions for four models. Ratios compared to original
+   source code in gray. Only solutions passing ≥75% of tests are included.
+
+
+   provide a stricter baseline, we identify twelve repositories that maintain a dedicated behavioral or integration
+   test suite (e.g., FFmpeg’s FATE suite, PHP’s regression harness, jq’s regression tests) and compare against
+   those suites directly (Table 4).
+   Generated suites average 62.16% line coverage versus 66.11% for native behavioral suites, meeting or exceeding
+   native coverage on 6 of 12 projects and falling within 10 percentage points on all but two.
+   Assertion quality enforcement eliminates trivially passable tests. High coverage alone does not guarantee a
+   useful test suite: a test that only asserts the process exited cleanly provides negligible signal, since any
+   implementation that runs without crashing will pass it. We quantify assertion strength using dummy pass
+   rate, the fraction of a task’s tests that pass a trivially incorrect implementation. During test generation,
+   our assertion quality linter flags structurally weak patterns such as exit-code-only checks and overly short
+   substring matches (Appendix A.3.5), and the agent is prompted to revise them.
+   Tests generated with our linter exhibit a mean dummy pass rate of 3.7%, compared to 18.5% without quality
+   enforcement, a 5× reduction. After generation, we eliminate all tests that trivially pass when run with a
+   dummy program, affecting 24 tasks in total.
+
+   5.2                Model-Generated Codebases
+   We highlight differences between model-generated solutions and the original human-written implementations.
+   Models match the reference language half the time. As mentioned in §2.1, models are free to implement their
+   solutions in any language. Figure 8 reveals that models match the reference language in exactly 50% of runs.
+   Python is the most common choice overall at 36% of all 1,800 model runs, followed by Rust (25%), Go (20%),
+   C/C++ (13%), and Shell (6%). Go projects are reimplemented in the same language most often (70%),
+   while Rust (44%) and C/C++ (46%) projects are frequently rewritten in a different language. Model-specific
+
+
+                                                                            8
+
+=== [PDF page 9] ===
+
+                         Claude Opus 4.7            Claude Sonnet 4.6                  Gemini 3.1 Pro                       GPT 5.4
+              200
+
+              150
+
+
+Action Type
+              100
+
+              50
+
+               0
+                    0   126 252 378 504 630   0    394 788 1182 1576 1970      0     44      88   132 176 220   0      14   28   42   56   70
+                                                                        Turn
+                                     Read         Write          Probe             Execute            Git           Other
+
+  Figure 10 Distribution of action types across agent turns for four representative models. Each bar shows the total
+  number of actions of each type at a given turn index, aggregated across all task instances. The natural decay in bar
+  height reflects trajectories of varying length ending at different points.
+
+
+  breakdowns are visualized in Figure 28.
+  We next draw insights from comparing models’ codebases against the reference solutions. To ensure comparisons
+  are between codebases that produce functionally similar executables, we only compare against model solutions
+  that pass 75+% of tests. This yields 207 runs across 88 tasks and 9 models.
+  Model solutions are significantly shorter. Even among high-scoring solutions, models produce substantially
+  less code than the references: a median of 1,173 lines compared to 3,068 in the originals (Figure 9). Most
+  runs (85%) fall below parity. Just 15% of codebases are larger than the reference, typically for smaller tasks.
+  Models also create far fewer files (median 3 versus 15), with 60% of solutions consisting of 1–3 code files.
+  Models prefer monolithic files over modular directory structures. We measure the directory structure of model-
+  generated codebases using maximum directory depth, defined as the deepest nesting level of any file (e.g.,
+  src/utils/parser.go has depth 3). The majority of runs (67%) produce a strictly shallower maximum depth
+  than the reference (median depth 1 vs. 2), while only 2% are deeper. Rather than mirroring the modular
+  decomposition of the original project, models strongly prefer placing most or all code in a single file or a
+  handful of files at the root level.
+  Models write fewer, longer functions. Table 5 compares function count and average function length between
+  model and reference codebases for four representative models. All models write far fewer functions than the
+  reference (10–29% as many), but compensate with longer functions: Claude Sonnet 4.6 writes functions that
+  are 1.46× longer on average, while Gemini 3.1 Pro reaches 1.62×. GPT 5.4 writes functions that are 1.08×
+  longer while still producing very few of them (10% of the reference count).
+
+  5.3               Agent Trajectories
+  We analyze agent trajectories to understand how models approach the task and where they struggle.
+  We classify actions into one of six types: read (file inspection, searches, directory listing), write (file creation,
+  editing), probe (any invocation or inspection of the reference executable), git (version control), execute
+  (compilation, non-probe program execution), and other. To classify, we perform keyword matching on the raw
+  command string, checking in priority order to distinguish between different usage techniques of bash commands.
+  For instance, cat<<’EOF’>main.c is classified as write, distinct from cat main.c to read. Figure 10 shows
+  the action type distributions per turn across all inference runs for four representative models.
+  Turn counts vary heavily by model. As reflected by Figure 10, Claude Sonnet 4.6 uses a median of 868 commands
+  per task, with its longest trajectory reaching 1,978 turns. GPT 5.4 sits at the other extreme with a median of
+  just 17 commands, while Gemini 3.1 Pro and Opus 4.7 fall in between at 92 and 157 respectively.
+
+
+
+                                                                         9
+
+=== [PDF page 10] ===
+
+                          Claude Opus 4.7            Claude Sonnet 4.6                 Gemini 3.1 Pro                    GPT 5.4
+              5000
+
+              4000
+
+
+
+Total Lines
+              3000
+
+              2000
+
+              1000
+
+                 0
+                  0%     25%     50%   75% 100% 0%    25%    50%    75% 100% 0%       25%   50%   75% 100% 0%      25%    50%      75% 100%
+                                                               Trajectory Progress
+  Figure 11 Codebase growth over normalized trajectory progress for four models. Each thin line is an individual
+  trajectory; the bold line shows the median and the shaded region the interquartile range. The y-axis is capped at the
+  95th percentile of final codebase sizes.
+
+
+                                                                   100%
+                     GPT 5.4
+                                               51%
+      Gemini 3.1 Pro                                                             Model                   Create    Modify          Delete
+                                             42%
+                Sonnet 4.6                                                       Claude Opus 4.7             7.7          3.3         0.2
+                                                     67%                         Claude Sonnet 4.6          11.3         18.3         1.5
+                     Opus 4.7                                                    Gemini 3.1 Pro             61.2         10.1         9.4
+                                                                                 GPT 5.4                     5.0          1.2         0.3
+                                0%     25%     50%     75%         100%
+                                                                               Table 6 Mean file mutations per trajectory. Create, modify,
+  Figure 12 Percentage of the final codebase produced by                       and delete counts reflect how frequently models revisit
+  the single largest edit, per model. For instance, GPT 5.4                    and restructure their codebases. Counts are averaged
+  writes a median of 96% of its code in one turn.                              across all tasks and models.
+
+
+  Models rarely exceed the turn or time budget. Across all nine models (1,800 runs), the agent voluntarily submits
+  its solution in 98.1% of trajectories. Just 1.9% exhaust the 6 hour wall clock time limit, and just a single run
+  reaches the 1,000 turn cap. Timeouts are concentrated in Opus 4.6 (29/200) and Sonnet 4.6 (5/200). All
+  other models complete all 200 tasks within the time and step budget. This finding suggests that the limits do
+  not artificially constrain model performance.
+  Writing dominates most models’ action budgets. Opus 4.7, Sonnet 4.6, Gemini 3.1 Pro, and GPT 5.4 all devote
+  the largest share of turns to writing code (48.7%, 37.5%, 40.7%, and 40.2% respectively). Probing the reference
+  executable is the second-largest category for all four, ranging from 22.6% (Opus 4.7) to 34.1% (Gemini 3.1
+  Pro). Read actions account for 13–16% across all representative models.
+  Probing trends differently across models. GPT 5.4’s actions are concentrated almost entirely within the first 30
+  turns. Claude models maintain a steadier mix of probing and writing throughout their trajectories, interleaving
+  exploration with implementation rather than treating them as distinct phases.
+  Codebase growth varies between gradual iteration and single-shot generation. To study how a SWE-agent’s
+  codebase grows across the course of a trajectory, for each trajectory, we replay the subset of commands that
+  modify files (e.g., touch, sed, rm) and snapshot the file system after each turn. This sequence of snapshots
+  allows us to recover a ground-truth timeline of how files are updated at different points in a trajectory.
+  Figure 11 shows all trend lines of a codebase’s total line count with respect to trajectory progress for each
+  model across all 200 instances. Claude Sonnet 4.6 and Gemini 3.1 Pro tend to ramp up steadily, whereas
+  GPT 5.4 produces nearly all code in a single turn early on in the trajectory. To highlight this distinction
+  further, Figure 12 shows that the median fraction of the final codebase written in a single turn ranges from 44%
+  (Sonnet 4.6) to 100% (GPT 5.4), with Opus 4.7 at 67% and Gemini 3.1 Pro at 53%. As reflected in Table 6,
+
+
+                                                                          10
+
+=== [PDF page 11] ===
+
+we also found that GPT 5.4 averages just 1.2 file modifications per trajectory, with 39.5% of trajectories
+performing zero modifications to any existing files. In contrast, Sonnet 4.6 averages 18.3 modifications and
+Gemini 3.1 Pro averages 10.1, consistent with the gradual growth visible in their curves. All together, the
+trends suggest that for some models, development is effectively a single-shot generation step, rather than an
+iterative write-compile-debug cycle.
+
+
+6    Related Work
+Code from scratch. Several prior works have presented variations of evaluating coding systems on 0 to 1 code
+generation. Commit0, an early work in this lineage, converts 54 Python libraries into task instances by erasing
+the existing implementations for all functions and classes (Zhao et al., 2024). The model is then asked to
+fill in the blanks, and performance is quantified as the percentage of the repository’s original test suite that
+passed. Later works follow this paradigm, with differences primarily around how repository specifications
+are communicated to the model (Li et al., 2024b; Liu et al., 2025). DevBench uses product requirement
+documents (PRDs) and UML diagrams (Li et al., 2024a), while NL2Repo-bench conveys expected structure
+via natural language, shifting the burden of creating folders and files onto the agent (Ding et al., 2026). A key
+commonality is that LMs are asked to fill in a skeleton of pre-defined method headers and classes. In this way,
+models are never actually tested on their software design capabilities, such as what abstractions to introduce,
+how to decompose functionality across modules, or what communication protocols to define. By evaluating
+against executables rather than source code, ProgramBench eliminates the need to prescribe structure with
+natural language or make expected behavior explicit as programmatic definitions. As discussed in §2, our
+formulation also yields simpler collection criteria, broader language coverage, and novel reasoning demands.
+A few prior and concurrent works have included small-scale case studies and a handful of task instances
+that touch on program recreation (Merrill et al., 2026; Chu et al., 2026; Adamczewski et al., 2026). These
+works validate the direction but rely on hand-crafted instances and do not address systematic benchmark
+construction or scaling; ProgramBench provides both. A related but distinct line of work trains models
+to decompile binaries back into source code (Tan et al., 2024). Decompilation aims to recover the original
+implementation; ProgramBench instead evaluates behavioral equivalence, permitting any implementation that
+reproduces the same input-output behavior.
+Issue resolution. SWE-bench (Jimenez et al., 2024) and its variants (Yang et al., 2024b, 2025; Deng et al.,
+2025; Rashid et al., 2025; Zan et al., 2025; Zhang et al., 2025; Thai et al., 2026) have become popular
+coding benchmarks. Extracted from GitHub issue-pull request pairs, SWE-bench tasks evaluate models on
+their ability to address bug fixes or feature requests within an existing codebase. These evaluations are
+complementary to ProgramBench, which instead focuses on building a codebase from the ground up.
+Automatic environment setup. A few works have examined the task of automatically setting up a development
+environment for a given GitHub repository (Bogin et al., 2024; Eliseeva et al., 2025; Hu et al., 2025).
+ProgramBench does not evaluate environment setup in isolation, but it arises as a practical prerequisite:
+models must develop dependencies and configure build tools to produce a working solution. No specific
+toolchain is prescribed; models can use an entirely distinct line of languages and libraries.
+Performance optimization. Alongside measuring correctness, a relevant line of works examines algorithmic (Du
+et al., 2024; Liu et al., 2024; Waghjale et al., 2024; Huang et al., 2025; Press et al., 2025) and machine-
+dependent (He et al., 2025; Ma et al., 2025; Ouyang et al., 2025; Shetty et al., 2025) runtime optimization as
+a measure of how well AI systems can speed up software systems while maintaining functional correctness.
+The most salient distinction between those works and ProgramBench is that while optimization benchmarks
+assume a known specification that a model should preserve (while optimizing speed), ProgramBench requires
+models to recover the specification itself from observed behavior. In this respect, ProgramBench shares
+motivation with inductive program synthesis benchmarks that require inferring behavior from input-output
+examples (Wei et al., 2025), but operates at the scale of full software projects, not individual functions.
+
+
+
+
+                                                       11
+
+=== [PDF page 12] ===

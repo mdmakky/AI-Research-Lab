@@ -1,0 +1,69 @@
+{
+  "title": "Secure or Suspect? Investigating Package Hallucinations of Shell Command in Original and Quantized LLMs",
+  "authors": [
+    {
+      "family": "Haque",
+      "given": "Md Nazmul"
+    },
+    {
+      "family": "Lin",
+      "given": "Elizabeth"
+    },
+    {
+      "family": "Arkoh",
+      "given": "Lawrence"
+    },
+    {
+      "family": "Tadesse",
+      "given": "Biruk"
+    },
+    {
+      "family": "Xu",
+      "given": "Bowen"
+    }
+  ],
+  "year": 2025,
+  "venue": "arXiv",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.48550/arxiv.2512.08213",
+  "arxiv_id": "2512.08213",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7114790325",
+  "url": "https://arxiv.org/abs/2512.08213",
+  "oa_pdf_url": "https://arxiv.org/pdf/2512.08213",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 2,
+  "abstract": "Large Language Models for code (LLMs4Code) are increasingly used to generate software artifacts, including library and package recommendations in languages such as Go. However, recent evidence shows that LLMs frequently hallucinate package names or generate dependencies containing known security vulnerabilities, posing significant risks to developers and downstream software supply chains. At the same time, quantization has become a widely adopted technique to reduce inference cost and enable deployment of LLMs on resource-constrained environments. Despite its popularity, little is known about how quantization affects the correctness and security of LLM-generated software dependencies while generating shell commands for package installation. In this work, we conduct the first systematic empirical study of the impact of quantization on package hallucination and vulnerability risks in LLM-generated Go packages. We evaluate five Qwen model sizes under full-precision, 8-bit, and 4-bit quantization across three datasets (SO, MBPP, and paraphrase). Our results show that quantization substantially increases the package hallucination rate (PHR), with 4-bit models exhibiting the most severe degradation. We further find that even among the correctly generated packages, the vulnerability presence rate (VPR) rises as precision decreases, indicating elevated security risk in lower-precision models. Finally, our analysis of hallucinated outputs reveals that most fabricated packages resemble realistic URL-based Go module paths, such as most commonly malformed or non-existent GitHub and golang.org repositories, highlighting a systematic pattern in how LLMs hallucinate dependencies. Overall, our findings provide actionable insights into the reliability and security implications of deploying quantized LLMs for code generation and dependency recommendation.",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "key": "haque2025secure",
+  "added": "2026-11-12T04:55:15+06:00",
+  "added_reason": "F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)",
+  "found_via": "package hallucination large language model code generation; LLM hallucinated dependencies nonexistent library import",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T17:53:58+06:00",
+    "cross_checks": {
+      "arxiv": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2512.08213",
+    "retrieved": "2026-11-12T04:56:23+06:00",
+    "sha256": "de1fd055bcfd5b97526873ebfe7f0338aa754525d3ed7b2808d8a89f0128af39",
+    "pages": 9,
+    "text_layer": "ok",
+    "identity": "match (arXiv id printed in PDF)"
+  }
+}

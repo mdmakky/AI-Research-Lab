@@ -1,0 +1,1887 @@
+{
+  "query": "hallucinated tool calls coding agents",
+  "sources": [
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2025,
+  "year_to": null,
+  "run_at": "2026-11-12T05:36:28+06:00",
+  "raw_hits": 45,
+  "unique": 44,
+  "errors": {},
+  "results": [
+    {
+      "title": "The Claim-to-Action Gap: Measuring How Misinformation Turns False State into Tool Calls in Tool-Using LLM Agents",
+      "authors": [
+        {
+          "family": "Rashidi",
+          "given": "Mohammadreza"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-10646557/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-10646557/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract OWASP-2026 lists misinformation as LLM07 and frames its core risk as a system-level failure: a false claim produced by one component is trusted by a downstream component and drives a harmful decision or action. Prior work measures misinformation at the text level (belief change, answer correctness, propagation in debate). We measure the action. We build six two-agent producer-consumer pipelines, one per class, keyed to the seven OWASP-2026 LLM07 scenarios, in which a producer agent emits a false claim or state (self-generated or adversarially induced) and a consumer agent holds a real tool that can approve a refund, release funds, approve a prescription, apply a remediation command, block a network segment, or authorize a wire. Each fired tool executes against a sandboxed world backed by a database, so a successful attack produces a concrete state change (money moved in a ledger, a firewall flushed, a segment blocked, an invoice paid), not a mock return. A deterministic judge scores the tool call, not the text, against a fixed ground-truth record. Across six classes, three payload variants, three Gemini tiers, and three seeds (324 real trials), the undefended claim-to-action rate is 69.8 percent: false claims fire the harmful action on a large fraction of trials, and the rate is sharply payload-dependent (for example, one policy phrasing raises the refund class from 33.3 percent to 100.0 percent). We then evaluate the OWASP-recommended Claim-Check-Act mitigation, a verification step that compares the claim against a ground-truth record before the action may execute. It lowers the residual action rate to 0.0 percent (block rate 100.0 percent, escalation 96.3 percent). Every number is re-derived from the stored transcripts by a fail-closed checker. We release the six pipeline harnesses, the transcripts, and the verifier.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Your Agents Are an Autonomous Liability The Fiduciary Fallout of Probabilistic Tool Calls",
+      "authors": [
+        {
+          "family": "Allen",
+          "given": "Dustin"
+        },
+        {
+          "family": "Jariwala",
+          "given": "Hearsch"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6320283",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6320283",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<span> <p>The enterprise assumption that premium pricing guarantees premium AI security is an actuarial myth. In the agentic era, spending millions on closed-source cognitive engines actively subsidizes the collapse of your own regulatory compliance posture. This strategic intelligence report subjects eight premier models to 4,000 rigorous execution cycles across five targeted, multi-turn corporate espionage pretexts. By systematically repeating these attacks, we expose the catastrophic variance of LLMs and prove that general-purpose intelligence cannot be trusted to route enterprise data securely.</p> <p><span>Our unit economic analysis completely dismantles the commercial market. </span><span>The highest-priced model (Claude Opus 4.6) in our testing matrix demands a massive premium of $25.00 per million tokens yet yielded the lowest safety pass rate of any Western model at an abysmal</span><span> </span><span>41.2%</span><span>. Conversely, the highly efficient open-weight model (GLM 5) operating at a fraction of that cost ($3.20 per million tokens) dominated the safety rankings with pass rates up to 96.2%, </span><span>proving that policy adherence is completely decoupled from premium pricing. Yet, relying on any probabilistic inference remains a systemic risk. We demonstrate that a model passing safety tests in a staging sandbox can statistically drift into critical non-compliance under production loads due to mantissa truncation. These inherently unstable engines fundamentally fail to separate technical permissions from data confidentiality when calling tools.</span></p> <p><span>You cannot prompt-engineer your way out of stochastic behavior. To restore actuarial viability, we showcase the Trinitite Governor. By decoupling probabilistic reasoning from deterministic execution, this state-machine architecture blocked 100% of malicious payloads with a latency of just ~400 milliseconds. Operating inherently gullible models without deterministic controls constitutes constructive negligence. True autonomous security cannot be probabilistically requested; it must be deterministically enforced.</span></p></span>",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Gated Autonomy: A Layered Security Framework for Tool Access Governance in LLM-Driven Coding Agents",
+      "authors": [
+        {
+          "family": "Patel",
+          "given": "Rut"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7609705",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7609705",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Model (LLM)-driven coding agents have evolved from inline code completion utilities into autonomous systems capable of executing shell commands, modifying file hierarchies, retrieving remote documentation, and invoking external APIs. This expanded operational autonomy introduces security vulnerabilities that conventional software permission architectures fail to mediate. In this paper, we examine the attack surface created when autonomous programming agents are granted broad access to system-level tools. We propose Gated Autonomy, an architectural framework that enforces the principle of least privilege across the entire tool-execution lifecycle. The framework couples three defensive layers: a declarative policy gate enforcing static capability boundaries and parameter whitelisting, a runtime context evaluator tracking data provenance and privilege accumulation, and a postexecution audit engine providing counterfactual verification against temporal causal manipulation. We evaluate Gated Autonomy against a comprehensive taxonomy of fifteen documented attack vectors drawn from commercial coding assistants and open-source agent runtimes. Our empirical analysis demonstrates that the framework completely mitigates direct tool hijacking and cross-tool privilege escalation while reducing developer verification interruptions by over 80% through selective escalation.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Synthetic-Trained Guards Fail on Real LLM Agents: Step-Level Evidence from Tool-Use and Coding-Agent Prompt Injection",
+      "authors": [
+        {
+          "family": "Kaleem",
+          "given": "Arsalan"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202611.0859.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202611.0859.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Indirect prompt injection lets text that a large language model (LLM) agent reads redirect the tools it calls. Step-level guards that score each proposed tool call before it executes report near-perfect accuracy, but only on one synthetic corpus. We test whether such a guard protects real agents in two settings. We build TraceWarden, a pre-dispatch guard with argument-provenance and goal-anchoring features and a conformal false-alarm budget, and release two real, step-labeled datasets: AgentDojo-Steps (846 trajectories from tool-using agents) and SWE-Inject-Steps (630 trajectories from coding agents with shell access, including a URL-free attack set). Over five training seeds, the guard reaches 0.98 trajectory F1 on its synthetic benchmark. On real tool-using agents it falls to 0.33 and 0.46 F1, injection localization drops from 0.88 to 0.01–0.04 exact match, and a 1% conformal false-alarm budget is exceeded 9- to 24-fold. On coding agents it blocks 1 or 2 of 48 hijacks, ranking them at or below chance; a sentence encoder ranks them modestly better but still blocks only 4 or 5. Three causes recur: a positional prior learned from synthetic data, a lexically stereotyped attack vocabulary that favors the encoder that transfers worst, and a mention-based definition of “hijacked” that the guard reproduces. A simple provenance rule blocks every URL-bearing coding-agent attack but none of 18 attacks that run a script already in the repository. Synthetic benchmarks substantially overstate how well learned guards protect real agents.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Schema-Conditioned Next-Tool Prediction for Coding Agents under Interface Drift",
+      "authors": [
+        {
+          "family": "Nyberg",
+          "given": "Selma"
+        },
+        {
+          "family": "Samsten",
+          "given": "Isak"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 1st International Workshop on Agentic AI for Next-Generation Software Development",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3843282.3844430",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3843282.3844430",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Limits of Language Models for Qualitative Coding: Detecting Calls to Action in r/Antiwork",
+      "authors": [
+        {
+          "family": "Witte",
+          "given": "Jessica"
+        },
+        {
+          "family": "Stillman",
+          "given": "Ari"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.31235/osf.io/tdgk5_v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.31235/osf.io/tdgk5_v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Recent studies have demonstrated that large language models (LLMs) can match human experts’ accuracy in qualitatively coding social media data. However, proprietary LLMs accessed through APIs raise concerns related to cost, accessibility, and data protection. Although smaller language models (SLMs) have received less scholarly attention, they can be deployed locally and are open-access, which in turn can mitigate many of the ethical concerns of LLMs. This study evaluates three open-access SLMs in two zero-shot qualitative coding tasks identifying and classifying calls to action (CTAs) within posts from the Reddit community r/Antiwork. Drawing on framing theory and the concept of infrapolitics, we examine how models interpret both collective and individually oriented forms of mobilizing discourse. Across both tasks, models demonstrated consistently low agreement with human-coded ground truth and were least successful at identifying implicit, individual, and infrapolitical calls to action embedded in personal narrative. Qualitative close reading revealed that models most accurately identified CTAs when posts contained explicit directive language and recognizable collective action framing, but were less able to identify CTAs embedded in community-specific and context-dependent forms of mobilization. These findings suggest that zero-shot prompting may be poorly suited to qualitative coding tasks involving implicit social movement discourse. Furthermore, computational approaches to researching mobilization may systematically privilege explicit collective action over individualized or infrapolitical forms of resistance.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "SlopsGuard: A Defense Tool Against AI-Hallucinated Package Attacks in Software Supply Chains",
+      "authors": [
+        {
+          "family": "Kurnaz",
+          "given": "Doğukan"
+        },
+        {
+          "family": "Sarı",
+          "given": "İlknur Köseoğlu"
+        },
+        {
+          "family": "Ustaoğlu",
+          "given": "Vahit"
+        },
+        {
+          "family": "Zeydan",
+          "given": "Engin"
+        }
+      ],
+      "year": 2026,
+      "venue": "NOMS 2026-2026 IEEE Network Operations and Management Symposium",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/noms69089.2026.11668187",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/noms69089.2026.11668187",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Toolshed: Scale Tool-Equipped Agents with Advanced RAG-Tool Fusion and Tool Knowledge Bases",
+      "authors": [
+        {
+          "family": "Lumer",
+          "given": "Elias"
+        },
+        {
+          "family": "Subbiah",
+          "given": "Vamse"
+        },
+        {
+          "family": "Burke",
+          "given": "James"
+        },
+        {
+          "family": "Basavaraju",
+          "given": "Pradeep"
+        },
+        {
+          "family": "Huber",
+          "given": "Austin"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the 17th International Conference on Agents and Artificial Intelligence",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0013303000003890",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0013303000003890",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Coding Kanban: A browser workbench for supervising CLI-based AI coding agents",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Zukang"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        }
+      ],
+      "year": 2026,
+      "venue": "SoftwareX",
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6960174",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6960174",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding Kanban is a browser workbench for supervising command-line AI coding agents on local and intranet development hosts. The software treats an agent session as the main object and maps local pseudoterminals, SSH launched pseudoterminals, discovered tmux panes, and scanned agent work directories onto that model. Its React/Vite frontend provides a session board, a focused terminal, discovery dialogs, a file drawer, and a VS Code Web drawer. Its Fastify/Node.js backend handles process launch, tmux dis covery and takeover, terminal replay, WebSocket streaming, filesystem ac cess, SFTP, and editor proxying. The submitted artifact contains 30,973 counted source/test/configuration lines and 47 automated test or specifica tion files.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "From Tool Calls to Governed Autonomy: Agent OS and ECF for Auditable Agent Deployment",
+      "authors": [
+        {
+          "family": "Borden",
+          "given": "Jeremy"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6933900",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6933900",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "A tool call is not a deployment. Large language model agents now call APIs, operate over private context, and trigger external work, including paid work; most frameworks still treat this autonomy as a prompting and tool-access problem. Deployment raises a different set of questions: what may the agent know, what may it spend, who must approve which actions, what evidence supports each action, and where is the receipt? This paper reports, from the operator's seat of a live agent marketplace, an implementation-oriented answer: Agent OS and ECF, the architecture behind the Agoragentic platform. A deployment contract binds goal, budget, tool authority, exposure, and approval thresholds; a transaction network provides discovery, execution, metering, trust states, x402 payment flows, and USDC settlement; ECF supplies bounded, policy-filtered context and read-only evidence reconciliation, with an opensource self-hosted core; and a hierarchical constitution, inherited by every child agent and hashed into receipts, sits above all of it. We state a threat model, machine-check the action-lifecycle invariants, and-unusually for this literature-make every system claim verifiable from the reader's terminal: the catalog, trust states, payment challenges, and redacted receipts cited here are live, anonymous curl commands. We also report honest negative results: supply-side governance held up in production, while organic demand, not infrastructure, is the binding constraint. We pre-register an on-chain falsifiable criterion for the marketplace's demand thesis. The contribution is a systems pattern-launch through contracts, bound by context and policy, review before risky actions, connect every action to receipts, reconcile after execution-with the evidence boundary stated exactly.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated \"AI Hallucination\" and How to Stop It",
+      "authors": [
+        {
+          "family": "Werner",
+          "given": "Swen"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5063992",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5063992",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Causal Engram Circuits for Factual and Hallucinated Memory in Large Language Models",
+      "authors": [
+        {
+          "family": "Bao",
+          "given": "Pengfei"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7447179",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7447179",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) produce fluent yet factually incorrect statements—a failure that mirrors false memory in biological systems. Whether such errors arise from causally identifiable and manipulable circuit elements has remained unknown. Here we adapt the engram framework from systems neuroscience and combine causal mediation analysis with a double-dissociation logic to localize, verify, and rewrite factual and false memory traces in GPT-style transformers. We discover that sparse sets of knowledge neurons—canonical ensembles of approximately 8–15 units—function as memory engrams: silencing them selectively erases target-fact retrieval while matched controls remain intact; exogenous activation forces the fact into output even under neutral prompts. Rigorous controls, including patterned activation and non-engram amplification, confirm identity-specific sufficiency. Critically, counterfactual fine-tuning creates false memory engrams that deviate geometrically toward lexical co-occurrence subspaces; formal mediation analysis reveals that this geometric corruption causally mediates 65% of the pathway from falsity to erroneous output. Exploiting this divergence, we construct an unsupervised Memory Credibility Score that predicts hallucination propensity without behavioural testing, generalizing across relations and model scales. The framework extends to multi-hop and temporal reasoning and enables reversible, context-dependent memory control unavailable to permanent weight-editing methods. Our findings establish a causal sufficiency-and-necessity account of factual retrieval, diagnose representational pathologies underlying hallucination, and deliver a precision toolkit for understanding and certifying knowledge in LLMs.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Authority: AI Citations as Reckless Misrepresentation",
+      "authors": [
+        {
+          "family": "Chang",
+          "given": "Cheng-chi (Kirin)"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6464098",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6464098",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "When courts sanctioned the attorneys in Mata v. Avianca for submitting AI-generated citations to nonexistent cases, they reached for the vocabulary of negligence. That characterization is wrong. Large language models do not forget cases the way attorneys do; they generate citations that look real but correspond to nothing in any reporter, and they do so at documented rates of 58% to 88% on legal queries, a fact publicly known in peer-reviewed research before most of the incidents now filling the reporters. An attorney who submits AI output without verification does not merely fail a diligence standard. She submits a representation to a court while consciously declining to establish any basis for its accuracy, satisfying the elements of reckless misrepresentation under Restatement (Second) of Torts § 526(b)–(c). The cases that have followed Mata reach instinctively for language that exceeds negligence, calling citations “bogus” and monetary sanctions “insufficient deterrents,” and some have begun to reach the word “reckless” without grounding that intuition in a cross-regime doctrinal framework. This Article supplies that framework.<br><br>This Article makes three original contributions. First, it introduces the concept of “structurally predictable error” to explain why AI hallucination is categorically different from human memory failure: the error follows from the tool's architecture rather than from individual cognitive lapse, its rate is publicly documented, and a reasonable practitioner in the field either knows or should know it before using the tool. Second, it builds the doctrinal case for reckless misrepresentation by connecting § 526(b)–(c) to the philosophy of AI output, arguing that an attorney who relies on a tool architecturally indifferent to the distinction between true and false adopts that indifference as her own representational posture toward the court. Third, it proposes a graduated three-tier accountability framework that calibrates sanctions to actual culpability, preserving space for good-faith verification efforts and the access-to-justice benefits that AI tools offer to under-resourced practitioners, while refusing to treat willful blindness toward a known category of fabrication as mere carelessness.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Legal Presentations in Civil Trial Courts",
+      "authors": [
+        {
+          "family": "Parness",
+          "given": "Jeffrey A."
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6459258",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6459258",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<div> <span>Increasingly hallucinated legal presentations are being discovered and sanctioned in U.S. federal and state civil trial courts.&nbsp; Such presentations encompass papers that are signed, filed, submitted or advocated which contain nonexistent legal sources, whether case precedents, statutes, court rules, administrative regulations, or otherwise.&nbsp; These presentations may be discovered by judges, presenting lawyers, opposing lawyers, unrepresented parties, or witnesses.&nbsp; Sanctions may follow under court rules, like Federal Civil Procedure Rule (FRCP) 11 and its state court rule counterparts, federal or state statutes, or both.</span> </div> <div> <span><br></span> </div> <div> <span>D</span><span>iscoveries and sanctions are most often facilitated by FRCP 11 and similar state court rules of general application.&nbsp; They are less easily undertaken by state court rules or statutes that only partially follow, or significantly differ from, FRCP 11.&nbsp; This essay demonstrates the enhanced FRCP 11 opportunities for early and easy discovery and sanction of hallucinated legal presentations, as well as the difficulties posed when FRCP 11 is not (fully) followed in state trial courts.</span> </div> <div> <span><br></span> </div> <div> <span>The essay employs the 2025 Minnesota State District Court opinion in Nuvola, LLC v. Morgan Wright to address the current deficient norms on hallucinated legal presentations.&nbsp; In Minnesota, state lawmakers have only partially follow FRCP 11.&nbsp; The case is examined under FRCP 11 and comparable state civil procedure laws.&nbsp; Some state laws differ significantly from both the federal and Minnesota laws.&nbsp; The essay highlights the greater breadth of FRCP 11 in addressing troublesome paper presentations, the rule’s safe harbor provisions, and the rule’s recognition of law firm responsibility for frivolous presentations.&nbsp; The essay includes suggestions on how trial court norms can better address hallucinated legal presentations by lawyers.&nbsp; In doing so, it may also assist lawmakers contemplating civil procedure law reforms addressing hallucinated facts, like deepfakes, and hallucinated opinions, as from alleged experts.</span> </div>",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Conformance, Cost, and Replication in Constrained LLM Coding Agents",
+      "authors": [
+        {
+          "family": "Rocchi",
+          "given": "Alessio"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6751519",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6751519",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Procedural protocols deliver +0.59 to +0.78 expected-utility gain over free prompting at log-token ratios 0.70-3.28 on 8 cells × 4 frontier models. However, 33-68% of procedurallycompliant runs still fail held-out semantic tests, exposing a conformance-without-semantics regime invisible to compliance-only metrics. We present a measurement framework that projects agent trajectories onto a behavior signature B = φ(τ) over conformance, targetcorrectness, robustness, and token cost, with a decisional cost-aware metric V admitting a closed-form break-even λ breakeven below which the protocol pays. E1 validates empirical FOSD on the held-out utility grid (n = 120, all 80 thresholds; sample-level, not population). L1 (asymmetric-quorum joint-miss bound, inclusion-exclusion arithmetic) is validated within the finance contract domain (ρ : 0.62 → 0.29, joint-miss 22.91% → 12.28%, paired McNemar p = 0.0013 on n = 200 bugs × 1,400 reviews); Phase-5 falsifies cross-domain transfer (bankcheck.py, p ≥ 0.5 in all 5 contrasts). C-T3 converges in simulation but the LLM-grounded counterpart shows no improvement under two preregistered injection formats (abstract-name and concrete-example, p ∈ [0.95, 0.97] against H 1 at n = 92), a simulation-to-LLM gap reported as absence of detected improvement, not evidence of absence. C1 (contract-aligned specificity) replicates across 3 reviewer families on 4 phases; Phase-11 provenance-label falsification (n = 60, both pre-registered hypotheses fail at p ∈ [0.13, 0.34]) rules out anti-stdlib carelessness as the dominant mechanism, leaving ≥ 40 pp of the cross-sample detection gap to code-intrinsic factors. A naturalistic Phase-12 replication on CPython csv.py bugs harvested from the issue tracker is underpowered at the harvested sample size (n = 8, below the pre-registered target of 25-30); 0/3 families reach the Bonferroni-corrected primary threshold (Codex p = 0.029, Gemini p = 0.031, Opus p = 0.50) and Codex output is contaminated by 100% CPython issue-number leakage in the out-of-band probe-naturalistic C1 transfer at low n with the leakage caveat is therefore reported but not claimed. The contribution is methodological discipline-explicit separation of proved, measured, conjectured, and empirically falsified-not a new prompting technique. Every numerical claim recomputes from raw artefacts in the companion repository.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "VerilogCoder: Autonomous Verilog Coding Agents with Graph-based Planning and Abstract Syntax Tree (AST)-based Waveform Tracing Tool",
+      "authors": [
+        {
+          "family": "Ho",
+          "given": "Chia-Tung"
+        },
+        {
+          "family": "Ren",
+          "given": "Haoxing"
+        },
+        {
+          "family": "Khailany",
+          "given": "Brucek"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1609/aaai.v39i1.32007",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1609/aaai.v39i1.32007",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 62,
+      "abstract": "Due to the growing complexity of modern Integrated Circuits (ICs), automating hardware design can prevent a significant amount of human error from the engineering process and result in less errors. Verilog is a popular hardware description language for designing and modeling digital systems; thus, Verilog generation is one of the emerging areas of research to facilitate the design process. In this work, we propose VerilogCoder, a system of multiple Artificial Intelligence (AI) agents for Verilog code generation, to autonomously write Verilog code and fix syntax and functional errors using collaborative Verilog tools (i.e., syntax checker, simulator, and waveform tracer). Firstly, we propose a task planner that utilizes a novel Task and Circuit Relation Graph retrieval method to construct a holistic plan based on module descriptions. To debug and fix functional errors, we develop a novel and efficient abstract syntax tree (AST)-based waveform tracing tool, which is integrated within the autonomous Verilog completion flow. The proposed methodology successfully generates 94.2% syntactically and functionally correct Verilog code, surpassing the state-of-the-art methods by 33.9% on the VerilogEval-Human v2 benchmark.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "Autonomous Coding Agents for Software Development Testing and Debugging",
+      "authors": [
+        {
+          "family": "Polishetty",
+          "given": "Yeswanth Kumar"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7515638",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7515638",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Autonomous coding agents build on top of large language models to provide more action according to code suggestions: auto code officers look at files, code suggestions, edit, run tools, create tests, debug failures, and iterate over patches. This paper presents an overview of the existing knowledge regarding their application in the development, testing and debugging of software and suggests a guided lifecycle towards their application in production. The analysis differentiates between model capability and system capability in that the ability to retrieve a repository, interfaces of tools, execution environment, a test oracle, memory and approval gates are what would determine whether an agent could come up with a reliable change. Benchmarks have demonstrated high improvement in the initial results of SWE-bench to more interactive and structured repair systems, but the benchmark contamination, weak tests, underspecified problems, cost variance and non-equivalent evaluation environments provide hindrance to the straightforward leaderboard comparisons. It suggests a five-step operating model which includes, specifying the task, localizing the repository, implementation of the task by constrained means, validation through evidence and integration control. The architecture integrates sandboxed, least-privilege credentials, provenance capturing, policy-as-code, independent test generation, human inspection and rollback. Benchmark evidence, lifecycle coverage and autonomy risk tradeoffs, and validation controls are grouped into four figures of analysis and four tables. The research concludes that coding agents prove to be most useful with as a supervised engineering system and not as an unconditioned substitute of the developers. Measuring functional correctness, regression risk, security, maintainability, cost and operational safety is a combination needed to be taken to ensure that adoption is reliable. The research does not claim an original experiment on human subjects or production and explicit figures of the models are mentioned.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "SwiftNJ: Fast Exact Neighbour Joining via Correctness-Gated Coding Agents",
+      "authors": [
+        {
+          "family": "Christensen",
+          "given": "Joe"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.64898/2026.05.28.728410",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.64898/2026.05.28.728410",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract The capability profile of frontier coding agents in 2026 varies sharply across technical domains, motivating domain-specific empirical study of where, and under what oversight conditions, such systems can contribute to specialised technical work. This paper presents one such study in computational phylogenetics. Neighbour joining (NJ) is a widely used distance-based method for inferring evolutionary trees in microbial epidemiology, comparative genomics, and large-scale sequence clustering. Its constant-factor runtime is set by hand-tuned native implementations; RapidNJ is a widely-cited representative of that class and serves here as the comparison baseline. We ask whether a current-generation coding agent, operating under a correctness-gated optimisation harness with deterministic correctness gates calibrated against a QuickTree reference, can advance that constant factor on a fixed benchmark. The resulting implementation, SwiftNJ, achieves a geometric-mean runtime ratio of 0.565 against a locally-rebuilt RapidNJ-native binary across a 59-matrix corpus, sub-parity on 58 of 59 matrices. On 400 shuffled inputs drawn from 16 small matrices ( n ≤ 2000), SwiftNJ matched the QuickTree reference at Robinson–Foulds distance zero. In this domain, a correctness-gated coding agent meaningfully improved on a strong native baseline, suggesting that harness-guided optimisation holds promise for performance-critical bioinformatics tools; further work is needed to establish how broadly the approach generalises.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Governing AI Coding Agents: From Repository Artifacts to Organizational Capability",
+      "authors": [
+        {
+          "family": "Hamza",
+          "given": "Muhammad"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7318619",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7318619",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Purpose: Software projects are increasingly adopting repository-level governance artifacts, such as CLAUDE.md and AGENTS.md, to communicate projectspecific guidance to AI coding agents. Although these artifacts have become an important mechanism for governing AI coding agents, little is known about the governance practices and governance liabilities they represent or the extent to which they reflect broader organizational governance capability. This study investigates repository-level AI agent governance through the lens of organizational capability theory. Method: We conducted an exploratory sequential mixed-methods study. Using the STGT4DA methodology, we developed taxonomies of governance practices and governance liabilities and converted them into a structured codebook for LLM-based classification. The classification approach was evaluated against manually coded reference labels, and the retained governance constructs were subsequently applied to a corpus of 555 AI agent governance artifacts collected from public GitHub repositories to investigate whether repository-level governance artifacts exhibit characteristics theoretically associated with organizational capability across repositories. Results: The findings reveal that these artifacts primarily emphasize project orientation, knowledge transfer, and implementation guidance, whereas verification, oversight, accountability, and continuous governance management remain comparatively limited. The analysis also identifies recurring governance liabilities that may limit the effectiveness of AI agent governance. Furthermore, the artifact-level governance capability score is not systematically associated with the repository maturity indicators examined in this study or with application domains used as broad proxies for operational risk, and the observed governance artifacts provide limited evidence of the characteristics associated with institutionalized governance. These findings indicate that the presence of&nbsp;repository-level governance artifacts alone should not be interpreted as evidence of mature organizational governance capability. Conclusion: This study provides an ecosystem-scale empirical investigation of repository-level AI agent governance from an organizational capability perspective. By examining governance artifacts according to the governance functions they perform rather than solely the information they contain, the proposed taxonomies, LLM-based classification approach evaluated against manually coded reference labels, and empirical findings provide a foundation for systematically evaluating AI agent governance in both research and practice.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "Persistence Hallucinated? Research Integrity Issues in Voigtländer and Voth (2012)",
+      "authors": [
+        {
+          "family": "Francis",
+          "given": "Joseph"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6714989",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6714989",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Voigtländer and Voth&apos;s (2012) study of the medieval origins of antisemitic violence in Nazi Germany has various research integrity issues. Their research design is supposed to rely on \"unambiguous information\" that often does not exist in their sources. Furthermore, when such information does exist, it frequently contradicts the dataset that is supposed to have been coded from those sources. There are also unexplained discrepancies in their dataset relating to the official statistics of the deportations of Germany&apos;s Jews during the Holocaust. As a result, Voigtländer and Voth&apos;s (2012) study cannot be replicated.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "How Do Small Coding Agents Use Code Graphs and Embeddings?",
+      "authors": [
+        {
+          "family": "Bellam",
+          "given": "Saurav"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.66977/xsci.2610.0030",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.66977/xsci.2610.0030",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coding agents are given embedding search and code-graph tools on the premise that a repository's structure is something the model lacks and the tool supplies. We test that premise on SWE-bench Verified with small open-weight models, stratifying tasks by a deterministic hop depth (the shortest code-graph path from code the issue mentions to code the gold patch changes) that a companion paper defines and validates. First, we ablate a localization agent's tool set (grep only; +embedding search; +graph tools; all) on a depth-balanced 160-task split and on all 500 tasks for ten models (six Qwen3 sizes from 0.6B to 32B with five decodings each, an FP8 control, three Gemma 4 sizes; 79k episodes). Structured tools double grep-only accuracy for Qwen3-8B and Gemma 4 E4B; their gain peaks at 17-21 points at 1.7-4B and falls to 4-5 points at 32B (odds ratio 0.77-0.82 per doubling of parameters). From 8B up, about half of that gain is the form of the submission rather than finding the target; the fall from 14B to 32B is a fall in tool uptake at equal grep-only accuracy; and the same 4B size gains or does not gain from a tool depending on the checkpoint. Each extra hop multiplies the odds of correct localization by 0.50-0.67 at every size, and no tool set flattens that gradient: traces show the graph tools' gain is name lookup at hop 0 and one expansion at hop 1, and agents chain expansions in only 12-14% of episodes. A fixed repair model resolves 6-13 of 160 tasks from these localizations (oracle 26). Second, linear probes find direct call edges decodable under a within-anchor, degree-stratified protocol (AUC 0.74; 0.61-0.66 inside agent conversations), but below a lexical baseline (0.99), with two-hop edges at 0.57. Small agents carry a one-hop, largely lexical picture of their repository, in weights and in use. We release the agent, probes, logs and traces.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated citations highest in social sciences preprints site",
+      "authors": [
+        {
+          "family": "Stokel-Walker",
+          "given": "Chris"
+        }
+      ],
+      "year": 2026,
+      "venue": "Nature",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/d41586-026-01545-1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/d41586-026-01545-1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "HalluCitation Matters: Revealing the Impact of Hallucinated References with 300 Hallucinated Papers in ACL Conferences",
+      "authors": [
+        {
+          "family": "Sakai",
+          "given": "Yusuke"
+        },
+        {
+          "family": "Kamigaito",
+          "given": "Hidetaka"
+        },
+        {
+          "family": "Watanabe",
+          "given": "Taro"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2026.acl-long.2189",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2026.acl-long.2189",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "The Rise of AI-Hallucinated Case Law in Canadian Courts and Tribunals",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Tom Macintosh"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6940678",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6940678",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models generate text by predicting the most probable next word in a sequence. When prompted for case law references, these tools may produce text that resembles a citation: a plausible party name, a realistic court abbreviation, and a convincing year. The result is a fictitious citation that is indistinguishable in form from a real one. This study presents the findings of a systematic review of decisions published on the Canadian Legal Information Institute (CanLII) from January 1, 2024, to March 26, 2026. The review identified 132 decisions issued by 44 different courts and tribunals in six provinces and the federal jurisdiction. In each decision, the court or adjudicator flagged a party submitting at least one fictitious citation (i.e., a case that does not exist) as real authority. In 96 of those 132 decisions, the court or tribunal found or presumed that artificial intelligence (“AI”) tools generated the fictitious citations. In the remaining 36 decisions, the adjudicator identified the citations as non-existent but made no definitive finding regarding the use of AI.&nbsp;The figures in this study represent a conservative floor. For every fictitious citation that an adjudicator detects, others may go unnoticed. The author maintains a live, searchable database of all identified decisions at <a href=\"https://courtready.ca/fictitious-citations-in-canadian-courts\" rel=\"nofollow\">courtready.ca/fictitious-citations-in-canadian-courts</a>, which is updated on a rolling basis as new decisions are published on CanLII.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "StateMirror: Pre-Execution Detection of Hallucinated Tool Calls in Coding Agents",
+      "authors": [
+        {
+          "family": "Shan",
+          "given": "Shiwen"
+        },
+        {
+          "family": "Huo",
+          "given": "Yintong"
+        },
+        {
+          "family": "Wu",
+          "given": "Zhiying"
+        },
+        {
+          "family": "Su",
+          "given": "Yuxin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.32648",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.32648",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.32648",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language model (LLM)-based coding agents may propose invalid actions that are not applicable in the execution environment, such as accessing non-existent paths or missing packages. We term this mismatch hallucinated tool use. A preliminary study of 4,398 agent trajectories reveals that these hallucinations are pervasive and costly, requiring a median of 3 additional interaction steps and 22.4K tokens to recover. Existing frameworks rely on reactive, post-execution feedback, wasting runtime resources. Nevertheless, since an agent's execution environment is grounded in concrete codebase and harness components, many action prerequisites can be extracted and validated prior to execution. To this end, we introduce StateMirror, a lightweight pre-execution detector. StateMirror intercepts actions at the harness boundary, extracts state predicates via AST and command analysis, and deterministically validates them against the live repository. By pinpointing exact environment mismatches before execution, StateMirror preempts invalid actions and subsequent recovery cycles. Evaluation on 2,508 actions shows StateMirror achieves 0.940 precision and 0.817 F1 in detecting such hallucinations, surpassing the strongest LLM judge by 35.3% in F1 while reducing median detection latency from 17.73 s to 1.50 ms with zero token consumption. For practical mitigation, StateMirror's pre-execution feedback enables agents to rectify over 95% of hallucinated tool calls. During live mitigation on 79 tasks, StateMirror reduces agent execution time by 15.8% and token consumption by 11.8% while maintaining task resolution.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "Proof-of-Use: Mitigating Tool-Call Hacking in Deep Research Agents",
+      "authors": [
+        {
+          "family": "Ma",
+          "given": "Shengjie"
+        },
+        {
+          "family": "Deng",
+          "given": "Chenlong"
+        },
+        {
+          "family": "Mao",
+          "given": "Jiaxin"
+        },
+        {
+          "family": "Huang",
+          "given": "Jiadeng"
+        },
+        {
+          "family": "Wang",
+          "given": "Teng"
+        },
+        {
+          "family": "Wu",
+          "given": "Junjie"
+        },
+        {
+          "family": "Zhang",
+          "given": "Changwang"
+        },
+        {
+          "family": "wang",
+          "given": "Jun"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2510.10931",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2510.10931",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.10931",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "While reinforcement learning (RL) enhances their ability to plan and reason across retrieval steps, we identify a critical failure mode in this setting: Tool-Call Hacking. Unlike execution-based tools (e.g., code or math), whose effects are directly observable, the weak observability of causal dependencies between retrieved evidence and reasoning under format- and outcome-level supervision enables agents to maximize surface-level reward signals without genuinely grounding their reasoning in the returned evidence. This leads to distinctive pathologies, including mode collapse via tool overuse and hallucinated tool usage where tool calls are largely decorative. To address this issue, we propose Proof-of-Use (PoU), an evidence grounded RL framework that explicitly optimizes the causal dependency from retrieval to reasoning and final answers. PoU re-fomulate a fine-grained stepwise interaction protocol in which agents must auditably cite normalized evidence identifiers. We operationalize this via a multi-objective reward design consisting of: (1) two progressive process rewards that constrain citation validity at intermediate steps; (2) a global Answer--Support Alignment reward that enforces consistency between final answers and retrieved evidence; and (3) a curriculum-style adaptive reward mixing mechanism that smoothly transitions agents from dense process supervision to sparse outcome-based objectives. Extensive experiments show the strong performance of PoU and demonstrate the effectiveness in mitigating tool-call hacking. Beyond this, PoU exhibits a notable emergent property: adaptive and robust tool-usage patterns naturally arise under domain and tool shifts, even though PoU does not explicitly optimize for tool adaptation.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "Distilling LLM Agent into Small Models with Retrieval and Code Tools",
+      "authors": [
+        {
+          "family": "Kang",
+          "given": "Minki"
+        },
+        {
+          "family": "Jeong",
+          "given": "Jongwon"
+        },
+        {
+          "family": "Lee",
+          "given": "Seanie"
+        },
+        {
+          "family": "Cho",
+          "given": "Jaewoong"
+        },
+        {
+          "family": "Hwang",
+          "given": "Sung Ju"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2505.17612",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2505.17612",
+      "oa_pdf_url": "https://arxiv.org/pdf/2505.17612",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language models (LLMs) excel at complex reasoning tasks but remain computationally expensive, limiting their practical deployment. To address this, recent works have focused on distilling reasoning capabilities into smaller language models (sLMs) using chain-of-thought (CoT) traces from teacher LLMs. However, this approach struggles in scenarios requiring rare factual knowledge or precise computation, where sLMs often hallucinate due to limited capability. In this work, we propose Agent Distillation, a framework for transferring not only reasoning capability but full task-solving behavior from LLM-based agents into sLMs with retrieval and code tools. We improve agent distillation along two complementary axes: (1) we introduce a prompting method called first-thought prefix to enhance the quality of teacher-generated trajectories; and (2) we propose a self-consistent action generation for improving test-time robustness of small agents. We evaluate our method on eight reasoning tasks across factual and mathematical domains, covering both in-domain and out-of-domain generalization. Our results show that sLMs as small as 0.5B, 1.5B, 3B parameters can achieve performance competitive with next-tier larger 1.5B, 3B, 7B models fine-tuned using CoT distillation, demonstrating the potential of agent distillation for building practical, tool-using small agents. Our code is available at https://github.com/Nardien/agent-distillation.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "Specification-based Security Evaluation of Real-World Agents Tool-Calling under Long-Horizon Context Tasks",
+      "authors": [
+        {
+          "family": "Fu",
+          "given": "Yuchuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Minghe"
+        },
+        {
+          "family": "Yuan",
+          "given": "Xiaohan"
+        },
+        {
+          "family": "Zou",
+          "given": "Chenlin"
+        },
+        {
+          "family": "Jia",
+          "given": "Kaitong"
+        },
+        {
+          "family": "Li",
+          "given": "Jinfeng"
+        },
+        {
+          "family": "Wang",
+          "given": "Dongxia"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2506.15253",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2506.15253",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.15253",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "As large language model (LLM) agents are increasingly deployed in long-horizon unattended scenarios, security evaluation of them before deployment becomes increasingly essential and challenging. Existing evaluation methods mainly follow the paradigms of LLM-as-a-Judge or Agent-as-a-Judge. However, such judges are themselves often vulnerable to hallucination and can even be affected by perturbations. Furthermore, because capturing full environment states at every step is often prohibitively expensive in open-ended environments, existing evaluations typically rely on textual logs and the final environment state. As a result, they may miss transient violations that are overwritten before the trajectory ends or never reflected in textual logs. We present RAS-Eval, a specification-based security evaluation framework for LLM agents. RAS-Eval uniformly expresses utility and security objectives as Linear Temporal Logic (LTL) specifications over tool-call trajectories and dynamic environment observations, and verifies them with an off-the-shelf model checker. This design addresses both limitations above. First, unlike LLM-as-a-Judge and Agent-as-a-Judge, RAS-Eval derives deterministic verdicts from formally defined properties, eliminating evaluator-side uncertainty and remaining reliable even for long-horizon trajectories. Second, RAS-Eval observes exactly the states on which the verdict depends, making it affordable to monitor the environment throughout execution and detect transient violations that leave little trace in the logs or final environment state. Moreover, we design a multi-agent-based dataset construction pipeline. Using it, we construct a benchmark (https://github.com/lanzer-tree/RAS-Eval) of 200 normal tasks and 800 attack tasks spanning four attack surfaces: indirect prompt injection, tool poisoning, skill code injection, and tool code injection.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 28,
+      "in_project": null
+    },
+    {
+      "title": "Aegis OS: A Transactional Multi-Tenant Operating System Runtime for Eliminating Authorization Fatigue in Autonomous Coding Agents",
+      "authors": [
+        {
+          "family": "Zhao",
+          "given": "Hui"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2611.08516",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2611.08516",
+      "oa_pdf_url": "https://arxiv.org/pdf/2611.08516",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Autonomous coding agents such as Google Antigravity (agy), Anthropic Claude Code (claude), and OpenAI Codex CLI (codex) execute multi-step software engineering workflows on workstations and cloud hosts. Existing agent environments face a Security-Autonomy Dilemma: operators must choose between per-action confirmation prompts, which interrupt workflows on 45%-57% of tool calls and induce authorization fatigue, or unconfined execution (--yolo / --dangerously-skip-permissions), which exposes host files, SSH/cloud credentials, and API tokens to prompt injection and hallucination risks. Furthermore, concurrent agents editing a shared working tree clobber one another's changes, while passing large artifacts inline through LLM context windows incurs high token overhead. We present Aegis OS (aegis-os), a transactional, multi-tenant Agent Operating System Runtime in Rust exposed via the Model Context Protocol (MCP) and Google Agent2Agent (A2A) protocol. Aegis OS shifts the authorization boundary from individual tool calls to transactional workspace boundaries. Each agent runs inside a kernel-enforced OS sandbox (macOS Seatbelt and Linux Bubblewrap with default-deny --tmpfs $HOME isolation and a Unix-socket egress bridge) backed by a Copy-on-Write (CoW) shadow workspace (APFS clonefile; single-open Linux FICLONE reflinks), an identity-pinned HTTP Egress Proxy with L7 method/path-scoped secret injection and outbound DLP, and an A2A IPC bus with Content-Addressable Storage (CAS). Across 1,500 controlled calls and 28,087 real calls across 52 coding-agent sessions, Aegis OS reduces prompts by 94.19%-99.88% (controlled) and 90.7%-97.9% (real sessions, 1.12% IPR), lowers attack success rate across 80 attacks in eight categories from 100.0% to 0.0% on macOS and Linux, clones 1,000-file (78.1 MB) repos in 6.3 ms on APFS and 15.6 ms on btrfs, and catches 10/10 syntactic and semantic merge conflicts.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 29,
+      "in_project": null
+    },
+    {
+      "title": "AgentRobustBench: A Sim-to-Real Benchmark and Domain-Randomized RL Recipe for Tool-Use Agents",
+      "authors": [
+        {
+          "family": "Zhou",
+          "given": "Xiaolin"
+        },
+        {
+          "family": "Yuan",
+          "given": "Aojie"
+        },
+        {
+          "family": "Luo",
+          "given": "Zheng"
+        },
+        {
+          "family": "Ling",
+          "given": "Zipeng"
+        },
+        {
+          "family": "Pan",
+          "given": "Xixiao"
+        },
+        {
+          "family": "Gao",
+          "given": "Yicheng"
+        },
+        {
+          "family": "Zhang",
+          "given": "Haiyue"
+        },
+        {
+          "family": "Li",
+          "given": "Jiate"
+        },
+        {
+          "family": "Jiang",
+          "given": "Shuli"
+        },
+        {
+          "family": "Wang",
+          "given": "Prince Zizhuang"
+        },
+        {
+          "family": "Zhu",
+          "given": "Zixuan"
+        },
+        {
+          "family": "Liu",
+          "given": "Jinbo"
+        },
+        {
+          "family": "Rossi",
+          "given": "Ryan A."
+        },
+        {
+          "family": "Wei",
+          "given": "Hua"
+        },
+        {
+          "family": "Hu",
+          "given": "Xiyang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.11928",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.11928",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.11928",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Tool-use language agents are evaluated on benchmarks that assume clean inputs, unambiguous tool registries, and reliable APIs. Real deployments violate all these assumptions: user typos propagate into hallucinated tool names, a misconfigured request timeout can stall an agent indefinitely, and duplicate tool names across servers can freeze an SDK. We study these failures as a sim-to-real gap in the tool-use partially observable Markov decision process (POMDP), where deployment noise enters through the observation, action space, reward-relevant metadata, or transition dynamics. We introduce AgentRobustBench, a benchmark with 22 perturbation types organized by these four POMDP components, each grounded in a verified GitHub issue or documented tool-calling failure. Across 21 models from 1.5B to 32B parameters (including the closed-source o4-mini), the robustness profile is sharply uneven: observation perturbations reduce accuracy by less than 5%, while reward-relevant and transition perturbations reduce accuracy by roughly 40% and 30%, respectively; scale alone does not close these gaps. We then propose ToolRL-DR, a domain-randomization reinforcement learning (RL) recipe that trains a tool-use agent on perturbation-augmented trajectories spanning the three statically encodable POMDP components. On a 3B backbone, ToolRL-DR-Full retains roughly three-quarters of clean accuracy and reaches an aggregate perturbed accuracy comparable to open-source 14B function-calling baselines while substantially narrowing the gap to o4-mini. It closes approximately 27% of the Transition gap despite never seeing transition perturbations in training, suggesting that RL on adversarial static tool-use inputs induces a more persistent retry policy that transfers to unseen runtime failures. Code, dataset, checkpoints, and leaderboard are accessible through our GitHub repository.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 30,
+      "in_project": null
+    },
+    {
+      "title": "The Semantic Training Gap: Ontology-Grounded Tool Architectures for Industrial AI Agent Systems",
+      "authors": [
+        {
+          "family": "Chethan",
+          "given": "Grama"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.11234",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.11234",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.11234",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language model (LLM)-based AI agents are increasingly deployed in manufacturing environments for analytics, quality management, and decision support. These agents demonstrate statistical fluency with domain terminology but lack grounded understanding of operational semantics -- the relational structure that connects equipment identifiers, process parameters, failure codes, and regulatory constraints within a specific production context. This paper identifies and formalizes the semantic training gap: a structural disconnect between how AI systems acquire domain vocabulary through training and how manufacturing operations define meaning through ontological relationships. We demonstrate that this gap causes operationally incorrect outputs even when model responses are linguistically precise, and that in multi-agent configurations it produces a compounding failure mode we term semantic drift. To close this gap, we present an architecture that embeds manufacturing ontology directly into the AI tool layer as a typed relational configuration, enforcing semantic constraints at runtime rather than relying on model training. The architecture is formalized as a three-operation interface contract -- resolve, contextualize, annotate -- with invariants enforced by an AIOps orchestration layer. In a controlled experiment across six industry configurations (72 tool invocations using Qwen3-32B), unconstrained tool parameters produced a 43% hallucination rate for domain identifiers; ontology-grounded parameters reduced this to 0%. We validate the approach through a digital twin analytics platform demonstrating that a single codebase with domain-specific ontology configurations eliminates tool-call hallucination and achieves cross-domain configurability without application code changes.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 31,
+      "in_project": null
+    },
+    {
+      "title": "LLM-as-Code: Agentic Programming for Agent Harness",
+      "authors": [
+        {
+          "family": "Qi",
+          "given": "Junjia"
+        },
+        {
+          "family": "Fu",
+          "given": "Zichuan"
+        },
+        {
+          "family": "Gao",
+          "given": "Jingtong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Wenlin"
+        },
+        {
+          "family": "Yan",
+          "given": "Hanyu"
+        },
+        {
+          "family": "Wu",
+          "given": "Xian"
+        },
+        {
+          "family": "Zhao",
+          "given": "Xiangyu"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.15874",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.15874",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.15874",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Every major LLM agent framework gives the LLM the role of orchestrator; the model decides what to do next, when to call tools, and when to stop. We argue that token explosion, control-flow hallucination, and unreliable completion are not implementation bugs but architectural consequences of assigning the deterministic work of looping, branching, and sequencing to a probabilistic system. A better prompt or a stronger model cannot guarantee the reliability of the LLM agent. We therefore propose Agentic Programming, in which the program governs all control flow, and the LLM is itself part of it, an adaptive component we call LLM-as-Code and invoke only where a task calls for reasoning or generation. Within each call the model keeps full flexibility, but it cannot alter the program's execution path. With control in the program, the LLM's context is built from the execution history's call tree and forms a directed acyclic graph (DAG). Each call's context length is then determined by its call depth rather than by accumulation over steps. A case study of computer-use agents shows that the design is practical, not just a theoretical stance, substantially improving the stability of long visual operation sequences.Code is available at https://github.com/FuzzyKuji/OpenProgram.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 32,
+      "in_project": null
+    },
+    {
+      "title": "Symbolic Temporal Supervision of LLM Agents Using Contracts",
+      "authors": [
+        {
+          "family": "Xiao",
+          "given": "Yifeng"
+        },
+        {
+          "family": "Liu",
+          "given": "Johnna"
+        },
+        {
+          "family": "Nuzzo",
+          "given": "Pierluigi"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.18128",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.18128",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.18128",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language model (LLM) agents augmented by tools can automate complex, multi-step tasks, such as web navigation, code generation, and workflow orchestration, by acting on external systems through tool calls. However, hallucinations, distributional instability, and adversarial manipulations in LLMs, and the irreversible consequences of certain tool calls can lead to harmful outcomes. These risks call for safeguards that can check requirements across a trajectory, both before actions execute and when recorded behavior is evaluated. We present ContrAgent, a contract-based framework for symbolic temporal supervision of LLM agents. ContrAgent captures an agent's behavior as a sequence of tool calls and formalizes it as a trace over a fixed set of checkable predicates. It then specifies required behaviors using assume-guarantee contracts in linear temporal logic over finite traces (LTL$_f$). Each contract is compiled to a deterministic finite automaton (DFA) that serves two roles: gating agent actions online and evaluating recorded traces offline. A contract library, acting as a reusable knowledge base, is maintained independently of the agent's model and can be applied across different agents within the same task domain. We show the effectiveness of our approach on four benchmarks spanning both roles, where ContrAgent is competitive with LLM-judge, classifier, and guardrail baselines while producing deterministic, reproducible verdicts and, in the online mode, orders of magnitude lower per-call latency.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 33,
+      "in_project": null
+    },
+    {
+      "title": "Agentic Evolution of SQL Test Generators",
+      "authors": [
+        {
+          "family": "Zhong",
+          "given": "Suyang"
+        },
+        {
+          "family": "Rigger",
+          "given": "Manuel"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.14161",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.14161",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.14161",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Automated testing has uncovered many logic bugs in Database Management Systems (DBMSs). Existing tools are typically limited to a few SQL dialects and a subset of these dialects' features. Coding agents based on Large Language Models (LLMs) could encode the semantics of additional SQL features into reusable test generators, requiring no additional LLM calls during testing and thus enabling high efficiency and low cost. However, a key challenge is validating the added capabilities in the presence of potential hallucinations. In this paper, we propose Gungnir, an approach for evolving DBMS test generators using coding agents. Our core mechanism is witness replay: the coding agent provides a generation witness recording the database setup and semantic choices needed to generate a target statement. A validator replays these choices through the modified generator and checks that it reproduces the target statement. Historical witnesses serve as regression tests for subsequent modifications. We evaluated Gungnir on SQLite, DuckDB, and PostgreSQL and found 44 bugs confirmed by developers, of which 34 have been fixed. Beyond DBMSs, witness replay could generalize to other systems to guide agents in extending test generators.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 34,
+      "in_project": null
+    },
+    {
+      "title": "LongVT: Incentivizing \"Thinking with Long Videos\" via Native Tool Calling",
+      "authors": [
+        {
+          "family": "Yang",
+          "given": "Zuhao"
+        },
+        {
+          "family": "Wang",
+          "given": "Sudong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Kaichen"
+        },
+        {
+          "family": "Wu",
+          "given": "Keming"
+        },
+        {
+          "family": "Leng",
+          "given": "Sicong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yifan"
+        },
+        {
+          "family": "Li",
+          "given": "Bo"
+        },
+        {
+          "family": "Qin",
+          "given": "Chengwei"
+        },
+        {
+          "family": "Lu",
+          "given": "Shijian"
+        },
+        {
+          "family": "Li",
+          "given": "Xingxuan"
+        },
+        {
+          "family": "Bing",
+          "given": "Lidong"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2511.20785",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2511.20785",
+      "oa_pdf_url": "https://arxiv.org/pdf/2511.20785",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large multimodal models (LMMs) have shown great potential for video reasoning with textual Chain-of-Thought. However, they remain vulnerable to hallucinations, especially when processing long-form videos where evidence is sparse and temporally dispersed. Inspired by how humans comprehend long videos - by first skimming globally and then examining relevant clips for details - we introduce LongVT, an end-to-end agentic framework that enables \"Thinking with Long Videos\" via interleaved Multimodal Chain-of-Tool-Thought. Specifically, we exploit LMMs' inherent temporal grounding ability as a native video cropping tool to zoom in on a specific video clip and resample finer-grained video frames. This global-to-local reasoning loop continues until answers are grounded in retrieved visual evidence. Given the scarcity of fine-grained question-answering (QA) data for the long video reasoning task, we curate and will release a data suite named VideoSIAH to facilitate both training and evaluation. Specifically, our training dataset consists of 247.9K samples for tool-integrated cold-start supervised fine-tuning, 1.6K samples for agentic reinforcement learning, and 15.4K samples for agentic reinforcement fine-tuning, respectively. Our evaluation benchmark consists of 1,280 QA pairs that are carefully curated through a semi-automatic data pipeline with human-in-the-loop validation. With a meticulously designed three-stage training strategy and extensive empirical validation, LongVT consistently outperforms existing strong baselines across four challenging long-video understanding and reasoning benchmarks. Our codes, data, and model checkpoints are publicly available at https://github.com/EvolvingLMMs-Lab/LongVT .",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 35,
+      "in_project": null
+    },
+    {
+      "title": "KAIJU: An Executive Kernel for Intent-Gated Execution of LLM Agents",
+      "authors": [
+        {
+          "family": "Guerin",
+          "given": "Cormac"
+        },
+        {
+          "family": "Guerin",
+          "given": "Frank"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2604.02375",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2604.02375",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.02375",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Tool-calling autonomous agents based on large language models using ReAct exhibit three limitations: serial latency, quadratic context growth, and vulnerability to prompt injection and hallucination. Recent work moves towards separating planning from execution but in each case the model remains coupled to the execution mechanics. We introduce a system-level abstraction for LLM agents which decouples the execution of agent workflows from the LLM reasoning layer. We define two first-class abstractions: (1) Intent-Gated Execution (IGX), a security paradigm that enforces intent at execution, and (2) an Executive Kernel that manages scheduling, tool dispatch, dependency resolution, failures and security. In KAIJU, the LLM plans upfront, optimistically scheduling tools in parallel with dependency-aware parameter injection. Tools are authorised via IGX based on four independent variables: scope, intent, impact, and clearance (external approval). KAIJU supports three adaptive execution modes (Reflect, nReflect, and Orchestrator), providing progressively finer-grained execution control apt for complex investigation and deep analysis or research. Empirical evaluation against a ReAct baseline shows that KAIJU has a latency penalty on simple queries due to planning overhead, convergence at moderate complexity, and a structural advantage on computational queries requiring parallel data gathering. Beyond latency, the separation enforces behavioural guarantees that ReAct cannot match through prompting alone. Code available at https://github.com/compdeep/kaiju",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 36,
+      "in_project": null
+    },
+    {
+      "title": "Agentic reinforcement learning empowers next-generation chemical language models for molecular design and synthesis",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Hao"
+        },
+        {
+          "family": "Cao",
+          "given": "He"
+        },
+        {
+          "family": "Peng",
+          "given": "Shenyao"
+        },
+        {
+          "family": "Liu",
+          "given": "Zijing"
+        },
+        {
+          "family": "Feng",
+          "given": "Bin"
+        },
+        {
+          "family": "Wang",
+          "given": "Yu"
+        },
+        {
+          "family": "Yan",
+          "given": "Zhiyuan"
+        },
+        {
+          "family": "Tian",
+          "given": "Yonghong"
+        },
+        {
+          "family": "Li",
+          "given": "Yu"
+        },
+        {
+          "family": "Yuan",
+          "given": "Li"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2601.17687",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2601.17687",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.17687",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Language models are revolutionizing the biochemistry domain, assisting scientists in drug design and chemical synthesis with high efficiency. Yet current approaches struggle between small language models prone to hallucination and limited knowledge retention, and large cloud-based language models plagued by privacy risks and high inference costs. To bridge this gap, we introduce ChemCRAFT, a novel framework leveraging agentic reinforcement learning to decouple chemical reasoning from knowledge storage. Instead of forcing the model to memorize vast chemical data, our approach empowers the language model to interact with a sandbox for precise information retrieval. This externalization of knowledge allows a locally deployable small model to achieve superior performance with minimal inference costs. To enable small language models for agent-calling ability, we build an agentic trajectory construction pipeline and a comprehensive chemical-agent sandbox. Based on sandbox interactions, we constructed ChemToolDataset, the first large-scale chemical tool trajectory dataset. Simultaneously, we propose SMILES-GRPO to build a dense chemical reward function, promoting the model's ability to call chemical agents. Evaluations across diverse aspects of drug design show that ChemCRAFT outperforms current cloud-based LLMs in molecular structure analysis, molecular optimization, and synthesis pathway prediction, demonstrating that scientific reasoning is not solely an emergent ability of model scale, but a learnable policy of tool orchestration. This work establishes a cost-effective and privacy-preserving paradigm for AI-aided chemistry, opening new avenues for accelerating molecular discovery with locally deployable agents. Code available at https://github.com/HowardLi1984/ChemCraft.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 37,
+      "in_project": null
+    },
+    {
+      "title": "Flow-of-Action: SOP Enhanced LLM-Based Multi-Agent System for Root Cause Analysis",
+      "authors": [
+        {
+          "family": "Pei",
+          "given": "Changhua"
+        },
+        {
+          "family": "Wang",
+          "given": "Zexin"
+        },
+        {
+          "family": "Liu",
+          "given": "Fengrui"
+        },
+        {
+          "family": "Li",
+          "given": "Zeyan"
+        },
+        {
+          "family": "Liu",
+          "given": "Yang"
+        },
+        {
+          "family": "He",
+          "given": "Xiao"
+        },
+        {
+          "family": "Kang",
+          "given": "Rong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Tieying"
+        },
+        {
+          "family": "Chen",
+          "given": "Jianjun"
+        },
+        {
+          "family": "Li",
+          "given": "Jianhui"
+        },
+        {
+          "family": "Xie",
+          "given": "Gaogang"
+        },
+        {
+          "family": "Pei",
+          "given": "Dan"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2502.08224",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2502.08224",
+      "oa_pdf_url": "https://arxiv.org/pdf/2502.08224",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "In the realm of microservices architecture, the occurrence of frequent incidents necessitates the employment of Root Cause Analysis (RCA) for swift issue resolution. It is common that a serious incident can take several domain experts hours to identify the root cause. Consequently, a contemporary trend involves harnessing Large Language Models (LLMs) as automated agents for RCA. Though the recent ReAct framework aligns well with the Site Reliability Engineers (SREs) for its thought-action-observation paradigm, its hallucinations often lead to irrelevant actions and directly affect subsequent results. Additionally, the complex and variable clues of the incident can overwhelm the model one step further. To confront these challenges, we propose Flow-of-Action, a pioneering Standard Operation Procedure (SOP) enhanced LLM-based multi-agent system. By explicitly summarizing the diagnosis steps of SREs, SOP imposes constraints on LLMs at crucial junctures, guiding the RCA process towards the correct trajectory. To facilitate the rational and effective utilization of SOPs, we design an SOP-centric framework called SOP flow. SOP flow contains a series of tools, including one for finding relevant SOPs for incidents, another for automatically generating SOPs for incidents without relevant ones, and a tool for converting SOPs into code. This significantly alleviates the hallucination issues of ReAct in RCA tasks. We also design multiple auxiliary agents to assist the main agent by removing useless noise, narrowing the search space, and informing the main agent whether the RCA procedure can stop. Compared to the ReAct method's 35.50% accuracy, our Flow-of-Action method achieves 64.01%, meeting the accuracy requirements for RCA in real-world systems.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 38,
+      "in_project": null
+    },
+    {
+      "title": "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages and Agent Trajectories",
+      "authors": [
+        {
+          "family": "KC",
+          "given": "Shreyas"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.22329",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.22329",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.22329",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-as-a-judge has become the dominant approach to scalable evaluation in NLP pipelines, yet judges themselves carry systematic biases that raw accuracy hides: they favor responses placed in slot A (position bias), they prefer longer responses regardless of quality (verbosity bias), and their reliability degrades sharply in lower-resource languages. We introduce BabelJudge, an open-source benchmark and reliability audit framework that measures all four failure modes -- position bias, verbosity bias, order inconsistency, and cross-lingual degradation -- on any judge model, without requiring human preference labels. The key insight is gold-labelling by degradation: starting from a high-quality reference response and applying a controlled perturbation yields a pairwise item whose gold label is known by construction, eliminating annotation cost. We evaluate Qwen2.5-7B-Instruct-4bit across English, Hindi, Arabic, and Swahili and find that our composite bias-penalised reliability score drops from 0.714 in Hindi to 0.550 in Swahili, a gap that raw accuracy (0.835 vs. 0.660) understates. Swahili order consistency collapses to 0.480, meaning judge verdicts are near-random under slot-order swaps -- a failure mode invisible to accuracy alone. We further extend the framework to agentic evaluation via nine trajectory-level perturbations (argument corruption, tool swaps, hallucinated calls, missing steps) and three new metrics: tool accuracy, hallucination detection rate, and trajectory-length bias. BabelJudge is released as a Python package supporting 11 judge backends. Code: https://github.com/Shreyaskc/BabelJudge",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 39,
+      "in_project": null
+    },
+    {
+      "title": "PEACE: A Planner-Executor Agent with Constraint Enforcement for UAVs",
+      "authors": [
+        {
+          "family": "Uysal",
+          "given": "Erdem"
+        },
+        {
+          "family": "Kehrer",
+          "given": "Timo"
+        },
+        {
+          "family": "Panichella",
+          "given": "Sebastiano"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.00104",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.00104",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.00104",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Foundation models are increasingly used to drive autonomous systems, yet existing approaches either keep the model in a tight control loop, raising latency and hallucination risk, or compile natural language into opaque end-to-end policies that are hard to explain, constraint and require domain-specific datasets and fine-tuning. We propose a planner-executor agent for PX4-based drones that decouples high-level mission planning from low-level control. A large language model performs single-pass task planning, while execution is handled through a structured ROS 2 tool-calling interface bridged to MAVLink. The system constructs a world model by combining modular 2D detectors (e.g., YOLO or vision-language models) with a pinhole depth projection module for 3D object localization. A constraint enforcement layer enforces altitude limits and horizontal geofencing, and bounded replanning enables recovery from execution-time action failures. We position our approach within three common design patterns for foundation-model-based robotics systems and demonstrate its feasibility in PX4 software-in-the-loop simulations in Gazebo. Results highlight improved explainability, constraint enforcement, and reduced LLM calls compared to tightly coupled LLM control. The code, dataset, videos, and other material can be found at the following link: https://github.com/erdemuysalx/PEACE",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 40,
+      "in_project": null
+    },
+    {
+      "title": "Jais 3: Introducing Arabic-centric Agentic AI",
+      "authors": [
+        {
+          "family": "IFM",
+          "given": "Team"
+        },
+        {
+          "family": "Li",
+          "given": "Haonan"
+        },
+        {
+          "family": "Abdine",
+          "given": "Hadi"
+        },
+        {
+          "family": "Ranjan",
+          "given": "Nikhil"
+        },
+        {
+          "family": "Anwar",
+          "given": "Mohamed"
+        },
+        {
+          "family": "Chamma",
+          "given": "Ahmad"
+        },
+        {
+          "family": "Mohamed",
+          "given": "Amr"
+        },
+        {
+          "family": "Frikha",
+          "given": "Ahmed"
+        },
+        {
+          "family": "Bouch",
+          "given": "Dani"
+        },
+        {
+          "family": "Maqsood",
+          "given": "Maaz"
+        },
+        {
+          "family": "Ibrahim",
+          "given": "George"
+        },
+        {
+          "family": "Awad",
+          "given": "Mostafa"
+        },
+        {
+          "family": "Laiyk",
+          "given": "Nurkhan"
+        },
+        {
+          "family": "Iqbal",
+          "given": "Hasan"
+        },
+        {
+          "family": "Maiti",
+          "given": "Abhishek"
+        },
+        {
+          "family": "Bouardi",
+          "given": "Bilal"
+        },
+        {
+          "family": "Chauhan",
+          "given": "Shivam"
+        },
+        {
+          "family": "Tabassum",
+          "given": "Ahmer"
+        },
+        {
+          "family": "Aijaz",
+          "given": "Owais"
+        },
+        {
+          "family": "Arbi",
+          "given": "Omar"
+        },
+        {
+          "family": "Sengupta",
+          "given": "Neha"
+        },
+        {
+          "family": "Singh",
+          "given": "Aaryamonvikram"
+        },
+        {
+          "family": "Freihat",
+          "given": "Abdelhakim"
+        },
+        {
+          "family": "Chandran",
+          "given": "Sarath"
+        },
+        {
+          "family": "Pal",
+          "given": "Rahul"
+        },
+        {
+          "family": "Bellam",
+          "given": "Mohammed"
+        },
+        {
+          "family": "Siddiki",
+          "given": "Sajid"
+        },
+        {
+          "family": "AlBarri",
+          "given": "Sarah"
+        },
+        {
+          "family": "Banerjee",
+          "given": "Debopriyo"
+        },
+        {
+          "family": "Filali",
+          "given": "Ali El"
+        },
+        {
+          "family": "Kamboj",
+          "given": "Samta"
+        },
+        {
+          "family": "Genadi",
+          "given": "Rifo"
+        },
+        {
+          "family": "Attia",
+          "given": "Ahmed"
+        },
+        {
+          "family": "Inoue",
+          "given": "Go"
+        },
+        {
+          "family": "Dong",
+          "given": "Shuonan"
+        },
+        {
+          "family": "Khelif",
+          "given": "Amine Khelif"
+        },
+        {
+          "family": "Dufraisse",
+          "given": "Evan"
+        },
+        {
+          "family": "Valade",
+          "given": "Florian"
+        },
+        {
+          "family": "Sen",
+          "given": "Tapas"
+        },
+        {
+          "family": "He",
+          "given": "Guowei"
+        },
+        {
+          "family": "Sahu",
+          "given": "Sunil"
+        },
+        {
+          "family": "Pandit",
+          "given": "Onkar"
+        },
+        {
+          "family": "Magdy",
+          "given": "Kareem"
+        },
+        {
+          "family": "Nahyan",
+          "given": "Sheikh Khalid bin Khalifa Al"
+        },
+        {
+          "family": "Ghosh",
+          "given": "Samujjwal"
+        },
+        {
+          "family": "Abedien",
+          "given": "Zainul"
+        },
+        {
+          "family": "Quraishi",
+          "given": "Ahmed"
+        },
+        {
+          "family": "Murray",
+          "given": "Larry"
+        },
+        {
+          "family": "Sheinin",
+          "given": "Avraham"
+        },
+        {
+          "family": "Vassilieva",
+          "given": "Natalia"
+        },
+        {
+          "family": "Nakov",
+          "given": "Preslav"
+        },
+        {
+          "family": "Shang",
+          "given": "Guokan"
+        },
+        {
+          "family": "Ren",
+          "given": "Xuguang Hector"
+        },
+        {
+          "family": "Liu",
+          "given": "Zhengzhong"
+        },
+        {
+          "family": "Xing",
+          "given": "Eric"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2611.10224",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2611.10224",
+      "oa_pdf_url": "https://arxiv.org/pdf/2611.10224",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We present Jais 3, a fleet of six open, Arabic-centric agentic language models ranging from 0.9B to 375B parameters. Jais 3 is built to complete tasks for Arabic speakers, not only to answer questions in plain text: it is trained to plan multi-step tasks, call tools and Model Context Protocol (MCP) servers, operate a terminal, search the web, and read, edit, and produce PDF, spreadsheet, and presentation files, while communicating with the user in Arabic. Instead of pretraining from scratch, we adapt each model of the fully open K2 Horizon fleet to Arabic through continual pretraining, followed by supervised fine-tuning (SFT), final token preference optimization (FTPO), and reinforcement learning with verifiable rewards (RLVR). We combine natural Arabic text with translated, transliterated, and synthetic Arabic, and replay the base model's own training data to keep its reasoning, agentic, and English abilities. Jais 3 covers Modern Standard Arabic and the major regional dialects, follows instructions with Arabic-specific constraints, and inherits the 512K-token context window of K2 Horizon (all models except the 0.9B). To our knowledge, its 375B model is the largest open Arabic-centric language model to date. For evaluation, we revisit how Arabic models are assessed, moving to fully generative evaluation on audited Arabic benchmarks. Across model sizes, Jais 3 matches or outperforms open-weight models of comparable size on Arabic and agentic benchmarks, with particularly strong agentic capabilities and Arabic instruction following, and far fewer hallucinations. We release the weights and the checkpoints from every training stage of all six models, together with samples of the training data, the data recipes and training configurations, the training logs, the audited benchmarks, and the evaluation code.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 41,
+      "in_project": null
+    },
+    {
+      "title": "When Errors Become Narratives: A Longitudinal Taxonomy of Silent Failures in a Production LLM Agent Runtime",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Wei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.14589",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.14589",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.14589",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM agent systems increasingly run as long-lived autonomous runtimes: scheduling jobs, calling tools, maintaining memory, and pushing results to humans. We present a longitudinal study of silent failures in one such system: a personal-assistant agent runtime in continuous production since March 2026, with roughly 40 scheduled jobs, 8 LLM providers, a tool-governance proxy, and a knowledge-base memory plane, defended by 4,286 unit tests and 827 governance checks. Over eight weeks we documented 22 incidents with full root-cause postmortems, in which one meta-pattern -- a failure whose error signal never reaches a human in actionable form -- manifested at least 28 times. We derive a five-class, mechanism-oriented taxonomy: (A) environment and platform quirks, (B) design-assumption mismatches, (C) error swallowing and dilution, (D) chained hallucination and fabrication, (E) operational omission and forensic blind spots. Class D is unique to LLM systems and the most dangerous: the system does not merely fail to report an error -- the LLM transforms it into fluent, plausible narrative delivered to the user. We term this fail-plausible: gray failure's differential observability escalated -- the observer is not just blind, it is convincingly lied to by the failure itself. Three findings: about 70% of silent failures were caught by human user-view observation, not tests or audits; a retrospective audit of 15 incidents found 0% ex-ante prevention but 87% regression blocking -- audits are regression engines, not prediction engines; incident latency (13 hours to 60 days) tracks failure mechanism, not code complexity -- the longest-lived failures lived in the seams between components, where no test runs. We describe the resulting defense framework and distill design principles for agent systems whose failures are loud, attributable, and boring. All postmortems and artifacts are public.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 42,
+      "in_project": null
+    },
+    {
+      "title": "Large Language Model enabled Mathematical Modeling",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Guoyun"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2510.19895",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2510.19895",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.19895",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "The integration of Large Language Models (LLMs) with optimization modeling offers a promising avenue for advancing decision-making in operations research (OR). Traditional optimization methods,such as linear programming, mixed integer programming, and simulation depend heavily on domain expertise to translate real-world problems into solvable mathematical models. While solvers like Gurobi and COPT are powerful, expert input remains essential for defining objectives, constraints, and variables. This research investigates the potential of LLMs, specifically the DeepSeek-R1 model, to bridge this formulation gap using natural language understanding and code generation. Although prior models like GPT-4, Claude, and Bard have shown strong performance in NLP and reasoning tasks, their high token costs and tendency toward hallucinations limit real-world applicability in supply chain contexts. In contrast, DeepSeek-R1, a cost-efficient and high-performing model trained with reinforcement learning, presents a viable alternative. Despite its success in benchmarks such as LiveCodeBench and Math-500, its effectiveness in applied OR scenarios remains under explored. This study systematically evaluates DeepSeek-R1 across four key OR benchmarks: NL4OPT, IndustryOR, EasyLP, and ComplexOR. Our methodology includes baseline assessments, the development of a hallucination taxonomy, and the application of mitigation strategies like LLM-as-a-Judge, Few-shot Learning (FSL), Tool Calling, and a Multi-agent Framework. These techniques aim to reduce hallucinations, enhance formulation accuracy, and better align model outputs with user intent.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 43,
+      "in_project": null
+    },
+    {
+      "title": "STELP: Secure Transpilation and Execution of LLM-Generated Programs",
+      "authors": [
+        {
+          "family": "Shinde",
+          "given": "Swapnil"
+        },
+        {
+          "family": "Wadhwa",
+          "given": "Sahil"
+        },
+        {
+          "family": "Luo",
+          "given": "Andy"
+        },
+        {
+          "family": "Gupta",
+          "given": "Akshay"
+        },
+        {
+          "family": "Sorower",
+          "given": "Mohammad Shahed"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2601.05467",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2601.05467",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.05467",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Rapid evolution of Large Language Models (LLMs) has achieved major advances in reasoning, planning, and function-calling capabilities. Multi-agentic collaborative frameworks using such LLMs place them at the center of solving software development-related tasks such as code generation. However, direct use of LLM generated code in production software development systems is problematic. The code could be unstable or erroneous and contain vulnerabilities such as data poisoning, malicious attacks, and hallucinations that could lead to widespread system malfunctions. This prohibits the adoption of LLM generated code in production AI systems where human code reviews and traditional secure testing tools are impractical or untrustworthy. In this paper, we discuss safety and reliability problems with the execution of LLM generated code and propose a Secure Transpiler and Executor of LLM-Generated Program (STELP), capable of executing LLM-generated code in a controlled and safe manner. STELP secures autonomous production AI systems involving code generation, filling the critical void left by the impracticality or limitations of traditional secure testing methodologies and human oversight. This includes applications such as headless code generation-execution and LLMs that produce executable code snippets as an action plan to be executed in real time. We contribute a human-validated dataset of insecure code snippets and benchmark our approach on publicly available datasets for correctness, safety, and latency. Our results demonstrate that our approach outperforms an existing method by a significant margin, particularly in its ability to safely execute risky code snippets. Warning: This paper contains malicious code snippets that should be run with caution.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 44,
+      "in_project": null
+    }
+  ]
+}

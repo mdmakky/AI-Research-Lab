@@ -1,0 +1,575 @@
+{
+  "query": "fair evaluation protocol LLM versus static analyzer vulnerability detection scoring location",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:24:44+06:00",
+  "raw_hits": 12,
+  "unique": 12,
+  "errors": {},
+  "results": [
+    {
+      "title": "Self-Evolving Static Analysis via LLM Pseudo-Labeling",
+      "authors": [
+        {
+          "family": "Melo",
+          "given": "Rui"
+        },
+        {
+          "family": "Duarte",
+          "given": "André"
+        },
+        {
+          "family": "Oke",
+          "given": "Aditya"
+        },
+        {
+          "family": "Gandhi",
+          "given": "Shubham"
+        },
+        {
+          "family": "Kotalwar",
+          "given": "Nachiket"
+        },
+        {
+          "family": "Abreu",
+          "given": "Rui"
+        },
+        {
+          "family": "Li",
+          "given": "Lei"
+        },
+        {
+          "family": "Rose",
+          "given": "Carolyn"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.30184",
+      "arxiv_id": "2610.30184",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223288870",
+      "url": "https://arxiv.org/abs/2610.30184",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.30184",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Security bugs often slip past static analysis not because they are impossible to detect, but because detection rules have not yet been written for the code in front of us. New frameworks, APIs, and coding idioms continually create such gaps, leaving developers to discover failures and manually encode new rules. We present SESAA, a framework in which an Large Language Model (LLM) agent starts from no rules and iteratively evolves a set of readable and auditable joern queries. The agent receives feedback only from a second LLM critic, which inspects flagged and unflagged code to identify likely false alarms and suspected misses, without access to ground-truth labels. The agent then uses this feedback to revise its queries. On the OWASP Benchmark for Python, SESAA reaches a mean F1 of 0.742 across 8 independent runs, well above the default configurations of five widely used tools and comparable to the strongest of them once it is tuned with access to ground-truth labels that SESAA never sees. In a pilot on real-world Python projects, queries induced from code available before a vulnerability was introduced detect 10 of 19 subsequent CVEs, including 9 detected by rules written for the same repository. The resulting detector is a set of executable, human-readable queries that engineers can inspect, modify, and run independently. These results suggest that LLM agents can turn static-analysis rule maintenance from a manually authored process into an iterative process of automated discovery and repair.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Sifting the Noise: A Comparative Study of LLM Agents in Vulnerability False Positive Filtering",
+      "authors": [
+        {
+          "family": "Xiong",
+          "given": "Yunpeng"
+        },
+        {
+          "family": "Zhang",
+          "given": "Ting"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832100",
+      "arxiv_id": "2601.22952",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7127178521",
+      "url": "https://doi.org/10.1145/3832100",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832100?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "Static Application Security Testing (SAST) tools are essential for identifying software vulnerabilities, but they often produce a high volume of False Positives (FPs), imposing a substantial manual triage burden on developers. Recent advances in Large Language Model (LLM) agents offer a promising direction by enabling iterative reasoning, tool use, and environment interaction to refine SAST alerts. However, the comparative effectiveness of different LLM-based agent architectures for FP filtering remains poorly understood. In this paper, we present a comparative study of three state-of-the-art LLM-based agent frameworks, i.e., Aider, OpenHands, and SWE-agent, for vulnerability FP filtering. We evaluate these frameworks using the vulnerabilities from the OWASP Benchmark and real-world open-source Java projects. We further conduct a focused post-cutoff C/C++ study using the strongest configuration to test contamination-free generalization and isolate key agentic capabilities. The experimental results show that LLM-based agents can remove the majority of SAST noise, reducing an initial FP detection rate of over 92% on the OWASP Benchmark to as low as 6.3% in the best configuration. On a real-world Java dataset, the best configuration of LLM-based agents can achieve an FP identification rate of up to 93.3% involving CodeQL alerts. However, the benefits of agents are strongly backbone- and CWE-dependent: agentic frameworks significantly outperform vanilla prompting for stronger models such as Claude Sonnet 4 and GPT-5, but yield limited or inconsistent gains for weaker backbones. On the post-cutoff OSS-Fuzz dataset, SWE-agent with Claude Sonnet 4 identifies 95.5% of FPs while maintaining 95.5% precision, compared with a 36.4% FP identification rate for vanilla prompting. Moreover, aggressive FP reduction can come at the cost of suppressing true vulnerabilities, highlighting important trade-offs. Finally, we observe large disparities in computational cost across agent frameworks. Overall, our study demonstrates that LLM-based agents are a powerful but non-uniform solution for SAST FP filtering, and that their practical deployment requires careful consideration of agent design, backbone model choice, vulnerability category, and operational cost.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": "xiong2026sifting"
+    },
+    {
+      "title": "FrontierScience Bench: Evaluating AI Research Capabilities in LLMs",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Matthew"
+        },
+        {
+          "family": "Torres-Garcia",
+          "given": "Santiago"
+        },
+        {
+          "family": "Halder",
+          "given": "Shayan"
+        },
+        {
+          "family": "Kuppa",
+          "given": "Phani"
+        },
+        {
+          "family": "O’Brien",
+          "given": "Sean"
+        },
+        {
+          "family": "Sharma",
+          "given": "Vasu"
+        },
+        {
+          "family": "Zhu",
+          "given": "Kevin"
+        },
+        {
+          "family": "Dev",
+          "given": "Sunishchal"
+        }
+      ],
+      "year": 2025,
+      "venue": "Workshop for Research on Agent Language Models (REALM)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2025.realm-1.31",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4412944443",
+      "url": "https://doi.org/10.18653/v1/2025.realm-1.31",
+      "oa_pdf_url": "https://aclanthology.org/2025.realm-1.31.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Matthew Li, Santiago Torres-Garcia, Shayan Halder, Phani Kuppa, Sean O’Brien, Vasu Sharma, Kevin Zhu, Sunishchal Dev. Proceedings of the 1st Workshop for Research on Agent Language Models (REALM 2025). 2025.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Security in LLM-as-a-Judge: A Comprehensive SoK",
+      "authors": [
+        {
+          "family": "Masoud",
+          "given": "Aiman Al"
+        },
+        {
+          "family": "Anju",
+          "given": "A."
+        },
+        {
+          "family": "Arazzi",
+          "given": "Marco"
+        },
+        {
+          "family": "Cihangiroglu",
+          "given": "Mert"
+        },
+        {
+          "family": "Kembu",
+          "given": "Vignesh Kumar"
+        },
+        {
+          "family": "Nicolazzo",
+          "given": "Serena"
+        },
+        {
+          "family": "Nocera",
+          "given": "Antonino"
+        },
+        {
+          "family": "P.",
+          "given": "Vinod"
+        },
+        {
+          "family": "Sakthidharan",
+          "given": "Saraga"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2603.29403",
+      "arxiv_id": "2603.29403",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7147103991",
+      "url": "http://arxiv.org/abs/2603.29403",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.29403",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": "LLM-as-a-Judge (LaaJ) is a novel paradigm in which powerful language models are used to assess the quality, safety, or correctness of generated outputs. While this paradigm has significantly improved the scalability and efficiency of evaluation processes, it also introduces novel security risks and reliability concerns that remain largely unexplored. In particular, LLM-based judges can become both targets of adversarial manipulation and instruments through which attacks are conducted, potentially compromising the trustworthiness of evaluation pipelines. In this paper, we present the first Systematization of Knowledge (SoK) focusing on the security aspects of LLM-as-a-Judge systems. We perform a comprehensive literature review across major academic databases, analyzing 863 works and selecting 45 relevant studies published between 2020 and 2026. Based on this study, we propose a taxonomy that organizes recent research according to the role played by LLM-as-a-Judge in the security landscape, distinguishing between attacks targeting LaaJ systems, attacks performed through LaaJ, defenses leveraging LaaJ for security purposes, and applications where LaaJ is used as an evaluation strategy in security-related domains. We further provide a comparative analysis of existing approaches, highlighting current limitations, emerging threats, and open research challenges. Our findings reveal significant vulnerabilities in LLM-based evaluation frameworks, as well as promising directions for improving their robustness and reliability. Finally, we outline key research opportunities that can guide the development of more secure and trustworthy LLM-as-a-Judge systems.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Is “Knowing It’s Malicious” Enough? Evaluating LLMs for Fine-Grained Malware Behavior Auditing",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Xinran"
+        },
+        {
+          "family": "Qian",
+          "given": "Xingzhi"
+        },
+        {
+          "family": "He",
+          "given": "Yiling"
+        },
+        {
+          "family": "Yang",
+          "given": "Shuo"
+        },
+        {
+          "family": "Cavallaro",
+          "given": "Lorenzo"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832187",
+      "arxiv_id": "2509.14335",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417080709",
+      "url": "https://doi.org/10.1145/3832187",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.14335",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Automated malware classifiers achieve strong detection performance, but auditing requires more than flagging a sample: analysts must explain malicious behaviors and justify them with concrete code evidence, a requirement that traditional signature-based methods and learning-based XAI often fail to satisfy in a human-interpretable manner. Large Language Models (LLMs) appear well-suited for this task due to their code reasoning and summarization ability, yet it remains unclear whether they can support reliable auditing. In particular, evaluating them faces three hurdles: (1) the lack of detailed, human-written behavior ground truth for reliable benchmarking; (2) real-world application codebases typically exceed the context limits of current models, which cannot be fully processed at once; and (3) the absence of reliable mechanisms to verify whether LLM-generated behavioral claims are faithfully supported by concrete code evidence. Together, these obstacles make benchmarking LLM-based auditing non-trivial, leaving their true capabilities and failure modes opaque. To bridge this gap, we introduce MalEval, a diagnostic evaluation framework for systematically measuring the capability boundaries of LLMs in malware auditing. We pair real-world application codebases with expert-written audit reports to obtain fine-grained, behavior-level ground truth. Large codebases are compressed into unified behavior-relevant program contexts via a context-driven intermediate representation that preserves essential call relations. Both expert reports and model outputs are then mapped, through constrained reasoning, into structured evidence chains linking code-level facts to high-level behaviors in a common, comparable space. Built on this foundation, MalEval decomposes auditing into 4 stage-wise auditing tasks, allowing each intermediate judgment to be independently verified under limited context windows. We leverage MalEval to evaluate seven widely used LLMs and uncover clear capability boundaries: models rely on surface cues over verifiable evidence, struggle to compose dispersed facts into coherent attack chains, and are highly sensitive to context formulation. These findings shift the focus from optimizing isolated outputs to designing LLM and agentic workflows that can reliably support malware auditing.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "VIPER-MCP: Detecting and Exploiting Taint-Style Vulnerabilities in Model Context Protocol Servers",
+      "authors": [
+        {
+          "family": "Sun",
+          "given": "Pengyu"
+        },
+        {
+          "family": "Kang",
+          "given": "Zifeng"
+        },
+        {
+          "family": "Jin",
+          "given": "Qishu"
+        },
+        {
+          "family": "Huang",
+          "given": "Enhao"
+        },
+        {
+          "family": "Liu",
+          "given": "Xin"
+        },
+        {
+          "family": "Shen",
+          "given": "Dakun"
+        },
+        {
+          "family": "Li",
+          "given": "Song"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.21392",
+      "arxiv_id": "2605.21392",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161999592",
+      "url": "https://arxiv.org/abs/2605.21392",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.21392",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "Model Context Protocol (MCP) has emerged as a standard interface for connecting LLM agents to external tools. Because MCP servers expose privileged operations such as shell execution, network access, and file-system manipulation to agent-driven invocation, implementation flaws in tool handlers can create a direct path from natural-language input to security-sensitive sinks, potentially granting attackers remote code execution or full system compromise. Existing approaches either produce unconfirmed static alerts without dynamic validation, or rely on fixed template libraries that lack code-level guidance and fail to trigger vulnerabilities requiring specific parameter shapes or multi-step taint paths. In this paper, we present VIPER-MCP, the first end-to-end automated vulnerability auditing framework for MCP servers that not only detects taint-style vulnerabilities but also dynamically confirms their exploitability by producing concrete proof-of-concept prompts. VIPER-MCP introduces two novel techniques: (1) an anchor-query pass in a two-pass static analysis strategy that augments standard taint alerts with function-level structural context, resolving file-level static artifacts to specific MCP tool handlers and producing vulnerability-anchored call chains; and (2) a feedback-driven prompt evolution mechanism that employs dual-mutator scheduling that independently corrects tool-selection drift and deepens parameter penetration, together with fitness-scored seed selection to iteratively refine natural-language prompts toward vulnerable sinks. In a large-scale scan of 39,884 real-world open-source MCP server repositories, VIPER-MCP discovered 106 0-day vulnerabilities, all of which were confirmed through end-to-end exploit traces, with 67 CVE IDs assigned to date.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Beyond Passing Tests: A Systematic Review and Controlled Re-evaluation of Techniques for Improving the Quality of LLM-Generated Code",
+      "authors": [
+        {
+          "family": "Kadam",
+          "given": "Prashank"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "review",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.38977",
+      "arxiv_id": "2610.38977",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7224899167",
+      "url": "https://arxiv.org/abs/2610.38977",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.38977",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models pass most functional-correctness benchmarks, but passing tests says little about whether their code is readable, efficient or secure. Many techniques claim to improve these qualities, yet their evidence is scattered, usually covers one quality dimension and is rarely compared at an equal compute budget. We contribute a systematic review and a controlled re-evaluation. A systematic literature review of 628 primary studies (July 2021 to October 2026), with disclosed, author-reviewed LLM assistance, organizes the techniques by stage, signal source and quality target. Most studies measure only the dimension they target, gains often come with unchanged or unreported correctness, single automated quality signals are gamed, and compute, variance and contamination are rarely reported. A controlled re-evaluation runs ten techniques on four models at matched budgets on correctness, maintainability, efficiency and security benchmarks, extends it to thirteen current models and repository-level tasks, and compares 66 highlighted techniques head-to-head on Gemma 4 31B. At one call, quality prompting raises analyzer issue counts and leaves complexity and judge scores almost unchanged. At matched budgets, best-of-n sampling with an analyzer-weighted ranker matches or beats prompting, planning, self-refinement, a reviewer agent and retrieval on measures the ranker does not optimize, while an analyzer feedback loop and fine-tuning beat it only on analyzer issue counts. Large correctness losses on HumanEval+, a likely contaminated benchmark near its ceiling, do not appear on contests held after the models' training cutoffs. In the head-to-head, 1 of 66 techniques beats best-of-n on its primary target beyond the 95% interval, a rate consistent with chance. Gains should be reported against a budget-matched sampling baseline and on measures independent of the technique's own signal.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "TriDF: Evaluating Perception, Detection, and Hallucination for Interpretable DeepFake Detection",
+      "authors": [
+        {
+          "family": "Jiang-Lin",
+          "given": "Jian-Yu"
+        },
+        {
+          "family": "Huang",
+          "given": "Kang-Yang"
+        },
+        {
+          "family": "Zou",
+          "given": "Ling"
+        },
+        {
+          "family": "Lo",
+          "given": "Ling"
+        },
+        {
+          "family": "Yang",
+          "given": "Shengping"
+        },
+        {
+          "family": "Tseng",
+          "given": "Yu‐Wen"
+        },
+        {
+          "family": "Lin",
+          "given": "Kun‐Hsiang"
+        },
+        {
+          "family": "Chen",
+          "given": "Chia-Ling"
+        },
+        {
+          "family": "Ta",
+          "given": "Yu-Ting"
+        },
+        {
+          "family": "Wang",
+          "given": "Yan"
+        },
+        {
+          "family": "Chen",
+          "given": "Peili"
+        },
+        {
+          "family": "Xie",
+          "given": "Hongxia"
+        },
+        {
+          "family": "Shuai",
+          "given": "Hong-Han"
+        },
+        {
+          "family": "Cheng",
+          "given": "Wen-Huang"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2512.10652",
+      "arxiv_id": "2512.10652",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417296392",
+      "url": "http://arxiv.org/abs/2512.10652",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.10652",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Advances in generative modeling have made it increasingly easy to fabricate realistic portrayals of individuals, creating serious risks for security, communication, and public trust. Detecting such person-driven manipulations requires systems that not only distinguish altered content from authentic media but also provide clear and reliable reasoning. In this paper, we introduce TriDF, a comprehensive benchmark for interpretable DeepFake detection. TriDF contains high-quality forgeries from advanced synthesis models, covering 16 DeepFake types across image, video, and audio modalities. The benchmark evaluates three key aspects: Perception, which measures the ability of a model to identify fine-grained manipulation artifacts using human-annotated evidence; Detection, which assesses classification performance across diverse forgery families and generators; and Hallucination, which quantifies the reliability of model-generated explanations. Experiments on state-of-the-art multimodal large language models show that accurate perception is essential for reliable detection, but hallucination can severely disrupt decision-making, revealing the interdependence of these three aspects. TriDF provides a unified framework for understanding the interaction between detection accuracy, evidence identification, and explanation reliability, offering a foundation for building trustworthy systems that address real-world synthetic media threats.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Understanding and defending against use-after-free vulnerabilities",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Zeyu"
+        }
+      ],
+      "year": 2025,
+      "venue": "Library, Museums and Press - UDSpace (University of Delaware)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7216624173",
+      "url": "https://udspace.udel.edu/handle/19716/36136",
+      "oa_pdf_url": "https://udspace.udel.edu/bitstreams/eb974a36-b603-4da6-afd9-5b8bbb70ceaa/download",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Over the past decades, use-after-free (UaF) vulnerabilities have become a critical and widely exploited security concern. To address such increasing threats, this dissertation advances defense in multiple aspects, including UaF vulnerability detection, UaF exploit defense, and UaF bug fixes. ☐ The first research direction delves into a comprehensive empirical study of UaF vulnerabilities. Utilizing a dataset of 150 real-world UaF cases randomly sampled from representative software suites such as the Linux kernel, Python, and Mozilla Firefox, this study seeks to unravel the commonalities, root causes, and recurring patterns in real-world UaF bugs. The findings highlight the diversity and non-uniform distribution of root causes among different software, emphasizing that a generic UaF detector or fuzzer might not be an optimal solution. By categorizing the root causes into 11 patterns, several of which can be translated into simple static detection rules, this work further introduces a static bug detector named Palfrey. Palfrey exhibits superior coverage and accuracy in UaF detection, while minimizing time and memory overhead, making it a promising tool to address UaF vulnerabilities. ☐ The second research direction investigates the relationship between fuzzing techniques and UaF vulnerabilities. Fuzzing has proven effective in rapidly generating faulty inputs to discover software bugs, but its efficiency in identifying UaF instances with specific patterns and characteristics remains uncertain. The study explores whether the efficiency of fuzzing is dependent on the code scope of UaF, particularly for bugs with larger code scopes. Additionally, the research addresses the challenge of detecting non-deterministic UaF bugs and explores the necessity of auxiliary tools like address sanitizers (ASan) to assist fuzzers in identifying UaF vulnerabilities. The study provides practical guidelines to enhance UaF detection using fuzzers, aiming to improve the effectiveness of dynamic testing techniques in identifying UaF vulnerabilities. ☐ The third research direction explores how Large Language Models (LLMs) perceive and detect UaF vulnerabilities compared to traditional static analysis tools. Unlike deterministic analyzers, LLMs rely on probabilistic language reasoning and are influenced by prompt phrasing, input granularity, and abstraction level. To enable systematic evaluation, this work constructs a benchmark of 50 curated UaF cases specifically adapted for LLM-based analysis. These samples are distilled from the broader set of 150 real-world UaF cases and carefully reduced to single-file, self-contained programs that preserve critical semantic features while remaining within LLM token limits. The benchmark is used to evaluate LLM performance across prompt styles and input formats, including source code and LLVM IR. Novel evaluation metrics—such as Scalability Index, Context-Aware Precision, and Prompt Sensitivity Score—are proposed to capture the unique behaviors of LLMs in code analysis. The study reveals a semantic gap between LLM and static tool reasoning and highlights opportunities for hybrid approaches. ☐ In conclusion, this dissertation seeks to advance the state of the art in UaF vulnerability mitigation by comprehensively understanding real-world UaF characteristics, introducing innovative static analysis techniques, and enhancing the efficiency of fuzzing for UaF detection. These research directions collectively contribute to the goal of addressing the critical issue of UaF vulnerabilities and enhancing the security and reliability of software systems.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Prompt2DAG: A Modular Methodology for LLM-Based Data Enrichment Pipeline Generation",
+      "authors": [
+        {
+          "family": "Alidu",
+          "given": "Abubakari"
+        },
+        {
+          "family": "Ciavotta",
+          "given": "Michele"
+        },
+        {
+          "family": "Paoli",
+          "given": "Flavio De"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2509.13487",
+      "arxiv_id": "2509.13487",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416259446",
+      "url": "http://arxiv.org/abs/2509.13487",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.13487",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Developing reliable data enrichment pipelines demands significant engineering expertise. We present Prompt2DAG, a methodology that transforms natural language descriptions into executable Apache Airflow DAGs. We evaluate four generation approaches -- Direct, LLM-only, Hybrid, and Template-based -- across 260 experiments using thirteen LLMs and five case studies to identify optimal strategies for production-grade automation. Performance is measured using a penalized scoring framework that combines reliability with code quality (SAT), structural integrity (DST), and executability (PCT). The Hybrid approach emerges as the optimal generative method, achieving a 78.5% success rate with robust quality scores (SAT: 6.79, DST: 7.67, PCT: 7.76). This significantly outperforms the LLM-only (66.2% success) and Direct (29.2% success) methods. Our findings show that reliability, not intrinsic code quality, is the primary differentiator. Cost-effectiveness analysis reveals the Hybrid method is over twice as efficient as Direct prompting per successful DAG. We conclude that a structured, hybrid approach is essential for balancing flexibility and reliability in automated workflow generation, offering a viable path to democratize data pipeline development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "A Systematic Literature Review on Detecting Software Vulnerabilities with Large Language Models",
+      "authors": [
+        {
+          "family": "Kaniewski",
+          "given": "Sabrina"
+        },
+        {
+          "family": "Schmidt",
+          "given": "Fabian"
+        },
+        {
+          "family": "Enzweiler",
+          "given": "Markus"
+        },
+        {
+          "family": "Menth",
+          "given": "Michael"
+        },
+        {
+          "family": "Heer",
+          "given": "Tobias"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM Transactions on Software Engineering and Methodology",
+      "type": "review",
+      "venue_kind": "published",
+      "doi": "10.1145/3815425",
+      "arxiv_id": "2507.22659",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161417267",
+      "url": "https://doi.org/10.1145/3815425",
+      "oa_pdf_url": "https://arxiv.org/pdf/2507.22659",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 27,
+      "abstract": "The increasing adoption of Large Language Models (LLMs) in software engineering has sparked interest in their use for software vulnerability detection. However, the rapid development of this field has resulted in a fragmented research landscape, with diverse studies that are difficult to compare due to differences in, e.g., system designs and dataset usage. This fragmentation makes it difficult to obtain a clear overview of the state-of-the-art or compare and categorize studies meaningfully. In this work, we present a comprehensive systematic literature review (SLR) of LLM-based software vulnerability detection. We analyze 263 studies published between January 2020 and November 2025, categorizing them by task formulation, input representation, system architecture, and techniques. Further, we analyze the datasets used, including their characteristics, vulnerability coverage, and diversity. We present a fine-grained taxonomy of vulnerability detection approaches, identify key limitations, and outline actionable future research opportunities. By providing a structured overview of the field, this review improves transparency and serves as a practical guide for researchers and practitioners aiming to conduct more comparable and reproducible research. We publicly release all artifacts and maintain a living repository of LLM-based software vulnerability detection studies at https://github.com/hs-esslingen-it-security/Awesome-LLM4SVD .",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": "kaniewski2026systematic"
+    },
+    {
+      "title": "Agentic Discovery and Validation of Android App Vulnerabilities",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Ziyue"
+        },
+        {
+          "family": "Zhou",
+          "given": "Liyi"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2508.21579",
+      "arxiv_id": "2508.21579",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415991937",
+      "url": "http://arxiv.org/abs/2508.21579",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.21579",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Existing Android vulnerability detection tools overwhelm teams with thousands of low-signal warnings yet uncover few true positives. Analysts spend days triaging these results, creating a bottleneck in the security pipeline. Meanwhile, genuinely exploitable vulnerabilities often slip through, leaving opportunities open to malicious counterparts. We introduce A2, a system that mirrors how security experts analyze and validate Android vulnerabilities through two complementary phases: (i) Agentic Vulnerability Discovery, which reasons about application security by combining semantic understanding with traditional security tools; and (ii) Agentic Vulnerability Validation, which systematically validates vulnerabilities across Android's multi-modal attack surface-UI interactions, inter-component communication, file system operations, and cryptographic computations. On the Ghera benchmark (n=60), A2 achieves 78.3% coverage, surpassing state-of-the-art analyzers (e.g., APKHunt 30.0%). Rather than overwhelming analysts with thousands of warnings, A2 distills results into 82 speculative vulnerability findings, including 47 Ghera cases and 28 additional true positives. Crucially, A2 then generates working Proof-of-Concepts (PoCs) for 51 of these speculative findings, transforming them into validated vulnerability findings that provide direct, self-confirming evidence of exploitability. In real-world evaluation on 169 production APKs, A2 uncovers 104 true-positive zero-day vulnerabilities. Among these, 57 (54.8%) are self-validated with automatically generated PoCs, including a medium-severity vulnerability in a widely used application with over 10 million installs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "title": "Sifting the Noise: A Comparative Study of LLM Agents in Vulnerability False Positive Filtering",
+  "authors": [
+    {
+      "family": "Xiong",
+      "given": "Yunpeng"
+    },
+    {
+      "family": "Zhang",
+      "given": "Ting"
+    }
+  ],
+  "year": 2026,
+  "venue": "Proceedings of the ACM on Software Engineering",
+  "type": "journal-article",
+  "venue_kind": "published",
+  "doi": "10.1145/3832100",
+  "arxiv_id": "2601.22952",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7127178521",
+  "url": "https://doi.org/10.1145/3832100",
+  "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832100?download=true",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 3,
+  "abstract": "Static Application Security Testing (SAST) tools are essential for identifying software vulnerabilities, but they often produce a high volume of False Positives (FPs), imposing a substantial manual triage burden on developers. Recent advances in Large Language Model (LLM) agents offer a promising direction by enabling iterative reasoning, tool use, and environment interaction to refine SAST alerts. However, the comparative effectiveness of different LLM-based agent architectures for FP filtering remains poorly understood. In this paper, we present a comparative study of three state-of-the-art LLM-based agent frameworks, i.e., Aider, OpenHands, and SWE-agent, for vulnerability FP filtering. We evaluate these frameworks using the vulnerabilities from the OWASP Benchmark and real-world open-source Java projects. We further conduct a focused post-cutoff C/C++ study using the strongest configuration to test contamination-free generalization and isolate key agentic capabilities. The experimental results show that LLM-based agents can remove the majority of SAST noise, reducing an initial FP detection rate of over 92% on the OWASP Benchmark to as low as 6.3% in the best configuration. On a real-world Java dataset, the best configuration of LLM-based agents can achieve an FP identification rate of up to 93.3% involving CodeQL alerts. However, the benefits of agents are strongly backbone- and CWE-dependent: agentic frameworks significantly outperform vanilla prompting for stronger models such as Claude Sonnet 4 and GPT-5, but yield limited or inconsistent gains for weaker backbones. On the post-cutoff OSS-Fuzz dataset, SWE-agent with Claude Sonnet 4 identifies 95.5% of FPs while maintaining 95.5% precision, compared with a 36.4% FP identification rate for vanilla prompting. Moreover, aggressive FP reduction can come at the cost of suppressing true vulnerabilities, highlighting important trade-offs. Finally, we observe large disparities in computational cost across agent frameworks. Overall, our study demonstrates that LLM-based agents are a powerful but non-uniform solution for SAST FP filtering, and that their practical deployment requires careful consideration of agent design, backbone model choice, vulnerability category, and operational cost.",
+  "sources": [
+    "crossref",
+    "openalex"
+  ],
+  "key": "xiong2026sifting",
+  "added": "2026-11-12T04:47:42+06:00",
+  "added_reason": "F3 hybrid LLM + static analysis (RQ3)",
+  "found_via": "LLM static analysis combined vulnerability detection false positive",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T18:25:36+06:00",
+    "cross_checks": {
+      "crossref": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "arxiv": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2601.22952",
+    "retrieved": "2026-11-12T04:48:54+06:00",
+    "sha256": "ed09e8edaeedf08f2fe008efe5087b996182ed4f0eb1cffcd759bd401b2f846f",
+    "pages": 24,
+    "text_layer": "ok",
+    "identity": "match (DOI printed in PDF)"
+  }
+}

@@ -1,0 +1,291 @@
+     1	---
+     2	key: deininger2026open
+     3	status: ready
+     4	evidence_basis: full-text
+     5	design: empirical benchmark; zero-shot prompting of 8 LLMs (3 frontier, 5 open-weight) vs 3 SAST tools and 2 CodeBERT detectors on identical functions; cost/energy measured or estimated
+     6	dataset: PrimeVul test split (C/C++; 24,788 functions, 549 vulnerable, 1:44); stratified sample of all 549 vulnerable + 1000 safe functions
+     7	sample_size: 1549 functions (549 vulnerable, 35.4%); 8 LLMs x several configurations; 3 prompts; 3 safe-pool draws
+     8	metrics: balanced accuracy (primary), MCC, F1, recall, specificity, precision at 1:44 prevalence, FP/TP, USD/task, J/task, USD and kJ per true positive, latency
+     9	main_finding: Open LLMs dominate frontier on cost/energy; fine-tuned CodeBERT beats all LLMs (BA 0.765 vs ≤0.711); at 1:44 prevalence LLM precision is 2.3–3.8%.
+    10	relevance: high
+    11	analysed: 2026-11-12
+    12	---
+    13	<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+    14	     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+    15	     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+    16	     relevance: high | medium | low. -->
+    17	
+    18	# Open or Frontier? A Cost- and Energy-Aware Benchmark of Large Language Models for Software Vulnerability Detection
+    19	
+    20	- Authors: Deininger, Patrick; Slany, Wolfgang
+    21	- Year / venue: 2026, Computers (published)
+    22	- DOI: 10.3390/computers15090623 · URL: https://doi.org/10.3390/computers15090623
+    23	- Source text: `fulltext.txt` (page refs = PDF page index)
+    24	
+    25	Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+    26	Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+    27	
+    28	## 1. Research objective
+    29	[A] To benchmark open-weight against frontier LLMs on function-level vulnerability detection, treating monetary cost and energy as "first-class axes alongside detection quality" (p. 1). The study also calibrates the LLM results against non-LLM reference points (static analysers and learned detectors) "to gauge absolute difficulty" (p. 2). [A] The authors claim the conjunction is new (a security task, a five-model open roster, and cost and energy as per-task axes), "not ... a priority" on any single axis (p. 3).
+    30	
+    31	## 2. Research questions / hypotheses
+    32	- [V] No numbered RQs. Contributions are framed as (p. 2):
+    33	  - a cost- and energy-aware open-vs-frontier benchmark on label-clean PrimeVul with non-LLM reference points;
+    34	  - evidence on the quality–efficiency Pareto frontier;
+    35	  - an account of what can and cannot be measured for closed API models.
+    36	- [I] Implicit questions:
+    37	  1. Are open-weight LLMs competitive with frontier LLMs in quality?
+    38	  2. Are they more cost- and energy-efficient?
+    39	  3. How do LLMs compare with SAST and fine-tuned detectors at realistic prevalence?
+    40	
+    41	## 3. Methodology
+    42	- Research design: [V] Empirical benchmark of binary function-level detection ("does this C/C++ function contain a vulnerability?") on a fixed stratified PrimeVul sample (p. 4). Additional analyses (pp. 9–20):
+    43	  - re-scoring at the natural 1:44 prevalence;
+    44	  - configuration-matched families A/B/C;
+    45	  - prompt, sample-draw and run-to-run robustness;
+    46	  - a reasoning-vs-direct replication across two measurement epochs.
+    47	- Approach / model / intervention: [V] Eight LLMs prompted zero-shot through a unified OpenAI-compatible API gateway (p. 4, Table 2). [V] The gateway is **not named** (pp. 4, 29).
+    48	  - **Frontier:** Claude Sonnet 5, GPT-5.1, Gemini 3.1 Pro (`gemini-3.1-pro-preview`); active parameters assumed ~100B for the energy estimate.
+    49	  - **Open-weight:** DeepSeek-V3.2 (~37B active), GLM-5 (~32B active), Llama-3.3-70B, Qwen3-Coder-30B (3B active MoE), Gemma-3-4B.
+    50	  - [V] Pinned providers and precision: DeepSeek-V3.2 and GLM-5 at GMICloud FP8; Llama-3.3-70B at DeepInfra FP8; Qwen3-Coder-30B at SiliconFlow FP8; Gemma-3-4B at DeepInfra bf16 (p. 29, Table A2).
+    51	  - [V] Main configuration: direct answer, reasoning disabled where permitted. Gemini cannot disable reasoning (HTTP 400) (p. 4, p. 29).
+    52	  - [V] Prompt: a security-reviewer persona; answer YES/NO first, then an optional explanation (p. 28). A lenient parser counts unparseable outputs as parse failures, not "safe" (p. 4, p. 29).
+    53	- Baselines or comparison conditions:
+    54	  - [V] **Trivial baselines:** always-safe and always-vulnerable (p. 7, Table 4); always-flag at 1:44 prevalence (p. 8, Table 5).
+    55	  - [V] **SAST arm** (p. 6, p. 10, Table 7): Flawfinder 2.0.20 (lexical), Cppcheck 2.21 (flow-sensitive), Semgrep 1.175 with community C and security-audit rulesets (pattern plus intraprocedural taint). A function is flagged if any finding reaches a swept severity threshold.
+    56	  - [V] **DL arm:**
+    57	    - CodeBERT fine-tuned on Devign (off the shelf, cross-dataset, argmax, 512 tokens) (p. 6);
+    58	    - CodeBERT (125M) fine-tuned on PrimeVul's training split, with the threshold selected on the validation split (p. 10–11).
+    59	  - [V] **CodeQL was not run.** PrimeVul functions are isolated snippets with no build, so no CodeQL database can be built (p. 10–11).
+    60	
+    61	## 4. Dataset and sample
+    62	- Data source(s): [V] PrimeVul test split (C/C++): 24,788 functions after loading, 549 vulnerable — "a realistic 1:44 class ratio" (p. 4).
+    63	- Sample size (N) and unit: [V] N = 1549 functions: all 549 vulnerable plus 1000 seeded-random safe functions (p. 4). [I] Prevalence in the evaluated sample is 35.4% (549/1549). This is **not** 50/50, although the text once calls it "balanced by construction" (p. 8). [V] The effective N per model is 1526–1549 because parse failures are excluded (p. 6).
+    64	- Sampling / selection method:
+    65	  - [V] Label-stratified sample fixed by seed (p. 4).
+    66	  - [V] Two further near-disjoint safe pools (<6% overlap) were drawn for robustness (p. 19).
+    67	  - [V] LLM inputs were truncated to 8000 characters. This affects 105/1549 functions and 87/549 (15.8%) of the vulnerable ones; non-LLM baselines see untruncated code (p. 4).
+    68	  - [V] All CVEs date from 2008–2022 and predate the models' training cutoffs (p. 24). [V] The PrimeVul training split contains no evaluated function or function body (up to whitespace) (p. 10, p. 25).
+    69	- Data availability (public? link?): [V] Released on Zenodo (doi 10.5281/zenodo.21391073): harness, configurations, sampled function IDs, price snapshot, energy sweep, baseline scores and aggregated results (p. 26). [V] PrimeVul is fetched from its original authors by script; the fine-tuned checkpoint is regenerable by script (p. 26).
+    70	
+    71	## 5. Experimental setup
+    72	- Procedure, settings, hyper-parameters, tools:
+    73	  - [V] Harness and decoding: a test-driven harness with 82 automated tests; temperature 0, seed 12345, one generation per item; output budget 64 tokens in the matched configuration (256 for two frontier models in the first epoch) (p. 6, p. 29).
+    74	  - [V] Cost: computed from logged input/output tokens × list price at a pinned provider, with gateway fallbacks disabled (p. 5).
+    75	  - [V] Provider price dispersion: up to 14.4× for DeepSeek-V3.2 (USD 0.209–3.000 per million input tokens) (p. 5, Table 3).
+    76	  - [V] Energy (p. 5):
+    77	    - FLOP estimate E ≈ 2·N_active·T·ε for API-served models;
+    78	    - measured with the NVML energy counter on a dedicated NVIDIA H200 for locally servable open models (concurrency 1, idle-subtracted "active" energy);
+    79	    - plus a concurrency sweep c = 1/8/32/64 (p. 14, Table 9).
+    80	  - [V] Latency: client-side under concurrency 10, so it conflates queueing (p. 30).
+    81	  - [V] Statistics: stratified paired bootstrap of balanced-accuracy differences (20,000 resamples, seed 12,345) with Holm correction over a 9-comparison primary family and a 15-comparison strict family (p. 6, p. 28).
+    82	- Code availability: [V] The harness and configurations are released (p. 6, p. 26).
+    83	
+    84	## 6. Evaluation metrics
+    85	- Metric — what it measures — why chosen:
+    86	  - [V] **Balanced accuracy** is the primary metric, because accuracy is dominated by the always-safe classifier (0.646 accuracy, above every LLM) and both trivial classifiers score exactly 0.5 on it (p. 6).
+    87	  - [V] MCC and F1 are also reported (p. 6).
+    88	  - [V] Deployment metrics at 1:44 prevalence are derived from the prevalence-invariant TPR/FPR (p. 8, Table 5):
+    89	    - precision; false positives per true positive (FP/TP);
+    90	    - alerts and found vulnerabilities per 1000 functions;
+    91	    - **USD per true positive** and **kJ per true positive**.
+    92	  - [V] Elicited 0–100 confidence gives ROC-AUC where usable. VD-Score is declined because the coarse score grids cannot reach its 0.5% FPR point (p. 9–10).
+    93	- Statistical testing (tests used, significance, effect sizes, confidence intervals):
+    94	  - [V] Paired bootstrap 95% CIs and Holm-adjusted p for open-vs-frontier gaps (p. 27, Table A1).
+    95	  - [V] Wilson-based 95% CIs on precision at deployment prevalence for the non-LLM baselines (p. 10, Table 7).
+    96	  - [V] Robustness: Spearman rank correlation across prompts and draws (p. 19, Table 13).
+    97	  - [V] Output-budget effects are tested with a paired bootstrap (p. 16, Table 10).
+    98	
+    99	## 7. Key findings
+   100	1. **Detection quality, first epoch** — [V] Balanced accuracy / F1 per model, direct mode, N = 1549 (p. 7, Table 4). [V] F1 range across LLMs is 0.405–0.615 vs always-vulnerable F1 0.523 (p. 7, Table 4).
+   101	
+   102	   | Model | Bal. acc. (95% CI) | F1 |
+   103	   |---|---|---|
+   104	   | DeepSeek-V3.2 | 0.676 (0.654–0.697) | 0.615 |
+   105	   | Gemma-3-4B | 0.653 | 0.590 |
+   106	   | GLM-5 | 0.637 | 0.596 |
+   107	   | Gemini-3.1-Pro | 0.623 | 0.591 |
+   108	   | GPT-5.1 | 0.617 | 0.560 |
+   109	   | Claude-Sonnet-5 | 0.616 | 0.582 |
+   110	   | Llama-3.3-70B | 0.604 | 0.578 |
+   111	   | Qwen3-Coder-30B | 0.511 | 0.405 |
+   112	
+   113	2. **Open vs frontier significance** — [V] DeepSeek-V3.2 significantly beats all three frontier models: +0.054 to +0.060 balanced accuracy, Holm p < 5×10⁻⁴ (p. 6, p. 27, Table A1).
+   114	   - [V] Gemma-3-4B beats Claude-Sonnet-5 (+0.037, Holm p = 0.032); the other top-open gaps are not significant (p. 7, p. 27).
+   115	   - [V] Qwen3-Coder-30B is indistinguishable from chance (MCC 0.022, CI −0.03 to 0.07) (p. 7).
+   116	3. **Budget-matched second epoch (Family A)** — [V] Balanced accuracy / MCC: DeepSeek-V3.2 0.711 / 0.403; GLM-5 0.669 / 0.352; Gemma-3-4B 0.653 / 0.297; Claude-Sonnet-5 0.653 / 0.321; GPT-5.1 0.615 / 0.225; Llama 0.609 / 0.267; Qwen 0.568 / 0.136; Gemini 0.606 / 0.252, on only the 54.2% of tasks it answered (p. 17, Table 11).
+   117	   - [V] Claude equals Gemma (+0.0003, p = 0.98) (p. 17).
+   118	   - [V] Absolute numbers shifted by up to 0.06 between epochs seven weeks apart ("service drift") (p. 7–8, p. 20).
+   119	4. **Reasoning mode** — [V] Reasoning helps every frontier model (Claude +0.032, GPT-5.1 +0.044, Gemini +0.096) but hurts DeepSeek-V3.2 (−0.133, p < 10⁻⁴) and does not help GLM-5 (−0.019, n.s.); it costs 4.5–12.1× more per task (p. 17–18, Table 12).
+   120	   - [V] Best observed: DeepSeek 0.711 (direct) vs Claude 0.685 and Gemini 0.680 (reasoning); DeepSeek vs Claude p = 0.081 (p. 17).
+   121	   - [V] Reasoning lowers DeepSeek's specificity from 0.52 to 0.37 (p. 20).
+   122	5. **Prompt sensitivity dominates** — [V] Two paraphrases move balanced accuracy by up to 0.088 and produce three different winners (DeepSeek 0.711, Claude 0.741, GLM-5 0.700); Spearman ρ vs anchor = 0.381 and 0.810 (p. 19–20, Table 13).
+   123	   - [V] Safe-pool redraws move scores ≤0.015 (ρ = 1.000) (p. 19).
+   124	   - [V] Temperature-0 verdict agreement is 88.3–100%; only Gemma is exactly reproducible (p. 19).
+   125	6. **SAST baselines on the same functions** (p. 7, p. 10, Table 4, Table 7) — balanced accuracy / recall / specificity / precision at 1:44:
+   126	   - [V] Flawfinder risk≥1: 0.589 / 0.271 / 0.907 / 6.20%; risk≥4: 0.523 / 0.055 / 0.992 / 13.40%.
+   127	   - [V] Cppcheck: 0.548–0.592 balanced accuracy; precision 2.46–3.77%.
+   128	   - [V] Semgrep severity≥INFO: 0.514 / 0.031 / 0.998 / 25.96% (CI 5.7–66.9%). It flags 19 of 1549 functions with 17 TP and 2 FP (p. 11).
+   129	   - [V] Flawfinder is "ahead of every LLM at every threshold" on deployment precision but finds almost nothing (p. 9, p. 23).
+   130	7. **Fine-tuned DL baseline beats every LLM** — [V] CodeBERT-PrimeVul (125M, validation-tuned threshold) reaches balanced accuracy 0.765, MCC 0.526, recall 0.709, specificity 0.821, precision 8.23% at 1:44 (CI 6.9–9.7) and ROC-AUC 0.845 (p. 10, Table 7; p. 10–11). [V] CodeBERT-Devign (cross-dataset) collapses to 0.518, flagging 97% of functions (p. 7, p. 23). [V] At argmax 0.5 the PrimeVul detector predicts all-safe because no score exceeds 0.372. The authors "nearly reported" this artefact as evidence that trained detectors are no better than LLMs (p. 11).
+   131	8. **Deployment at 1:44 prevalence** — [V] Every LLM's precision is 2.3–3.8% vs 2.21% for always-flag; FP/TP ranges from 25.6 (DeepSeek) to 41.9 (Qwen); models alert on 43–75% of functions (p. 8, Table 5). [A] "Neither is ready for independent use" (p. 9).
+   132	9. **Cost per task** — [V] USD/task, first epoch (p. 7, Table 4); SAST and CodeBERT-Devign cost ≈0:
+   133	
+   134	   | Model | USD/task |
+   135	   |---|---|
+   136	   | DeepSeek-V3.2 | 0.00017 |
+   137	   | Gemma-3-4B | 0.00004 |
+   138	   | GLM-5 | 0.00048 |
+   139	   | Gemini-3.1-Pro | 0.00448 |
+   140	   | GPT-5.1 | 0.00139 |
+   141	   | Claude-Sonnet-5 | 0.00441 |
+   142	   | Llama-3.3-70B | 0.00008 |
+   143	   | Qwen3-Coder-30B | 0.00006 |
+   144	
+   145	   - [V] Family A cost (p. 17, Table 11): DeepSeek 0.00015, Claude 0.00265, Gemini 0.00219 USD/task.
+   146	   - [V] Gemma matches Claude's Family A quality at 1/66 of the cost; DeepSeek beats Claude at 1/18 (p. 17).
+   147	10. **Energy per task** — [V] J/task (p. 7, Table 4); frontier values are FLOP estimates at an assumed 100B active parameters, with the 25–400B sweep in brackets:
+   148	
+   149	    | Model | J/task | Source |
+   150	    |---|---|---|
+   151	    | DeepSeek-V3.2 | 526 | estimated |
+   152	    | Gemma-3-4B | 64 | estimated |
+   153	    | GLM-5 | 424 | estimated |
+   154	    | Gemini-3.1-Pro | 1966 [492–7865] | estimated |
+   155	    | GPT-5.1 | 1332 [333–5329] | estimated |
+   156	    | Claude-Sonnet-5 | 2489 [622–9955] | estimated |
+   157	    | Llama-3.3-70B | 738 | measured |
+   158	    | Qwen3-Coder-30B | 88 | measured |
+   159	
+   160	    - [V] Concurrency sweep on an H200 (c = 1 → 64), J/task: Gemma 84.4 → 3.8; Qwen 84.0 → 7.5; Llama 739.9 → 74.2. The FLOP estimator overstates batched energy by 5.4–16.9× (p. 14, Table 9).
+   161	    - [A] API-served energies are "most likely" overstated by about an order of magnitude (p. 14).
+   162	11. **Cost and energy per detected vulnerability (G6)** — [V] At 1:44 prevalence (p. 8, Table 5):
+   163	
+   164	    | Model | USD per TP | kJ per TP |
+   165	    |---|---|---|
+   166	    | Gemma-3-4B | 0.003 | 3.7 |
+   167	    | Llama-3.3-70B | 0.004 | 44.8 |
+   168	    | Qwen3-Coder-30B | 0.006 | 4.0 |
+   169	    | DeepSeek-V3.2 | 0.009 | 28.4 |
+   170	    | GLM-5 | 0.023 | 20.3 |
+   171	    | GPT-5.1 | 0.082 | 78.3 |
+   172	    | Gemini-3.1-Pro | 0.210 | 92.4 |
+   173	    | Claude-Sonnet-5 | 0.212 | 119.6 |
+   174	
+   175	    - [V] Flawfinder: ≈0 cost per TP (p. 8, Table 5).
+   176	    - [V] USD/TP is not reported for CodeBERT-PrimeVul ("negligible inference cost", p. 11) or for Cppcheck/Semgrep (pp. 8–11).
+   177	    - [V] **Human triage effort is not included**: these are compute costs per TP surfaced, with 25.6–41.9 false positives per TP (p. 8).
+   178	12. **Self-hosting economics** — [V] At concurrency 64 on one H200, self-hosting is cheaper than the API for Gemma and Qwen (0.15–0.36× API price) (p. 22, Table 14). For Llama-3.3-70B it is 0.63× on owned hardware but 1.50× on a rented card. These are GPU-time-only assumptions (USD 3.50/h rented; USD 1.46/h owned).
+   179	13. **Contamination gradient** — [V] Recall on pre-2020 CVEs is 7–15 points higher than on 2021–2022 CVEs for better-balanced models (e.g. GPT-5.1 0.88 vs 0.73; DeepSeek 0.90 vs 0.81) (p. 24). [A] This is "consistent with some memorization" (p. 24).
+   180	14. **Elicited confidence** — [V] Only Claude used the requested probability scale (ROC-AUC 0.814); three models reported verdict confidence instead (converted AUC 0.69–0.76); DeepSeek emitted −1 on 1409/1549 tasks; Gemini produced a parseable pair on 1.2% of tasks (p. 9, Table 6).
+   181	15. **Trivial-baseline comparison** — [I] Our reading of Table 4 (p. 7):
+   182	    - Sample (35.4% positive): best LLM F1 0.615 is only +0.092 above always-vulnerable F1 0.523; Qwen (0.405) is below it. The 0.667 balanced-data reference does not apply at this prevalence.
+   183	    - At 1:44 prevalence, our calculation from Table 5 TPR and precision (p. 8): always-flag F1 ≈ 0.043; best LLM (DeepSeek) F1 ≈ 0.072; CodeBERT-PrimeVul ≈ 0.147; Flawfinder risk≥1 ≈ 0.101. Flawfinder's F1 is above every LLM's at deployment prevalence.
+   184	
+   185	## 8. Limitations stated by the authors
+   186	- [A] Energy is measured for only some open models; frontier energy rests on an untested active-parameter assumption and is reported as a sensitivity range (p. 23).
+   187	- [A] Configuration asymmetries: Gemini cannot run without reasoning; two frontier models needed larger output budgets in the main run (p. 24).
+   188	- [A] Latency is confounded by queueing (p. 24).
+   189	- [A] Training-data contamination: all CVEs are 2008–2022 and may appear in pre-training; absolute scores "may be optimistic"; a post-cutoff restriction is planned (p. 24).
+   190	- [A] One prompt, one draw and one generation in the headline table; variation across datasets and task formulations remains unbounded (p. 24).
+   191	- [A] Serving-layer dependence (p. 24–25):
+   192	  - price spread up to 14×;
+   193	  - two silent serving faults: billed empty outputs, and a reasoning flag ignored with HTTP 200;
+   194	  - quality is robust to provider and precision for Llama (0.599–0.609).
+   195	- [A] CodeQL cannot be applied to unbuildable function snippets (p. 25).
+   196	- [A] Scope: one dataset, one task formulation, function level only; other languages and statement-level localisation are future work (p. 25).
+   197	- [A] "No result here should be read as evidence that function-level vulnerability triage is ready for independent use" (p. 26).
+   198	
+   199	## 9. Limitations we identified
+   200	- [I] **Internal inconsistencies from revision** (the paper went through at least one major review round, p. 1, pp. 16–19):
+   201	  - Gemma-3-4B is said to be incompatible with the local vLLM/CUDA build, so its energy is FLOP-estimated (p. 6, p. 15). Yet Table 9 reports a measured concurrency sweep for Gemma (p. 14), and the abstract says three open models were measured (p. 1), while p. 5 says two.
+   202	  - The limitations list says a fine-tuned PrimeVul detector "is the remaining gap" (p. 25), but Section 4.4 reports exactly such a detector (p. 10–11).
+   203	  - The reasoning cost multiplier is "2.5 to 7.6 times" on p. 24 vs 4.5–12.1× in Table 12 (p. 18); these are different epochs, but the text does not say so.
+   204	  - The sample is called "balanced by construction" (p. 8) although it is 35.4% positive (p. 4).
+   205	  - These are reporting slips, not evidence of wrong numbers, but readers should cite table values rather than prose.
+   206	- [I] **The SAST arm is weak by design for C/C++.** Flawfinder, Cppcheck and Semgrep community rules on isolated functions, with no CodeQL, Infer or commercial tools (p. 10–11). The comparison is LLM vs lightweight function-level SAST, not vs semantic whole-program SAST.
+   207	- [I] **Not post-cutoff** (CVEs 2008–2022, p. 24), and the measured recall gradient by CVE year suggests memorisation. The LLM-vs-fine-tuned comparison is also asymmetric: the fine-tuned model is in-distribution, while the LLMs are zero-shot (p. 11).
+   208	- [I] **Cost per TP excludes triage.** With 25.6–41.9 FP per TP (p. 8), analyst time would dominate compute cost (cents per TP). The paper's USD/TP therefore understates the practical cost per confirmed vulnerability by a large factor.
+   209	- [I] **Unnamed gateway** and preview model identifiers (`gemini-3.1-pro-preview`, p. 29) limit long-term reproducibility. The service drift of up to 0.06 between epochs (p. 20) shows API results are time-stamped observations.
+   210	- [I] **Function-level, C/C++ only** — no repository context. The truncation at 8000 characters affects 15.8% of positives (p. 4).
+   211	- [I] **AI-assisted writing and code.** The authors used Claude Opus 5/Sonnet 5 to draft text and write Python code (p. 27), and Claude-Sonnet-5 is one of the evaluated models. This is disclosed and the data are stated to be the authors' own; we note it for transparency, not as a conflict.
+   212	
+   213	## 10. Threats to validity
+   214	- Internal (confounds, leakage, selection):
+   215	  - [V] Train/test separation for CodeBERT-PrimeVul is verified: no evaluated function or body is in training (p. 25).
+   216	  - [V] Thresholds are tuned on validation, not test (sweeping on test would give 0.777 vs the reported 0.765) (p. 11).
+   217	  - [V] Contamination is not controlled but is measured as a recall gradient by CVE year (p. 24).
+   218	  - [V] Epoch drift is handled by within-epoch comparisons (p. 16–18).
+   219	  - [V] Parse failures are excluded, not recoded (p. 27).
+   220	- External (generalisability of sample/context):
+   221	  - [V] One dataset (PrimeVul), C/C++, function level (p. 25).
+   222	  - [I] It is unclear whether results hold for repository-level detection or other languages.
+   223	  - [I] Model versions are a 2026 snapshot.
+   224	- Construct (do metrics measure the concept?):
+   225	  - [V] Balanced accuracy is chosen deliberately; the paper shows its ranking differs from the precision ranking at deployment prevalence (GPT-5.1 3rd on precision, 5th on balanced accuracy) (p. 8–9).
+   226	  - [I] PrimeVul labels are "near-human-accuracy" per its authors (p. 3), but no own label audit was done.
+   227	- Statistical conclusion (power, multiple comparisons, variance):
+   228	  - [V] Paired bootstrap with Holm correction; families are declared explicitly (p. 28).
+   229	  - [V] Prompt variance (≤0.088) exceeds most between-model gaps (p. 19–20). [A] "No single-prompt ranking of LLMs on this task should be read as a property of the models" (p. 20).
+   230	  - [V] Deployment precision CIs are reported for the non-LLM rows and the best/weakest LLM (p. 10, Table 7).
+   231	- Reproducibility (data/code/setup reported?):
+   232	  - [V] Strong: harness, configurations, prompts, parser rules, pinned providers and prices, function IDs and energy data are released (p. 26, pp. 28–30).
+   233	  - [V] API non-determinism remains: 0–12% of verdicts flip at temperature 0 (p. 19).
+   234	
+   235	## 11. Future research directions
+   236	- Stated by authors [A]:
+   237	  - calibrate the FLOP energy estimator against measured batched energy, per architecture (p. 26);
+   238	  - corroborate on a second dataset and task formulation (p. 26);
+   239	  - post-cutoff CVEs or paired PrimeVul variants to bound memorisation (p. 24);
+   240	  - controlled single-request latency (p. 24);
+   241	  - other languages, statement-level localisation, and VD-Score at realistic imbalance (p. 25).
+   242	- Suggested by us [I]:
+   243	  - Add triage time per alert to turn USD/TP into cost per confirmed vulnerability (G6).
+   244	  - Run a semantic SAST arm at repository level, where builds exist.
+   245	  - Repeat with post-cutoff functions so that the fine-tuned vs zero-shot comparison is contamination-free (G2).
+   246	
+   247	## 12. Relevance to our research
+   248	- Research questions addressed (RQ ids): RQ1 (primary: LLM vs SAST vs fine-tuned DL on identical functions), RQ2, RQ3 (cost/energy trade-offs; no hybrid), RQ5.
+   249	- How it informs our work [I]:
+   250	  - **RQ1:** one of very few same-benchmark three-family comparisons. The ranking depends on the metric:
+   251	    - on balanced accuracy: fine-tuned CodeBERT > best LLMs > Flawfinder/Cppcheck > Semgrep;
+   252	    - on precision at realistic prevalence: Semgrep (26.0%) and strict-threshold Flawfinder (13.4%) > CodeBERT (8.2%) > lenient Flawfinder (6.2%) > all LLMs (2.3–3.8%). Cppcheck (2.5–3.8%) sits in the LLM range (p. 10, Table 7);
+   253	    - all are far from deployable.
+   254	  - This fits our "LLMs higher recall, lower precision" pattern and C3/C5.
+   255	  - **Correction for our gap report.** The G2 and G6 novelty-check notes describe *Open or Frontier?* as "No SAST". That is **incorrect**: Flawfinder 2.0.20, Cppcheck 2.21 and Semgrep 1.175 are run on the identical 1549 functions (p. 6, p. 10). G2 is therefore narrowed further: a same-benchmark LLM + SAST + fine-tuned DL comparison now exists at function level on C/C++. What is still missing is post-cutoff code, repository level, and semantic SAST.
+   256	  - **G6 is narrowed further.** USD/TP and kJ/TP at 1:44 prevalence are reported for 8 LLMs (p. 8). The remaining gap is the triage-effort term and a costed SAST/DL arm (≈0 is not quantified per TP).
+   257	  - **G1:** a further study that reports trivial baselines and realistic-prevalence re-scoring. It shows LLM precision barely above always-flag (2.3–3.8% vs 2.21%).
+   258	  - **C1:** the argmax-collapse artefact (p. 11) suggests some reports of fine-tuned models being near chance on PrimeVul may reflect decision thresholds rather than ranking ability. This is a candidate explanation, not established for other papers.
+   259	  - **C4:** reasoning raises frontier balanced accuracy but lowers DeepSeek's specificity (more false positives) (p. 17, p. 20). This supports the "model-dependent" reading.
+   260	
+   261	## 13. Evidence table (for the evidence matrix)
+   262	| RQ | Claim | Page | Label | Strength |
+   263	|---|---|---|---|---|
+   264	| RQ1 | On 1549 PrimeVul C/C++ functions (35.4% vulnerable), zero-shot LLM balanced accuracy 0.511–0.676 (first epoch) and 0.568–0.711 (budget-matched epoch); best DeepSeek-V3.2 | 7, 17 | V | moderate (single dataset, prompt-sensitive) |
+   265	| RQ1 | Fine-tuned CodeBERT-PrimeVul (125M, validation-tuned threshold) beats every LLM: bal. acc. 0.765, MCC 0.526, precision at 1:44 8.23% vs best LLM 0.711 / 0.403 / ≤4.62% | 10, 11, 17 | V | moderate (in-distribution vs zero-shot) |
+   266	| RQ1 | Same functions, SAST: Flawfinder bal. acc. 0.589 (risk≥1), Cppcheck 0.548–0.592, Semgrep 0.501–0.514 (recall 0.002–0.031); SAST more precise at 1:44 (Flawfinder 6.2–13.4%, Semgrep 26.0% [5.7–66.9]) than every LLM (2.3–3.8%) | 7, 9, 10, 11 | V | moderate (lightweight SAST only; no CodeQL) |
+   267	| RQ1 | Trivial baselines: always-vulnerable F1 0.523 vs LLM F1 0.405–0.615; at 1:44 every LLM's precision 2.3–3.8% vs always-flag 2.21%, 25.6–41.9 FP per TP | 7, 8 | V | moderate |
+   268	| RQ2 | Prompt paraphrase moves bal. acc. up to 0.088 and changes the winner (ρ vs anchor 0.381); safe-pool redraw ≤0.015; temperature-0 verdict agreement 88.3–100% | 19, 20 | V | moderate |
+   269	| RQ2 | Recall on pre-2020 CVEs 7–15 points higher than 2021–2022 for better-balanced LLMs (memorisation signal) | 24 | V | weak–moderate (no significance test reported) |
+   270	| RQ2 | Argmax decision rule made the fine-tuned detector look like always-safe (bal. acc. 0.500) despite ROC-AUC 0.845; threshold choice can flip LLM-vs-DL conclusions | 11 | V | moderate |
+   271	| RQ3 | Cost per task: open USD 0.00004–0.00048 vs frontier 0.00139–0.00448; Gemma-3-4B matches Claude-Sonnet-5 quality at 1/66 cost; reasoning costs 4.5–12.1× more | 7, 17, 18 | V | moderate (list prices, provider-dependent up to 14×) |
+   272	| RQ3 | Cost and energy per true positive at 1:44: USD 0.003 (Gemma) to 0.212 (Claude); 3.7 to 119.6 kJ; excludes human triage of 25.6–41.9 FP per TP | 8 | V | moderate (compute only) |
+   273	| RQ3 | Energy per task: measured 88 J (Qwen3-Coder-30B) and 738 J (Llama-3.3-70B); frontier FLOP-estimated 1332–2489 J (range 333–9955); batching cuts measured energy 10–22× | 7, 14 | V | weak–moderate (frontier estimated) |
+   274	| RQ5 | Authors: no method tested (LLM, SAST, fine-tuned DL) is ready for independent function-level triage | 26 | A | moderate |
+   275	
+   276	## 14. Key quotes
+   277	> "at the natural 1:44 prevalence, precision is 2.3–8.2%" (p. 1)
+   278	
+   279	> "The LLMs flag nearly everything and are almost never right; the static analyzer flags almost nothing and is right somewhat more often." (p. 9)
+   280	
+   281	> "Three reasonable phrasings of the same question produce three different winners." (p. 20)
+   282	
+   283	> "No single-prompt ranking of LLMs on this task should be read as a property of the models; it is a property of the pair (model, prompt)." (p. 20)
+   284	
+   285	## Analyst notes
+   286	- Reading coverage: All 32 pages read from `fulltext.txt`, including appendices A–B and references. Figures 1–3 (pp. 12–13) are plots whose values are also given in Tables 4 and 9 and in the text; they were not re-read from the PDF.
+   287	- Uncertainties:
+   288	  - Revision inconsistencies about which models had energy measured (see §9). Table values were used where prose and tables disagree.
+   289	  - Which figures are "first epoch" and which are "second epoch" matters. Table 4/5 cost and energy are first epoch (p. 8); Family A quality (Table 11) is second epoch.
+   290	  - The F1 values at 1:44 prevalence are our calculation from reported TPR and precision, not reported by the paper.
+   291	  - The gap-report G2/G6 entries need correcting: this paper does include SAST baselines.

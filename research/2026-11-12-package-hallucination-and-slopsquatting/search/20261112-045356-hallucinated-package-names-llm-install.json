@@ -1,0 +1,763 @@
+{
+  "query": "hallucinated package names LLM install command agent",
+  "sources": [
+    "arxiv",
+    "crossref"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:53:56+06:00",
+  "raw_hits": 27,
+  "unique": 22,
+  "errors": {},
+  "results": [
+    {
+      "title": "Harmless Yet Harmful: Neutral Prompting Attacks for Stealthy Hallucination Steering in Agent Skills",
+      "authors": [
+        {
+          "family": "Hsu",
+          "given": "Chia-Yi"
+        },
+        {
+          "family": "Yu",
+          "given": "Chia-Mu"
+        },
+        {
+          "family": "Huang",
+          "given": "Chun-Ying"
+        },
+        {
+          "family": "Sakuma",
+          "given": "Jun"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.29354",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.29354",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.29354",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-powered coding agents increasingly participate in software development workflows by generating code, selecting dependencies, and producing package installation commands. This creates a new software supply chain risk: when an agent hallucinates a non-existent package, an attacker may register the hallucinated name and later compromise users who install it. Existing package hallucination attacks and defenses primarily focus on naturally occurring hallucinations, targeted dependency steering, or post-hoc package validation. In this paper, we introduce \\emph{Neutral Prompting Attack} (NPA), a highly stealthy attack paradigm in which semantically benign instructions, such as encouraging imagination and exhaustiveness, increase package hallucination propensity without containing explicit malicious intent. Unlike targeted dependency steering, NPA does not specify an attacker-chosen package. Instead, it shifts the model's dependency generation behavior toward more speculative package names. We evaluate NPA across multiple coding-oriented LLMs and package hallucination benchmarks. Our results show that NPA increases both \\emph{Hallucination ASR} and \\emph{Pip Install ASR}, changes the distribution of hallucinated package names, and evades existing static-analysis, LLM-based, and agent-based Skill defenses. These findings reveal that harmless-looking prompts can covertly manipulate hallucination behavior and create downstream software supply chain risks.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Trust Me, Import This: Dependency Steering Attacks via Malicious Agent Skills",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Yiyong"
+        },
+        {
+          "family": "Hsu",
+          "given": "Chia-Yi"
+        },
+        {
+          "family": "Huang",
+          "given": "Chun-Ying"
+        },
+        {
+          "family": "Backes",
+          "given": "Michael"
+        },
+        {
+          "family": "Wen",
+          "given": "Rui"
+        },
+        {
+          "family": "Yu",
+          "given": "Chia-Mu"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.09594",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.09594",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.09594",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-powered coding agents increasingly make software supply chain decisions. They generate imports, recommend packages, and write installation commands. Prior work showed that these systems can hallucinate non-existent package names, which attackers may register as malicious packages. In this paper, we show that this risk is not only a passive model failure. It can be actively induced through the persistent Skill artifact. We introduce Dependency Steering, an attack paradigm in which a malicious Skill biases a coding agent toward an attacker-controlled package during benign coding tasks. The attack does not require modifying model weights, training data, or user prompts. To construct realistic attacks, we design a Skill-level optimization method that searches for localized semantic edits that preserve the apparent purpose of the original Skill while increasing targeted package generation. Across multiple coding-oriented LLMs and programming benchmarks, Dependency Steering achieves high targeted hallucination rates, transfers across models and task domains, and remains difficult for evaluated Skill scanners and LLM-based auditors to detect. Our results show that persistent agent instructions form an underexplored software supply chain attack surface.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "From Ambiguous Requirements to Hallucinated Tests: A Multi-Domain Study of the Mirror Effect in LLM-Assisted Software Testing",
+      "authors": [
+        {
+          "family": "Kanikaram",
+          "given": "Kiran Paul"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202608.1538.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202608.1538.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Although large language models (LLMs) have the capacity to produce test cases rapidly, the accuracy of the test cases relies heavily on the specification given to the model. In this paper, we present Mirror Effect: an LLM is likely to reflect any level of clarity or ambiguity in natural-language requirements in subsequent test artifacts. For a comparative within-subjects experiment with five expert QA engineers, three commercial LLMs, four core requirements cases, and a five-domain transfer learning test, for each of the four core requirements, vague and measurable cases were formulated without altering the function, and then the two sets of prompts were compared against their human-generated baselines. As a result, four vague requirement prompts produced 127 test cases, 68% of which contained assumptions not present in the requirement statement, while four clear requirements produced 42 test cases with a hallucination rate of 12%. Coverage completeness improved from 42% to 92%, and mean QA review time reduced from 240 min to 85 min. As for the cross-domain experiments, the vague-prompt hallucination rate ranged from 68% to 88%, while for clear-requirement prompts, it ranged from 8% to 22%. Our findings are descriptive in nature due to the small sample size but demonstrate a consistent trend across all models and domains. In our contribution, we provide a definition of test hallucination using traceability, empirical evidence of ambiguity propagation, and a pre-prompt requirement gate.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "How to install n8n and create an LLM pipeline using Ollama &amp; Docker",
+      "authors": [
+        {
+          "family": "Bhirawa",
+          "given": "Immanuel Alvaro"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.59350/6bbdw-2pm92",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.59350/6bbdw-2pm92",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<strong> Introduction </strong> Large language models (LLMs) are transforming the way we engage with technology, delivering remarkable capabilities in natural language understanding and generation. However, incorporating these models into your projects can feel overwhelming due to challenges like managing dependencies and ensuring compatibility across systems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "How to install n8n on Mac and create an LLM pipeline using GPT API",
+      "authors": [
+        {
+          "family": "Arora",
+          "given": "Aditya"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.59350/5c279-7be28",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.59350/5c279-7be28",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Introduction In this comprehensive guide, we will walk through creating an intelligent AI calendar assistant which will combine n8n's workflow automation with OpenAI's powerful GPT models. The best part? We'll be running everything locally on your Mac, with full control over your data and no monthly subscription fees.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Reducing Hallucinated False Positives in LLM-Based Vulnerability Detection via Multi-Signal Focused Verification",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Casper"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Access",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2026.3739345",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/access.2026.3739345",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "OctavianB at SemEval-2024 Task 6: An exploration of humanlike qualities of hallucinated LLM texts",
+      "authors": [
+        {
+          "family": "Brodoceanu",
+          "given": "Octavian"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 18th International Workshop on Semantic Evaluation (SemEval-2024)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2024.semeval-1.169",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2024.semeval-1.169",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Detecting Hallucinated Legal Authorities in LLM-Generated AI-Law Writing: A Bilingual NLP Benchmark for China-U.S. Synthetic-Content Governance",
+      "authors": [
+        {
+          "family": "Xue",
+          "given": "Yaofu"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 7th World Symposium on Artificial Intelligence (WSAI)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/wsai70435.2026.11708627",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/wsai70435.2026.11708627",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "ALAS: A Stateful Multi-LLM Agent Framework for Disruption-Aware Planning",
+      "authors": [],
+      "year": 2025,
+      "venue": "Multi-LLM Agent Collaborative Intelligence",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.1145/3749421.3749436",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3749421.3749436",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "LLM Powered Command Line Interface Agent: A Comparative Analysis",
+      "authors": [
+        {
+          "family": "S",
+          "given": "Madhisha"
+        },
+        {
+          "family": "V",
+          "given": "Kabhinyasri S"
+        },
+        {
+          "family": "S",
+          "given": "Aravinth Cheran K"
+        },
+        {
+          "family": "S",
+          "given": "Pream"
+        },
+        {
+          "family": "S",
+          "given": "Sudharsan"
+        },
+        {
+          "family": "D",
+          "given": "Anisha C"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 Second International Conference on Intelligent Systems for Communication, IoT and Security (ICISCoIS)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/iciscois62701.2026.11447826",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/iciscois62701.2026.11447826",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Abstention Is Not Neutral: Ablating the LLM in an LLM Trading Agent",
+      "authors": [
+        {
+          "family": "Lee",
+          "given": "MinGyu"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7541520",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7541520",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstention by a language-model trading agent is not neutral: the agents do not disagree with the rule that has their inputs, they abstain, and for an agent that holds a position an abstention is a sale avoided. We run a preregistered paper-trading system in which three agents decide daily trades in five ETFs beside the moving-average rule on the same price inputs. In 262 live and 2,173 anonymised historical decisions the agents opposed the rule in 0% and 1.1% of cases, with no detectable gain. A larger model, on 300 points that over-represent days on which the close is within two per cent of a long-term (150-day) moving average, opposed it 1 time and abstained on 80% of those days. A calendar of scheduled macroeconomic events changed 64 decisions, 59 of them into abstentions; this is a change of behaviour, and we find no improvement in quality. Live, the agent ledgers and the rule ledgers hold different positions on about one asset-day in five, and the consensus gate between agents blocked 22 decisions, all of them sales. The abstention depends on one sentence of the prompt: replacing it with an instruction to commit lowers the abstention rate from 55% to 19%, and the released decisions follow the rule. The same input sent twice changes 9% of decisions. We propose a minimal evaluation protocol for agent papers. The results cover two models from one provider and a short live record.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Agent-UMF: LLM-based Agent Unified Modeling Framework for Seamless Design of Multi Active/Passive Core-Agent Architectures",
+      "authors": [
+        {
+          "family": "Ben Hassouna",
+          "given": "Amine"
+        },
+        {
+          "family": "Chaari",
+          "given": "Hana"
+        },
+        {
+          "family": "Belhaj",
+          "given": "Ines"
+        }
+      ],
+      "year": 2026,
+      "venue": "Information Fusion",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.inffus.2025.103865",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.inffus.2025.103865",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "SocraSynth: Adversarial Multi-LLM Reasoning",
+      "authors": [],
+      "year": 2025,
+      "venue": "Multi-LLM Agent Collaborative Intelligence",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.1145/3749421.3749430",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3749421.3749430",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Improving Language Model Quality through LLM-based Fine-Grained Hallucinated Summary Generation",
+      "authors": [
+        {
+          "family": "Oh",
+          "given": "Jihwan"
+        },
+        {
+          "family": "Choi",
+          "given": "Jeonghwan"
+        },
+        {
+          "family": "Kim",
+          "given": "Nicole Hee-Yeon"
+        },
+        {
+          "family": "Song",
+          "given": "Hwanjun"
+        }
+      ],
+      "year": 2025,
+      "venue": "KIISE Transactions on Computing Practices",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5626/ktcp.2025.31.2.91",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5626/ktcp.2025.31.2.91",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "SlopsGuard: A Defense Tool Against AI-Hallucinated Package Attacks in Software Supply Chains",
+      "authors": [
+        {
+          "family": "Kurnaz",
+          "given": "Doğukan"
+        },
+        {
+          "family": "Sarı",
+          "given": "İlknur Köseoğlu"
+        },
+        {
+          "family": "Ustaoğlu",
+          "given": "Vahit"
+        },
+        {
+          "family": "Zeydan",
+          "given": "Engin"
+        }
+      ],
+      "year": 2026,
+      "venue": "NOMS 2026-2026 IEEE Network Operations and Management Symposium",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/noms69089.2026.11668187",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/noms69089.2026.11668187",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "biorecap: an R package for summarizing bioRxiv preprints with a local LLM",
+      "authors": [
+        {
+          "family": "Turner",
+          "given": "Stephen"
+        }
+      ],
+      "year": 2024,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.59350/qbh61-w9c06",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.59350/qbh61-w9c06",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<strong> TL;DR </strong> I wrote an R package that summarizes recent bioRxiv preprints using a locally running LLM via Ollama+ollamar, and produces a summary HTML report from a parameterized RMarkdown template.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "Agent-as-a-Graph: Knowledge Graph-Based Tool and Agent Retrieval for LLM Multi-Agent Systems",
+      "authors": [
+        {
+          "family": "Nizar",
+          "given": "Faheem"
+        },
+        {
+          "family": "Lumer",
+          "given": "Elias"
+        },
+        {
+          "family": "Gulati",
+          "given": "Anmol"
+        },
+        {
+          "family": "Basavaraju",
+          "given": "Pradeep"
+        },
+        {
+          "family": "Subbiah",
+          "given": "Vamse"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 18th International Conference on Agents and Artificial Intelligence",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0014473600004052",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0014473600004052",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Agora: A Drive-Based Framework for Agent Difffferentiation in Multi-Agent LLM Systems",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Zihan"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-10371209/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-10371209/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Current multi-agent LLM systems difffferentiate agents through hand-crafted roles or layer-stacking architectures. We propose Agora, a framework that difffferentiates agents through six continuous drives (boredom, curiosity, stress, anxiety, empathy, service) that map to LLM parameters, producing parameter-level difffferentiation without prompt engineering. We evaluate Agora through 375 real API calls on DeepSeek Chat across four task types, comparing RoundTable (3 difffferentiated agents) against four baselines: Single, MajorityVoting, BestOf3, and AutoGenStyle. Results reveal a task-dependent pattern: RoundTable produces signifificantly higher quality on analytical tasks (p < 0.001 vs AutoGenStyle, Cohen’s d = 2.26) but does not outperform simpler baselines on creative tasks (MajorityVoting wins, p < 0.001) or short-format generation (AutoGenStyle wins, p = 0.006). Closed-loop drive-LLM integration maintained stable quality over 20 consecutive steps. Ablations identify empathy as the most critical drive component. These results suggest that drive-based difffferentiation shows promise for an-alytical reasoning tasks, outperforming some multi-agent baselines (AutoGenStyle, BestOf3) with large effffect sizes, though the comparison against a single difffferentiated agent does not reach signifificance. Simpler coordination strategies remain competitive for creative generation. We discuss the implications for multi-agent LLM system design and identify directions for future work.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Benchmarking Multi-Agent LLM and Single Agent LLM Efficiency for Contextual Text Generation",
+      "authors": [
+        {
+          "family": "Arora",
+          "given": "K."
+        },
+        {
+          "family": "Naim",
+          "given": "A."
+        },
+        {
+          "family": "Sharma",
+          "given": "S."
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 International Conference on Intelligent Systems in Engineering, Secured Systems and Cybersecurity (ICISESSC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icisessc68634.2026.11542788",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icisessc68634.2026.11542788",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "Note on the ‘toponym’ R Package",
+      "authors": [
+        {
+          "family": "Chevallier",
+          "given": "Lennart"
+        },
+        {
+          "family": "Wichmann",
+          "given": "Søren"
+        }
+      ],
+      "year": 2024,
+      "venue": "Names",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5195/names.2024.2617",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5195/names.2024.2617",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "In this note, we describe how to install and use the ‘toponym’ R package, which is designed for mapping and manipulating toponymic data from the GeoNames database. This introduction will allow even unexperienced users of R to efficiently produce maps and perform simple analyses.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "Multi-Artifact Versioning for LLM-Agent-Based Software",
+      "authors": [
+        {
+          "family": "Podolski",
+          "given": "Jeffery"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7193639",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7193639",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The advent of Large Language Model (LLM)-based agents marks a paradigm shift in software development, transitioning from static, human-crafted codebases to dynamic, AI-driven systems. These agents co-evolve with multiple artifacts, including prompts, model configurations, tool definitions, retrieval-augmented generation (RAG) knowledge bases, and the agentic workflow logic itself. This inherent complexity introduces a critical, yet nascent, challenge: effective versioning. Traditional version control systems (VCS) like Git are inherently file-centric and code-focused, inadequately capturing the intertwined evolution of heterogeneous, non-code artifacts and the non-deterministic behaviors they produce. This paper introduces the concept of Multi-Artifact Versioning (MAV) as a foundational requirement for the reliable engineering of LLM-agent-based software. We posit that MAV must transcend simple file snapshots to encompass a semantic record of system state, capturing not only the precise version of each artifact but also their interdependencies and the resulting execution context. We identify key dimensions of this challenge, including artifact heterogeneity, dependency entanglement, and the need for behavioral reproducibility across different model versions and environmental conditions. Furthermore, we explore the requirements for a novel MAV system, such as artifact-specific diffing, semantic conflict resolution, and versioned execution tracing. By establishing this framework, we aim to move LLM-agent development from an experimental, ad-hoc practice towards a disciplined, verifiable, and maintainable software engineering discipline, enabling robust auditing, debugging, and continuous improvement of these complex, generative systems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "Beyond pip Install: Evaluating LLM Agents for the Automated Installation of Python Projects",
+      "authors": [
+        {
+          "family": "Milliken",
+          "given": "Louis"
+        },
+        {
+          "family": "Kang",
+          "given": "Sungmin"
+        },
+        {
+          "family": "Yoo",
+          "given": "Shin"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 IEEE International Conference on Software Analysis, Evolution and Reengineering (SANER)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/saner64311.2025.00009",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/saner64311.2025.00009",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    }
+  ]
+}

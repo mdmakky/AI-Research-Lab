@@ -1,6 +1,6 @@
 ---
 key: yang2026programbench
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + empirical evaluation of 9 LMs in a minimal agent scaffold (one run per model-task), with test-suite validation and codebase/trajectory analyses
 dataset: ProgramBench, 200 compiled-language GitHub programs (Rust 107, Go 46, C/C++ 45, other 2); 248,853 agent-generated behavioural tests
@@ -20,7 +20,7 @@ analysed: 2026-11-11
 - Authors: Yang, John; Lieret, Kilian; Ma, Jeffrey; Thakkar, Parth; Pedchenko, Dmitrii; Sootla, Sten; McMilin, Emily; Yin, Pengcheng; Hou, Rui; Synnaeve, Gabriel; Yang, Diyi; Press, Ofir
 - Year / venue: 2026, arXiv (preprint, not peer-reviewed). Affiliations: Meta FAIR, Meta TBD, Stanford, Harvard (p. 1).
 - DOI: 10.48550/arxiv.2605.03546 · URL: https://arxiv.org/abs/2605.03546
-- Source text: `fulltext.txt` (page refs = PDF page index)
+- Source text: `fulltext.txt` (page refs = PDF page index), extracted from arXiv:2605.03546v1 (5 May 2026)
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -69,7 +69,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 6. [V] Models chose the reference language in exactly 50% of runs. Python was the most common choice overall (36% of 1,800 runs) (p. 8).
 7. [V] Among 207 runs passing ≥75% of tests (88 tasks), model code had a median of 1,173 lines against 3,068 for the reference, 3 files against 15, and maximum directory depth 1 against 2. 60% of solutions had 1–3 code files, and 67% were shallower than the reference (p. 9).
 8. [V] Models write 10–29% as many functions as the reference, and their functions are longer (e.g. Gemini 3.1 Pro 1.62x, Sonnet 4.6 1.46x, GPT 5.4 1.08x average length) (p. 8; p. 9).
-9. [V] Development styles differ widely. Sonnet 4.6 issues a median of 868 commands per task, GPT 5.4 17 (p. 9). GPT 5.4 writes nearly all its code in one turn and makes 1.2 file modifications per trajectory on average, with 39.5% of trajectories making none (p. 10; p. 11). Probing the executable is the second-largest action category, at 22.6–34.1% of turns (p. 10).
+9. [V] Development styles differ widely. Sonnet 4.6 issues a median of 868 commands per task, GPT 5.4 17 (p. 9). GPT 5.4 writes nearly all its code in one turn and makes 1.2 file modifications per trajectory on average, with 39.5% of trajectories making none (p. 10; p. 11). For the four models in the trajectory analysis (Opus 4.7, Sonnet 4.6, Gemini 3.1 Pro, GPT 5.4), probing the executable is the second-largest action category, at 22.6–34.1% of turns (p. 10).
 10. [V] More turns or money do not reliably help: per-run correlation with pass rate is r = 0.27 for API calls and r = 0.21 for cost, driven mostly by between-model differences (p. 33).
 11. [V] Forcing a different implementation language lowered Opus 4.7 (−8.0%) and Opus 4.6 (−3.5%) but raised each GPT model by 4.2%; the share of Python rose to 51% (p. 6; p. 7).
 12. [V] With internet access, 20–36% of tasks were flagged as cheating for the three stronger models tested (1% for GPT 5 mini), mostly source-code lookup (79–95% of flags). Judges disagreed on many tasks, with pooled Fleiss' κ = 0.57 over 786 tasks (p. 6; p. 7; p. 17).
@@ -130,7 +130,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 | RQ3 | Rebuilt codebases passing ≥75% of tests are shorter (median 1,173 vs 3,068 lines), use fewer files (3 vs 15), are shallower, and have fewer, longer functions than the human originals. | p. 9 | V | weak (descriptive, selected subset, language-confounded) |
 | RQ4 | Agent-generated behavioural tests reach 79.7% mean line coverage vs 56.8% for native suites; against dedicated behavioural suites, 62.2% vs 66.1%. | p. 7; p. 8 | V | weak |
 | RQ4 | An assertion-quality linter plus gold/dummy filtering cut trivially passable tests from 18.5% to 3.7% (dummy pass rate). | p. 8 | V | weak |
-| RQ4 | With internet access, 20–36% of runs by stronger models cheated (mostly source lookup) and 9 LM judges agreed only moderately (κ = 0.57), so blocking access was needed. | p. 6; p. 17 | V | weak |
+| RQ4 | With internet access, 20–36% of tasks for the three stronger models were flagged as cheating by a 9-judge majority vote (mostly source lookup); judges disagreed on 40–57% of these tasks (pooled κ = 0.57), so the authors block internet access by default. | p. 6; p. 17 | V | weak |
 | RQ4 | Authors state that the test-pass percentage does not reliably correlate with the share of working functionality and is only valid for relative comparison. | p. 5 | A | weak |
 | RQ5 | Authors list non-functional properties (speed, memory) as untested, and multi-agent and human-guided reconstruction as future work. | p. 12 | A | weak |
 

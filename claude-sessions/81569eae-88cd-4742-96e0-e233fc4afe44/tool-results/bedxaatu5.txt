@@ -1,0 +1,672 @@
+=== [PDF page 1] ===
+                                                              Is Vibe Coding Safe? Benchmarking Vulnerability of
+                                                                  Agent-Generated Code in Real-World Tasks
+                                                        Songwen Zhao 1 2 Danqing Wang 1 Kexun Zhang 1 Jiaxuan Luo 3 Zhuo Li 4 Lei Li 1
+                                                                  Abstract                                           Task Desc.
+                                                                                                                                                                      Action
+                                                                                                                                             Environment                             SE Agent
+                                              Vibe coding is a new software development                          Add a secure repo cloning
+                                                                                                                 method Repo._clone() to
+                                                                                                                                             Sandboxed dev. &                       Software
+arXiv:2512.03262v4 [cs.SE] 21 Sep 2026
+                                                                                                                                             execution               Feedback       engineering agent
+                                              paradigm in which human engineers prompt a                         GitPython with Cygwin…
+                                              large language model (LLM) agent to complete                                                           Solution Patch
+                                                                                                                    Codebase                    repo.py
+                                                                                                                                                                                      Security
+                                              complex coding tasks with little supervision. Al-                                              + def _clone(cls, git, …) -> "Repo":     Tests
+                                                                                                                       README                +     Git.check_unsafe_opts(kwargs)
+                                              though vibe coding is increasingly adopted, is                           .github/              +     proc = git.clone(multi, "--" …         w/o +
+                                                                                                                       operations/                                                     test_cf    ✗
+                                                                                                                                                index.py
+                                              the generated code really safe to deploy in pro-                              configs/                                                   test_pk    ✗
+                                                                                                                            repo.py                                                        w/ +
+                                              duction? To investigate this question, we pro-                           test/                  Functional Tests                         test_cf    ✓
+                                                                                                                                              test_clone ✓      test_clone_uc ✓        test_pk    ✓
+                                              pose S US V IBES, a benchmark consisting of 186
+                                              feature-request software engineering tasks from                  Figure 1. S US V IBES: A feature-request task consists of a task
+                                              real-world open-source projects, for which, hu-                  description, the codebase, and an execution environment. The vibe
+                                              man programmers committed vulnerable imple-                      coding agent is asked to add the new feature to the given codebase.
+                                              mentations. We evaluate 12 widely used coding                    The agent can interact with the environment to get feedback and
+                                                                                                               refine its solution patch. The solution patch will be tested with
+                                              agentic settings with frontier models on the bench-              both human-written functional and security tests. As the example
+                                              mark. Disturbingly, all agents perform poorly in                 shows, the solution patch cannot pass the security tests without
+                                              terms of software security. Although 57% of the                  check unsafe opts.
+                                              solutions from SWE-Agent with Claude 4 Sonnet
+                                              are functionally correct, only 11.8% are secure.
+                                              Further experiments demonstrate that preliminary
+                                              security strategies, such as augmenting the feature              been increasingly adopted, as indicated by the popularity of
+                                              request with vulnerability hints, cannot mitigate                AI-based integrated development environments like Cursor
+                                              these security issues. Our findings raise serious                and command-line interfaces like Claude Code. A recent
+                                              concerns about the widespread adoption of vibe                   survey shows that 75% of respondents are using vibe coding,
+                                              coding, particularly in security-sensitive appli-                among which 90% find it satisfactory (Perry, 2025). Another
+                                              cations. The code and dataset are available at                   survey suggests that beginner programmers with less than a
+                                              https://github.com/LeiLiLab/susvibes. The                        year’s experience are much more likely to be vibe coding
+                                              leaderboard is at https://leililab.github.io/                    optimists (WIRED, 2025). Frontier AI companies, such
+                                              susvibes-leaderboard.                                            as Anthropic, admittedly use “vibe coding in prod[uction]”
+                                                                                                               (Anthropic, 2024). While vibe coding may have increased
+                                                                                                               engineer productivity, the security of agent-generated code
+                                                                                                               remains questionable, especially when vibe coding users
+                                         1. Introduction
+                                                                                                               may not have the ability or intent to examine it carefully.
+                                         Vibe coding is a new programming paradigm in which users              Various sources report security incidents such as API keys
+                                         use LLMs to produce software primarily by describing goals            being exposed in plaintext and authentication vulnerabilities,
+                                         in natural language with minimal review of the generated              some of which have already been exploited by malicious
+                                         code (Fawzy et al., 2025; Sarkar & Drosos, 2025). It has              parties (Archibald & Kaplan, 2025).
+                                           1
+                                             Carnegie Mellon University, Language Technologies Institute       Traditional competitive coding and NL2Code tasks, such as
+                                         2
+                                          Columbia University 3 Johns Hopkins University 4 HydroX AI.          HumanEval (Chen et al., 2021) and MBPP (Austin et al.,
+                                         Correspondence to: Songwen Zhao <sz3296@columbia.edu>,                2021), focus more on implementing an isolated function
+                                         Danqing Wang <danqingw@cs.cmu.edu>.                                   based on a clear description of functionality. Instead, vibe
+                                         Proceedings of the 43 rd International Conference on Machine          coding focuses more on real-world software engineering
+                                         Learning, Seoul, South Korea. PMLR 306, 2026. Copyright 2026          tasks. Vibe coding agents are usually asked to understand
+                                         by the author(s).                                                     the code at the repository level and create new features
+                                                                                                           1
+=== [PDF page 2] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+based on the vague description of the final goal, without im-           secure. In summary, our contributions are:
+plementation details (Fawzy et al., 2025; Sarkar & Drosos,
+                                                                        • We develop an automatic curation pipeline to construct
+2025; Baumann et al., 2026). The SWE-bench series of
+                                                                          large-scale repository-level security-sensitive feature re-
+works (Jimenez et al.; Yang et al., 2025a;b) focuses mainly
+                                                                          quest tasks with runtime evaluation environments.
+on functionality, ignoring the implicit security concerns
+underlying it.
+                                                                        • We propose S US V IBES, a benchmark with 186 tasks
+In this paper, we introduce S US V IBES, a benchmark to                   covering 79 CWE types to evaluate the functional and
+examine the security risks of AI agents in vibe coding.                   security capabilities of vibe coding agents.
+S US V IBES consists of 186 realistic coding tasks on large
+GitHub repositories and covers a wide range of 79 weakness
+                                                                        • We conduct a comprehensive set of experiments with 12
+categories from Common Weakness Enumeration (CWE)
+                                                                          agentic system settings, which show that frontier LLMs
+(MITRE Corporation, 2025). Each task is a security-
+                                                                          and coding agents, despite their great ability to solve
+sensitive feature request, asking a coding agent under evalua-
+                                                                          more than half of tasks and pass functional tests, perform
+tion to generate a code patch for this feature in the repository,
+                                                                          poorly in security, failing over 70% of security tests.
+by interacting with the execution environment. The gener-
+ated patch is tested with two sets of human-written dynamic
+tests, one for functional correctness and the other for se-             • We examine several preliminary attempts to mitigate se-
+curity, as shown in Figure 1. The feature description only                curity risks and find that such attempts cause a significant
+contains the desired functionality, without implementation                performance drop in functionality, calling for more deli-
+details or security guidance. The coding agent needs to infer             cate security strategies.
+implicit security needs and implement a secure code. This
+simulates realistic vibe coding scenarios where users only              2. Related Work
+know which feature they want, not how to avoid various
+security risks.                                                         Coding Agents. Heralded by rapidly increasing perfor-
+                                                                        mance on SWE-Bench (Jimenez et al.), LLM coding agents
+We propose an automatic pipeline that constructs S US V IBES            have become a big success in software engineering. Coding
+tasks from repositories that contain fixed real-world security          agents — LLM-based systems that take actions and interact
+incidents. This pipeline includes three steps: (i) mining               with coding projects — can perform various tasks, including
+open-source repositories with human-fixed vulnerabilities;              bug fixing, feature implementation, test generation (Mündler
+(ii) harnessing human-written functional and security tests;            et al., 2024), environment setup (Eliseeva et al.), or even
+(iii) adaptively generating the feature implementation mask,            generating a whole library from scratch (Zhao et al.).
+task description, and execution environment. We further
+propose a detailed verification phase to ensure the generated           Improvements for coding agents fall into two categories:
+task and execution environment are sufficient and necessary             agent design and model training. The former studies how
+for a secure feature implementation.                                    to improve the agent scaffolding around the LLM: what
+                                                                        actions are available to an agent (Yang et al., 2024a), what
+We evaluate three agent frameworks on top of 12 agentic sys-            workflow an agent should follow (Xia et al., 2025), how
+tem settings, and find that even though the best-performing             an agent can spend more inference-time compute in trade
+combination Claude 4 Sonnet with SWE- AGENT is able                     for better performance (Antoniades et al.; Zhang et al.; Gao
+to solve 57% of the tasks and pass functional tests, 79.3%              et al., 2025). The latter studies how to train a better LLM,
+of its functionally correct solutions have vulnerabilities,             supporting the agent. SWE-Gym (Pan et al.) and SWESyn-
+exposing them to malicious exploitation. Results stratified             Infer (Ma et al., 2024) train a single model for the agent
+by CWE show that different LLMs or frameworks favor                     with supervised-finetuning. SWE-Fixer (Xie et al., 2025),
+different categories, leaving complementary strengths and               CoPatcheR (Tang et al., 2025), SWE-Reasoner (Ma et al.,
+weaknesses.                                                             2025a) train specialized models for different aspects of the
+Furthermore, we examine several preliminary prompting-                  agent, reducing the size of the model needed to achieve
+based approaches to mitigating security risks, including self-          good performance. SEAlign (Zhang et al., 2025b), SoRFT
+identifying the CWE risk (self-selection), and providing the            (Ma et al., 2025b), and SWE-RL (Wei et al., 2025a) use
+task’s targeted CWE type(s) as an oracle reference (oracle).            reinforcement learning to train the model with either direct
+These strategies improve code security, but significantly               preference optimization or test results as rewards.
+reduce functional correctness by 7 points. This underscores             Despite a great amount of effort to improve the capabilities
+a critical gap: vibe coding agents require more rigorous                of coding agents, few have focused on benchmarking and
+training and structured planning protocols before they can              improving their security. S US V IBES gives the community a
+reliably produce code that is both functionally sound and               platform to work in this direction.
+                                                                    2
+=== [PDF page 3] ===
+                  Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+Code Security Benchmarks. Various benchmarks have                                 capability in avoiding introducing vulnerability into features
+emerged to assess both the security and the correctness                           implementation.
+of LLM-generated code. Earlier ones focus on evaluat-
+ing single-turn model generation in smaller scopes, such                          3. S US V IBES: Developing a Security-Sensitive
+as a single file or a single function (Siddiq et al., 2024;
+Peng et al., 2025; Yang et al., 2024b; Pearce et al., 2025).
+                                                                                     Vibe Coding Benchmark
+More recent benchmarks have expanded their scope to                               In vibe coding, a user provides natural-language descrip-
+repository-level tasks with potential multi-file edits to be                      tions of a specific software functionality (i.e., a feature) for
+made. BaxBench (Vero et al., 2025) focuses on backend                             a repository, and a coding agent is required to implement
+application security by combining coding scenarios with                           this feature through interaction with the environment via
+popular backend frameworks across multiple programming                            various tools. To benchmark the capability of vibe coding
+languages, including functional and security unit tests and                       agents to generate functionally correct and secure code, we
+expert-designed security exploits. ASE (Lian et al., 2025)                        focus on security-sensitive feature request tasks. Unlike
+and SecureAgentBench (Chen et al., 2025) mines repository                         SWE-bench, which evaluates functionality alone, the tasks
+level vulnerability-fixing commits and repurpose them as                          in S US V IBES are inherently security-sensitive: each feature
+tasks. Compared to these benchmarks, S US V IBES focuses                          was once implemented in a vulnerable way by a human
+on evaluating coding agents, rather than models alone, cov-                       developer and later patched via a security commit. Com-
+ers significantly more CWE types and requires more lines                          pared to functionality-focused or vulnerability detection
+to be edited. A detailed comparison between these secure                          benchmarks, this introduces new curation challenges: (i)
+code generation benchmarks is demonstrated in Table 1.                            identifying which feature a given vulnerability relates to; (ii)
+                                                                                  crafting feature descriptions that convey functional intent
+Table 1. Landscape of existing secure code generation benchmarks.
+Context: the scope of the code context required by each coding                    without exposing security concerns, since vibe coding users
+task. Task: the size of the target patch, measured by the number of               are typically unaware of such risks when making requests;
+lines edited (LE), and whether multi-file editing (ME) is required.               and (iii) obtaining high-quality security unit tests that verify
+Evaluation: the number of CWE types covered, and whether func-                    exploit prevention rather than mere correctness.
+tional evaluation is included.
+                                                                                  To address these challenges, we propose an automated cura-
+                                        Context      Task       Evaluation        tion pipeline that mines security-sensitive features from his-
+             Benchmark
+                                         Scope     # LE   ME    CWE   Func.
+                                                                                  torical commits, verifies both functional and security tests in
+      CWEval (Peng et al., 2025)           file     10      ×   31     ✓
+     SALLM (Siddiq et al., 2024)           file    12.9     ×   45     ×
+                                                                                  isolated execution environments, and adaptively generates
+   SecCodePLT (Yang et al., 2024b)      function    8.1     ×   27     ✓          feature descriptions that reflect realistic user intent.
+      Asleep (Pearce et al., 2025)         file    19.6     ×   18     ×
+     BaxBench (Vero et al., 2025)           ∅        –      ✓   13     ✓
+ SecureAgentBench (Chen et al., 2025)     repo     42.5     ✓   11     ✓          3.1. Benchmark Construction
+             S US V IBES                 repo      175      ✓   79     ✓
+                                                                                  Our main idea to construct a task consists of three steps:
+                                                                                  selecting a vulnerability fix commit, harnessing human-
+Vulnerability Detection, Exploitation, and Repair. Prior                          written software tests, and masking core source code, as
+work has proposed benchmarks and techniques across all                            in Figure 2. First, we select a commit C0 from an existing
+three phases of the vulnerability lifecycle. For detection,                       software repository that fixes a known vulnerability in an
+datasets such as Devign (Zhou et al., 2019), BigVul (Fan                          existing feature F (e.g. verify_password()). We then
+et al., 2020), and PrimeVul (Ding et al., 2025) have pro-                         revert to the preceding commit C−1 touching the requested
+gressively improved label accuracy and evaluation realism,                        functionality before the fix. Then, we compare the commits
+though inflated performance due to data leakage and dupli-                        and identify the tests for the feature’s functionality and
+cation remains a persistent concern. For exploitation, CTF-                       security. Thirdly, we use an LLM to mask out the feature
+                                                                                                              M
+based frameworks (Zhang et al., 2025a; Shao et al., 2024)                         code F in C−1 to obtain C−1    . From this version without F,
+evaluate LLM agents on offensive security tasks, while                            we create a task requesting feature F.
+CVE-Bench (Zhu et al., 2025) moves beyond abstracted
+challenges by sandboxing real-world web application CVEs,                         Mining Open-Source Vulnerability Fix Commits. We
+exposing that even the strongest agents succeed on fewer                          start by collecting over 20,000 open-source, diverse vulner-
+than 13% of tasks. For repair, PatchEval (Wei et al., 2025b)                      ability fixing commits over the last 10 years from existing
+and SEC-Bench (Lee et al., 2026) provide end-to-end eval-                         vulnerability fix datasets, ReposVul (Wang et al., 2024) and
+uation pipelines grounded in runtime exploit verification                         MoreFixes (Akhoundali et al., 2024). We focus on software
+rather than unit tests alone, jointly assessing patch correct-                    projects that use Python ≥ 3.7 to avoid vulnerabilities tied
+ness and PoC generation over Docker-reproduced vulnera-                           to outdated versions and tooling dependencies. We further
+bilities. Unlike these studies, S US V IBES evaluates agents’                     filter out the commits that do not modify tests, because
+                                                                              3
+=== [PDF page 4] ===
+                    Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+ Tsecure Tf unc P F MFC0 C→1 C→2 Commit 07cefde                               Vulnerability Fix Patch
+                                    July 9, 2024
+                 Secure                                                          hashers.py
+                                Standardized timing of verify_
+                After fix                                                       def verify_password(password, encoded, preferred):
+                                   password() [CVE-2024-39329] ...            -     if password is None or not is_password_usable(encoded):
+                                                                              +     fake_runtime = password is None or ...
+                                      Modified Files                                ...
+                                                                              +     if fake_runtime:
+                                      hashers.py                              +         make_password(get_random_string(...
+                                      test_hashers.py                                   return False, False
+                                                                                    is_correct = ...
+                                             Git checkout to
+                                             preceding commit                 Human-Written Security Test Code
+              F
+Tsecure Tf unc P MFC0 C→1 C→2         Commit 7285644                             test_hashers.py
+                                                                              + def test_make_password_calls():
+                Vulnerable            June 6, 2024                            +     self.assert(mock_make_password.calls...
+                 Before fix        Repository w/ vulnerable verify_
+                                   password()                                                                                  F
+                                                                              Human-Written Functionality Test TCode
+                                                                                                                secure Tf unc P MFC0 C→1 C→2
+                                             LLM masks out the                   test_hashers.py
+                                             feature under test                  def test_sha256():
+                                                                                     self.assert(check_password("lètmein",...
+                                      Commit 62edcfa
+                                      Constructed                             FileTsecure
+                                                                                   with TfeatureF
+                                                                                          func P MFC0 C
+                                                                                                      T →1 C
+                                                                                                    Masked   →2 TOut
+                                                                                                        secure         byF MF C0 C→1 C→2
+                                                                                                                  f unc P
+                 Empty             Repository w/o verify_password()              hashers.py
+               Task input
+                                      Task Description                        - def verify_password(password, encoded, preferred):
+                                                                              -     ...
+                                   Add a secure password verify method…
+    Figure 2. S US V IBES curation pipeline. It includes three steps: (i) mining open-source vulnerability fix commit C0 and reverting to its
+    preceding commit C−1 ; (ii) harnessing human-written tests Tsecure and Tf unc ; and (iii) adaptively generating feature implementation
+                                 M
+    mask and task description. C−1  is the commit without the implementation of feature F.
+    those would not contain security tests that can detect the                lines without addition. M is then applied to C−1 to obtain
+                                                                                M
+    fixed vulnerabilities. More details in Appendix B.1.                      C−1  , the codebase with solution code F masked out, as the
+                                                                              initial context for a task.
+    Harnessing Security Tests Tsecure and Tf unc . For a sin-                 After getting the mask of the implementation, we use a sec-
+    gle vulnerability fixing commit C0 , we separate the changes              ond instance of SWE- AGENT to generate a feature request
+    it made P into two parts — PF that modifies the implemen-                 based on the masked implementation M and the repository.
+    tation of F and PT that modifies the test suite, i.e. P =                 Note that, we deliberately generate the mask M on C−1 , the
+    PF + PT . In Figure 2, PF modifies hashers.py to fix a                    vulnerable commit before the security fix, rather than on C0 ,
+    vulnerable feature implementation F (verify_password()),                  to ensure that no information from the fix is leaked into the
+    and PT modifies test hashers.py which provides tests                      task input, which would otherwise make the task easier.
+    targeting the vulnerability (test_make_password_calls()).
+    We use PF to locate the feature F that got fixed, and PT to               3.2. Task Verification and Execution Environment
+    collect added tests. The added tests from vulnerability fix-
+    ing commits are collected as potential security tests Tsecure ,           Adaptive Task Verification. To check if the feature re-
+    they can be added to the repository by applying PT . After                quest generated from the vulnerable commit can cover
+    harnessing Tsecure from the vulnerability fixing commit C0 ,              the canonical feature implementation with security fixes
+                                                                                      M
+    we checkout to the previous commit C−1 , which contains                   C0 − C−1  , we verify the description line by line and adap-
+    the vulnerable implementation of F, and the corresponding                 tively adjust the mask. We use a third instance of SWE-
+                                                                                                                   M
+    functional tests Tf unc .                                                 AGENT to link each line in C0 − C−1     to a requirement in
+                                                                              the feature request. When any implementation goes beyond
+                                                                              what the description requires, we go back to the mask gener-
+    Generating Solution Code Mask F and Task Descrip-
+                                                                              ation step to re-generate a mask and a feature request. The
+    tion. To synthesize a proper task from existing code, we
+                                                                              loop is repeated, enlarging the mask at each regeneration
+    utilize SWE- AGENT (Yang et al., 2024a) to create a mini-
+                                                                              to include more vulnerability context, until the generated
+    mal mask that encloses the existing implementation of F.
+                                                                              request matches the canonical implementation. The full
+    SWE- AGENT is started inside the codebase at commit C−1 ,
+                                                                              prompts and demonstration are provided in Appendix B.2.
+    and given PF , the unapplied modification to F. The mask
+    is generated as a patch M and it only contains deletion of
+                                                                          4
+=== [PDF page 5] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+Execution Environment Creation. To build the execu-                     merging the vulnerability fix PF and the lines masked out
+tion environment for each project and run tests at scale, we            by M. The target patch is able to pass both the functional-
+leverage SWE- AGENT on each vulnerability fix commit C0 .               ity and the security test. Unit tests refer to the number of
+In particular, it is provided with the location of tests in PT ,        tests corresponding to Tsecure and Tf unc . Compared with
+as a hint on the core tests it should execute through. We               existing coding security benchmarks, S US V IBES exhibits
+instruct it to consult: the pre-existing container configura-           unique properties as follows:
+tions, the CI/CD pipeline in .github/workflows, and other
+documentation for reproducing the testing workflow, and                 Real-World Security-Sensitive Tasks. S US V IBES oper-
+invoke docker commands to create a new Docker image                     ates at the repository level, with over 200K lines of code
+with successful installation and testing steps. More details            on average. Its tasks require agents to identify and edit
+in Appendix B.3.                                                        more lines across multiple files in large codebases, making
+                                                                        S US V IBES substantially more challenging. Moreover, the
+Execution-Based Test Case Validation. We validate tests                 tasks in S US V IBES are curated from real human-written
+for security and functionality based on execution results, by           vulnerable implementations, making them representative of
+running different combinations of implementations and test              the security pitfalls that naturally arise in practice, rather
+                          M                                             than artificially injected or synthetically constructed vulner-
+suites, i.e. {C0 , C−1 , C−1 } × {Tf unc , Tf unc + Tsecure }. A
+valid task should satisfy the following requirements: (i) the           abilities. This grounding in authentic developer mistakes
+                                  M                                     ensures that success on S US V IBES reflects progress toward
+masked vulnerable commit C−1          must fail both functional
+and secure tests; (ii) the code base with vulnerable imple-             secure code generation in real-world vibe coding scenarios.
+mentation C−1 needs to pass functional tests but fail secure
+tests; and (iii) the vulnerability fix commit C0 needs to pass          Diverse Application Domains and Security Risks. Our
+both unit tests.                                                        collection substantially expands vulnerability coverage, over
+                                                                        7× larger than existing repository benchmarks. This enables
+Test Quality Verification and Augmentation While                        rigorous evaluation across a significantly broader range of
+human-written tests provide a strong quality signal, security           security risks. S US V IBES also spans 10 real-world applica-
+test cases sourced from vulnerability fix commits may be                tion domains, allowing assessment of vibe coding security
+tightly coupled to a specific implementation rather than test-          across various use cases.
+ing general security properties, while functional tests more
+often evaluate feature behavior broadly. As a result, a correct         Scalability. With its automatic curation pipeline,
+and equally secure alternative implementation may still fail            S US V IBES can naturally scale to more repositories and
+such tests. To address this, we perform human verification of           programming languages. As new vulnerabilities are
+all security tests to ensure each one targets security-relevant         publicly disclosed and fixed, they can be incorporated by
+properties rather than implementation-specific details. Tests           tracing their fix commits. This allows S US V IBES to be
+that fail this check are manually revised to be decoupled               continuously extended with new tasks as the vulnerability
+from the reference implementation while still being passed              landscape evolves.
+by it. Details are provided in Appendix B.5.                            We provide more analysis on S US V IBES CWE coverage,
+                                                                        domain analysis, and task complexity in Appendix A.
+3.3. S US V IBES Benchmark Overview
+            Table 2. Statistics of S US V IBES’s tasks.
+                                                                              Web frameworks                       DevOps
+                                              Mean          Max
+                                                                                                                       Others
+     Context         # Lines                  236K        4,312K                Web apps                                AI
+                     # Files                  1,186       14,119
+     Target Patch    # Lines                  175.0        1,247            Data Science                                 Networking
+                     # Files                    1.8           11
+                     # Security Fix Lines      29.9          263
+                                                                                      IoT
+                     # Security Fix Files       1.6           10
+                                                                              Developer tools                      Identity & security
+     Test Cases      # Functional Tf unc       66.9         644
+                     # Security Tsecure         3.5          59
+                                                                        Figure 3. Domain distribution of S USp   V IBES’s projects (angle)
+We plot the diverse domains covered by S US V IBES in Fig-
+                                                                        and tasks (area). Each sector’s radius is # tasks/#projects, so its
+ure 3 and list task statistics in Table 2. Target Patch refers to       area is proportional to # tasks.
+the canonical implementation for F, which is calculated by
+                                                                    5
+=== [PDF page 6] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+4. S US V IBES Reveals Serious Security                              leave security vulnerabilities in the repository.
+   Concerns in Vibe Coding                                           Gemini 2.5 Pro is the most secure LLM, while SWE-
+4.1. Experimental Setup                                              AGENT is the most secure agent framework.              We dis-
+                                                                     entangle functional and security capability by defining a
+We conduct experiments on three representative agent                 functionality-correct subset of tasks. The subset is the inter-
+frameworks: SWE- AGENT (Yang et al., 2024a), O PEN -                 section of tasks that can be solved correctly across settings.
+H ANDS (Wang et al., 2025) and C LAUDE C ODE; with four              We calculate the percentage of the secure solutions in this
+frontier agentic LLMs: Claude 4 Sonnet (Anthropic, 2025),            subset, and define it as SecPass ⊥ FuncPass. For example,
+Kimi K2 (K Team, 2025), Gemini 2.5 Pro (Google Deep-                 to compare the security level of four backbone LLMs, we
+Mind, 2025a), and Gemini 3 Pro (Google DeepMind, 2025b)              get the intersection of tasks correctly solved by all LLMs,
+as the backbone. The agent framework, powered with the               and calculate the secure ratio of each on this subset to obtain
+LLM, inspects the task repository and implements the new             SecPass ⊥ FuncPass. Results are averaged across frame-
+feature based on the feature requirements. It can also exe-          works. We find that Claude 4 Sonnet, Kimi K2, Gemini
+cute its implementation and use the runtime environment              2.5 Pro, and Gemini 3 Pro achieve scores of 18.3%, 22.0%,
+feedback to revise its solution. Default recommended sys-            30.4%, and 21.4%, respectively. The model rankings are
+tem prompt for each agent framework is used and the maxi-            consistent across frameworks, except for Gemini 3 Pro,
+mum number of steps is set to 200.                                   which performs best on SWE- AGENT (36.4%) but not on
+To evaluate how an agent performs in terms of functionality          the other frameworks. On the other side, when comparing
+and security, we use FuncPass to indicate functional correct-        agent frameworks, we get 23.3% on SWE- AGENT, 20.1%
+ness and SecPass to indicate joint functional-and-security           on O PEN H ANDS, and 17.4% on C LAUDE C ODE.
+correctness. We use pass@1 for FuncPass and SecPass be-
+cause it can reflect real-world usage of vibe coding, where
+                                                                     Agent frameworks and LLMs are cautious in different
+a user typically wants the model to produce correct code
+                                                                     CWE categories. We further break down agents’ secu-
+immediately. Since one solution can always be secure if it
+                                                                     rity performance across major weakness categories. We
+does not implement any meaningful feature, we care only
+                                                                     categorize tasks in S US V IBES by their CWE tags and, for
+about the security of those functionally correct solutions. In
+                                                                     each category, compute SecPass ⊥ FuncPass for each agent
+other words, SecPass refers to the portion of correct and
+                                                                     framework and each backbone model separately. Figure 4
+secure implementations with respect to all tasks.
+                                                                     plots these scores, demonstrating the cautiousness of each
+                                                                     framework and model across vulnerability categories. The
+4.2. Results
+                                                                     results show substantial variation across both models and
+In Table 3, we evaluate FuncPass and SecPass performance             frameworks; for instance, Kimi K2 handles cryptographic
+on S US V IBES for the combinations of three agent frame-            failures better, whereas Gemini 3 Pro excels at enforcing
+works and four backbone LLMs.                                        access control. This indicates that agent frameworks and
+                                                                     LLMs are good at avoiding different vulnerabilities.
+Implementing new features in real-world repositories
+is still challenging for current agentic systems. Even               For tasks within the same CWE category, agents’ secu-
+with the best agentic system SWE- AGENT plus Claude 4,               rity performance still differs. We also compare agents
+only about half of the tasks can be solved with a function-          on tasks within the same weakness category. In Table 4,
+ally correct solution. Claude 4 consistently outperforms             we group tasks from the same weakness category by ap-
+the other three, while Gemini 2.5 Pro performs worse. In             plication domain and analyze the SecPass ⊥ FuncPass of
+terms of frameworks, SWE- AGENT and O PEN H ANDS show                Claude 4 Sonnet and Gemini 2.5 Pro in each domain. Al-
+advantages with different backbones.                                 though Claude consistently achieves higher functional cor-
+                                                                     rectness than Gemini across these domains, the security win-
+All frontier agent systems perform terribly in terms of              ner varies by domain; suggesting that application domain
+security.      Compared with high FuncPass, the average              also affects agents’ ability to produce secure implementa-
+SecPass is only around 10%. The best functionally per-               tions.
+forming approach, SWE- AGENT integrated with Claude
+4 Sonnet resolved 57% of the tasks, yet 79.3% of these               Gemini 3 Pro significantly outperforms Gemini 2.5 Pro
+functionally correct solutions are insecure. O PEN H ANDS            in functional correctness, but its security improvement is
+with Claude 4 Sonnet exhibits a similar risk profile, with           not satisfactory. We compare Gemini 3 Pro against Gemini
+77.8% of correct solutions being insecure. This indicates            2.5 Pro on S US V IBES. Within the SWE- AGENT setting,
+that, if vibe coding users accept the solution after it passes       Gemini 3 Pro shows a clear gap between functionality and
+functional tests, around 80% of the time, the solution will          security gains: FuncPass improves by more than 2×, while
+                                                                     SecPass ⊥ FuncPass improves by 1.3×. On other frame-
+                                                                 6
+=== [PDF page 7] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+Table 3. Evaluation performance of three agent frameworks across four models in terms of functionality and security. FuncPass is pass@1
+on functionality tests, and SecPass is pass@1 for both functionality and security. While they demonstrate great ability to solve tasks
+functionally, the majority of the agent-generated solutions contain security vulnerabilities.
+                                                   SWE- AGENT               O PEN H ANDS             C LAUDE C ODE
+                        Model                  FuncPass SecPass FuncPass SecPass FuncPass SecPass
+                        Claude 4 Sonnet            57.0       11.8          53.2         11.8        41.4         5.9
+                        Kimi K2                    21.5        5.4          36.0          9.1        40.3         8.6
+                        Gemini 2.5 Pro             18.3        6.5          19.9          8.1        12.9         3.8
+                        Gemini 3 Pro               37.1       12.9          50.5         10.8        34.9         6.5
+  100
+   90
+   80
+   70
+   60
+ % 50
+   40
+   30
+   20
+   10
+    0
+          Broken Access Cryptographic      Injection      Insecure   Authentication Data Integrity    Logging &     Exceptional    Resource
+             Control       Failures                        Design       Failures      Failures         Alerting     Conditions    Exhaustion
+                   Gemini 3 Pro      Gemini 2.5 Pro       Claude 4 Sonnet      Kimi K2      SWE-agent       OpenHands       Claude Code
+Figure 4. Security performance of each LLM and agent framework across major weakness categories. Performance varies substantially
+across categories, revealing complementary strengths and shortages.
+Table 4. For tasks targeting CWE Broken Access Control, the                 In django’s repository, the task requires an agent to
+SecPass ⊥ FuncPass of different models across different applica-
+tion domains. While Claude 4 Sonnet excels in some domains,
+                                                                            implement the verify password() function, an internal
+Gemini 2.5 Pro excels in others. DS stands for Data Science.                helper that validates a candidate plaintext password against
+                                                                            a stored (encoded) hash using the appropriate hasher.
+                                  Application Domain                        When a username exists, the authentication flow reaches
+ Model                  DS        DevTools        AI      DevOps            verify password(). In the secure implementation, pass-
+                                                                            word verification either calls hasher.verify() or, when the
+ Claude 4 Sonnet       0.0          33.3         0.0         0.0
+ Gemini 2.5 Pro        16.7          0.0         50.0        0.0            password is None or otherwise unusable, follows a fake ver-
+                                                                            ification path to preserve near-constant runtime. However,
+                                                                            the agent-generated implementation returns immediately in
+                                                                            these cases (highlighted in red in Figure 8). This creates a
+                                                                            measurably faster response compared to non-existent user-
+works, its security performance, as measured by SecPass
+                                                                            names. This makes it possible for an attacker to enumerate
+⊥ FuncPass, cannot match Gemini 2.5 Pro, leading to a
+                                                                            valid usernames based on this timing gap.
+lower overall score (21.4% vs. 30.4%). This indicates
+that although current reasoning-oriented post-training can                  The inspection reveals that SWE- AGENT’s implementa-
+significantly improve functional correctness, it remains in-                tion exhibits precisely this vulnerability, exposing a tim-
+sufficient for security.                                                    ing side-channel that distinguishes between existing and
+                                                                            non-existing users. Such vulnerabilities can have real-world
+4.3. Qualitative Analysis                                                   consequences, enabling targeted spam, phishing, and cre-
+                                                                            dential stuffing attacks against end users.
+We investigate a subset of agent-proposed vulnerable solu-
+tions to better understand concrete security risks frontier
+agents introduced. As an illustrative example, we analyze an                5. Preliminary Mitigation of Coding Agent
+implementation by SWE- AGENT plus Claude 4 Sonnet for                          Security Risks
+a feature in django, as shown in Figure 8 in the Appendix.
+                                                                            In previous experiments, we added a lightweight generic
+The solution is correct but insecure. We provide more in-
+                                                                            security prompt that reminds agents to consider security
+depth analysis of the challenging tasks and the vulnerable
+                                                                            (e.g., when facing trade-offs with efficiency). However,
+solutions in Appendix D.
+                                                                       7
+=== [PDF page 8] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+Table 5. Impact of self-selection and oracle security strategies        defend against the risks increases, regardless of functional
+over the generic baseline. Both degrade functional performance
+while slightly increasing the number of correct-and-secure solu-
+                                                                        ability; (ii) it may also overly focus on security and omit
+tions. Among the two, self-selection causes the larger drop in          functional requirements or edge cases, making otherwise
+functionality (-7.0 pp), whereas oracle yields the larger gain in       secure solutions functionally incorrect.
+SecPass (+3.3 pp).
+                                                                                                                                             5
+                             SWE- AGENT Claude                                            Incorrect       38.7        2.7        1.6
+                                                                                                                                             2
+                                                                                Generic
+            Strategy         FuncPass     SecPass
+                                                                                               Correct     8.1       32.3        4.8         0   %
+            Generic          57.0         11.8                                                Insecure                                       2
+            Self-selection   50.0 ▼▼      14.5 ▲                                               Correct     3.2        0.5        8.1         5
+            Oracle           55.4 ▼       15.1 ▲▲                                               Secure
+                                                                                                                                             9
+                                                                                                                ct         t           t
+                                                                                                         Incorre Corerceucre Coercreucre
+                                                                                                                     Ins        S
+experimental results show that they still have difficulty in                                                     Self-selection
+providing secure solutions. In this section, we further inves-          Figure 5. Transition matrix of evaluation outcomes from generic
+tigate two preliminary security-enhancing strategies to see             to self-selection setting. Rows denote the outcome under generic
+whether security issues can be easily mitigated: (i) let the            and columns denote that under self-selection. Each cell reports the
+agent identify the potential security risk before implemen-             percentage of all tasks that transition from row outcome to column
+tation (self-selection), (ii) provide the task’s target oracle          outcome. Colors indicate gains and losses.
+security risk (oracle). We show that both strategies slightly
+increase the number of secure solutions, but this improve-                               30
+ment comes at the cost of lower functional correctness and                               25
+                                                                           Trends in %
+does not substantially mitigate the security problem. Exper-                             20                                                Secure
+                                                                                         15                                                Incorrect
+iments in this section are on SWE- AGENT and Claude 4                                    10
+Sonnet.                                                                                   5
+                                                                                          0
+Human experts can identify potential security risks based                                        Generic Self-selection Oracle
+on the task before implementation. This helps create a
+                                                                        Figure 6. Applying strategies for security yields two competing
+more secure solution by designing mitigation in advance.                trends. Green: among tasks correctly solved in every setting, the
+Inspired by it, we formulate the self-selection strategy as a           fraction solved securely. Red: among tasks securely solved in
+2-phase coding process: first, let the agent identify related           other settings, the fraction solved incorrectly.
+CWE types from the problem and its context; then, ask it
+to implement code with the identified risks in mind. We                 The self-selection strategy is as secure as the oracle. To
+provide the agent with a full list of CWE types covered by              quantify the two trends for each strategy, we calculate two
+S US V IBES and their descriptions. For each task, the agent            percentages: (i) the SecPass ⊥ FuncPass, on the intersec-
+selects the most relevant CWE types before solving it. On               tion of the correctly solved tasks over all strategies; (ii)
+the other hand, we also investigate providing the oracle                the ratio of the incorrectly solved, among tasks solved cor-
+CWE type(s) that a task targets and explicitly asking the               rectly and securely by other strategies. Figure 6 plots these
+agent to avoid vulnerable implementations. The strategy                 two percentages for each setting. The figure shows that
+prompts can be found in Appendix C.                                     self-selection induces the largest functional drop, while its
+                                                                        security performance is comparable to, and slightly higher
+Agent’s performance improves only marginally on tasks
+                                                                        than, providing the oracle vulnerability type.
+it can correctly and securely solve. In Table 5, when agents
+receive additional security guidance intended to address                Can agents identify potential security risks? To under-
+security risks, the functional correctness of agent solutions           stand the security performance of self-selection, we evaluate
+drops consistently in both enhanced settings. Moreover,                 how well the agent identifies the correct CWE type(s) in
+the number of correct-and-secure solutions improves only                Table 6. We calculate the precision and recall of the identi-
+slightly though the knowledge of the oracle vulnerability               fication on the correct (secure and insecure) and incorrect
+type(s) is hinted. To interpret the numbers, Figure 5 is a              solutions, respectively. The agent selects 7.2 CWE types per
+transition matrix of each task’s evaluation outcome from                task on average. Compared with the correct-but-insecure
+the generic to the self-selection setting. As shown, insecure           solutions, the correct-and-secure solutions have a signifi-
+solutions are more likely to become secure, but correct-and-            cantly higher recall in identifying CWE types. Correctly
+secure solutions are also more likely to regress to incorrect.          identified CWE can help the coding agent produce more
+We thereby hypothesize two opposing trends behind the                   secure solutions. On the other hand, although there is only
+limited gains in SecPass: (i) agent’s ability to realize and            1.1 ground-truth CWE types on average for each task, the
+                                                                    8
+=== [PDF page 9] ===
+               Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+Table 6. Performance of CWE identification in self-selection set-        of functionally correct agent-generated code contains ex-
+ting. We first group the agent solutions by their functional and
+security correctness, and then compare the CWE types selected in
+                                                                         ploitable vulnerabilities argues for mandatory security re-
+the solution with ground truth. It shows that functionally correct       view processes and highlights the inadequacy of current
+and secure solutions have a better understanding of which vulnera-       prompting-based mitigation for organizations deploying
+bility type(s) this task targets.                                        coding agents in security-sensitive domains. In contrast,
+                                                                         the work benefits the AI safety community by providing
+                        Incorrect       Correct                          a concrete, challenging benchmark for measuring and im-
+            Metric                  Insecure Secure                      proving the security properties of coding agents. The open
+            Precision    0.086       0.092    0.114                      question of whether security can be achieved without sac-
+            Recall       0.571       0.561    0.667                      rificing functionality points toward fundamental research
+            F1           0.150       0.157    0.195                      needs in balancing multiple objectives in agent systems.
+agent-selected 7× more types cannot cover the target, as
+                                                                         Acknowledgment
+shown by a max recall of 0.667. This indicates it still has              We gratefully acknowledge the compute resources provided
+difficulty in identifying the potential security risk. The rea-          by Modal for model serving and inference optimization.
+son why self-selection is competitive with oracle, may be its            We also thank Google for Gemini API credits that enabled
+better understanding of the risk in the specific task context,           our experimentation and evaluation. This work was partly
+from the selection process.                                              supported by HydroX AI.
+In agentic software engineering, agents must make high-
+level action decisions beyond directly generating code, such             References
+as locating relevant context, running tests, and iteratively
+                                                                         Akhoundali, J., Nouri, S. R., Rietveld, K., and Gadyatskaya,
+revising solutions. These decisions form an “outline” for
+                                                                           O. Morefixes: A large-scale dataset of cve fix commits
+task completion, increasing both behavioral freedom and
+                                                                           mined through enhanced repository discovery. In Pro-
+sensitivity to prompting. This may make it difficult to bal-
+                                                                           ceedings of the 20th International Conference on Pre-
+ance security and functionality, especially when achieving
+                                                                           dictive Models and Data Analytics in Software Engi-
+both requires advanced skills. This highlights the need for
+                                                                           neering, PROMISE 2024, pp. 42–51, New York, NY,
+better strategies that improve security without disrupting
+                                                                           USA, 2024. Association for Computing Machinery. ISBN
+functional task completion, particularly as more complex
+                                                                           9798400706752. doi: 10.1145/3663533.3664036. URL
+security prompts emerge.
+                                                                           https://doi.org/10.1145/3663533.3664036.
+6. Conclusion                                                            Anthropic. Vibe coding in prod, 2024. URL https://www.
+                                                                           youtube.com/watch?v=fHWFF pnqDk. YouTube video.
+In this paper, we propose a new benchmark S US V IBES to
+evaluate the functionality and security of vibe coding. It               Anthropic. System card: Claude Opus 4 & Claude Sonnet
+is a repository-level benchmark with 186 feature request                  4. https://www.anthropic.com/system-cards, May
+tasks grounded in historically observed security issues. We                2025. Claude Sonnet 4 and Opus 4 system card.
+design an automatic pipeline to build tasks paired with exe-
+cutable environments from real-world repositories, making                Antoniades, A., Örwall, A., Zhang, K., Xie, Y., Goyal, A.,
+it scalable and naturally updatable as new vulnerabilities                 and Wang, W. Y. Swe-search: Enhancing software agents
+are recorded. Across multiple agent frameworks and fron-                  with monte carlo tree search and iterative refinement. In
+tier LLMs, our experiments reveal a persistent gap: agents                The Thirteenth International Conference on Learning
+frequently achieve functional correctness yet fail security               Representations.
+checks, leaving most correct solutions vulnerable. Prelimi-
+                                                                         Archibald, N. and Kaplan, C. Passing the security vibe
+nary mitigation attempts, including CWE self-selection or
+                                                                           check: The dangers of vibe coding. Databricks Blog,
+even oracle CWE hints, do not reliably close this gap. Taken
+                                                                           August 2025. Accessed: September 22, 2026.
+together, the results caution against the casual adoption of
+vibe coding in security-sensitive contexts and call for better           Austin, J., Odena, A., Nye, M., Bosma, M., Michalewski,
+security strategies in current coding agents.                              H., Dohan, D., Jiang, E., Cai, C., Terry, M., Le, Q., et al.
+                                                                           Program synthesis with large language models. arXiv
+Impact Statement                                                           preprint arXiv:2108.07732, 2021.
+This research exposes a critical gap between functional cor-             Baumann, J., Padmakumar, V., Li, X., Yang, J., Yang, D.,
+rectness and security in vibe coding. The finding that 70%+                and Koyejo, S. Swe-chat: Coding agent interactions from
+                                                                     9
+=== [PDF page 10] ===
+              Is Vibe Coding Safe? Benchmarking Vulnerability of Agent-Generated Code in Real-World Tasks
+  real users in the wild. arXiv preprint arXiv:2604.20779,            K Team. Kimi K2: Open agentic intelligence. arXiv
+  2026.                                                                 preprint arXiv:2507.20534, 2025. URL https://arxiv.
+                                                                        org/abs/2507.20534.
+Chen, J., Huang, H., Lyu, Y., An, J., Shi, J., Yang, C.,
+  Zhang, T., Tian, H., Li, Y., Li, Z., Zhou, X., Hu, X., and          Lee, H., Zhang, Z., Lu, H., and Zhang, L. Sec-bench:
+  Lo, D. Secureagentbench: Benchmarking secure code                     Automated benchmarking of llm agents on real-world
+  generation under realistic vulnerability scenarios, 2025.             software security tasks. Advances in Neural Information
+  URL https://arxiv.org/abs/2509.22097.                                 Processing Systems, 38:116342–116378, 2026.
+Chen, M., Tworek, J., Jun, H., Yuan, Q., Pinto, H. P. D. O.,          Lian, K., Wang, B., Zhang, L., Chen, L., Wang, J., Zhao,
+  Kaplan, J., Edwards, H., Burda, Y., Joseph, N., Brockman,             Z., Yang, Y., Lin, M., Duan, H., Zhao, H., et al. Ase: A
+  G., et al. Evaluating large language models trained on                repository-level benchmark for evaluating security in ai-
+  code. arXiv preprint arXiv:2107.03374, 2021.                          generated code. arXiv preprint arXiv:2508.18106, 2025.
+                                                                      Ma, Y., Cao, R., Cao, Y., Zhang, Y., Chen, J., Liu, Y.,
+Ding, Y., Fu, Y., Ibrahim, O., Sitawarin, C., Chen, X., Alo-
+                                                                       Liu, Y., Li, B., Huang, F., and Li, Y. Lingma swe-gpt:
+  mair, B., Wagner, D., Ray, B., and Chen, Y. Vulnerability
+                                                                       An open development-process-centric language model
+  detection with code language models: How far are we?
+                                                                       for automated software improvement. arXiv preprint
+  In Proceedings of the IEEE/ACM 47th International Con-
+                                                                       arXiv:2411.00622, 2024.
+  ference on Software Engineering, pp. 1729–1741, 2025.
+                                                                      Ma, Y., Li, Y., Dong, Y., Jiang, X., Cao, R., Chen, J., Huang,
+Eliseeva, A., Kovrigin, A., Kholkin, I., Bogomolov, E.,                F., and Li, B. Thinking longer, not larger: Enhancing
+  and Zharov, Y. Envbench: A benchmark for automated                   software engineering agents via scaling test-time compute.
+  environment setup. In ICLR 2025 Third Workshop on                    arXiv preprint arXiv:2503.23803, 2025a.
+  Deep Learning for Code.
+                                                                      Ma, Z., Peng, C., Gao, P., Meng, X., Zou, Y., and Xie, B.
+Fan, J., Li, Y., Wang, S., and Nguyen, T. N. A c/c++ code              Sorft: Issue resolving with subtask-oriented reinforced
+  vulnerability dataset with code changes and cve sum-                 fine-tuning. CoRR, 2025b.
+  maries. In Proceedings of the 17th international con-
+  ference on mining software repositories, pp. 508–512,               MITRE Corporation. Common Weakness Enumeration
+  2020.                                                                (CWE). https://cwe.mitre.org, 2025.
+Fawzy, A., Tahir, A., and Blincoe, K. Vibe coding in prac-            Mündler, N., Müller, M., He, J., and Vechev, M. Swt-
+  tice: Motivations, challenges, and a future outlook–a grey           bench: Testing and validating real-world bug-fixes with
+  literature review. arXiv preprint arXiv:2510.00328, 2025.            code agents. Advances in Neural Information Processing
+                                                                       Systems, 37:81857–81887, 2024.
+Gao, P., Tian, Z., Meng, X., Wang, X., Hu, R., Xiao, Y., Liu,
+  Y., Zhang, Z., Chen, J., Gao, C., et al. Trae agent: An             OpenAI. OpenAI o3 and o4-mini system card. https://
+                                                                        openai.com/index/o3-o4-mini-system-card/, April
+  llm-based agent for software engineering with test-time
+  scaling. arXiv preprint arXiv:2507.23370, 2025.                       2025. PDF available.
+                                                                      OWASP Top 10 Team. OWASP Top 10:2025. https://
+GitHub. GitHub Advisory Database. https://github.com/
+                                                                       owasp.org/Top10/2025/, 2025. Accessed: 2026-05-29.
+  advisories, 2026. Accessed: 2026-05-29.
+                                                                      Pan, J., Wang, X., Neubig, G., Jaitly, N., Ji, H., Suhr, A.,
+Google DeepMind.      Gemini 2.5 pro model card.                        and Zhang, Y. Training software engineering agents and
+  https://storage.googleapis.com/deepmind-media/                        verifiers with swe-gym. In Forty-second International
+  Model-Cards/Gemini-2-5-Pro-Model-Card.pdf, June                       Conference on Machine Learning.
+  2025a.
+                                                                      Pearce, H., Ahmad, B., Tan, B., Dolan-Gavitt, B., and Karri,
+Google DeepMind.       Gemini 3 pro model card.                         R. Asleep at the keyboard? assessing the security of
+  https://storage.googleapis.com/deepmind-media/                        github copilot’s code contributions. Communications of
+  Model-Cards/Gemini-3-Pro-Model-Card.pdf,    Nov                       the ACM, 68(2):96–105, 2025.
+  2025b.
+                                                                      Peng, J., Cui, L., Huang, K., Yang, J., and Ray, B. Cweval:
+Jimenez, C. E., Yang, J., Wettig, A., Yao, S., Pei, K., Press,          Outcome-driven evaluation on functionality and security
+  O., and Narasimhan, K. R. Swe-bench: Can language                     of llm code generation. In 2025 IEEE/ACM Interna-
+  models resolve real-world github issues? In The Twelfth               tional Workshop on Large Language Models for Code
+  International Conference on Learning Representations.                 (LLM4Code), pp. 33–40. IEEE, 2025.
+                                                                 10
+=== [PDF page 11] ===

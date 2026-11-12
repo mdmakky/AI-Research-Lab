@@ -1,0 +1,121 @@
+{
+  "query": "hallucinated imports registry",
+  "sources": [
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:41:27+06:00",
+  "raw_hits": 3,
+  "unique": 3,
+  "errors": {},
+  "results": [
+    {
+      "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+      "authors": [
+        {
+          "family": "Churilov",
+          "given": "Aleksandr"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.17062",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.17062",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.17062",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Package hallucinations, LLM-generated references to packages that do not exist, enable slopsquatting: an attacker registers the hallucinated name. We replicate Spracklen et al. (USENIX Security '25) on five 2026 frontier models over 199,840 Python and JavaScript generations. This version reports a preregistered live revalidation that replaces the static package lists of earlier versions with two independent checks against the live PyPI and npm registries. Hallucination rates are 3.6-5.0% of package mentions (2.2-3.4% of generations): the 2026 frontier sits at the level of 2024's commercial models, and the open-weight gap seen in 2024 has disappeared. Python exceeds JavaScript for every model. The set of names hallucinated by all five models shrinks from the 127 reported earlier to 104; 26 earlier entries were correct import statements whose module name differs from the package name. Using the accidental six-month public exposure of our own list as a natural experiment, we find no detectable effect of publication: about 1% of hallucinated names were registered within six months, at the same rate for published and unpublished names, and the 95% interval excludes increases above 2.5 percentage points. Still, at least 23 package names that the models suggest had previously hosted malware later removed by the registries, and one hallucinated name was registered with malware after our runs.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 1,
+      "in_project": "churilov2026range"
+    },
+    {
+      "title": "Bayesian-Calibrated Detection of Hallucinated Package Imports in AI-Assisted Code",
+      "authors": [
+        {
+          "family": "Hillah",
+          "given": "Lom M."
+        },
+        {
+          "family": "Richard",
+          "given": "Jean-Marc"
+        },
+        {
+          "family": "Hasnaoui",
+          "given": "Ryan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.13918",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.13918",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.13918",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We present a Bayesian calibration layer for slopsquat detectors -- those that flag hallucinated package imports in code produced by large language models (LLMs). Where existing pipelines emit binary decisions (flag / do-not-flag), our layer emits a Beta-posterior probability per detection, derived from a 3-category epistemic taxonomy that explicitly classifies each prior as empirically calibrated, constructively argued, or engineering-judgement-traced. Beyond the primary 200/404 registry channel, the calibrated layer exploits PyPI metadata signals -- package age, release count, author descriptor, summary -- to surface registered-but-suspicious packages that a binary registry detector misses, which is the realistic post-LLM-emission attacker regime. The resulting risk-aware primitive is directly consumable by downstream CI gates and supports principled threshold decisions across detection rules. We evaluate the calibration on a merged corpus of 1,734 Python snippets -- a stratified 189-prompt BigCodeBench slice plus a 100-prompt niche-library stress-test set, generated across a six-model panel spanning four cloud models (Claude-Sonnet-4.6, Mistral-Large, DeepSeek-v4-pro, DeepSeek-R1) and two local open-weight code models (Mistral Codestral, Meta CodeLlama). Against a re-implemented binary baseline inspired by Mahmud et al. -- which shares its registry oracle with our ground truth and therefore serves as a degenerate upper bound rather than a genuine competitor -- the calibrated layer reproduces the strict-registry detections and introduces well-calibrated additional flags on the metadata channel. We assess detector asymmetry with a McNemar paired test and calibration with both a flagged-subset Expected Calibration Error and a strictly proper full-corpus Brier score.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "LLM Ghostbusters: Surgical Package Hallucination Suppression via Adaptive Unlearning",
+      "authors": [
+        {
+          "family": "Spracklen",
+          "given": "Joseph"
+        },
+        {
+          "family": "Aghazadeh",
+          "given": "Pedram"
+        },
+        {
+          "family": "Koushanfar",
+          "given": "Farinaz"
+        },
+        {
+          "family": "Jadliwala",
+          "given": "Murtuza"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.01047",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.01047",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.01047",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Hallucinations remain an unsolved problem for LLMs, and package hallucinations are a particularly dangerous instance of this phenomenon. Package hallucinations occur during code generation when a model fabricates non-existent software packages, recommending imports and installation commands for fictional libraries. This creates a critical supply-chain vulnerability; an attacker can proactively register such packages on public registries with malicious payloads that are subsequently installed and executed by developers or autonomous agents. These hallucinations enable a class of package confusion attack known as slopsquatting. To address this issue, we present Adaptive Unlearning (AU), a post-deployment framework that surgically suppresses package hallucinations while preserving general model utility. AU introduces a hybrid token-level objective that simultaneously reinforces valid outputs and suppresses hallucinated ones. Combined with an adaptive discovery loop that continuously surfaces new hallucination-inducing contexts without human supervision, AU enables generalization to unseen prompts and hallucinations. We demonstrate that AU reduces package hallucination rates by 88%, while maintaining performance on standard coding benchmarks. Our analysis shows that distributional changes are concentrated on package-related generations, leaving general coding behavior largely unaffected and confirming that AU's effect is isolated to the targeted distribution. AU relies entirely on model-generated data and requires no human annotation, representing a post-deployment hallucination mitigation framework.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 3,
+      "in_project": "spracklen2026llm"
+    }
+  ]
+}

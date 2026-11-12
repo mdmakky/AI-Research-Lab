@@ -1,0 +1,79 @@
+{
+  "title": "A Real CVE-Backed Benchmark for WordPress Plugin Vulnerability Detection: Re-Evaluating Static and Learning-Based Detectors Under Leakage-Controlled Evaluation",
+  "authors": [
+    {
+      "family": "Tashenova",
+      "given": "Zhuldyz"
+    },
+    {
+      "family": "Aitmagambetuly",
+      "given": "Aisultan"
+    },
+    {
+      "family": "Urynbassarova",
+      "given": "Altyn"
+    },
+    {
+      "family": "Zhetkerbay",
+      "given": "Askhat"
+    },
+    {
+      "family": "Amanzholova",
+      "given": "Shirin"
+    },
+    {
+      "family": "Kerim",
+      "given": "Akerke"
+    }
+  ],
+  "year": 2026,
+  "venue": "Big Data and Cognitive Computing",
+  "type": "journal-article",
+  "venue_kind": "published",
+  "doi": "10.3390/bdcc10090303",
+  "arxiv_id": null,
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7208739084",
+  "url": "https://doi.org/10.3390/bdcc10090303",
+  "oa_pdf_url": null,
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 0,
+  "abstract": "Background: WordPress plugins account for the large majority of disclosed CMS vulnerabilities, and learning-based detectors report high accuracy on synthetic corpora and random splits. Methods: We build a benchmark from 1757 real plugin CVEs (6666 indexed identifiers, 1281 plugins), yielding 30,860 labeled PHP functions in two negative-sampling variants. An audit of the released artifacts found exact normalized-code duplicates crossing test folds (166 groups/1086 records in Variant A; 151/676 in Variant B) and identical code carrying contradictory labels (730 and 456 groups). After removing conflicting groups, merging exact duplicates and collapsing token- and AST-level clone families, the corpora contain 15,294 (Variant A) and 24,917 (Variant B) records with zero shared hashes, clone families or plugins across folds. Ten detectors are compared under plugin-grouped five-fold cross-validation on complete held-out folds: a static taint analyzer, TF-IDF Random Forest and SVM, Bi-LSTM, unidirectional LSTM, a taint-augmented neural model, a nested out-of-fold stacking ensemble, and three baselines (majority class, a source/sink presence rule, and a single-feature function-length classifier). Results: The best macro-F1 is 0.563 (Variant A, binary, SVM) and 0.601 (Variant B, binary, nested stacking). Neural models do not lead in any of the six configurations, and the single-feature length baseline matches or exceeds the TF-IDF Random Forest in four of six. The source/sink rule attains an MCC close to zero, and the taint analyzer misses about 98% of vulnerabilities. Manual review of 400 functions finds 48.8% of cleaned positive labels to be genuine vulnerabilities. Conclusions: Under duplicate-controlled evaluation, the differences between detector families are small compared with the variation attributable to label quality, which appears to be the more binding constraint. All data, folds, predictions and fingerprinted result files are released.",
+  "sources": [
+    "crossref",
+    "openalex"
+  ],
+  "key": "tashenova2026real",
+  "added": "2026-11-12T09:40:32+06:00",
+  "added_reason": "Second pass from gap analysis: closest evidence for G2 (temporal OOD DL vs LLM), RQ2 label quality vs family (WordPress PHP), G6 cost/energy at realistic prevalence",
+  "found_via": "gap novelty checks G2/G5/G6 (2026-11-12)",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T18:25:33+06:00",
+    "cross_checks": {
+      "crossref": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "user-supplied",
+    "source": "user-supplied: tashenova2026real - WordPress Plugin Vuln Benchmark (BDCC 2026).pdf",
+    "retrieved": "2026-11-12T17:43:15+06:00",
+    "sha256": "d244a55e5cb2f577b235860f317378f700dea67521864121ffac08dbda8ebf2c",
+    "pages": 15,
+    "text_layer": "ok",
+    "identity": "match (DOI printed in PDF)"
+  }
+}

@@ -1,6 +1,6 @@
 ---
 key: lu2025webgen
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + comparative evaluation of 3 agent frameworks x LLMs; UI-agent (LLM) functional testing validated against 3 human testers; SFT training study
 dataset: WebGen-Bench, 101 NL website-generation instructions with 647 GPT-4o-drafted, human-refined UI test cases; WebGen-Instruct 6,667 training instructions
@@ -21,7 +21,7 @@ analysed: 2026-11-11
 - Year / venue: 2025, Advances in Neural Information Processing Systems 38 (published)
 - DOI: 10.52202/085713-2419 · URL: https://doi.org/10.52202/085713-2419
 - Source text: `fulltext.txt` (page refs = PDF page index)
-- Version note: the PDF we hold is arXiv v2 (11 Aug 2025), marked "Preprint. Under review." (p. 1), with the NeurIPS checklist appended (p. 37–43). Metadata records the NeurIPS 38 published version. Page refs refer to this arXiv PDF; the author line in the PDF (p. 1) lists Shi, Zhou, Zhan and Li and does not include "Hou, Haotian", who appears in `metadata.json` — the published author list may differ.
+- Version note: the PDF analysed is arXiv v2, "arXiv:2505.03733v2 [cs.CL] 11 Aug 2025" (p. 1), from arxiv.org/pdf/2505.03733. It is a pre-acceptance version, marked "Preprint. Under review." (p. 1), with the NeurIPS checklist appended (p. 37–43). Metadata records the NeurIPS 38 published version. Page refs refer to this arXiv PDF; the author line in the PDF (p. 1) lists Shi, Zhou, Zhan and Li and does not include "Hou, Haotian", who appears in `metadata.json` — the published author list may differ.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -44,7 +44,7 @@ No formal RQs or hypotheses. Stated contributions (p. 3):
 
 ## 4. Dataset and sample
 - Data source(s): authors identified 20 web-application categories from freelance platforms (Upwork, Freelancer, Proginn); 40 CS PhD students brainstormed specific applications and requirements, producing 10,152 project descriptions; GPT-4o converted them into instructions with a one-shot prompt (p. 4–5, p. 15). [V]
-- Sample size (N) and unit: test set 101 instructions; 647 test cases (p. 5–6). [V] Instruction categories: Content Presentation 28, User Interaction 49, Data Management 24 (p. 6, Table 2). [V] Test-case categories: Functional Testing 339, Data Display 186, Design Validation 122 — total 667 in Table 8 (p. 23), which does not match the 647 stated elsewhere (p. 1, p. 6). [V]
+- Sample size (N) and unit: test set 101 instructions; 647 test cases (p. 5–6). [V] Instruction categories: Content Presentation 28, User Interaction 49, Data Management 24 (p. 6, Table 2). [V] Test-case categories: Functional Testing 339, Data Display 186, Design Validation 122 (p. 23, Table 8). [V] These sum to 647 (339 + 186 + 122), matching the text (p. 1, p. 6). Table 8's printed "Total 667" is therefore an arithmetic or typographical error in that row (p. 23). [V]
 - Sampling / selection method: "two to eight representative examples from each category" sampled for the test set; how representativeness was judged is not reported (p. 5). [V] Training set decontaminated by 5-gram Jaccard (> 0.6 removed) and sentence-embedding cosine similarity (> 0.55 removed), plus manual inspection of top-3 matches (p. 5, p. 14). [V]
 - Data availability (public? link?): data, code and model weights released under MIT licence at github.com/mnluzimu/WebGen-Bench (p. 1, p. 14). [A] (link not checked by us)
 
@@ -78,9 +78,9 @@ No formal RQs or hypotheses. Stated contributions (p. 3):
 
 ## 9. Limitations we identified
 - [I] The functional oracle is an LLM-driven UI agent with a 15-interaction cap (p. 19). Human validation covers only 3 of 16 settings, all Bolt.diy (p. 8–9); agreement may differ for OpenHands/Aider outputs or weaker models with many start failures. Alignment is reported as raw percent on a 3-class label without chance correction, and inter-human agreement is not reported (p. 8–9).
-- [I] The alignment rate counts test cases; with 59–74% NO labels (p. 9, Table 5), a judge that says NO often gets high agreement by default. Per-class (YES vs NO) agreement is not given, so false-positive "YES" rates are unknown.
+- [I] The alignment rate counts test cases; with 58–74% NO labels (p. 9, Table 5), a judge that says NO often gets high agreement by default. Per-class (YES vs NO) agreement is not given, so false-positive "YES" rates are unknown.
 - [I] Test cases were drafted by GPT-4o from the same instruction the agent sees, and each checks one atomic requirement (p. 5, p. 19). They test whether a stated feature is visible and responds, not deeper behavioural correctness (data persistence, multi-step workflows, edge cases); "PARTIAL" earning half credit further softens the score (p. 7).
-- [I] Count inconsistency: 647 test cases (p. 1, p. 6) vs 667 in Table 8 (p. 23); unexplained.
+- [I] Minor typo: Table 8 prints "Total 667", but its main categories sum to 647 (339 + 186 + 122), matching the text (p. 1, p. 6, p. 23). This is a typo, not evidence of a different test set.
 - [I] Single run per setting and no reported generation hyper-parameters (temperature, budgets) (p. 7–8, p. 40); differences of 1–2 points (e.g. 27.8 vs 26.4) are not separable from noise.
 - [I] The models evaluated (Claude-3.5-Sonnet, GPT-4o, o3-mini, DeepSeek-V3/R1) are early-2025 models; absolute numbers are already dated relative to later benchmarks such as Vibe Code Bench (tran2026vibe) [I].
 - [I] Fine-tuning trajectories were filtered by GPT-4o appearance score, not by functional tests (p. 7), yet gains are measured on functional accuracy; the training and test instructions share the same GPT-4o generation template and colour-requirement style (p. 15–18), so part of the gain may be format/style adaptation to the benchmark distribution despite n-gram/embedding decontamination.
@@ -113,7 +113,6 @@ No formal RQs or hypotheses. Stated contributions (p. 3):
 | RQ4 | UI-agent labels match adjudicated human labels on 86.1–94.4% of test cases (3 Bolt.diy settings); inter-human agreement and chance-corrected agreement not reported | 9 | V | moderate |
 | RQ4 | No error bars or significance tests; single run per setting | 40 | V | strong |
 | RQ4 | GPT-4o appearance scores give the same ranking as o3, Claude-3.5-Sonnet and human grading on 3 settings | 23 | V | weak |
-| RQ4 | Test-case total inconsistent (647 in text vs 667 in Table 8), illustrating weak reporting of benchmark composition | 23 | V | weak |
 
 ## 14. Key quotes
 > "The best-performing combination, Bolt.diy powered by DeepSeek-R1, achieves only 27.8% accuracy on the test cases" (p. 1)
@@ -122,4 +121,4 @@ No formal RQs or hypotheses. Stated contributions (p. 3):
 
 ## Analyst notes
 - Reading coverage: main text p. 1–10, references p. 11–13, appendices A–N p. 14–25 read; UI-agent trajectory examples (p. 26–36) skimmed; NeurIPS checklist (p. 37–43) checked for statistics and human-subject answers. Figures 2, 3, 14–16 are images; only text values used. Section 3.1 paragraph "Web Development Project Descriptions Collection" appears twice on p. 5 (duplicated in the PDF).
-- Uncertainties: the published NeurIPS version may differ from this arXiv v2 (e.g. the appendix says "We will add this discussion to the revised paper", p. 23). Author list mismatch with metadata (see version note). 647 vs 667 test-case count. Number of human appearance graders not reported.
+- Uncertainties: the published NeurIPS version may differ from this arXiv v2 (e.g. the appendix says "We will add this discussion to the revised paper", p. 23). Author list mismatch with metadata (see version note; escalated to the lead for re-resolution via `rlab`). Table 8's "Total 667" is a typo for 647 (categories sum to 647, p. 23). Number of human appearance graders not reported.

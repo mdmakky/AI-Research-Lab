@@ -1,0 +1,533 @@
+{
+  "query": "native Android app generation from screenshots LLM benchmark functional",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T00:21:50+06:00",
+  "raw_hits": 10,
+  "unique": 10,
+  "errors": {},
+  "results": [
+    {
+      "title": "Do LLMs Need to See Everything? A Benchmark and Study of Failures in LLM-driven Smartphone Automation using Screentext vs. Screenshots",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Shiquan"
+        },
+        {
+          "family": "Zhang",
+          "given": "Tianyi"
+        },
+        {
+          "family": "Fang",
+          "given": "Le"
+        },
+        {
+          "family": "D'Alfonso",
+          "given": "Simon"
+        },
+        {
+          "family": "Jia",
+          "given": "Hong"
+        },
+        {
+          "family": "Kostakos",
+          "given": "Vassilis"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2604.17817",
+      "arxiv_id": "2604.17817",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7155049044",
+      "url": "https://arxiv.org/abs/2604.17817",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.17817",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "With the rapid advancement of large language models (LLMs), mobile agents have emerged as promising tools for phone automation, simulating human interactions on screens to accomplish complex tasks. However, these agents often suffer from low accuracy, misinterpretation of user instructions, and failure on challenging tasks, with limited prior work examining why and where they fail. To address this, we introduce DailyDroid, a benchmark of 75 tasks in five scenarios across 25 Android apps, spanning three difficulty levels to mimic everyday smartphone use. We evaluate it using text-only and multimodal (text + screenshot) inputs on GPT-4o and o4-mini across 300 trials, revealing comparable performance with multimodal inputs yielding marginally higher success rates. Through in-depth failure analysis, we compile a handbook of common failures. Our findings reveal critical issues in UI accessibility, input modalities, and LLM/app design, offering implications for future mobile agents, applications, and UI development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "MobileWorldSafety: Benchmarking GUI Agent Safety Against Environmental Injection Attacks in Android Apps",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Sujin"
+        },
+        {
+          "family": "Li",
+          "given": "Lijun"
+        },
+        {
+          "family": "Du",
+          "given": "Tianyi"
+        },
+        {
+          "family": "Shao",
+          "given": "Jing"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.17659",
+      "arxiv_id": "2608.17659",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7203743154",
+      "url": "https://arxiv.org/abs/2608.17659",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.17659",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "LLM-powered GUI agents that autonomously operate smartphones are rapidly transitioning from research prototypes to early real-world deployment. However, because these agents routinely process untrusted environmental content, they are highly vulnerable to environmental injection attacks, which include indirect prompt injections and adversarial instructions. Such attacks can manipulate the behavior of agents without user awareness through diverse channels encountered in everyday mobile use. Despite these risks, existing benchmarks often fail to capture everyday user scenarios, lacking a systematic evaluation of GUI agents under environmental injection attacks on mobile devices. To address this gap, we introduce MobileWorldSafety, a benchmark of 142 risk tasks built on real Android applications. For each task, we define a programmatically verifiable risk indicator over the final system state and evaluate outcomes with a two-stage pipeline: rule-based verification handles unambiguous cases, while an LLM judge adjudicates ambiguous ones. This distinguishes safety failures from capability failures and enables objective and reproducible assessment. Evaluations on six agents, including both general agents and specialized GUI agents, demonstrate that all agents remain highly vulnerable, with attack success rates ranging from 40.4% to 66.9%. These findings indicate that current agents often fail to maintain safety alignment when adversarial content is presented as ordinary mobile context. MobileWorldSafety provides a foundation for quantifying these vulnerabilities and advancing research on robust mobile GUI agents.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Agentic Discovery and Validation of Android App Vulnerabilities",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Ziyue"
+        },
+        {
+          "family": "Zhou",
+          "given": "Liyi"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2508.21579",
+      "arxiv_id": "2508.21579",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415991937",
+      "url": "http://arxiv.org/abs/2508.21579",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.21579",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Existing Android vulnerability detection tools overwhelm teams with thousands of low-signal warnings yet uncover few true positives. Analysts spend days triaging these results, creating a bottleneck in the security pipeline. Meanwhile, genuinely exploitable vulnerabilities often slip through, leaving opportunities open to malicious counterparts. We introduce A2, a system that mirrors how security experts analyze and validate Android vulnerabilities through two complementary phases: (i) Agentic Vulnerability Discovery, which reasons about application security by combining semantic understanding with traditional security tools; and (ii) Agentic Vulnerability Validation, which systematically validates vulnerabilities across Android's multi-modal attack surface-UI interactions, inter-component communication, file system operations, and cryptographic computations. On the Ghera benchmark (n=60), A2 achieves 78.3% coverage, surpassing state-of-the-art analyzers (e.g., APKHunt 30.0%). Rather than overwhelming analysts with thousands of warnings, A2 distills results into 82 speculative vulnerability findings, including 47 Ghera cases and 28 additional true positives. Crucially, A2 then generates working Proof-of-Concepts (PoCs) for 51 of these speculative findings, transforming them into validated vulnerability findings that provide direct, self-confirming evidence of exploitability. In real-world evaluation on 169 production APKs, A2 uncovers 104 true-positive zero-day vulnerabilities. Among these, 57 (54.8%) are self-validated with automatically generated PoCs, including a medium-severity vulnerability in a widely used application with over 10 million installs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Unblind Text Inputs: Predicting Hint-text of Text Input in Mobile Apps via LLM",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Zhe"
+        },
+        {
+          "family": "Chen",
+          "given": "Chunyang"
+        },
+        {
+          "family": "Wang",
+          "given": "Junjie"
+        },
+        {
+          "family": "Chen",
+          "given": "M."
+        },
+        {
+          "family": "Wu",
+          "given": "Boyu"
+        },
+        {
+          "family": "Huang",
+          "given": "Yue-Kai"
+        },
+        {
+          "family": "Hu",
+          "given": "Jun Cheng"
+        },
+        {
+          "family": "Wang",
+          "given": "Qing"
+        }
+      ],
+      "year": 2024,
+      "venue": "CHI Conference on Human Factors in Computing Systems",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3613904.3642939",
+      "arxiv_id": "2404.02706",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4393969035",
+      "url": "https://doi.org/10.1145/3613904.3642939",
+      "oa_pdf_url": "https://arxiv.org/pdf/2404.02706",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 39,
+      "abstract": "Mobile apps have become indispensable for accessing and participating in various environments, especially for low-vision users. Users with visual impairments can use screen readers to read the content of each screen and understand the content that needs to be operated. Screen readers need to read the hint-text attribute in the text input component to remind visually impaired users what to fill in. Unfortunately, based on our analysis of 4,501 Android apps with text inputs, over 76% of them are missing hint-text. These issues are mostly caused by developers’ lack of awareness when considering visually impaired individuals. To overcome these challenges, we developed an LLM-based hint-text generation model called HintDroid, which analyzes the GUI information of input components and uses in-context learning to generate the hint-text. To ensure the quality of hint-text generation, we further designed a feedback-based inspection mechanism to further adjust hint-text. The automated experiments demonstrate the high BLEU and a user study further confirms its usefulness. HintDroid can not only help visually impaired individuals, but also help ordinary people understand the requirements of input components. HintDroid demo video: https://youtu.be/FWgfcctRbfI.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "A Survey on Benchmarks of LLM-based GUI Agents",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Yihong"
+        },
+        {
+          "family": "Wang",
+          "given": "Shuai"
+        },
+        {
+          "family": "Wang",
+          "given": "Yaqing"
+        },
+        {
+          "family": "Yao",
+          "given": "Quanming"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.36227/techrxiv.176591818.87526814/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7115597185",
+      "url": "https://doi.org/10.36227/techrxiv.176591818.87526814/v1",
+      "oa_pdf_url": "https://www.techrxiv.org/doi/pdf/10.36227/techrxiv.176591818.87526814/v1",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "LLM-based GUI agents have made rapid progress in understanding visual interfaces, interpreting user intentions, and executing multi-step operations across web, mobile, and desktop environments. As these agents become more capable, systematic and reproducible evaluation has become essential for measuring progress and identifying remaining weaknesses. This survey provides a comprehensive overview of benchmarks for LLM-based GUI agents, covering three major categories: grounding and QA tasks, navigation and multi-step reasoning tasks, and open-world environments that reflect realistic and dynamic software usage. We examine how existing benchmarks evaluate both component-level abilities, such as intent understanding, GUI grounding, navigation, and context tracking, and system-level abilities, such as adaptation, personalization, privacy protection, safety, and computational efficiency. By comparing datasets, environments, and evaluation metrics, the survey reveals clear trends in benchmark design, along with persistent gaps including limited adaptability, vulnerability to malicious interfaces and prompt attacks, lack of interpretability, and significant computational overhead. We highlight emerging directions such as safety aware evaluation, user-centric personalization, lightweight deployment, and zero-shot generalization. This survey aims to serve as a practical guide for researchers who design GUI agents, build benchmarks, or study LLM-driven user interface automation.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "GAPS: Targeted Execution of Android Apps via Static Path Reconstruction",
+      "authors": [
+        {
+          "family": "Doria",
+          "given": "Samuele"
+        },
+        {
+          "family": "Pilgun",
+          "given": "Alexander"
+        },
+        {
+          "family": "Samhi",
+          "given": "Jordan"
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Losiouk",
+          "given": "Eleonora"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2511.23213",
+      "arxiv_id": "2511.23213",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416952556",
+      "url": "https://arxiv.org/abs/2511.23213",
+      "oa_pdf_url": "https://arxiv.org/pdf/2511.23213",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Targeted execution of Android applications (apps) remains a longstanding challenge for software testing and analysis. Although recent advances in GUI testing have substantially improved app exploration, existing approaches remain largely coverage-driven and struggle to steer execution reliably toward specific methods of interest. This limitation hinders important downstream tasks, such as vulnerability detection, program comprehension, and dynamic analysis. We present GAPS (Graph-based Automated Path Synthesizer), the first approach to bridge static program analysis and dynamic GUI exploration, enabling targeted execution in Android apps. Given a target method, GAPS performs a lightweight static backward traversal of the call graph, enriched with data-flow reasoning, to identify feasible execution paths that lead to the target. It then translates these paths into actionable execution strategies that guide dynamic interactions with the app. We evaluate GAPS on the AndroTest benchmark and show that it reconstructs paths toward 88.24% of the target methods, requiring only 12.67 seconds per app on average. During dynamic execution, GAPS reaches 56.93% of the target methods, outperforming state-of-the-art alternatives. In comparison, the model-based GUI testing tool APE reaches only 11.12%, the hybrid exploration framework GoalExplorer reaches 4.75%, and the recent LLM-driven approach Guardian reaches 34%. To assess scalability in real-world settings, we further evaluate GAPS across the 50 most-downloaded apps on the Google Play Store. GAPS reconstructs execution paths toward 62.03% of the target methods, averaging 278.9 seconds per app, and dynamically reaches 54.80% of them. These results show that combining static path synthesis with guided dynamic exploration provides an effective and scalable solution for targeted method execution in Android apps.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "AndroidWorld: A Dynamic Benchmarking Environment for Autonomous Agents",
+      "authors": [
+        {
+          "family": "Rawles",
+          "given": "C."
+        },
+        {
+          "family": "Clinckemaillie",
+          "given": "Sarah"
+        },
+        {
+          "family": "Chang",
+          "given": "Yifan"
+        },
+        {
+          "family": "Waltz",
+          "given": "Jonathan"
+        },
+        {
+          "family": "Lau",
+          "given": "Gabrielle"
+        },
+        {
+          "family": "Fair",
+          "given": "Marybeth"
+        },
+        {
+          "family": "Li",
+          "given": "Alice"
+        },
+        {
+          "family": "Bishop",
+          "given": "William D."
+        },
+        {
+          "family": "Li",
+          "given": "Wei"
+        },
+        {
+          "family": "Campbell-Ajala",
+          "given": "Folawiyo"
+        },
+        {
+          "family": "Toyama",
+          "given": "Daniel"
+        },
+        {
+          "family": "Berry",
+          "given": "Robert"
+        },
+        {
+          "family": "Tyamagundlu",
+          "given": "Divya"
+        },
+        {
+          "family": "Lillicrap",
+          "given": "Timothy"
+        },
+        {
+          "family": "Riva",
+          "given": "Oriana"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2405.14573",
+      "arxiv_id": "2405.14573",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4398836283",
+      "url": "http://arxiv.org/abs/2405.14573",
+      "oa_pdf_url": "https://arxiv.org/pdf/2405.14573",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 428,
+      "abstract": "Autonomous agents that execute human tasks by controlling computers can enhance human productivity and application accessibility. However, progress in this field will be driven by realistic and reproducible benchmarks. We present AndroidWorld, a fully functional Android environment that provides reward signals for 116 programmatic tasks across 20 real-world Android apps. Unlike existing interactive environments, which provide a static test set, AndroidWorld dynamically constructs tasks that are parameterized and expressed in natural language in unlimited ways, thus enabling testing on a much larger and more realistic suite of tasks. To ensure reproducibility, each task includes dedicated initialization, success-checking, and tear-down logic, which modifies and inspects the device's system state. We experiment with baseline agents to test AndroidWorld and provide initial results on the benchmark. Our best agent can complete 30.6% of AndroidWorld's tasks, leaving ample room for future work. Furthermore, we adapt a popular desktop web agent to work on Android, which we find to be less effective on mobile, suggesting future research is needed to achieve universal, cross-platform agents. Finally, we also conduct a robustness analysis, showing that task variations can significantly affect agent performance, demonstrating that without such testing, agent performance metrics may not fully reflect practical challenges. AndroidWorld and the experiments in this paper are available at github.com/google-research/android_world.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "SafeGenBench: A Benchmark Framework for Security Vulnerability Detection in LLM-Generated Code",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Xinghang"
+        },
+        {
+          "family": "Ding",
+          "given": "Jingzhe"
+        },
+        {
+          "family": "Peng",
+          "given": "Chao"
+        },
+        {
+          "family": "Zhao",
+          "given": "Bing"
+        },
+        {
+          "family": "Gao",
+          "given": "Xiang Yang"
+        },
+        {
+          "family": "Gao",
+          "given": "Hongwan"
+        },
+        {
+          "family": "Gu",
+          "given": "Xinchen"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2506.05692",
+      "arxiv_id": "2506.05692",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417097196",
+      "url": "http://arxiv.org/abs/2506.05692",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.05692",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 32,
+      "abstract": "The code generation capabilities of large language models(LLMs) have emerged as a critical dimension in evaluating their overall performance. However, prior research has largely overlooked the security risks inherent in the generated code. In this work, we introduce SafeGenBench, a benchmark specifically designed to assess the security of LLM-generated code. The dataset encompasses a wide range of common software development scenarios and vulnerability types. Building upon this benchmark, we develop an automatic evaluation framework that leverages both static application security testing(SAST) and LLM-based judging to assess the presence of security vulnerabilities in model-generated code. Through the empirical evaluation of state-of-the-art LLMs on SafeGenBench, we reveal notable deficiencies in their ability to produce vulnerability-free code. Our findings highlight pressing challenges and offer actionable insights for future advancements in the secure code generation performance of LLMs. The data and code will be released soon.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "GraphDroid: Asynchronous LLM-Based Mobile App GUI Testing via History-Aware Exploration and Hybrid Intent Fulfillment",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Xiaolei"
+        },
+        {
+          "family": "Cao",
+          "given": "Jialun"
+        },
+        {
+          "family": "Hou",
+          "given": "Zhijian"
+        },
+        {
+          "family": "Zhao",
+          "given": "Yuzhi"
+        },
+        {
+          "family": "Liu",
+          "given": "Yepang"
+        },
+        {
+          "family": "Cheung",
+          "given": "Shing-Chi"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3832783.3837449",
+      "arxiv_id": "2609.10031",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7212138190",
+      "url": "https://doi.org/10.1145/3832783.3837449",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832783.3837449?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Automated GUI testing is a widely adopted technique for ensuring mobile application quality by simulating user interactions to exercise functionalities. Despite the research breakthroughs in the past decades, covering complex functionalities that require multi-step action sequences still remains challenging. Traditional tools lack semantic understanding capability and can rarely synthesize such action sequences. Recent LLM-based tools can generate test intents describing target functionalities and leverage the LLM to fulfill the intents, but suffer from three key limitations: 1) loss of historical context for identifying uncovered functionalities, 2) synchronous intent generation that blocks exploration, and 3) per-step LLM-driven fulfillment incurring high cost and latency. To address these limitations, we propose GraphDroid, an intent-driven GUI testing framework that integrates a cluster-based memory mechanism to effectively identify uncovered functionalities from historically visited states for comprehensive application testing. For improving testing efficiency, GraphDroid adopts an asynchronous intent generation paradigm that eliminates the latency bottleneck and a hybrid intent fulfillment strategy that reserves the LLM for fulfilling complex intents while delegating simple intents to a lightweight heuristic algorithm. We evaluate GraphDroid on 41 real-world Android apps against six state-of-the-art baselines. Results show that GraphDroid outperforms all baselines, achieving up to 36.4% higher code coverage while incurring less than one eighth of the cost of the best pure LLM-based baseline. GraphDroid also exposes 19 bugs in the 41 apps and detects 13 of 52 crashes in the Themis bug benchmark, surpassing all the six baselines. Seven of the 19 bugs were previously unknown and we reported them to the developers. So far, four bugs have been confirmed and fixed.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "CHAMELEOSCAN: Demystifying and Detecting iOS Chameleon Apps via LLM-Powered UI Exploration",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Hongyu"
+        },
+        {
+          "family": "Hu",
+          "given": "Yicheng"
+        },
+        {
+          "family": "Xu",
+          "given": "Haitao"
+        },
+        {
+          "family": "Lü",
+          "given": "Yijun"
+        },
+        {
+          "family": "Ren",
+          "given": "Mengxia"
+        },
+        {
+          "family": "Hao",
+          "given": "Shuai"
+        },
+        {
+          "family": "Yue",
+          "given": "Chuan"
+        },
+        {
+          "family": "Li",
+          "given": "Zhao"
+        },
+        {
+          "family": "Zhang",
+          "given": "Fan"
+        },
+        {
+          "family": "Jiang",
+          "given": "Yixin"
+        }
+      ],
+      "year": 2026,
+      "venue": "Network and Distributed System Security Symposium",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.14722/ndss.2026.241906",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161033444",
+      "url": "https://doi.org/10.14722/ndss.2026.241906",
+      "oa_pdf_url": "https://doi.org/10.14722/ndss.2026.241906",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Chameleon apps evade iOS App Store review by presenting legitimate functionality during submission while transforming into illicit variants post-installation.While prevalent, their underlying transformation methods and developer-user collusion dynamics remain poorly understood.Existing detection approaches, constrained by static analysis or metadata dependencies, prove ineffective against hybrid implementations, novel variants, or metadata-scarce instances.To address these limitations, we establish a curated dataset of 500 iOS Chameleon apps collected through covert distribution channels, enabling systematic identification of 10 categories of distinct transformation patterns (including 4 previously undocumented variants).Building upon these findings, we present CHAMELEOSCAN, the first LLM-driven automated UI exploration framework for reliable Chameleon app verification.The system maintains local decision interpretability while ensuring global detection consistency through its core innovation -predictive metadata analytics, semantic interface comprehension, and human-comparable interaction strategies.Comprehensive evaluation on 1,644 iOS apps demonstrates operational efficacy (9.85% detection rate, 92.59% precision), with findings formally acknowledged by Apple.Implementation and datasets are available at https://github.com/ChameleoScan.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    }
+  ]
+}

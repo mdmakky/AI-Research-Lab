@@ -1,0 +1,451 @@
+{
+  "query": "LLM static analysis warning triage false positive filtering true positive loss recall security alerts",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:25:02+06:00",
+  "raw_hits": 12,
+  "unique": 12,
+  "errors": {},
+  "results": [
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Ziyang"
+        },
+        {
+          "family": "Dutta",
+          "given": "Saikat"
+        },
+        {
+          "family": "Naik",
+          "given": "Mayur"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2405.17238",
+      "arxiv_id": "2405.17238",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4399115016",
+      "url": "http://arxiv.org/abs/2405.17238",
+      "oa_pdf_url": "https://arxiv.org/pdf/2405.17238",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 198,
+      "abstract": "Software is prone to security vulnerabilities. Program analysis tools to detect them have limited effectiveness in practice due to their reliance on human labeled specifications. Large language models (or LLMs) have shown impressive code generation capabilities but they cannot do complex reasoning over code to detect such vulnerabilities especially since this task requires whole-repository analysis. We propose IRIS, a neuro-symbolic approach that systematically combines LLMs with static analysis to perform whole-repository reasoning for security vulnerability detection. Specifically, IRIS leverages LLMs to infer taint specifications and perform contextual analysis, alleviating needs for human specifications and inspection. For evaluation, we curate a new dataset, CWE-Bench-Java, comprising 120 manually validated security vulnerabilities in real-world Java projects. A state-of-the-art static analysis tool CodeQL detects only 27 of these vulnerabilities whereas IRIS with GPT-4 detects 55 (+28) and improves upon CodeQL's average false discovery rate by 5% points. Furthermore, IRIS identifies 4 previously unknown vulnerabilities which cannot be found by existing tools. IRIS is available publicly at https://github.com/iris-sast/iris.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": "li2024iris"
+    },
+    {
+      "title": "QASecClaw: A Multi-Agent LLM Approach for False Positive Reduction in Static Application Security Testing",
+      "authors": [
+        {
+          "family": "Ameen",
+          "given": "Mohd Ruhul"
+        },
+        {
+          "family": "Alam",
+          "given": "Md Takrim Ul"
+        },
+        {
+          "family": "Islam",
+          "given": "Akif"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.01885",
+      "arxiv_id": "2605.01885",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160279726",
+      "url": "https://arxiv.org/abs/2605.01885",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.01885",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "Static Application Security Testing tools help developers find security vulnerabilities before release, but they often produce many false positives. This increases manual review effort, reduces developer trust, and may cause real vulnerabilities to be ignored among noisy reports. We present QASecClaw, a multi agent approach that combines conventional Static Application Security Testing with coding specialized Large Language Model based contextual code review. A SAST engine first reports candidate vulnerabilities, and a Large Language Model based SAST Filter Agent then reviews each finding with source code context to decide whether it is likely to be a true positive or a false positive. QASecClaw is coordinated by a Mission Orchestrator and includes specialized agents for test planning, security validation, evidence correlation, filtering, and reporting. We evaluate QASecClaw on OWASP Benchmark v1.2, which contains 2,740 Java test cases across 11 Common Weakness Enumeration categories with ground truth labels. QASecClaw achieves an F1 score of 90.93 percent, compared with 78.39 percent for standalone Semgrep. The improvement is mainly driven by an 88.6 percent reduction in false positives, from 560 to 64, with only a 3.1 percent reduction in recall. These results show that Large Language Model augmented multi agent verification can make Static Application Security Testing output more accurate, useful, and trustworthy.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Sifting the Noise: A Comparative Study of LLM Agents in Vulnerability False Positive Filtering",
+      "authors": [
+        {
+          "family": "Xiong",
+          "given": "Yunpeng"
+        },
+        {
+          "family": "Zhang",
+          "given": "Ting"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832100",
+      "arxiv_id": "2601.22952",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7127178521",
+      "url": "https://doi.org/10.1145/3832100",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832100?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "Static Application Security Testing (SAST) tools are essential for identifying software vulnerabilities, but they often produce a high volume of False Positives (FPs), imposing a substantial manual triage burden on developers. Recent advances in Large Language Model (LLM) agents offer a promising direction by enabling iterative reasoning, tool use, and environment interaction to refine SAST alerts. However, the comparative effectiveness of different LLM-based agent architectures for FP filtering remains poorly understood. In this paper, we present a comparative study of three state-of-the-art LLM-based agent frameworks, i.e., Aider, OpenHands, and SWE-agent, for vulnerability FP filtering. We evaluate these frameworks using the vulnerabilities from the OWASP Benchmark and real-world open-source Java projects. We further conduct a focused post-cutoff C/C++ study using the strongest configuration to test contamination-free generalization and isolate key agentic capabilities. The experimental results show that LLM-based agents can remove the majority of SAST noise, reducing an initial FP detection rate of over 92% on the OWASP Benchmark to as low as 6.3% in the best configuration. On a real-world Java dataset, the best configuration of LLM-based agents can achieve an FP identification rate of up to 93.3% involving CodeQL alerts. However, the benefits of agents are strongly backbone- and CWE-dependent: agentic frameworks significantly outperform vanilla prompting for stronger models such as Claude Sonnet 4 and GPT-5, but yield limited or inconsistent gains for weaker backbones. On the post-cutoff OSS-Fuzz dataset, SWE-agent with Claude Sonnet 4 identifies 95.5% of FPs while maintaining 95.5% precision, compared with a 36.4% FP identification rate for vanilla prompting. Moreover, aggressive FP reduction can come at the cost of suppressing true vulnerabilities, highlighting important trade-offs. Finally, we observe large disparities in computational cost across agent frameworks. Overall, our study demonstrates that LLM-based agents are a powerful but non-uniform solution for SAST FP filtering, and that their practical deployment requires careful consideration of agent design, backbone model choice, vulnerability category, and operational cost.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": "xiong2026sifting"
+    },
+    {
+      "title": "Trusting the Tool: Asymmetric Deference of LLM Vulnerability Auditors to Static-Analysis Evidence",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "ZhiHong"
+        },
+        {
+          "family": "Gao",
+          "given": "Shuyao"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.32876",
+      "arxiv_id": "2610.32876",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223707675",
+      "url": "https://arxiv.org/abs/2610.32876",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.32876",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Pipelines that combine large language models (LLMs) with static analysis let the model consume the analyser's output as evidence, but whether the model distinguishes true from false evidence, and whether its scrutiny depends on what the evidence claims, has not been measured. We built an intraprocedural analyser for C/C++ that produces proof obligations and audited vulnerable and patched functions from PrimeVul under six evidence conditions that differ only in the notes, including fabricated assurances that a missing check exists and fabricated alarms that an added check is missing. The study covers 916 pairs in four disjoint sets, eleven model configurations from four vendors and 16,572 audits; no model is trained or fine-tuned. True evidence barely improved accuracy (+0.02). False evidence acted asymmetrically: relative to true notes about the same operations, false assurances lowered the detection of real vulnerabilities by up to 19 points, whereas false alarms never significantly lowered accuracy and were disputed far more often. An internally registered replication on seven new models confirmed that false assurances move verdicts towards their claim more than false alarms do (mean asymmetry +0.16, 95% CI +0.10 to +0.24). Instructions in the audit prompt did not reliably reduce deference; the best one failed to replicate. Verifying each claim in a separate call and showing the refuted claims raised accuracy under false assurances by 12 points in a pre-specified test (p=0.002) without loss under true evidence; for a second model the gain was smaller and not significant. Pipelines should therefore verify a tool's guarantees before the model relies on them, and studies should measure deference in a direction-aware way.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Towards Better Static Code Analysis Reports: Sentence Transformer-based Filtering of Non-Actionable Alerts",
+      "authors": [
+        {
+          "family": "Aladics",
+          "given": "Tamás"
+        },
+        {
+          "family": "Vándor",
+          "given": "Norbert"
+        },
+        {
+          "family": "Ferenć",
+          "given": "Rudolf"
+        },
+        {
+          "family": "Hegedűs",
+          "given": "Péter"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2604.18525",
+      "arxiv_id": "2604.18525",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7155045268",
+      "url": "https://arxiv.org/abs/2604.18525",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.18525",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Static code analysis (SCA) tools are widely used as effective ways to detect bugs and vulnerabilities in software systems. However, the reports generated by these tools often contain a large number of non-actionable findings, which can overwhelm developers to the point of ignoring them altogether -- this phenomenon is known as \"alert fatigue\". In this paper, we combat alert fatigue by proposing STAF: Sentence Transformer-based Actionability Filtering. Our approach leverages a transformer based architecture with sentence embeddings to classify findings into actionable and non-actionable categories. Evaluating STAF on a large dataset of reports from Java projects, we demonstrate that our method can effectively reduce the number of non-actionable findings while maintaining a high level of accuracy in identifying actionable issues. The results show that our approach can improve the usability of static analysis tools reaching an F1 score of 89%, outperforming existing methods for SCA warning filtering by at least 11% in a within-project setting and by at least 6% in a cross-project setting. By providing a more focused and relevant set of findings, we aim to enhance the overall effectiveness of static analysis in software development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Case-Level Verification in Scanner-LLM Cascades: Overcoming the Alert Aggregation Bottleneck to Expand the FRR-TPR Trade-off Space",
+      "authors": [
+        {
+          "family": "Sun",
+          "given": "Hao"
+        },
+        {
+          "family": "Yao",
+          "given": "Yibin"
+        },
+        {
+          "family": "Xie",
+          "given": "Chaohai"
+        },
+        {
+          "family": "Lin",
+          "given": "Yuqun"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.08406",
+      "arxiv_id": "2610.08406",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7221052507",
+      "url": "https://arxiv.org/abs/2610.08406",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.08406",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Dynamic Application Security Testing (DAST) scanners achieve high recall but also produce a large number of false positives, resulting in substantial manual triage costs. Large Language Models (LLMs), when used for independent detection, achieve extremely high recall (95.4%-100%) but also exhibit prohibitively high false positive rates (49.6%-85.0%), precluding their use as standalone replacements for scanners. A natural solution is a two-stage cascade consisting of scanner detection followed by LLM verification. However, a verification-granularity issue that has long been overlooked in practice creates a structural bottleneck: alert aggregation binds multiple true and false cases into a shared decision unit, such that removing a false positive inevitably eliminates true positives aggregated within the same alert group. This creates a trade-off bottleneck between the False-positive Reduction Rate (FRR) and the True-positive Rate (TPR). We formalize this bottleneck by showing that the alert-level false-positive set is a subset of the case-level false-positive set, and introduce a Case-Level, per-case verification strategy that shifts the decision granularity from the alert level to the instance level, independently replaying HTTP requests and making an independent determination for each detected case. Evaluation on the dual testbeds of Damn Vulnerable Web Application (DVWA) and WebGoat shows that the empirically best Alert-Level operating point achieves FRR=42.86% (TPR=51.7%). The Case-Level Baseline achieves FRR=47.6%, an improvement of 4.7 percentage points (+4.7 pp), while the Case-Focused Evidence Verification Prompt (CEV-Prompt) increases TPR from 55.2% to 62.1% at the same FRR.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "On the correlation between architectural smells and static analysis warnings",
+      "authors": [
+        {
+          "family": "Esposito",
+          "given": "Matteo"
+        },
+        {
+          "family": "Robredo",
+          "given": "Mikel"
+        },
+        {
+          "family": "Fontana",
+          "given": "Francesca Arcelli"
+        },
+        {
+          "family": "Lenarduzzi",
+          "given": "Valentina"
+        }
+      ],
+      "year": 2025,
+      "venue": "Software Quality Journal",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s11219-025-09730-7",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415109679",
+      "url": "https://doi.org/10.1007/s11219-025-09730-7",
+      "oa_pdf_url": "https://link.springer.com/content/pdf/10.1007/s11219-025-09730-7.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "Abstract Software quality assurance is essential during software development and maintenance. Static Analysis Tools (SAT) are widely used for assessing code quality. Architectural smells are becoming more daunting to address and evaluate among quality issues. We aim to understand the relationships between Static Analysis Warnings (“warnings”) and Architectural Smells (“smell”) to guide developers/maintainers in focusing their effort on warnings more prone to co-occurring with smell. We performed an empirical study on 103 Java projects totaling 72 million LOC belonging to projects from a vast set of domains, and 785 warnings were detected by three SAT, Checkstyle, Findbugs, PMD, SonarQube, and 4 architectural smells were detected by the ARCAN tool. We analyzed how warnings influence smell presence. Finally, we proposed a smell remediation effort prioritization based on warning severity and warning proneness to specific smells. Our study reveals a moderate correlation between warnings and smells. Different combinations of SATs and warnings significantly affect smell occurrence, with certain warnings more Likely to co-occur with specific smells. Conversely, 33.79% of warnings are “non-co-occurring” with any of the smells in our dataset. This provides an early indicator for potential architectural concerns before resource-intensive architectural analysis is performed. Practitioners can ignore about a third of warnings and focus on those most likely to be associated with smells. Prioritizing smell remediation based on warning severity or warning proneness to specific smells results in effective rankings like those based on smell severity. While not a substitute for specialized tools like ARCAN, warning-based prioritization provides a pragmatic bridge between low-level warnings and high-level architectural issues, particularly useful in contexts lacking full architectural visibility.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "AI-Driven Security Alert Screening and Alert Fatigue Mitigation in Security Operations Centers: A Survey",
+      "authors": [
+        {
+          "family": "Ndichu",
+          "given": "Samuel"
+        },
+        {
+          "family": "Ban",
+          "given": "Tao"
+        },
+        {
+          "family": "Ozawa",
+          "given": "Seiichi"
+        },
+        {
+          "family": "Takahashi",
+          "given": "Takeshi"
+        },
+        {
+          "family": "Inoue",
+          "given": "Daisuke"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.08316",
+      "arxiv_id": "2605.08316",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160887343",
+      "url": "https://arxiv.org/abs/2605.08316",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.08316",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Security alert screening is the downstream task of filtering, prioritizing, correlating, and contextualizing alerts for analyst attention in Security Operations Centers. This survey reviews artificial-intelligence-driven alert screening and alert-fatigue mitigation from 2015 to 2026. We synthesize 119 records, including 87 core studies, into a four-stage workflow taxonomy covering filtering, triage, correlation, and generative augmentation. We find persistent gaps in operational validation, adversarial robustness, cross-environment generalization, and evaluation practice. The survey concludes with a research agenda toward trustworthy Cognitive Security Operations Centers.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Do Smart Contract Auditing Results Transfer Across Datasets? A Two-Benchmark Empirical Study of Static and LLM-Based Security Tools",
+      "authors": [
+        {
+          "family": "Khalid",
+          "given": "Shawal"
+        },
+        {
+          "family": "Tuckett",
+          "given": "Joaquin"
+        },
+        {
+          "family": "Brown",
+          "given": "Christopher Andrew"
+        }
+      ],
+      "year": 2026,
+      "venue": "DROPS (Schloss Dagstuhl – Leibniz Center for Informatics)",
+      "type": "article",
+      "venue_kind": "preprint",
+      "doi": "10.4230/lipics.esem.2026.45",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223744359",
+      "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ESEM.2026.45",
+      "oa_pdf_url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol394-esem2026/LIPIcs.ESEM.2026.45/LIPIcs.ESEM.2026.45.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Background. Smart contract vulnerabilities pose significant security risks in blockchain systems. Automated static auditing tools are commonly used in practice, yet their effectiveness varies across vulnerability categories and at scale. Recently, large language model (LLM)-based tools have been proposed, but their performance is rarely evaluated against real-world contracts and alongside established analyzers. Aim. This paper presents a systematic benchmarking study of smart contract auditing tools under a single, explicitly defined task: identifying smart contract vulnerabilities in Solidity contracts. Method. We evaluate static and LLM-based tools (n = 7) on two benchmarks: SmartBugs Curated (n = 143) and a filtered FORGE subset of real-world audit-derived contracts (n = 173). We use a tool-agnostic evaluation pipeline to normalize heterogeneous tool outputs, reporting accuracy, top-K detection, execution robustness, and cross-dataset performance. Results. Our findings expose systematic trade-offs across auditing approaches. Static tools optimized for broad vulnerability coverage tend to over-report categories, potentially increasing triage burden, while exhibiting stability limitations on real-world contracts. LLM-driven auditors demonstrate strong coverage across many vulnerability categories, but similarly suffer from over-prediction. Conclusions. These results show that current smart contract auditing tools differ less in their ability to identify potential vulnerabilities than in their ability to do so precisely and reliably, motivating future auditing workflows for practical smart contract vulnerability detection.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "How much model does warning triage need? A cost-aware comparison from rules to locally run language models",
+      "authors": [
+        {
+          "family": "Sullivan",
+          "given": "Peter"
+        },
+        {
+          "family": "Mikhaylov",
+          "given": "Bogdan"
+        }
+      ],
+      "year": 2026,
+      "venue": "American Impact Review",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.66308/air.e80134906",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7224126940",
+      "url": "https://doi.org/10.66308/air.e80134906",
+      "oa_pdf_url": "https://americanimpactreview.com/articles/e80134906.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Static analysis tools report far more warnings than developers act on, and machine learning is widely proposed to identify the actionable ones. Published comparisons rarely include a simple label-based reference, and rarely report quality on unseen projects together with compute time. This study compares five levels of model complexity on two open datasets, NASCAR (Java) and AW4C (C): a warning-type prior, a linear model on term frequency-inverse document frequency (TF-IDF) features, a frozen code encoder, fine-tuned code encoders, and open-weight large language models (LLMs) run locally. All models were scored on the same 1,000 warnings per dataset and protocol, using the Matthews correlation coefficient (MCC) with project-level bootstrap intervals. Three findings emerged. First, in the original AW4C release the number of lines in the supplied code context predicted the label with an MCC of 0.91 on unseen projects, and fine-tuned CodeBERT reached 0.81; in a variant rebuilt with a uniform context window, which also differs in composition, the corresponding values were 0.12 and 0.30. Second, on unseen NASCAR projects an advantage of fine-tuned encoders over the warning-type prior was not established: the paired difference in MCC was −0.08 (95% CI −0.21 to 0.02) for CodeBERT. Third, locally run LLMs without task-specific training scored near zero on NASCAR with the default threshold and required about 47 times the mean processing time of a fine-tuned encoder. Model complexity should be assessed against a simple reference under cross-project evaluation.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "From Alert Floods to Precedence Forests: Zero-Prior-Knowledge Incident Triage with LOGOS",
+      "authors": [
+        {
+          "family": "Mysore",
+          "given": "Radhika Niranjan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.02297",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7220748534",
+      "url": "https://arxiv.org/abs/2610.02297",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.02297",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Commercial observability platforms rely on domain artifacts like distributed traces, topology maps, and baseline metrics. However, when troubleshooting proprietary software, enterprise operators are left with only raw, unannotated text logs. We explore the extreme boundary of log-only diagnosis: To what extent can we isolate failure propagation using strictly raw text logs? We present LOGOS, an unsupervised system that exploits entity-event co-occurrence and temporal precedence to collapse millions of raw log lines into a compact precedence forest. Evaluated across 25 production enterprise outages and 12 open-source issues, LOGOS operates with zero prior knowledge---requiring no seed queries, observed symptoms, or pre-defined incident boundaries. In a median wall-time of 4.5 minutes, LOGOS eliminates a median 99.8% of background noise, achieves 0.76 mean recall, and detects failure cascades with a 16-hour median diagnosis-verified lead time---consolidating alert floods 124x to enable 80% enterprise (100% open-source) zero-shot LLM root-cause accuracy.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "SecureLite: Lightweight Vulnerability Detection on CVEFixes with TF‑IDF, Gradient Boosting, and a Tiny Transformer plus LLM‑Assisted Triage",
+      "authors": [
+        {
+          "family": "Xin",
+          "given": "Qi"
+        }
+      ],
+      "year": 2026,
+      "venue": "Data Science Journal of Computing and Applied Informatics",
+      "type": "article",
+      "venue_kind": "book",
+      "doi": "10.32734/jocai.v10i2.24898",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7210281426",
+      "url": "https://doi.org/10.32734/jocai.v10i2.24898",
+      "oa_pdf_url": "https://talenta.usu.ac.id/JoCAI/article/download/24898/10587",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Static application security testing remains difficult to deploy at scale in Python repositories because practical tools must be accurate, fast, and interpretable under extreme class imbalance. This paper introduces SecureLite, a lightweight pipeline that combines (i) a compact vulnerability detector trained on statement‑annotated data and (ii) an LLM‑assisted triage stage that converts detector evidence into actionable fix guidance. We conduct experiments on the DetectVul/CVEFixes dataset, using its provided train/test splits (4,584/1,146 Python functions). Each function is represented as a sequence of statements, statement types, and per‑statement vulnerability labels. We convert these labels into a function‑level target and compare four efficient detectors: token TF‑IDF + logistic regression (SGD), type‑aware token TF‑IDF, character TF‑IDF, and a LightGBM model over 15 static features. We additionally train a tiny Transformer encoder (TinyVulFormer‑XS) to test whether a minimal self‑attention model can compete with linear baselines under small‑data constraints. On the test set, the best lightweight models (character TF‑IDF and type‑aware token TF‑IDF) achieve AUROC 0.925 and AUPRC 0.381 with an F1 score of 0.421 at a 0.5 decision threshold, outperforming both static‑feature boosting and the tiny Transformer. We further analyze threshold sensitivity, error modes, and how LLM triage can reduce analyst time by proposing fixes and unit tests for high‑risk predictions. The resulting system offers a reproducible, CPU‑friendly baseline for Python vulnerability screening and a practical blueprint for integrating lightweight detection with LLM‑guided remediation.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    }
+  ]
+}

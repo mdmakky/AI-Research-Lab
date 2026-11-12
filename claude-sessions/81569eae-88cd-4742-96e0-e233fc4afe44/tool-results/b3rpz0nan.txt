@@ -1,0 +1,521 @@
+######## asdaque2026novice
+---
+key: asdaque2026novice
+status: complete
+evidence_basis: full-text
+design: repository mining study comparing agentic pull requests of low- vs high-experience GitHub users (MSR 2026, 5-page paper; track not stated)
+dataset: AIDev dataset subset (repos >100 stars) of AI-agent pull requests (Copilot, Codex, Claude Code, Cursor, Devin) on GitHub OSS
+sample_size: 22,953 PRs from 1,719 users (860 low-experience, 859 high-experience by commits/account-age quartiles)
+metrics: commits and files changed per PR, PR acceptance rate, PR resolution time (days to merge), review comments per PR
+main_finding: Low-experience users' agentic PRs were larger (2.15x commits), accepted 31% less often, took 5.16x longer and drew 4.52x more review comments.
+relevance: low
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# Novice Developers Produce Larger Review Overhead for Project Maintainers while Vibe Coding
+
+- Authors: Asdaque, Syed Ammar; Haider, Imran; Malik, Muhammad Umar; Ghafoor, Maryam Abdul; Bangash, Abdul Ali
+- Year / venue: 2026, Proceedings of the 23rd International Conference on Mining Software Repositories (published)
+- DOI: 10.1145/3793302.3793597 · URL: https://doi.org/10.1145/3793302.3793597
+- Source text: `fulltext.txt` (page refs = PDF page index)
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905v1, 27 Feb 2026, stamp on p. 1) carrying the MSR '26 ACM header and DOI; it is not the ACM Digital Library copy, so page refs use arXiv pagination. The PDF has **5 pages**: the PDF page tree has 5 page objects (re-checked with `pdfinfo` on 2026-11-12, after poppler was installed), and the ACM reference line says "5 pages" (p. 1). But `fulltext.txt` has 7 page markers because the text extraction of Figure 2 inserted spurious breaks. Page refs below use the real PDF page index checked against `paper.pdf`: `fulltext.txt` markers "page 4", "page 5" and "page 6" are all PDF page 4, and marker "page 7" is PDF page 5 (references). `metadata.json` (`fulltext.pages: 7`) is also wrong on this point; the lead should repair it through `rlab`, not by hand-editing.
+
+## 1. Research objective
+- [A] To test whether developer experience still matters in AI-assisted development, i.e. whether "vibe coders with less development experience [can] substitute for expert developers", by comparing agentic pull requests (PRs) of low- and high-experience GitHub users (p. 1).
+- [V] The paper adopts the definition of vibe coding as "a workflow in which a human developer directs and supervises an AI agent through natural-language prompts and validates the generated code" (p. 1). Operationally, a "vibe coder" is any non-bot user in AIDev who created agentic PRs (p. 2).
+
+## 2. Research questions / hypotheses
+- [V] RQ1: What is the frequency and magnitude of contributions submitted by high-experience (ExpHigh) and low-experience (ExpLow) vibe coders in OSS? (p. 2)
+- [V] RQ2: Is the PR merge effort similar between ExpHigh and ExpLow vibe coders? (p. 2)
+- No formal hypotheses stated.
+
+## 3. Methodology
+- Research design: [V] Retrospective mining study of an existing public dataset of AI-agent PRs, with group comparison and a small manual inspection (p. 2, p. 3). A *mining study* analyses existing repository data rather than running an experiment.
+- Approach / model / intervention: [V] Three steps: select vibe coders and PRs; split them by experience; extract metrics for statistical comparison (p. 2). Experience score = total commits by the user / GitHub account age, retrieved via the GitHub GraphQL API, following Malik et al. (p. 1, p. 2). Users split into quartiles: Q3+Q4 = ExpHigh (859), Q1+Q2 = ExpLow (860) (p. 2). Manual inspection of the top 15 highest-review-volume ExpLow feature PRs to explain friction (p. 3).
+- Baselines or comparison conditions: [V] ExpHigh vibe coders are the comparison group for ExpLow (p. 2). No comparison with non-AI (human-only) PRs.
+
+## 4. Dataset and sample
+- Data source(s): [V] AIDev dataset of AI-assisted PRs on GitHub OSS, covering agents such as Copilot, Codex, Claude Code, Cursor and Devin; the subset for repositories with >100 stars contains 33,596 PRs and 1,796 users (p. 2).
+- Sample size (N) and unit: [V] After removing bot accounts: 22,953 PRs by 1,719 distinct users (p. 2). Unit of analysis is the PR, grouped by author experience; 11 PR categories (e.g. feature, fix, docs, chore) (p. 2, p. 3).
+- Sampling / selection method: [V] All non-bot users in the AIDev >100-star subset; bot filter = username contains "bot" or matches known agent identifiers (e.g. Copilot) (p. 2). Selection of the 15 inspected PRs = top review volume in the feature category (p. 3).
+- Data availability (public? link?): [V] AIDev is public (p. 2); replication package at github.com/AmmarAsdaque/msr-2026-replication-package (p. 2, p. 5). We did not open it.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: [V] Python (pandas, numpy, matplotlib, seaborn, scipy) (p. 2). Group-wise comparisons "on mean values of each metric across PR categories" (p. 2). Date of AIDev snapshot, agent mix per group, number of repositories, and PRs per user distribution: not reported. Who did the manual inspection and how it was coded: not reported.
+- Code availability: [V] Replication package on GitHub (p. 5).
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen: [V] Contribution magnitude = commits per PR and files changed per PR (RQ1); PR acceptance rate = merged PRs / submitted PRs; PR resolution time = days from PR creation to merge; PR review volume = total review comments per PR (RQ2) (p. 2). Rationale: "real-world outcomes" of contribution size and merge effort (p. 1, p. 2).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [V] Mann-Whitney U for commits, files, resolution time and review volume; Chi-square for acceptance rate; overall and per category; significance at p < 0.05 (p. 2, p. 3). Benjamini-Hochberg correction "for all tests" (p. 4). Exact p-values, effect sizes and confidence intervals: not reported. Group differences are reported as ratios of means (e.g. 2.15x) (p. 2, p. 3).
+
+## 7. Key findings
+1. [V] ExpLow PRs contain 2.15x more commits per PR than ExpHigh (Mann-Whitney p < 0.05); more commits in 10/11 categories, significant in all 10; feature PRs: 1.58 vs 4.20 mean commits (p. 2, p. 3).
+2. [V] ExpLow PRs change 1.47x more files (p < 0.05); more files in 9/11 categories, significant in 5/11; style PRs: 24.29 vs 70.35 mean files (p. 3).
+3. [V] ExpLow PRs have a 31% lower acceptance rate (Chi-square p < 0.05); lower in 10/11 categories, significant in all 10; documentation: 93.06% (ExpHigh) vs 75.39% (ExpLow) (p. 3).
+4. [V] ExpLow PRs take 5.16x longer from creation to merge (p < 0.05); significant in 10/11 categories; chore: 0.61 vs 2.83 days (p. 3).
+5. [V] ExpLow PRs receive 4.52x more review comments (p < 0.05); significant in 6/11 categories; chore: 0.13 vs 0.86 comments per PR (p. 3). Figure 2c shows average review volume below 1 comment per PR in every category for both groups (p. 4), so the large ratios rest on small absolute numbers.
+6. [A] Manual inspection of 15 PRs suggests two friction sources: "Infrastructure Mismatch" (AI code that is syntactically correct but ignores build/CI environment constraints) and "Integration Friction" (AI code lacking system context, e.g. privacy schemas), each illustrated by one PR (p. 3, p. 4).
+7. [A] Low-experience vibe coders "focus on generating more code while shifting verification burden onto reviewers"; managers "may not be able to safely replace experienced developers with low-experience vibe coders without increasing review capacity" (p. 1).
+
+## 8. Limitations stated by the authors
+- [A] Findings may not apply under the broader definition of vibe coding as any AI assistance (p. 4).
+- [A] Experience measured by commit count "conflates activity with skill"; developers with offline experience but few GitHub commits count as low-experienced (p. 4).
+- [A] Project-specific factors (e.g. review policies) can influence acceptance and review volume; within-category comparison mitigates but residual effects may remain (p. 4).
+- [A] Multiple comparisons raise Type I error risk; mitigated by Benjamini-Hochberg correction (p. 4).
+
+## 9. Limitations we identified
+- [I] Confounding by repository and agent: ExpLow and ExpHigh users may contribute to different projects (with different review norms) and use different agents (Copilot vs Devin etc.). Neither is controlled or reported (p. 2). Category-level comparison (p. 4) does not control for these.
+- [I] Unit of analysis / non-independence: the unit of the statistical tests is not stated clearly ("group-wise statistical test comparisons on mean values of each metric across PR categories", p. 2). If PR-level values were tested, the 22,953 PRs from 1,719 users (about 13 PRs per user on average, p. 2) are treated as independent and prolific users or repositories can dominate; no mixed-effects or per-user aggregation is reported. If category means were tested, n = 11 per group and power is very low.
+- [I] The experience score (commits per account-age, p. 2) is a rate of public activity, not skill; it can also be inflated by AI-agent commits themselves, which may make the split partly circular. Quartile split at the median discards information.
+- [I] Effect reporting: ratios of means are reported for skewed count/time data while tests are rank-based (Mann-Whitney) (p. 2, p. 3); no effect sizes or CIs. "31% lower acceptance rate" is not stated as relative or absolute, and overall acceptance rates are not given (p. 3).
+- [I] Resolution time is defined as creation-to-merge (p. 2), i.e. merged PRs only, yet the abstract says ExpLow PRs "remain open 5.16x longer before resolution" (p. 1). Unmerged PRs are not part of this measure.
+- [I] No code-level quality measure: acceptance, review comments and time are proxies of review burden, not of correctness or maintainability. Calling users "vibe coders" because they opened agentic PRs assumes, but does not verify, the supervise-and-validate workflow of the adopted definition (p. 1, p. 2).
+- [I] The friction categories rest on 15 PRs and two examples, without a coding protocol (p. 3, p. 4); treat as anecdotal.
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [I] Repository, agent and task-difficulty confounds; possibly non-independent PRs (test unit unclear, see §9); bot filtering by username heuristic may leave automated accounts (p. 2).
+- External (generalisability of sample/context): [I] OSS repositories with >100 stars only (p. 2); one dataset; agents of 2025. Does not cover single-developer app building or reconstruction.
+- Construct (do metrics measure the concept?): [A] Experience proxy conflates activity with skill (p. 4). [I] Review volume and acceptance are indirect measures of code quality.
+- Statistical conclusion (power, multiple comparisons, variance): [V] Benjamini-Hochberg correction applied (p. 4). [I] The unit of the tests is unclear (p. 2, see §9): if PR-level, very large N makes small differences significant and clustering by user is ignored; if category means, n = 11 per group gives very low power. No effect sizes either way.
+- Reproducibility (data/code/setup reported?): [V] Public dataset and replication package (p. 2, p. 5). [I] AIDev snapshot date and GitHub API retrieval date not reported; account statistics change over time.
+
+## 11. Future research directions
+- Stated by authors [A]: extend the ExpHigh vs ExpLow lens to industrial settings and longitudinal studies to see how AI's role evolves with experience, informing adaptive AI tools, reviewer automation and task assignment (p. 4); training that emphasises verification skills (p. 4).
+- Suggested by us [I]: control for repository and agent with mixed-effects models; add code-level quality measures (static analysis, defects after merge) to separate review friction from code quality; for our project, record and control the operator's experience level when evaluating vibe-coded reconstructions.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ3 (indirect: review burden and acceptance of AI-agent code as quality proxies), RQ4 (proxy metrics, clustering, experience operationalisation), RQ5 (operator experience as a variable a reconstruction study should control).
+- How it informs our work [I]: shows that outcomes of AI-generated contributions differ with the human operator's experience, so a study of vibe-coded app reconstruction should fix or measure operator expertise. It does not evaluate application reconstruction, functional fidelity or code quality directly, hence relevance low. Peer-reviewed 5-page paper at MSR 2026 (track not stated in the PDF; a 5-page format suggests a short or challenge-track paper, which would be a lower tier than a technical-track paper, but this is unchecked) with large N but weak construct validity.
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ3 | Agentic PRs from low-experience users were accepted less often (31% lower; e.g. docs 93.06% vs 75.39%) and drew 4.52x more review comments than those from high-experience users | p. 3 | V | moderate |
+| RQ3 | Low-experience users' agentic PRs were larger (2.15x commits, 1.47x files per PR) and took 5.16x longer from creation to merge | p. 2, p. 3 | V | moderate |
+| RQ3 | Authors attribute friction to AI code that ignores build/CI constraints and lacks system context (from 15 inspected PRs) | p. 3, p. 4 | A | weak |
+| RQ4 | Experience = total commits / GitHub account age; quartile split Q1–2 vs Q3–4; group differences reported as ratios of means without effect sizes or CIs | p. 2, p. 3 | V | moderate |
+| RQ4 | Authors state the commit-based experience proxy "conflates activity with skill" | p. 4 | A | moderate |
+| RQ4 | Unit of analysis for the tests is unclear ("on mean values of each metric across PR categories", p. 2); if PR-level, observations are clustered by user (based on 22,953 PRs / 1,719 users, p. 2) | p. 2 | I | weak |
+| RQ5 | Authors call for industrial and longitudinal studies of how AI's role changes with developer experience | p. 4 | A | weak |
+
+## 14. Key quotes
+> "a workflow in which a human developer directs and supervises an AI agent through natural-language prompts and validates the generated code" (p. 1)
+
+> "Our results indicate that low-experienced vibe coders focus on generating more code while shifting verification burden onto reviewers." (p. 1)
+
+> "we measure “experience” via commit count [15], which conflates activity with skill" (p. 4)
+
+## Analyst notes
+- Reading coverage: whole paper read (5 PDF pages including references). Figures 1 and 2 read from the PDF images (pages 3 and 4) because the text layer garbles them. Replication package not opened.
+- Page-number caveat: `fulltext.txt` contains NUL bytes (use `grep -a`) and wrong page markers after page 4 (see note at top). Quotes on PDF page 4 appear in `fulltext.txt` under markers "page 4" to "page 6". Reported to the caller so the metadata/fulltext can be repaired by the lead.
+- Uncertainties: whether "31% lower" is relative or absolute; whether AIDev "agentic PRs" include PRs opened autonomously under a human account; the track of the MSR paper (not stated in the PDF; check on the DOI landing page before asserting it, per critical review batch A, 2026-11-11).
+- Review fixes applied 2026-11-12 (critical-review-batch-a): split the RQ4 evidence row into [V]/[A]/[I]; reworded the non-independence point as an unclear test unit; restated the page-count source; removed the unsourced "short paper" label.
+######## bai2026recreationworld
+---
+key: bai2026recreationworld
+status: complete
+evidence_basis: full-text
+design: Benchmark + environment framework (five-platform application recreation from a running reference) with model comparison, trajectory/artifact analysis and SFT transfer experiment
+dataset: RecreationBench, 250 tasks (50 each on Ubuntu, macOS, Windows, Android, Web; 200 open-source native apps, 44 synthetic + 6 openly licensed websites); 35,000 recreation trajectories for SFT
+sample_size: 250 benchmark tasks x 10 frontier models (rollouts per task not stated, probably one); trajectory/artifact analyses on 4 models; 35,000 SFT trajectories; 5 OOD benchmarks
+metrics: Programmatic score (fraction of reference-validated accessibility/DOM assertions passed); VLM score (VLM-judged visual assertions); average; Prog>=90%/=100% app coverage; LOC, file count, largest-file share
+main_finding: Best of 10 agents (GPT-6 Astra) averages 58.1%, fully passes 2.8% of apps; in 4 analysed models, interactions lag structure and rebuilds are smaller.
+relevance: high
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# RecreationWorld: Scalable and Verifiable Environments for Hybrid Computer-Use Agents
+
+- Authors: Bai, Shuai; Deng, Jiayong; Fan, Sicheng; Fu, Yikun; Gao, Chang; Hu, Xuhao
+- Year / venue: 2026, arXiv (preprint)
+- DOI: 10.48550/arxiv.2609.22000 · URL: https://arxiv.org/abs/2609.22000
+- Source text: `fulltext.txt` (page refs = PDF page index). Version read: arXiv v2, 21 Sep 2026 (p. 1). **Preprint, not peer-reviewed.** Industry paper (Alibaba Group, p. 1).
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+## 1. Research objective
+- [A] Build environments to both evaluate and train "hybrid" computer-use agents (CUAs): agents that combine GUI operation (looking at and clicking an interface) with coding and command-line work, and decide themselves when to explore, implement and verify (p. 1-2).
+- [A] The vehicle is **application recreation**: given only a running reference application, the agent must discover its behaviour and build a faithful, runnable reimplementation with no prescribed workflow; the running reference acts as an oracle for hidden behavioural tests (p. 1, p. 3).
+- [A] Secondary aims: show that recreation trajectories are useful training data that transfer to other coding and computer-use benchmarks (p. 3, p. 5-6), and analyse how agents work and what their rebuilt applications look like (p. 11).
+
+## 2. Research questions / hypotheses
+- No formal RQs or hypotheses. Implicit questions [I], based on the section structure (p. 5-18): (a) how well do frontier agents recreate applications across five platforms; (b) does training on verified recreation trajectories transfer out of distribution; (c) how do agents explore, implement and verify; (d) how do recreated artifacts differ structurally from their references; (e) which behaviours fail most.
+
+## 3. Methodology
+- Research design: [V] Benchmark and environment paper with (i) a held-out benchmark evaluation of ten frontier models, (ii) a supervised fine-tuning (SFT) transfer experiment with two model initialisations, (iii) a paired auxiliary comparison of two tool interfaces, and (iv) descriptive trajectory, artifact and failure analyses plus case studies (p. 5-6, p. 10-20, p. 38-47).
+- Approach / model / intervention: [V] Agent gets a task prompt, interactive access to the running reference, and an environment with GUI control and development tools; it returns source that must build and launch (desktop source + build/launch scripts; Android Gradle project -> APK; Web scaffolded source -> self-contained `index.html` on a pinned React stack); only observable behaviour is scored, not architecture (p. 3, p. 7). Desktop and Android are source-blind; on Web the served client code is necessarily visible (p. 7). Each rollout has a 20-hour wall-clock budget (p. 4, p. 28).
+- Baselines or comparison conditions: [V] Ten models with their scaffolds: GPT-6 Astra and GPT-5.6 Sol via Codex; Claude Opus 5, Claude Opus 4.8, Gemini 3.7 Flash, Kimi K3, GLM-5.3, Grok 4.6, Qwen3.8-Max-0902 and Qwen3.7-Plus via Claude Code, with listed context windows, output caps and reasoning settings (p. 28). For transfer: each run's first evaluated checkpoint (p. 1, p. 6). [I] No human-developer baseline is reported (checked p. 10-11, p. 28).
+
+## 4. Dataset and sample
+- Data source(s): [V] Native references from open-source GitHub repositories (desktop) and GitHub/F-Droid projects (Android), pinned to upstream commits; Web from 44 benchmark-authored synthetic sites and 6 openly licensed real sites (e.g. postgresql.org, webpack.js.org) (p. 7-8, p. 27). Training tasks from open-source GUI apps on GitHub, deduplicated against the evaluation sets (p. 5).
+- Sample size (N) and unit: [V] 250 tasks (applications/websites), 50 per platform (p. 7). Median production source of references: Ubuntu 49.3k, macOS 13.5k, Windows 6.7k, Android 15.0k LOC (p. 8). 81 tasks package 393 fixture files (p. 8, p. 34). Training: 35,000 trajectories (7,000 per platform) (p. 5). One example app has 85 rule-based tests and 35 visual assertions (p. 20). [I] Total number of test cases across the suite: not reported (checked p. 8-9, p. 32-34).
+- Sampling / selection method: [V] Excluded libraries, frameworks, extensions and apps needing login or remote services; references must run reproducibly; survivors balanced on domain, framework, source size, feature complexity and upstream activity (p. 8, p. 31-32). Android apps with first-run dialogs were patched to remove them (p. 31). Web pages screened by an agent on eight criteria, then human review (p. 32).
+- Data availability (public? link?): [A] Benchmark, environments and test suites released via a website, GitHub, Hugging Face and ModelScope (p. 1, p. 27); per-task licence metadata provided (p. 26-27). The PDF shows link labels, not URLs; release not checked by us.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: [V] Task-isolated, versioned VM/container workers per rollout (p. 4); platform actions exposed as direct MCP tool calls (qwen-cua-driver 0.7.3 on desktop, mobile-mcp 0.1.5, Playwright MCP 0.0.79) (p. 5, p. 28). Isolation: unprivileged agent user, protected reference and test files, default-deny network egress on Ubuntu/macOS/Windows/Web; Android lacks an attested packet-level egress filter and the installed APK is recoverable in principle (p. 9-10, p. 36-38). Test generation: an orchestrator agent combines source or page analysis with runtime exploration, subagents write tests per category ("lanes": structure, menu, button, computation, state, text on desktop) (p. 8, p. 32-33); every case replayed on a clean reference, unstable ones discarded, then human review before freezing (p. 8-9). Transfer: SFT of Qwen3.7-Plus and an in-house Qwen-Flash-CPT checkpoint on trajectories generated by Qwen3.8-Max and filtered by rejection sampling on the verifiers (p. 5-6); each OOD benchmark run once per task per checkpoint with a Claude Code scaffold (p. 6, p. 28-29).
+- Not reported [I] (checked p. 5-11, p. 28-29): number of human test reviewers and their agreement; rollouts per task per model in the main benchmark; SFT hyper-parameters.
+- [I] The main benchmark is probably a single rollout per task. The one-rollout direct-MCP arm of the Windows / Claude Opus 4.8 comparison (Prog 35.05, VLM 31.00; p. 11) reproduces the Table 11 Windows / Claude Opus 4.8 scores exactly (35.05 / 31.00; p. 30). This is not stated explicitly.
+- Code availability: [A] Harness, runners, evaluation code and configurations released on GitHub (p. 27); not checked.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - [V] **Programmatic score (Prog)**: fraction of frozen, reference-validated test cases passed, reading exact text, widget state, navigation, persistence or computed values through the platform accessibility/automation API (AT-SPI, AXUIElement, UI Automation, UiAutomator, DOM/ARIA); Web weights checks by specificity (p. 9). A candidate that fails to build or launch scores zero; unreached cases fail (p. 9).
+  - [V] **VLM score**: binary verdicts from a Qwen3.7-Plus judge (temperature 0) on reference-grounded natural-language assertions about candidate screenshots, for rendered properties the accessibility tree does not expose (p. 9, p. 32).
+  - [V] **Average score** = mean of Prog and VLM; apps macro-averaged within platform, platforms weighted equally (p. 9, p. 11). **Prog >= 90% / = 100%** = share of apps (near-)fully passing (p. 11).
+  - [V] Chosen because they are implementation-agnostic: tests depend on observable behaviour, not source similarity, so agents may choose any architecture (p. 4, p. 8).
+  - [V] Artifact metrics: production LOC (cloc), file count, largest-file share, UI framework family (p. 15-16, p. 30-31). Process metrics: interaction breadth, windows inspected, controlled input variation, final-loop closure, tool-call composition, hacking attempts, tokens and cost (p. 12-15).
+  - [V] Suite coverage audit: 77% of cases leave the start surface, 24% traverse 2+ surfaces, 94.2% check an interaction outcome, 40.7% require an exact value (p. 9).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [V] Trajectory and resource figures show 95% bootstrap intervals (p. 12, p. 14); size-association slopes have cluster-bootstrap 95% intervals, which include zero on Ubuntu and Android (p. 31). [I] Main benchmark scores are point estimates with no confidence intervals in Table 3 or Table 11 (p. 11, p. 30); no significance tests between models and no judge-vs-human agreement are reported (checked p. 9, p. 11, p. 28-32).
+
+## 7. Key findings
+1. Recreation is far from solved: GPT-6 Astra leads with 58.19 Prog / 57.92 VLM / 58.06 average, then Claude Opus 5 (44.16) and GPT-5.6 Sol (42.06); Grok 4.6 is fourth (36.73) and Qwen3.7-Plus is lowest (9.15) — [V] (p. 1, p. 11). (Table 3 column headers are scrambled in the text layer; the mapping was checked against Figure 1's ranked model list (p. 1) and word positions in the PDF (p. 11).)
+2. Full functional fidelity is rare: GPT-6 Astra reaches Prog >= 90% on 17.6% and Prog = 100% on 2.8% of apps; every other model reaches at most 5.53% and 0.8% — [V] (p. 11, p. 16).
+3. Agents reproduce what an interface contains better than what it does (four analysed models: Claude Opus 5, GPT-6 Astra, GLM-5.3, Qwen3.8-Max-0902; p. 12, p. 17): structure has the highest pass rate in 15 of 16 native model-platform comparisons; the weakest category (button, computation or interaction) trails structure by 9.1-34.4 points; on Web, static content beats interaction by 28.2-36.7 points — [V] (p. 16-17). Example: a recreation with 100.0% VLM but only 55.1% Prog (p. 18).
+4. Rebuilt apps are much smaller and more concentrated: 89.4% have less production source than the reference (median LOC ratio 16.9%); 92.3% use fewer files; 83.8% put a larger share of code in the largest file; median files 4-43 (recreations) vs 47-167 (references); largest-file share 10-64% vs 5-21% — [V] (p. 15-16). Recreation size barely tracks reference size (log-log slopes 0.08-0.23) — [V] (p. 15). Scope: four models analysed (Claude Opus 5, GPT-6 Astra, GLM-5.3, Qwen3.8-Max-0902); desktop and Android only for reference comparisons; coverage varies across model-platform cells (p. 12, p. 15). [I] Per-cell denominators are not reported (checked p. 15-16, p. 30-31).
+5. More code does not mean higher fidelity: Claude Opus 5 has the highest median recreation LOC on all five platforms **among the four analysed models**, while GPT-6 Astra has the lowest on four of five — [V] (p. 15); robust to a common-project restriction (p. 31). Scope as in finding 4 (p. 12, p. 15).
+6. Agents often switch frameworks (same four models; Web excluded): 75% of Ubuntu/macOS deliverables whose references use Electron, Tauri or Wails switch to native GTK or AppKit/SwiftUI; on Windows 50% of non-.NET references are rebuilt in WPF or WinForms — [V] (p. 16). [A] Authors read this as "architectural substitution rather than implementation quality" (p. 16).
+7. Verification habits are weak: the strict final edit -> relaunch -> inspect sequence appears in only 23.6-47.5% of trajectories; controlled input variation in 13.4-17.0% — [V] (p. 12, p. 17-18). Scope: four models analysed (Claude Opus 5, GPT-6 Astra, GLM-5.3, Qwen3.8-Max-0902) (p. 12). [I] Trajectory counts per model-platform cell are not reported (checked p. 12-15).
+8. Contamination check: exact-line overlap between recreations and references (four models) has medians of 0.014-0.088% and maxima below 3.2% — [V] (p. 18). Agents do attempt shortcuts (network egress, protected paths, package extraction), most often GLM-5.3 among the four analysed models — [V] (p. 13). Two Web case studies replayed reference content. Ablira (72.73% Prog / 40.79% VLM, p. 46) was caught by the scrape detector, so the 0.10 aggregate cap applies (p. 38, p. 47); [I] the case table therefore shows its pre-penalty channel scores (based on the min(s, 0.10) rule, p. 9, p. 38). Kartova escaped detection and kept 54.82% Prog / 14.63% VLM (34.72% average) — [V] (p. 47).
+9. Transfer: both SFT runs finish above their first measured checkpoint on all five out-of-distribution benchmarks (gains up to 17.9 points), but curves are not monotonic — [V] (p. 3, p. 6). [A] Authors call this "initial evidence" and "exploratory" because budgets and harness revisions differ (p. 3, p. 29).
+10. A programmable SDK interface (one rollout, 50 Windows apps, Claude Opus 4.8) kept quality similar (Prog 35.05 vs 35.60) while cutting estimated cost from $90.50 to $41.58 and wall-clock time from 4.12 to 3.04 h per task — [V] (p. 11).
+
+## 8. Limitations stated by the authors
+- [A] Pinned, reproducible environments limit coverage of live services, changing external state and real users (p. 21).
+- [A] Hidden suites sample a finite set of outcomes, so passing them "cannot establish equivalence across all states and interaction paths" (p. 22).
+- [A] Public references may be in pretraining data; source-overlap screening cannot rule out memorisation or all source reuse (p. 22, p. 18).
+- [A] Trajectory and artifact comparisons are descriptive; model identity, harness and runtime vary together, so no behaviour is shown to cause higher scores (p. 3, p. 11, p. 16).
+- [A] Android isolation is weaker (no attested egress filter; installed APK recoverable) and Web cannot be source-blind (p. 7, p. 10, p. 37).
+- [A] OOD transfer runs differ in budgets and harness revisions and are "exploratory evidence" (p. 29). Android commit identifiers were mostly inferred and are not verified pinned revisions (p. 30).
+- [A] Scores are not comparable with the earlier in-house version reported in a blog post (p. 27).
+
+## 9. Limitations we identified
+- [I] **Conflict of interest not declared.** All authors are from Alibaba (p. 1); the training data are generated by Qwen3.8-Max, the VLM judge is Qwen3.7-Plus, the desktop driver is Qwen Code's, and Qwen models are among those evaluated (p. 5, p. 9, p. 28). No COI statement. Qwen3.7-Plus, which is also the VLM judge (p. 9), is the lowest-scoring evaluated model (VLM 9.12, average 9.15, p. 11). So no favourable self-scoring is visible, but judge self-preference was not tested.
+- [I] **No variance.** Rollouts per task are not reported for the main benchmark and no CIs are given for Table 3 (p. 11); with 20-hour stochastic agent runs, small model differences may not be stable. The main benchmark is probably a single rollout per task: the one-rollout direct-MCP arm (p. 11) reproduces the Table 11 Windows / Claude Opus 4.8 scores exactly (p. 30). This is not stated explicitly.
+- [I] **Judge and reviewer reliability unknown.** The VLM judge's accuracy against humans and the number/agreement of human test reviewers are not reported (p. 8-9).
+- [I] **Scaffold confound.** GPT models run in Codex, all others in Claude Code (p. 28), so model and harness are entangled in the main ranking.
+- [I] **Unexplained denominators.** Claude Opus 5's Web Prog >= 90% of 13.64% (p. 30) cannot come from 50 tasks (every value would be a multiple of 2.00, as the other cells in that row are); it fits 6/44 (or 3/22). The paper invalidates runs that fail isolation checks (p. 9) and reports evaluator-valid subsets elsewhere (p. 11, p. 20), so some runs were probably excluded. The number of excluded runs per model and platform is not reported.
+- [I] **Score integrity gap.** A transformed replay (Kartova) evaded the scrape detector and kept 54.82% Prog / 14.63% VLM (p. 47). The detected replay (Ablira, p. 47) falls under the 0.10 aggregate cap (p. 38), so its reported 72.73% / 40.79% (p. 46) are pre-penalty channel scores. How often undetected replay occurs across the Web suite is not reported.
+- [I] **Transfer design is uncontrolled.** Improvements are measured from the first evaluated checkpoint (p. 6); whether that checkpoint is the untrained initialisation is not stated. Each OOD benchmark is run once per task (p. 28), the curves are non-monotonic (p. 6), and there is no control SFT mixture (e.g. equally long non-recreation agent trajectories; none described, p. 5-6, p. 29). Recreation-specific transfer is therefore not separated from generic agentic SFT or run-to-run noise. "Gains of up to 17.9 percentage points" (p. 3) is a single best-case last-vs-first difference with no uncertainty.
+- [I] **Code quality only as size/structure.** LOC, file count, largest-file share and framework (p. 15-16) are crude proxies; no complexity, duplication, smells, tests or maintainability measures. "More monolithic" is suggestive for our RQ3 but not a maintainability assessment.
+- [I] **Web scores are panel-relative.** The Web discriminativeness gate re-runs the suite on "rebuilds from a panel of models" and removes assertions every model passes (p. 34), making Web scores depend on that panel. The panel's composition is not reported; if it overlaps with the evaluated models, Web scores are partly defined by the evaluated models themselves.
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [I] Strong isolation design (p. 9-10, p. 36-38) and an overlap audit (p. 18) reduce leakage, but Android and Web are weaker by design (p. 7, p. 10), and hacking attempts occur (p. 13). Model and scaffold are confounded (p. 28). Patched Android references (p. 31) differ from upstream builds.
+- External (generalisability of sample/context): [I] Open-source, offline, login-free apps of moderate size (p. 8); Web is mostly synthetic (44 of 50, p. 7). Results may not hold for commercial apps with backends, accounts or network services.
+- Construct (do metrics measure the concept?): [I] Prog and VLM measure agreement with a finite, reference-validated test sample (p. 22), with depth and specificity audited (p. 9) — a good proxy for functional and visual fidelity but not equivalence. Size and file metrics are not code-quality measures (p. 16).
+- Statistical conclusion (power, multiple comparisons, variance): [I] 50 apps per platform; no CIs on main scores; bootstrap CIs on secondary analyses (p. 12, p. 14, p. 31); slopes not distinguishable from zero on two platforms (p. 31).
+- Reproducibility (data/code/setup reported?): [I] High: pinned environments, versions, model configs, licence metadata and release of benchmark and harness (p. 26-28). Proprietary model endpoints and unreported SFT hyper-parameters limit replication of the transfer experiment.
+
+## 11. Future research directions
+- Stated by authors [A] (p. 22): controlled online and multi-user workflows; broader hidden-test coverage across states and interaction paths; newly constructed references to reduce contamination risk. Improvement targets for agents: collect targeted evidence about state transitions and validate the exact submitted artifact (p. 18).
+- Suggested by us [I]: (a) add maintainability measures (complexity, duplication, modularity, test presence) to the artifact analysis and relate them to Prog/VLM; (b) run several rollouts per task and report CIs; (c) validate the VLM judge against human ratings; (d) include a human-developer recreation baseline.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ1, RQ2, RQ3 (partial), RQ4, RQ5.
+- How it informs our work [I]: This is the closest match so far to "AI-assisted reverse engineering": agents rebuild whole apps from a running reference across five platforms (RQ1). It gives the strongest benchmark evidence on functional fidelity (RQ2): high average scores hide that full behavioural equivalence is rare and that interactions and computations fail more than static UI. It provides the only structural comparison of rebuilt vs original code we have seen in this set (RQ3: smaller, fewer files, more concentrated, frequent framework substitution), though not real maintainability metrics, and only for four of the ten models and for desktop and Android references (p. 12, p. 15). Its evaluation design (reference-validated hidden tests in two channels, coverage audit, isolation, contamination audit) and its gaps (no variance, judge validity, COI) are directly useful for RQ4 and for designing our own study. The missing link between fidelity and maintainability is a concrete RQ5 gap. [I] Directionally consistent with [@chen2025iwr]. Static structure outperforms action-conditioned behaviour within bai's programmatic tests (p. 16-17), but bai's visual channel does not exceed its programmatic channel in aggregate: VLM is below Prog for 9 of 10 models, the exception being GPT-5.6 Sol at 43.49 vs 40.63 (p. 11). The two papers measure the gap differently.
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ1 | Hybrid agents can rebuild runnable apps from a running reference (no source on desktop/Android) across Ubuntu, macOS, Windows, Android and Web; 10 frontier models evaluated on 250 tasks | 3, 7, 11 | V | moderate |
+| RQ2 | Best agent averages 58.06% (Prog 58.19, VLM 57.92) but fully passes the programmatic suite on only 2.8% of apps (others <= 0.8%) | 11 | V | moderate |
+| RQ2 | Static structure is reproduced more reliably than actions and computed outputs (structure best in 15/16 native comparisons; gaps 9.1-34.4 pts; Web 28.2-36.7 pts; four analysed models) | 12, 16, 17 | V | moderate |
+| RQ2 | A recreation can score 100% visually yet only 55.1% programmatically | 18 | V | weak |
+| RQ3 | Recreations are much smaller and more concentrated than references: 89.4% smaller (median LOC ratio 16.9%), 92.3% fewer files, 83.8% larger largest-file share (four models analysed: Claude Opus 5, GPT-6 Astra, GLM-5.3, Qwen3.8-Max-0902; desktop and Android only; coverage varies across model-platform cells) | 12, 15, 16 | V | moderate |
+| RQ3 | More generated code does not mean higher fidelity among the four analysed models (highest-LOC model is not the best; best model has lowest LOC on 4/5 platforms; coverage varies across cells) | 12, 15, 31 | V | weak |
+| RQ3 | Agents frequently switch UI framework (e.g. 75% of Electron/Tauri/Wails references rebuilt natively; four analysed models, Web excluded); authors frame this as architectural substitution, not quality | 15, 16 | V | weak |
+| RQ4 | Fidelity measured by reference-validated, human-reviewed hidden tests in a programmatic and a VLM channel; 94.2% of cases check interaction outcomes | 9 | V | moderate |
+| RQ4 | No CIs or repeated runs for main scores (probably one rollout per task); judge accuracy and reviewer agreement not reported; model and scaffold confounded. Our appraisal of absences, based on Tables 3, 8, 11 and the evaluation text | 8, 9, 11, 28, 30 | I | moderate |
+| RQ4 | Agents attempt evaluation shortcuts (four analysed models) | 13 | V | weak |
+| RQ4 | A transformed replay evaded the scrape detector and scored 54.82% Prog (p. 47); detected replay is capped at 0.10 (p. 38) | 38, 46, 47 | V | weak |
+| RQ5 | Fidelity is measured in detail, but maintainability of rebuilt code is assessed only through size and structure proxies. Our appraisal; [A] authors themselves say the framework data show "architectural substitution rather than implementation quality" (p. 16) | 15, 16 | I | moderate |
+
+Strength note [I]: moderate = large, well-controlled benchmark (250 tasks, 5 platforms) but a single non-peer-reviewed study without variance reporting; case-study and descriptive rows are weak.
+
+## 14. Key quotes
+> "GPT-6 Astra leads at 58.1% overall, but passes all programmatic tests on just 2.8% of tasks." (p. 1)
+
+> "Evaluated recreations reproduce what an interface contains more reliably than what it does." (p. 16)
+
+> "the transition data therefore show architectural substitution rather than implementation quality" (p. 16)
+
+> "Ablira and Kartova show that programmatic and VLM scores can reward reference-content replay" (p. 47)
+
+## Analyst notes
+- Reading coverage: sections read / skipped and why: all 47 PDF pages read via `fulltext.txt`, including appendices A-D (reproducibility, evaluation settings, per-platform results, benchmark construction, isolation, harness, case studies). Reference list (p. 23-25) skimmed. Plots (Figures 1, 3, 5, 6, 10-17) are partly garbled in the text layer; numbers were taken from the text and tables, not read off the plots.
+- Uncertainties: (1) rollouts per task in the main benchmark are not reported; probably one, since the one-rollout direct-MCP arm (p. 11) matches Table 11 Windows / Claude Opus 4.8 exactly (p. 30); (2) the total number of test cases is not reported; (3) Claude Opus 5's Web Prog >= 90% of 13.64% (p. 30) cannot come from 50 tasks and fits 6/44 or 3/22; run invalidation (p. 9) and evaluator-valid subsets (p. 11, p. 20) make exclusions likely, but their number is not reported; (4) Ablira was caught by the scrape detector (p. 47), so its case-table scores (72.73 / 40.79, p. 39, p. 46) are pre-penalty channel scores under the min(s, 0.10) rule (p. 38); only Kartova (54.82 / 14.63, p. 47) shows an undetected replay keeping a real score; (5) the paper evaluates models (GPT-6 Astra, Claude Opus 5, etc.) that we cannot independently verify; all such facts are taken from the paper as reported; (6) paper inconsistency: Table 12 (p. 39) lists a case "GLM-5.2 / Ubuntu", but the evaluated models in Table 8 (p. 28) include glm-5.3, not GLM-5.2. Not resolvable from the text.
+- Table 3 (p. 11) and Table 11 (p. 30) column headers are scrambled in `fulltext.txt`. Column-to-model mapping was checked with `pdftotext -bbox` word positions and against the ranked model list in Figure 1 (p. 1). An earlier version of this analysis misread Grok 4.6 as lowest; corrected to Qwen3.7-Plus (2026-11-12, critical review batch C).
+- The scaffold's frontmatter was pre-filled by an earlier run; we checked each field against the text and corrected `dataset` and shortened `main_finding` to 25 words or fewer.
+######## borg2026echoes
+---
+key: borg2026echoes
+status: complete
+evidence_basis: full-text
+design: preregistered two-phase controlled experiment; Phase 1 observational (AI vs no-AI, assigned by preference), Phase 2 RCT (manual evolution of AI vs non-AI code); frequentist + Bayesian causal analysis
+dataset: 2 KLoC Java/Spring Boot web app (RecipeFinder) with two feature tasks; 449 pre-screened volunteers, 92% professional developers
+sample_size: 151 valid solutions; Phase 1 n=76 (39 AI / 37 no-AI); Phase 2 RCT n=75 (40 treatment / 35 control)
+metrics: completion time; CodeScene CodeHealth (customised); JaCoCo line coverage; SPACE-based perceived productivity; plus PMD, RefactoringMiner, smell deltas (Phase 1)
+main_finding: Evolving AI-assisted code showed no significant difference in time, CodeHealth, coverage or perceived productivity; at most a small, uncertain CodeHealth gain for habitual AI users.
+relevance: high
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# Echoes of AI: Investigating the downstream effects of AI assistants on software maintainability
+
+- Authors: Borg, Markus; Hewett, Dave; Hagatulah, Nadim; Couderc, Noric; Söderberg, Emma; Graham, Donald
+- Year / venue: 2026, Empirical Software Engineering (published)
+- DOI: 10.1007/s10664-026-10889-1 · URL: https://doi.org/10.1007/s10664-026-10889-1
+- Further authors (from metadata.json): Kini, Uttam; Farley, Dave
+- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is the Springer open-access version (78 pages); PDF page N = printed "Page N of 78".
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+## 1. Research objective
+Investigate whether co-developing code with AI assistants affects software maintainability, defined as how easily *another* developer can later evolve that code [A] (p. 1, p. 2).
+
+## 2. Research questions / hypotheses
+- RQ1: Do developers manually evolve code that has been co-developed with AI assistants more efficiently? RQ2: Does code co-developed with AI assistants result in higher quality upon manual evolution? [V] (p. 9).
+- Four preregistered null hypotheses (non-directional alternatives): no difference in completion time (H0 1), CodeHealth (H0 2), test coverage (H0 3), perceived productivity (H0 4) between developers evolving AI-assisted vs non-assisted code [V] (p. 14).
+- Note the "RQ1/RQ2" above are the paper's own RQs, not our project RQs.
+
+## 3. Methodology
+- Research design: preregistered (registered report, Borg et al. 2024b) two-phase sequential controlled experiment, following the ACM SIGSOFT Empirical Standard for experiments [V] (p. 2, p. 9). Phase 1 (Task 1): participants add a feature to a Java web app with or without AI; assignment to AI-dev / !AI-dev was by stated preference and habitual AI use, not random, so Phase 1 is observational [V] (p. 10, p. 43). Phase 2 (Task 2) is a *randomised controlled trial (RCT)*, i.e. participants are assigned to groups by chance: new participants, all without AI, were randomly assigned to evolve a valid Task 1 solution from either the AI-dev (treatment) or !AI-dev (control) cohort [V] (p. 2, p. 12). Analysis: frequentist tests plus Bayesian causal models built from a DAGitty causal graph, adjusting for Task 1 developer Java skill and habitual AI use (and Task 2 interruptions for completion time) [V] (p. 14, p. 15, p. 16). Qualitative coding of free-text answers and code analysis (CodeScene, PMD, RefactoringMiner) [V] (p. 22, p. 23).
+- Approach / model / intervention: independent variable = whether the evolved Task 1 code was co-developed with an AI assistant [V] (p. 13). Participants used their preferred tools; reported Task 1 tools: GitHub Copilot 21, ChatGPT 13, Cursor 9, JetBrains AI 5, Claude 4, others ≤2 [V] (p. 27). No fully autonomous agent was given the whole task; usage frequency: every statement 17, often 10, sometimes 12 [V] (p. 25, p. 26). Data collected Oct 2024 – 18 Jan 2025, i.e. before agentic tools became common [V] (p. 3, p. 17).
+- Baselines or comparison conditions: control = evolving code written without AI in Task 1 [V] (p. 12). Bayesian sensitivity analysis with neutral, AI-sceptical and AI-enthusiastic priors (optimistic completion-time prior from Peng et al.'s 55% speedup) [V] (p. 21).
+
+## 4. Dataset and sample
+- Data source(s): RecipeFinder, a deliberately substandard Java/Spring Boot web app (2 KLoC, 47 files) co-designed with Equal Experts consultants; plus questionnaires and CI measurements [V] (p. 64, p. 65, p. 66).
+- Sample size (N) and unit: 449 valid pre-screening sign-ups (92.2% professional developers, median age group 40–49) [V] (p. 24). 118 assigned to AI-dev, 106 randomly to !AI-dev, 225 reserved for Task 2 [V] (p. 24). Valid solutions: Task 1 = 39 AI-dev + 37 !AI-dev (one !AI-dev reclassified for AI use); Task 2 = 75 (40 treatment, 35 control) [V] (p. 24, p. 25, p. 28, p. 30). Total 151 participants (33.6% of sign-ups) [V] (p. 19). Completion-time analysis uses 72 Task 2 times after removing values >16 h [V] (p. 18, p. 32). Of 75 Task 1 solutions offered, 51 were evolved; 24 were not (similar CH, mean 8.32 vs 8.35) [V] (p. 28). [I] The Task 1 count is inconsistent: 76 (39 + 37) on p. 24 vs 75 on p. 28 (see §9).
+- Sampling / selection method: volunteers recruited via social media (YouTube, LinkedIn, X) and personal networks; incentive = signed book by the last author and a chance at an "Ask Me Anything" session [V] (p. 10). Stratified random sampling into tasks [V] (p. 10). A priori power analysis (G*Power): 128 Phase 2 participants needed for d = 0.5, α = 0.05, power 0.80; target not reached [V] (p. 19). Sample is 95% male, no participants from China, Japan, South Korea [V] (p. 61).
+- Data availability (public? link?): Zenodo replication package (task instructions, anonymised data, causal graph; CC BY 4.0) and a GitHub repository with analysis scripts [V] (p. 74). The study code base was deliberately not hosted publicly to avoid leakage into LLM training data; it is shared as PDF documents in the replication package [V] (p. 66). [I] This is in tension with p. 74, which describes "A GitHub repository containing the full code base, scripts for data cleaning and analysis, and notebooks" (p. 74); it is unclear whether "full code base" means the RecipeFinder system or the analysis code.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: tasks administered via snapcode.review with per-participant GitHub repos; GitHub Actions ran 3 acceptance tests per task, CodeScene (CH) and JaCoCo (coverage), and recorded timestamps [V] (p. 16, p. 17, p. 65). Task 1: add total-time filter to search and fix an injected bug; Task 2: add a cost-per-serving filter on top of a Task 1 solution; quality requirement deliberately vague ("easy to read and maintain") [V] (p. 65). Each Task 1 submission was offered to three Task 2 participants [V] (p. 17). Only solutions passing acceptance tests were kept [V] (p. 17). 73 of 151 (48.3%) did not work in one sitting; 67 self-reported time estimates replaced recorded times; 11 values >16 h removed [V] (p. 18). Bayesian models implemented in Turing (Julia) [V] (p. 67). Phase 1 code analysis: CodeScene v6.19.15, PMD v7.13.0 (default/all Java rules), RefactoringMiner 2.0 [V] (p. 23, p. 66).
+- Code availability: analysis scripts and notebooks on GitHub, mirrored to Zenodo [V] (p. 74).
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - Completion time — time from repo access to final submission; proxy for maintainability because more maintainable code should take less effort to evolve [V] (p. 3, p. 13).
+  - CodeHealth (CH) — CodeScene file-level score 1–10 penalising 25+ code smells, LoC-weighted average over all files; authors cite prior work showing it correlates with maintenance cost, defects and onboarding and outperforms SonarQube Maintainability Rating and Microsoft Maintainability Index on a benchmark [V] (p. 4, p. 13). Customised for small tasks: Complex Method triggers at cyclomatic complexity 4 (default 9), Nested Complexity at 3 levels (default 4) [V] (p. 13).
+  - Test coverage (TC) — JaCoCo line coverage; indicator of attention to testing [V] (p. 13).
+  - Perceived productivity (PP) — 10 five-point Likert items mapped to SPACE dimensions S, C, E [V] (p. 12, p. 14).
+  - Phase 1 only (exploratory, not preregistered): code smell deltas (removed/improved/unchanged/degraded/introduced), PMD violations, refactoring operations, regex-detected tests/comments/functional style [V] (p. 23, p. 43, p. 45).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): Shapiro-Wilk normality; Wilcoxon rank-sum + Cliff's δ (time, TC); Welch's t-test + Cohen's d (CH, PP); bootstrap CIs (1,000,000 resamples); no multiple-testing correction [V] (p. 18, p. 19). Bayesian: probability of direction > 95% counted as "significant", 95% credible intervals, posterior predictive simulations [V] (p. 22). Achieved power with n = 75: 80% only for d ≈ 0.66; 0.57 for d = 0.5; 0.17 for d = 0.2 [V] (p. 19). PP internal consistency Cronbach's α = 0.82 [V] (p. 18).
+
+## 7. Key findings
+1. Phase 2 completion time: median 136 min treatment vs 173 min control; Cliff's δ = −0.079 (negligible); Wilcoxon p = 0.56 — [V] (p. 33). Bayesian: P(Δ<0) = 76%, posterior mean −12.59%, CrI [−45.77%, +32.68%]; with a pessimistic prior the probability falls to ~38–39% — [V] (p. 33, p. 34).
+2. Interruptions dominate Task 2 time: developers who took breaks finished 173.66% later (CrI [+37.69%, +416.88%]) — [V] (p. 34).
+3. Phase 2 perceived productivity: mean 3.95 vs 4.06; Cohen's d = −0.21; Welch p = 0.37. Bayesian: P(Δ<0) = 84%, mean −1.26 SD, CrI [−2.46, +2.31] for code from habitual AI users — [V] (p. 35, p. 36).
+4. Phase 2 CodeHealth: mean 8.49 vs 8.44; Cohen's d = 0.28; Welch p = 0.24 (n.s.). Bayesian: code originally AI-co-written by habitual AI users had +0.10 CH after evolution (P(Δ>0) = 98%, CrI [+0.02, +0.19]), stable across priors — [V] (p. 38, p. 39).
+5. Developer skill mattered more: higher Task 1 Java skill gave +0.16 CH in Task 2 (P > 99%, CrI [+0.07, +0.26]) — [V] (p. 40); authors state Java proficiency had a stronger influence than AI use — [A] (p. 55).
+6. Phase 2 test coverage: median 0.70 both groups; Cliff's δ = 0.09; Wilcoxon p = 0.49; Bayesian P(Δ>0) = 91%, logit +0.10 (CrI [−0.04, +0.26]) — [V] (p. 42, p. 43).
+7. Phase 2 smell changes: treatment degraded Complex Method more often (55% vs 31%) and introduced Complex Conditional more often (18% vs 3%); control introduced Primitive Obsession more often (26% vs 8%); the paper calls these "significant" but does not name a test — [V] (p. 38).
+8. Phase 1 (observational): AI-devs had 30.7% shorter median completion time (Wilcoxon p = 0.0029, Cliff's δ = −0.42); Bayesian estimate for habitual AI users ~60% faster (CrI [−77.11%, −30.64%]) — [V] (p. 33, p. 43). Phase 1 CH: no significant difference (p = 0.52, δ = 0.09) — [V] (p. 44).
+9. Phase 1 code-level patterns: AI-devs added up to 10,788 lines (mean 642.74 vs 216.41 added lines); resolved the Bumpy Road smell more often (72% vs 46%); introduced more Code Duplication (23% vs 11%), Complex Conditionals (13% vs 5%), Nested Complexity (8% vs 0%); fewer PMD complexity violations but higher variance in Code Style violations (SD 154 vs 45) — [V] (p. 30, p. 45, p. 46, p. 47). Authors: AI use "may reduce complexity but add stylistic clutter" — [A] (p. 47).
+10. Overall conclusion: no systematic maintainability advantage or disadvantage when others evolve AI-co-developed code; main risks are code bloat and "cognitive debt" — [A] (p. 1, p. 57, p. 58, p. 62).
+
+## 8. Limitations stated by the authors
+- [A] Only short-term maintainability is observed; long-term effects need longitudinal case studies (p. 58).
+- [A] Individual developers only, no team dynamics; small system, so no architectural conclusions; security not studied (p. 58).
+- [A] Many participants worked in several sittings; time partly self-estimated (p. 18, p. 59).
+- [A] Possible confirmation bias in AI-devs' perceived productivity (p. 45, p. 59).
+- [A] Participants' differing definitions of "good enough" quality; randomisation may not balance them at this N (p. 55, p. 59).
+- [A] Remote setting; protocol adherence cannot be guaranteed; one participant submitted Task 1 twice (p. 17, p. 59, p. 60).
+- [A] External validity: one small Java/Spring Boot system; Task 2 developers did not use AI; mature commercial assistants only; 95% male, uneven geography (p. 60, p. 61).
+- [A] RCT underpowered: non-significant results rule out only large effects (p. 61).
+
+## 9. Limitations we identified
+- [I] Phase 1 assignment by preference means the "treatment" is "code from developers who like and habitually use AI, using AI" — not AI use alone. The Phase 2 randomisation protects the comparison of *which code* is evolved, but the treatment effect bundles developer type and tool use. Based on the assignment procedure (p. 10, p. 17).
+- [I] Internal numeric inconsistencies: the habitual-user Task 1 speedup is 55.9% in the abstract, introduction and conclusion (p. 1, p. 2, p. 62) but ~60% / 59.6% in the results and discussion (p. 33, p. 54); Cronbach's α is 0.82 (p. 18) but ">0.85" (p. 61); the word "habitual" covers two thresholds: AI-dev group assignment required 4 or 5 on Q1-7a plus a preference median >3 (pilot and main phase, "using the same assignment criteria", p. 17), whereas the analysis variable "habitual AI users" means "Strongly agree" only (p. 15). Task 1 valid solutions are given as 39 + 37 = 76 (p. 24), as 38 AI-dev (p. 24) plus 38 !AI-dev (p. 25), and as 75 in total (p. 28); the reclassification of one participant (p. 18, p. 25) explains 38/38 vs 39/37 but not 75 vs 76.
+- [I] Several Phase 1/Phase 2 smell and PMD differences are called "significant" without a named test or correction (p. 38, p. 47); treat them as descriptive.
+- [I] The headline "+0.10 CodeHealth" is a Bayesian subgroup result for habitual AI users, at the 95% probability-of-direction threshold, on a scale where groups differ by hundredths; it is the only "significant" maintainability effect and it favours AI.
+- [I] CodeHealth is a proprietary metric from the first author's employer, customised for this study (p. 13, p. 75); independent replication with an open tool (e.g. SonarQube) was not done for the RCT outcome.
+- [I] The evolved base system is small (2 KLoC) and Task 2 changes are tiny (median 56.5 vs 80 added lines; some participants called it "simplistic") (p. 52), which limits sensitivity to maintainability differences.
+- [I] Code volume — the risk the authors themselves highlight — is not an RCT outcome; Task 2 participants were randomised to code bases that varied greatly in size (Task 1 added lines up to 10,788) (p. 30).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): Phase 2 randomised; Phase 1 not (preference-based) (p. 10, p. 43). Covariate adjustment for Java skill and AI habituality via causal DAG (p. 15, p. 16). Protocol violations handled (p. 17, p. 18). Task code kept out of public repos to prevent LLM training-data leakage (p. 66). Differential dropout: 24 of 75 Task 1 solutions were never evolved (p. 28).
+- External (generalisability of sample/context): senior professional volunteers, largely Western, male; one Java/Spring Boot app; first/second-generation assistants (Copilot, ChatGPT, Cursor), late 2024 (p. 3, p. 24, p. 60, p. 61).
+- Construct (do metrics measure the concept?): completion time as maintainability proxy is noisy (setup friction, Java ramp-up, interruptions) (p. 53, p. 54); CodeHealth customised thresholds (p. 13); PP self-reported (p. 59).
+- Statistical conclusion (power, multiple comparisons, variance): underpowered (75 vs 128 planned); no multiple-testing correction; failed sensitivity analysis for completion time under optimistic prior (p. 19, p. 54, p. 61). Independence of observations assumed though some Task 1 solutions were evolved by up to four Task 2 participants (p. 18, p. 28).
+- Reproducibility (data/code/setup reported?): preregistered; Zenodo + GitHub replication package with data, scripts, CodeHealth configuration and task materials (p. 13, p. 74). Conflicts of interest declared: first author employed by CodeScene; three authors consultants at Equal Experts (AI-accelerated delivery); last author runs the YouTube channel used for recruitment (p. 61, p. 75). Funding: open access by Lund University; Vinnova grant 2023-00541 (NextG2Com); WASP (Knut and Alice Wallenberg Foundation); ELLIIT and Swedish Foundation for Strategic Research grant FFL18-0231 (p. 74).
+
+## 11. Future research directions
+- Stated by authors [A]: study evolution where the second developer also uses AI; evaluate third-generation coding agents (Claude Code, Amp); add security analysis (p. 63); longitudinal case studies and action research on maintainability dynamics (p. 63); examine code bloat from excessive generation and cognitive debt (p. 1, p. 57, p. 62); study when enthusiastic AI use leads to downstream maintainability backlash (p. 62); broaden demographic representation (p. 61).
+- Suggested by us [I]: run the same two-phase hand-off design with agent-generated (vibe-coded) applications reconstructed from a UI/spec, measuring code volume and system-level structure as RCT outcomes, with an open static-analysis tool alongside CodeHealth.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ3 (main), RQ4, RQ5.
+- How it informs our work [I]: the only randomised evidence in our set on downstream maintainability of AI-assisted code. Its design — a second developer evolves the generated code without AI, with time and quality measured — is directly reusable for evaluating maintainability of reconstructed apps (RQ5). Its null result (no degradation at file level) contrasts with he2026speed's project-level complexity increase; the difference in tool generation (completion/chat vs agentic), scale (2 KLoC task vs real repos) and metric (CodeHealth average vs total cognitive complexity) is a key point for RQ3/RQ4.
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ3 | Developers evolving AI-co-developed code showed no significant difference in completion time (median 136 vs 173 min, p=0.56, Cliff's δ=−0.079) | 33 | V | moderate |
+| RQ3 | No significant difference in CodeHealth after evolution (8.49 vs 8.44, p=0.24, d=0.28); Bayesian +0.10 CH for code from habitual AI users (P=98%) | 38, 39 | V | moderate |
+| RQ3 | No significant difference in test coverage (median 0.70 both, p=0.49) or perceived productivity (d=−0.21, p=0.37) | 35, 42 | V | moderate |
+| RQ3 | Higher Task 1 Java skill (skill 3 vs 1): +0.16 CH in Task 2, P(Δ>0) > 99%, CrI [+0.07, +0.26] | 40 | V | moderate |
+| RQ3 | Authors conclude the Task 1 developer's Java proficiency mattered more for Task 2 outcomes than AI use (different contrast from the +0.10 habitual-AI subgroup, p. 39) | 55 | A | moderate |
+| RQ3 | AI-assisted Task 1 code (observational) introduced more Code Duplication (23% vs 11%) and Complex Conditionals (13% vs 5%), fewer PMD complexity violations, and much larger code volume in outliers (up to 10,788 lines) | 30, 46, 47 | V | weak |
+| RQ3 | AI assistance cut Task 1 median completion time by 30.7% (p=0.0029, δ=−0.42; observational) | 43 | V | moderate |
+| RQ4 | Maintainability operationalised as hand-off evolution by a second developer (time) plus customised CodeScene CodeHealth, JaCoCo coverage and SPACE-based perceived productivity | 13 | V | moderate |
+| RQ4 | RCT underpowered (75 of 128 planned; 80% power only for d≈0.66); authors read null results as evidence against large effects only | 19, 61 | V | moderate |
+| RQ5 | Authors call for studies of third-generation agents, AI-assisted second developers, security, code bloat and cognitive debt, and longitudinal designs | 62, 63 | A | moderate |
+
+## 14. Key quotes
+> "we did not detect systematic maintainability advantages or disadvantages when other developers evolved code co-developed with AI assistants" (p. 1)
+
+> "We therefore interpret our frequentist findings as evidence against large effects, rather than as evidence for the absence of any effect." (p. 61)
+
+> "Even if individual files become highly maintainable, the sheer code volume may undermine system-level maintainability." (p. 57)
+
+## Analyst notes
+- Reading coverage: main text pages 1–63 read in full; Appendix A (system and tasks, pp. 63–66) read in full; Appendix B (Bayesian model specifications, pp. 67–72) skimmed for model structure; Appendices C and D (CodeScene smell and PMD rule descriptions) skimmed; declarations (pp. 74–75) read; references skimmed.
+- Uncertainties: the inconsistent speedup (55.9% vs 59.6%) and Cronbach's α values; the test behind "significantly" for smell-delta differences is not reported; whether the 72 completion times and 75 CH/TC values imply further exclusions beyond those stated. Peer-reviewed journal (EMSE 2026) and preregistered; conflicts of interest are declared and relevant because the main quality metric is the first author's employer's product.
+- Review fixes applied 2026-11-12 (critical-review-batch-a): corrected the "habitual" threshold point; added the 75 vs 76 Task 1 count inconsistency; added the p. 66 vs p. 74 code-availability tension; split the skill-vs-AI evidence row into [V]/[A]; added funding.
+######## chen2025iwr
+---
+key: chen2025iwr
+status: complete
+evidence_basis: full-text
+design: Benchmark study; 28 LVLMs reconstruct interactive webpages (single HTML file) from a user-interaction video plus crawled assets; agent-as-a-judge replays ground-truth actions
+dataset: IWR-Bench, 113 tasks from 100 real-world websites (curated 200 -> 161 -> 113), 1,001 annotated actions, 620 visual checkpoints, 403 logical assertions
+sample_size: 113 tasks x 28 models (runs per model not reported); human alignment study 60 instances x 5 raters; agent check 100 pages x 3 raters
+metrics: Interactive Functionality Score (IFS, share of actions executed and assertions passed); Visual Fidelity Score (VFS, OCR+DINO low-level + MLLM high-level); Final = 0.7*IFS + 0.3*VFS
+main_finding: Best model (GPT-5) reaches only 36.35 Final; IFS (24.39) lags VFS (64.25) for all models, partly by construction: VFS scores only reached checkpoints.
+relevance: high
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# IWR-Bench: Can LVLMs reconstruct interactive webpage from a user interaction video?
+
+- Authors: Chen, Yang; Liu, Minghao; Shen, Yufan; Li, Yunwen; Huang, Tianyuan; Fang, Xinyu
+- Year / venue: 2025, arXiv (preprint)
+- DOI: 10.48550/arxiv.2509.24709 · URL: https://arxiv.org/abs/2509.24709
+- Source text: `fulltext.txt` (page refs = PDF page index). Version read: arXiv v3, 19 Nov 2025 (p. 1). **Preprint, not peer-reviewed.**
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+## 1. Research objective
+- [A] Introduce and formalise Interactive Webpage Reconstruction (IWR): given a video of a user interacting with a webpage plus the page's static assets, a model must generate code that reproduces both the visual appearance and the interactive behaviour seen in the video (p. 4, p. 5).
+- [A] Motivation: existing webpage-to-code benchmarks are static (screenshot-to-code, e.g. Design2Code, WebSight) or treat interactions as single-step, stateless events (Interaction2Code), and do not provide the static assets needed for a realistic rebuild (p. 2, p. 6).
+
+## 2. Research questions / hypotheses
+- [A] Central question: "Can LVLMs reconstruct the dynamic, interactive functionalities of a webpage from observing a user interaction video?" (p. 2).
+- [I] No formal hypotheses are stated; the study is a descriptive benchmark evaluation (p. 7-9).
+
+## 3. Methodology
+- Research design: [V] Benchmark construction plus a cross-sectional comparison of 28 large vision-language models (LVLMs) on the same tasks, scored automatically by an "agent-as-a-judge" that replays a ground-truth action sequence on the generated page (p. 4, p. 6-8).
+- Approach / model / intervention: [V] Each model receives the interaction video (sampled at 1 fps, max 64 frames) and a composite image of all crawled static assets, and must output one self-contained `index.html` with all HTML, CSS and JS; backend logic must be mocked in JS; no external libraries or fonts (p. 8, p. 20). Asset filenames are anonymised (e.g. `asset_001.png`) so models must match assets visually rather than by name (p. 5).
+- Baselines or comparison conditions: [I] No method baseline is described (checked pp. 7-9). [V] The comparison is across 28 models in three groups: 17 proprietary MLLMs, 9 open-source MLLMs, 2 open-source video-specialised models; three models are also run in "thinking" (reasoning-enhanced) and non-thinking variants (p. 8). [I] Because those three thinking variants are counted separately, the 28 entries cover 25 distinct base models (based on Table 3, p. 8).
+
+## 4. Dataset and sample
+- Data source(s): [V] Live real-world websites; 113 tasks from 100 websites; videos recorded by trained annotators while a browser extension logs action type and parameters; static assets collected with automated crawlers plus manual inspection (p. 1, p. 5).
+- Sample size (N) and unit: [V] 113 tasks/videos; 1,001 actions in total (mean 8.9 per video); 620 actions carry a visual checkpoint and 403 carry a logical assertion; mean video length 35.4 s (max 172.9 s); 19 unique resolutions; 10.62% mobile (p. 6). Interaction-logic mix: L1 static 7.96%, L2 simple state 47.79%, L3 complex workflow 33.63%, L4 algorithm/game 10.62% (p. 3).
+- Sampling / selection method: [V] 200 candidate tasks proposed by web-development experts -> deduplication and diversity balancing across domain, visual complexity and interaction logic -> 161 -> cross-verification by a second annotator and an LLM check of assertions -> disputed, ambiguous or overly trivial tasks removed -> 113 (p. 5-6). [I] Exact criteria for "trivial" or "disputed" are not reported.
+- Data availability (public? link?): [A] Benchmark and evaluation code "will be made publicly available" at https://github.com/SIGMME/IWR-Bench (p. 1). We did not check whether the release happened.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: [V] Video sampled at 1 fps, capped at 64 frames (longer videos uniformly downsampled); video frames and asset image given as a sequential multi-image input; "All other inference parameters utilize the default settings recommended by the model providers" (p. 8). A standard system prompt is used for all models (p. 18, p. 20). Evaluation executor built on the `browser-use` library; Gemini-2.5-Pro is the MLLM judge for logical assertions and for the high-level visual score (p. 6-7). Actions target elements by natural-language description rather than coordinates (p. 17). [I] Number of runs per model, temperature/seed and variance: not reported (checked pp. 7-9, 17).
+- Evaluator determinism: [A] The executor is described as "deterministic" (p. 6). Which model resolves the natural-language element descriptions (p. 17) into page elements, and whether replays are repeatable, is not reported.
+- Code availability: [A] Announced for release at the GitHub link above (p. 1); not verified by us.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - [V] **IFS (Interactive Functionality Score)** = successful actions / total actions; an action succeeds only if it is operationally feasible (target element found) and all its logical assertions pass (p. 7). Chosen to measure functional correctness, because pixel-wise metrics "cannot appraise functionality" (p. 3).
+  - [V] **VFS (Visual Fidelity Score)** = macro-average over reached checkpoints with a visual flag of 0.5 x low-level score (mean of OCR Levenshtein text similarity and DINO cosine similarity) + 0.5 x high-level MLLM score (p. 7). The MLLM rubric weights Layout 10, Elements 15, Content and Text 40, Style 15, Overall 20 points (p. 20).
+  - [V] **Final Score** = 0.7 x IFS + 0.3 x VFS, macro-averaged across the benchmark (p. 7).
+  - [V] Weights w = 0.5 and alpha = 0.7 were chosen by grid search to maximise Spearman's rho with human judgements of 60 instances (20 random tasks x 3 random models) rated by five PhD-level students; best rho = 0.57 for VFS and 0.65 for the Final Score (p. 17). [I] Agreement among the five raters is not reported; their judgements were aggregated (p. 17).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): [I] None found for model comparisons: Table 3 and the results text give single point estimates without confidence intervals or significance tests (checked pp. 8-9, 16-19). [V] Only Spearman correlations are reported, for metric calibration (p. 17).
+
+## 7. Key findings
+1. Interactive reconstruction from video is far from solved: GPT-5 is best with Final 36.35, IFS 24.39, VFS 64.25; no model exceeds 25 IFS — [V] (p. 8, p. 9).
+2. IFS is below VFS for every model: e.g. Claude-Sonnet-4 VFS 61.34 vs IFS 22.29; GPT-4o (latest) VFS 57.55 vs IFS 17.55 — [V] (p. 8, p. 9). [I] Caveat: the two scores do not share a denominator. VFS is computed only over checkpoints that were successfully reached (p. 7), IFS over every action in the trajectory (p. 7), so part of the gap is built into the metric definitions (see §9). The low absolute IFS (finding 1) does not depend on this caveat.
+3. Hierarchy: the top eight models by Final Score are all proprietary (GPT-5 36.35 down to GPT-4.1 31.99); proprietary models span Final 16.50-36.35; the best open-source model, Qwen3-VL (thinking), scores 31.15 and is above 9 of the 17 proprietary models; video-specialised models are lowest (VideoLLaMA3-7B 13.67, InternVideo-2.5-Chat-8B 10.07) — [V] (p. 8, p. 9). So the proprietary and open-source ranges overlap. [A] Authors conclude general multimodal reasoning and code generation matter more than video-specialised architectures (p. 9).
+4. Thinking variants raise IFS and Final slightly in all three pairs: Claude-Sonnet-4 Final 34.62 vs 34.00 (IFS 23.65 vs 22.29); Claude-Opus-4 34.13 vs 33.33 (IFS 23.61 vs 21.83); Gemini-2.5-Pro 30.36 vs 30.31 (IFS 21.65 vs 20.51). But they lower VFS in all three pairs: 60.20 vs 61.34; 58.67 vs 60.18; 50.67 vs 53.18 — [V] (p. 8, p. 9). [A] The authors describe the gains as "Consistent but Moderate" (p. 9); this goes beyond the data, given the VFS drops and the Gemini Final difference of 0.05 points.
+5. Final Score drops sharply from static L1 tasks to interactive ones: GPT-5 61.85 on L1 vs 35.43 / 35.12 / 25.26 on L2 / L3 / L4 — [V] (p. 17). L1 is the highest category for every model, but L2 and L3 are similar and their order varies by model (e.g. Claude-Sonnet-4 31.04 vs 32.86; Claude-Opus-4 (thinking) 31.52 vs 32.57; GPT-4.1 30.32 vs 31.98) — [V] (p. 17). By visual category, Final Score is lowest on data-dense layouts (GPT-5 26.05 on V4 vs 44.77 on V1), with V3 above V2 (43.77 vs 30.73) — [V] (p. 18). By domain, Life & Community is the weakest and Entertainment & Media the strongest (GPT-5 22.80 vs 47.24) — [V] (p. 19). All three category tables report Final Score only, not IFS or VFS (p. 16). So they do not show whether functional or visual fidelity drives the differences. [I] The robust contrast is L1 vs the rest; strata are small (about 9 L1 and 12 L4 tasks, see §9).
+6. Judge reliability: three PhD students watched the agent run on 100 random generated pages; agent evaluation failed in only three cases (ambiguous element descriptors), which were then fixed — [V] (p. 9).
+7. Case studies show distinct failure points, e.g. a model completing filter and sort but failing "add to cart"; a model failing to merge tiles in a 2048 rebuild; missing first-step elements blocking all later actions — [V] (p. 19-21).
+
+## 8. Limitations stated by the authors
+- Not reported: the paper has no limitations or threats-to-validity section (checked pp. 1-21). Design notes and disclosures that are not limitations (alternative weighting rejected, p. 7; agent-evaluation errors fixed, p. 9; LLM-assisted editing, p. 21) are recorded in Analyst notes.
+
+## 9. Limitations we identified
+- [I] **IFS and VFS are not comparable in scale.** VFS averages only over checkpoints that were "successfully reached" (p. 7). It therefore cannot be lowered by functional failures that block later states. IFS divides successful actions by all actions in the trajectory (p. 7). Part of the IFS < VFS gap is therefore a property of the metrics, not only of the models. The authors mention unreachable states only to justify alpha = 0.7 (p. 7). How VFS is scored for a task where no visual checkpoint is reached is not reported. This weakens the headline "visual is solved better than function" reading. It does not weaken the finding that IFS is low in absolute terms.
+- [I] **No code-quality or maintainability measurement.** The task forces a single self-contained HTML file with no libraries (p. 20), and only behaviour and appearance are scored. The benchmark therefore says nothing about code structure, readability or maintainability (our RQ3), and the single-file format is far from how real apps are built.
+- [I] **Judge overlap.** Gemini-2.5-Pro is both the assertion/visual judge (p. 7) and one of the evaluated models (p. 8). Self-preference bias is not tested; its mid-table rank makes a large bias unlikely, but it is not ruled out.
+- [I] **Moderate human alignment, tuned in-sample.** The weights were chosen to maximise rho on the same 60 instances used to report rho = 0.57 / 0.65 (p. 17); there is no held-out check. These are moderate correlations, so the Final Score is only partly aligned with human judgement. Agreement among the five raters is not reported (p. 17). The same is true of agreement among the three PhD students who observed the agent (p. 9).
+- [I] **Evaluator re-scoring after fixes unclear.** The 3/100 agent failures were "rectified" (p. 9). Whether all 28 x 113 evaluations were re-run after the fixes is not reported. Element resolution from natural-language descriptions (p. 17) may itself involve a model, so the "deterministic" label (p. 6) is an author claim we cannot check.
+- [I] **No variance reporting.** Single point estimates with default sampling settings (p. 8) and no repeated runs reported; several model gaps are tiny (e.g. 30.36 vs 30.31, p. 9) and could be noise.
+- [I] **Unclear failure propagation.** It is not stated whether a failed early action stops the replay or whether later actions are still attempted (p. 7); Case 4 suggests failures cascade (p. 21). This affects how IFS should be read.
+- [I] **Possible contamination.** Tasks come from popular live websites (e.g. an IMDb mock in Figure 2, p. 2); models may have seen similar code in training. Asset anonymisation (p. 5) reduces name cues but not memorised page structure. Not discussed by the authors.
+- [I] **Small strata.** L1 (about 9 tasks) and L4 (about 12 tasks), derived by us from the percentages on p. 3, give unstable per-category scores.
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [I] Task filtering removed "overly trivial" and "disputed" tasks without stated criteria (p. 6), which may shift difficulty. All models get identical inputs and prompt (p. 18), which supports a fair comparison. Video downsampling to at most 64 frames (p. 8) may remove interaction evidence from long videos (max 172.9 s, p. 6); this affects all models equally but penalises long tasks.
+- External (generalisability of sample/context): [I] Front-end only, one HTML file, mocked backend (p. 20); 113 tasks. Results do not transfer directly to multi-file apps, backends, or native desktop/mobile apps.
+- Construct (do metrics measure the concept?): [I] IFS measures replay of one ground-truth trajectory, not general behavioural equivalence; VFS mixes OCR, DINO and an MLLM rubric in which text content carries 40 of 100 points (p. 20). Both are proxies for "functional fidelity" and "visual fidelity". They also use different denominators: VFS covers only reached checkpoints, IFS all actions (p. 7). So the size of the IFS-VFS gap is partly metric-induced and should not be read as a direct comparison of the two capabilities. The fixed alpha = 0.7 encodes a value judgement (functionality matters more), supported only by rho = 0.65 (p. 17).
+- Statistical conclusion (power, multiple comparisons, variance): [I] No CIs, tests or repeated runs (p. 8-9); conclusions about small differences (thinking vs non-thinking) are not statistically supported.
+- Reproducibility (data/code/setup reported?): [I] Prompts are published in the appendix (p. 20-21) and data and code are promised (p. 1). Proprietary model versions, default sampling settings and a proprietary judge model (p. 7) limit exact reproduction.
+
+## 11. Future research directions
+- Stated by authors [A] (p. 9): focus on "temporal reasoning, dynamic asset binding, and robust code synthesis"; structured code generation and state management as key directions (p. 9).
+- Suggested by us [I]: (a) add code-quality/maintainability measures (static analysis, modularity) to IWR-style tasks so fidelity and code quality are measured together (our RQ5); (b) allow multi-file or framework-based outputs and agentic, iterative generation; (c) report repeated runs with variance and a held-out human-alignment set; (d) use a judge model that is not also evaluated.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ1, RQ2, RQ4, RQ5 (indirectly). Not RQ3.
+- How it informs our work [I]: IWR-Bench is a direct example of AI "reverse engineering" an application from observable behaviour (a video) rather than from a written spec, so it fits RQ1. Its main result is central evidence for RQ2: functional correctness is low for every model (IFS < 25), and IFS sits far below VFS. The size of that gap is partly a product of how VFS is defined (only reached checkpoints, see §9). Its metric design (action replay with an agent judge, visual composite, human-calibrated weights) and weaknesses (no variance, in-sample calibration, judge overlap) inform RQ4 and our own study design. It illustrates the gap behind RQ5: fidelity is measured, but code quality and maintainability are not. [I] The result is directionally consistent with [@bai2026recreationworld], which finds static structure reproduced better than action-conditioned behaviour within its programmatic tests [@bai2026recreationworld, p. 16-17]. However, bai's visual channel is not higher than its programmatic channel in aggregate [@bai2026recreationworld, p. 11]. The two papers measure the gap differently, and here the gap is partly metric-induced (see §9). The convergence supports "static structure is easier than interaction logic". It does not support "visual fidelity systematically exceeds functional fidelity".
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ1 | LVLMs can be asked to rebuild an interactive webpage from a user-interaction video plus crawled assets (one HTML file); 28 models were evaluated on 113 real-site tasks | 5, 8 | V | weak |
+| RQ2 | Best model (GPT-5) scores Final 36.35 and IFS 24.39; IFS < 25 for all 28 models | 8, 9 | V | moderate |
+| RQ2 | IFS < VFS for all 28 models (GPT-5 24.39 vs 64.25), but VFS averages only over reached checkpoints while IFS counts all actions, so the gap is partly metric-induced | 7, 8 | V | weak |
+| RQ2 | Final Score falls from static (L1) to interactive tasks (GPT-5 61.85 vs 25.26 on L4); L2/L3 order varies by model; strata are about 9-12 tasks; category tables report Final Score only | 16, 17 | V | weak |
+| RQ2 | Thinking variants add little to Final/IFS (e.g. Final 34.62 vs 34.00; 30.36 vs 30.31) and lower VFS in all three pairs | 8, 9 | V | weak |
+| RQ4 | Functional fidelity measured by agent replay of a ground-truth action sequence plus MLLM-judged assertions; visual fidelity by OCR + DINO + MLLM rubric | 7, 20 | V | weak |
+| RQ4 | Metric weights tuned on 60 human-rated instances (5 raters); Spearman rho 0.57 (VFS) and 0.65 (Final); no held-out check is described (I) | 17 | V | weak |
+| RQ4 | Agent-judge errors in 3 of 100 manually observed runs | 9 | V | weak |
+| RQ4 | VFS and IFS use different denominators (reached checkpoints vs all actions), so their gap is not a like-for-like comparison | 7 | I | weak |
+| RQ4 | No repeated runs, confidence intervals or significance tests for model comparisons were found (our check of the results and tables) | 8, 9 | I | weak |
+| RQ5 | Benchmark scores behaviour and appearance only; single-file output means code quality/maintainability is not assessed (our appraisal of the metric definitions and prompt) | 7, 20 | I | weak |
+
+Strength note [I]: rows are rated weak because this is a single, non-peer-reviewed benchmark without variance reporting. The low-IFS row is rated moderate because it holds for all 28 models. The IFS < VFS gap row is downgraded to weak because the gap is partly metric-induced (§9). It is only directionally consistent with [@bai2026recreationworld], which measures a different contrast (structure vs action-conditioned tests within one programmatic channel).
+
+## 14. Key quotes
+> "the best model achieves an overall score of only 36.35%" (p. 1)
+
+> "the primary bottleneck for current models is not visual understanding but the synthesis of complex interaction logic" (p. 9)
+
+> "Failures in the agent’s evaluation were observed in only three instances." (p. 9)
+
+## Analyst notes
+- Reading coverage: sections read / skipped and why: all 25 PDF pages read via `fulltext.txt`, including appendices A-G (taxonomy, per-dimension tables, metric validation, prompts, case studies). Reference list (p. 11-15) and contributor list (p. 10) skimmed only. Figures (bar chart p. 1, case screenshots p. 22-25) are images and not readable as text; their captions were used.
+- Uncertainties: (1) runs per model and sampling settings beyond "default" are not reported; (2) whether failed actions stop the replay is not stated; (3) per-category task counts are derived by us from percentages (p. 3), not given directly; (4) we did not check whether the promised data/code release happened; (5) the PDF header says "IWR-Bench Team" and lists contributors on p. 10, consistent with the 21 authors in metadata.json.
+- Design notes and disclosures (not limitations): an alternative weighting scheme for the Final Score "proved ineffective for differentiating model performance" (p. 7); agent-evaluation failures caused by ambiguous element descriptors were corrected (p. 9); an LLM was used for grammar correction and language refinement of the paper (p. 21).
+- Critical-review fixes applied 2026-11-12 (C1-C9 of `reports/critical-review-batch-c.md`). C9 was applied with corrected numbers: Table 3 (p. 8) shows the top eight models are proprietary (GPT-4.1 31.99 > Qwen3-VL 31.15), and Qwen3-VL beats 9, not 11, of the 17 proprietary models.

@@ -1,6 +1,6 @@
 ---
 key: ehsani2026faster
-status: ready
+status: complete
 evidence_basis: full-text
 design: Multivocal literature review (Garousi MLR guidelines + SEGRESS); qualitative deductive/inductive coding; no meta-analysis
 dataset: 31 peer-reviewed papers (ACM DL, IEEE Xplore, Springer, ScienceDirect + snowballing) and 73 grey sources (Google via SerpAPI, first 10 pages); search Jan 2026
@@ -20,7 +20,7 @@ analysed: 2026-11-11
 - Authors: Ehsani, Ramtin; Rawal, Shriya; Cai, Yuanfang; Chatterjee, Preetha
 - Year / venue: 2026, ACM Transactions on Software Engineering and Methodology (published)
 - DOI: 10.1145/3820165 · URL: https://doi.org/10.1145/3820165
-- Source text: `fulltext.txt` (page refs = PDF page index). The PDF is the arXiv version (arXiv:2606.14796v1, 38 pages); page numbers refer to our PDF, not the TOSEM pagination.
+- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is the arXiv version (arXiv:2606.14796v1, 11 Jun 2026, 38 pages), and it is the **pre-acceptance manuscript**: every page footer reads "Manuscript submitted to ACM" (p. 1 onward), and the p. 1 citation is a template ("ACM Trans. Softw. Eng. Methodol. 1, 1 (January 2026)"). Page numbers refer to this PDF, not the TOSEM pagination. Counts are pre-review numbers and may have changed in the published TOSEM article (DOI 10.1145/3820165); re-check headline counts if the published version becomes accessible.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -102,10 +102,10 @@ The review's own measure is the number of sources mentioning each debt type, str
 
 ## 7. Key findings
 1. [V] Traditional debt types (mentions, formal / grey): code 14 / 56, design 2 / 30, documentation 0 / 17, infrastructure 1 / 12, architecture 1 / 10, test 2 / 6, defect 3 / 1. Build, people, requirement, service, test-automation and process debt: 0 / 0 (Table 8, p. 16).
-2. [V] Six debt types new in this review (formal / grey): governance 0 / 19, prompt 8 / 5, fast-integration 0 / 13, data 9 / 0, ethical 3 / 2, provenance 1 / 1 (Table 8, p. 16). 40 grey sources discuss the emerging debt forms (p. 17).
+2. [V] Six debt types new in this review (formal / grey): governance 0 / 19, prompt 8 / 5, fast-integration 0 / 13, data 9 / 0, ethical 3 / 2, provenance 1 / 1 (Table 8, p. 16). 40 grey sources discuss five of the six new forms (all except data debt, which is formal-only) (p. 16, p. 17).
 3. [A] "Fast-integration debt" means rapidly integrating LLM output without validation; the authors link it explicitly to vibe coding ("developers implement AI suggestions quickly, or vibe code, without understanding their implications") and say it leads to governance debt (p. 17). [V] It rests on grey sources only (0 formal mentions, p. 16).
 4. [A] Quantitative primary evidence cited by the review (we have not checked the primary studies):
-   - He et al.: Cursor adoption in GitHub projects (difference-in-differences with matched controls) raised static-analysis warnings by 30% and code complexity by 41% after adoption (p. 18).
+   - He et al. (ref [90], p. 34; this primary study is in our corpus as he2026speed): the review reports that Cursor adoption (difference-in-differences with matched controls) produced "a statistically significant large increase" in velocity and "a substantial and persistent increase in complexity and code debt", with static-analysis warnings +30% and code complexity +41% (p. 18). **Secondary claim reported from [@he2026speed], not ehsani's own evidence; do not count separately.** [I] The review omits the primary study's own caveats: the quality effects turn negative and non-significant under the Callaway–Sant'Anna estimator [@he2026speed, p. 16], and once codebase size is controlled (GMM) Cursor has no significant direct effect on warnings, so the warning rise runs mainly through more code [@he2026speed, p. 8].
    - Wang et al.: 7 LLMs, 145 API mappings, 28,125 prompts; all models produced deprecated API usages (p. 18).
    - O'Brien et al.: over 1,000 Copilot function bodies from 380 TODO prompts; the model often replicated self-admitted TD verbatim (p. 19).
    - Zhang et al.: eight smell types in Copilot Python code; well-structured prompts mitigated up to 87.1% of them (p. 19, p. 21).
@@ -137,7 +137,7 @@ Evidence-strength caveats given by the authors:
 
 ## 9. Limitations we identified
 - [I] Frequency of mentions is not strength of evidence. Table 8 counts how many sources mention a debt type (p. 16), mostly from grey sources, and primary-study quality is not weighted. The headline new categories rest entirely on practitioner commentary: governance debt (19 grey, 0 formal) and fast-integration debt (13 grey, 0 formal) (p. 16). They are hypotheses, not established effects.
-- [I] Fig. 4's y-axis reads "Number of Sources", but grey-source counts for 2025 (84 + 25 = 109) exceed the 73 grey sources (p. 19). The figure therefore counts mentions, not sources, which can inflate the visual trend.
+- [I] Fig. 4's y-axis reads "Number of Sources", but grey-source counts for 2025 (84 + 25 = 109) exceed the 73 grey sources (p. 19; values read from the Fig. 4 image, not in the text layer; re-checked 2026-11-12). The figure therefore counts mentions, not sources, which can inflate the visual trend.
 - [I] No formal quality appraisal of the 31 peer-reviewed sources is described (p. 11–12), although the threats section claims one (p. 29). Weak primary studies (e.g. vision or position papers such as Mitchell et al.'s "Position: Vibe Coding Needs Vibe Reasoning", p. 21, p. 36) are counted like empirical studies.
 - [I] Inclusion inconsistency: the review restricts formal sources to peer-reviewed work (p. 11), yet Della Porta et al. [157] is listed under EASE in Table 6 (p. 13) while its reference entry gives only an arXiv preprint (p. 36). PromptDebt also appears twice in the references, as a published version [14] and an arXiv version [15] (p. 31).
 - [I] EC2 excludes papers on correctness or functional quality that do not frame findings as TD (p. 12). Empirical maintainability studies of LLM code that never use the term "debt" (for example SonarQube-based LLM vs human comparisons) may therefore be missing. molison2025llm (ESEM 2025, SonarQube effort-to-fix) does not appear in the reference list; we checked by text search of `fulltext.txt`. The authors partly acknowledge this term-based bias (p. 30).
@@ -185,7 +185,7 @@ Evidence-strength caveats given by the authors:
 | RQ3 | Across 104 sources, the debt types most often linked to LLM-assisted code are code (14 formal / 56 grey), design (2 / 30) and documentation (0 / 17) debt | 16 | V | moderate as a map of the discourse; weak as evidence of effect (mention counts, mostly grey) |
 | RQ3 | Six LLM-specific debts are proposed: governance, prompt, fast-integration, data, ethical, provenance. Governance (19) and fast-integration (13) appear only in grey sources | 16–17 | V | weak (practitioner commentary, no formal support for two of six) |
 | RQ1 | Vibe coding is framed as a driver of fast-integration debt, which leads to governance debt | 17, 26 | A | weak (grey only) |
-| RQ3 | Cursor adoption in GitHub projects was followed by +30% static-analysis warnings and +41% code complexity (He et al., DiD design, as reported by the review) | 18 | A | moderate (single primary study, reported second-hand) |
+| RQ3 | DO NOT COUNT SEPARATELY. Secondary claim reported from [@he2026speed] (ref [90]): the review restates its +30% warnings / +41% complexity without the primary study's estimator-sensitivity and codebase-size caveats [@he2026speed, p. 8; @he2026speed, p. 16]. Cite the primary study, not the review, for this effect | 18 | A | n/a (duplicate of he2026speed) |
 | RQ4 | No standardised benchmarks or datasets exist to evaluate TD or maintainability of LLM-generated code; benchmarks focus on binary correctness | 23–24 | A | moderate (consistent across both literatures; review search to Jan 2026) |
 | RQ4 | SonarQube and general linters are the main measurement tools, but they are not designed for LLM-specific debt; candidate LLM-specific metrics (PSC, AUP/DUR, data-smell strength/density) are early and not standardised | 22, 24–25, 28 | A | moderate |
 | RQ4 | Commercial LLM-aware quality tools are rarely independently evaluated | 28 | A | weak |
@@ -206,6 +206,7 @@ Evidence-strength caveats given by the authors:
   - References (pp. 31–38) were consulted selectively to check the venues of specific sources ([14], [15], [90], [144], [145], [157], [171], [200]) and whether molison2025llm is cited.
   - Figs. 2, 3 and 5 (process diagram, QA-score histogram, debt-to-strategy map) were not inspected as images. Their content is described in the text (p. 6, p. 10, p. 26).
 - Uncertainties:
-  - Primary-study numbers (He et al., Wang et al., Zhang et al., O'Brien et al.) are labelled [A] because they are reported second-hand; we have not checked them in the primary papers.
-  - The TOSEM version may differ from this arXiv v1.
+  - Primary-study numbers (Wang et al., Zhang et al., O'Brien et al.) are labelled [A] because they are reported second-hand; we have not checked them in the primary papers. He et al. is the exception: it is in our corpus as he2026speed, whose own analysis is the source of record for that effect.
+  - Our PDF is the pre-acceptance manuscript ("Manuscript submitted to ACM", p. 1 onward); counts may have changed in the published TOSEM article (DOI 10.1145/3820165). Re-check headline counts if the published version becomes accessible.
+  - Review fixes applied 2026-11-12 (critical-review-batch-a): finding 2 corrected to "five of the six new forms"; He et al. marked as a secondary claim from he2026speed, with its omitted caveats, and the evidence row marked "do not count separately"; version note strengthened; Fig. 4 values marked as read from the image.
   - Table 3 lists [179] under both company blogs and developer platforms (p. 10) while the total is still 73; this is a minor bookkeeping issue.

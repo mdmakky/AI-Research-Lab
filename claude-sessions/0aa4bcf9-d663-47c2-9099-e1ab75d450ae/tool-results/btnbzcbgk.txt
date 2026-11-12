@@ -1,0 +1,280 @@
+# Research report: package hallucination and slopsquatting in AI coding assistants
+
+- Project: `2026-11-12-package-hallucination-and-slopsquatting` · Report date: 2026-11-12
+- Basis: 17 paper analyses with status "complete" (each checked by a critical review), `evidence-matrix.md`, `reports/methodology-comparison.md`, `gap-report.md`, `RESEARCH-QUESTIONS.md`, `research-log.md` and `rlab status`.
+- Written for: a beginner researcher planning a laptop-only, hands-on security project.
+
+**How to read this report.** Citations appear in square brackets: a short paper key (the paper's folder name in the project) followed by the PDF page where the statement can be checked. Important statements carry a label. **[V]** means we checked it against the paper's own data or tables. **[A]** means the authors claim it and we could not check it ourselves. **[I]** means it is our own interpretation. A *preprint* is a paper posted online before (or without) *peer review*, the process in which independent experts check a paper before a journal or conference accepts it. Preprints are flagged throughout, because their results have not had that check.
+
+---
+
+## 1. Summary in plain language
+
+AI coding assistants sometimes tell you to install software packages that do not exist. This is called *package hallucination*. If an attacker registers one of those made-up names on a public package store such as PyPI (Python) or npm (JavaScript) and puts malware in it, anyone who follows the AI's advice installs the malware. This attack is called *slopsquatting*. Every study we read that measured package hallucination found it in every model tested, from 2023–24 open models to five 2026 frontier models, and in Python, JavaScript, Rust and Go [@spracklen2024we, p. 7; @churilov2026range, p. 6; @zheng2026when, p. 5; @haque2025secure, p. 6]. How often it happens depends heavily on the model and on how each study counts. The newest frontier models invent roughly 4–5 of every 100 package names they mention (a preprint) [@churilov2026range, p. 6], while small open models invent far more [@djire2026evaluating, p. 5]. Many invented names come back again and again, which is what makes them worth squatting [@spracklen2024we, p. 9]. So far, attackers seem to have claimed few of these names in practice, but that evidence is thin and short-term [@churilov2026range, p. 12]. The strongest defences need access to the model's internals and data-centre GPUs. The cheap defences that work with any AI tool are only partly effective and have barely been tested [@liu2026packmonitor, p. 13; @raj2026names, p. 7]. Our recommended project for a laptop is to build a careful, shared way of scoring "is this package name hallucinated?" first. Next, measure whether AI coding *agents* actually try to install such names during everyday tasks. Finally, test simple pre-install checks against them.
+
+---
+
+## 2. What we did
+
+- **Searches.** On 2026-11-12 we ran 19 discovery searches across five topic facets (measurement, exploitation, defences, agents and tools, benchmarks and testing) in OpenAlex, Crossref and arXiv. These are three free scholarly databases: OpenAlex and Crossref index published work, and arXiv hosts preprints. OpenAlex hit its free daily limit partway through, so the last discovery searches and all later checks ran on Crossref and arXiv only. Every search is recorded in `search/search-log.md`.
+- **Novelty checks.** To confirm that the research gaps in section 6 are real, we ran a further 27 targeted searches on Crossref and arXiv on the same day, plus web searches for very recent and non-academic work. A *novelty check* is a search done specifically to see whether someone has already done the study we want to propose.
+- **Screening and inclusion.** Three search "scouts" screened the hits against the inclusion rules in `RESEARCH.md` (the topic, 2023–2026, empirical or methodological content, preprints allowed but flagged). We included **20 papers**, the planned maximum for a first pass. We judged *saturation* (the point where new searches keep returning papers we already have) to be high.
+- **Full texts.** All **20 of 20** papers are available as full text (0 abstract-only). 19 came as legal open-access PDFs from arXiv or the ACL Anthology. The user supplied one (okwor2026hallucination), which is also openly licensed on Zenodo.
+- **Analysis.** **17 papers** were analysed in full and then critically reviewed against the paper text (status "complete"). Three papers on attacks against coding agents are **not analysed**: the analysis output for them was stopped by an automatic safety check, and what to do next is waiting for your decision (sections 7 and 8). This report does not use them as evidence.
+- **Source quality.** The project metadata lists **13 of the 20 papers as preprints**. One of these, spracklen2024we, appeared at USENIX Security 2025 (a top peer-reviewed security conference), so we treat it as peer-reviewed. We analysed it from its arXiv version 3, and the metadata still shows the arXiv record. Of the 17 analysed papers, 7 are peer-reviewed: spracklen2024we, djire2026evaluating, liu2026packmonitor, twist2026library, zhang2025llm, zhao2025hfuzzer, and the background chapter ohm2020backstabbers. The other 10 are preprints, including one self-published Zenodo report (okwor2026hallucination). mirandapena2026empirical stays labelled a preprint because we could not verify a reported journal acceptance.
+- **Synthesis.** We built an evidence matrix of 172 findings, each with a page reference and a strength rating, plus 7 recorded contradictions and 5 agreements. Strength was lowered one step for findings from preprints. We also wrote a methodology comparison and a gap report with five ranked gaps (G1–G5).
+
+---
+
+## 3. Answers to the research questions
+
+Evidence strength follows the project standard. *Strong* means adequate samples, sound design and results that are replicated or consistent across studies. *Moderate* means sound design but a single study or limited numbers. *Weak* means small or unclear samples, design flaws, or preprints without replication.
+
+### RQ1: How often do AI models hallucinate package names, and what drives it?
+
+**Answer.**
+- [V] Package hallucination is non-zero in every model tested. This covers 16 models from 2023–24 [@spracklen2024we, p. 7], five 2026 frontier models [@churilov2026range, p. 6], and Rust and Go as well as Python and JavaScript [@zheng2026when, p. 5; @haque2025secure, p. 6].
+- [V] The size depends on the model class and on what is counted:
+  - 19.7% of 2.23 million package mentions across 16 models from 2023–24 [@spracklen2024we, p. 7];
+  - 3.63–5.02% of package mentions for five 2026 frontier models (preprint) [@churilov2026range, p. 6];
+  - 16.1–47.9% of packages for eight small open models of 1–8 billion parameters [@djire2026evaluating, p. 5];
+  - about 22% of crate (Rust package) references, nearly half of them confusions with Rust's built-in modules (preprint) [@zheng2026when, p. 5].
+- [V] The prompt matters a lot. With ordinary requests, library-name hallucination was near zero (at most 0.31% of responses) across seven API models [@twist2026library, p. 5]. Asking for libraries "from 2025" raised it to as much as 84.74% of tasks for one model [@twist2026library, p. 5]. When the user typed a misspelled or fake library name, models used it in up to 79.44% (multi-character typos) and 99.22% (fake names) of tasks [@twist2026library, p. 6]. Two other papers confirm this tendency to go along with fake names [@djire2026evaluating, p. 9; @dasu2026refusing, p. 8].
+- [V]/[I] Other suspected drivers are contested or rest on one study:
+  - programming language: the direction reverses between studies (contradiction 1, section 5);
+  - model size: the one significant correlation relies on repeated data points that are not independent [@krishna2025importing, p. 6];
+  - temperature: an effect in one study [@spracklen2024we, p. 8], none in another [@zheng2026when, p. 6];
+  - *quantization* (compressing a model so it runs on smaller hardware): only one study, on Go, and its own tables are inconsistent [@haque2025secure, p. 6].
+- [A] No analysed paper measures agentic settings, where an AI agent runs commands by itself [@churilov2026range, p. 14].
+
+**Strength.** *Moderate* that hallucination is real and depends on the model: many studies agree, but most are preprints. *Moderate* for prompt framing and user-supplied fake names, since these come from a peer-reviewed controlled study and are corroborated by two more. *Weak* for language, size, temperature and quantization.
+
+**What would change the answer.** Re-scoring the same model outputs under one shared counting rule (gap G3) could shrink or reverse the language and prompt-source differences. A first measurement of agents could show higher or lower exposure than chat.
+
+### RQ2: What makes hallucinated names exploitable?
+
+**Answer.**
+- [V] Names are predictable enough to squat:
+  - 43% of hallucinated names came back in all 10 repeated queries [@spracklen2024we, p. 9];
+  - 104 names were invented by all five 2026 frontier models, and 54 of these are one character edit away from a real package [@churilov2026range, p. 9].
+- [V] Most names are still specific to one model [@spracklen2024we, p. 10; @okwor2026hallucination, p. 4], and many do not look like a real package: 48.6% are six or more edits away from any real name [@spracklen2024we, p. 11].
+- [V] Real-world claiming has been rare so far. 25 of 2,282 hallucinated names (about 1.1%) were registered within about six months, one of them with malware, and at least 23 suggested names had previously hosted malware [@churilov2026range, p. 12]. Of 149 publicly listed hallucinated names, 22 were registered, none of them malicious, and 19 were placeholders apparently registered by defenders [@okwor2026hallucination, p. 5].
+- [V] The payload route is well established. 56% of 174 real malicious packages ran their code during installation, 96% of them on PyPI [@ohm2020backstabbers, p. 8]. Install-time execution through pip and npm was reproduced offline [@okwor2026hallucination, p. 7].
+
+**Strength.** *Moderate* for persistence and the shared core of names: two large studies, though neither is a peer-reviewed replication of the other. *Weak* for real-world exploitation: two preprints, short time windows (six months and four days), and small counts.
+
+**What would change the answer.** A peer-reviewed field experiment found during the novelty checks (Huang et al., ACM TOSEM 2026) reports that developers installed deliberately registered hallucinated names. We have not added or analysed it yet. If its full text confirms this, the evidence that slopsquatting is exploitable in the wild would become stronger.
+
+### RQ3: Which defences exist, and how effective, costly and deployable are they?
+
+**Answer.**
+- [V] *White-box* defences, which need the model's weights or internal scores, give the largest reductions:
+  - PackMonitor blocks tokens that cannot form a name on the PyPI list while the model writes a `pip install` command. It reached 0% hallucination on five 7–8B models, with 7–28% extra time [@liu2026packmonitor, p. 13; @liu2026packmonitor, p. 14];
+  - model editing cut the package hallucination rate from 0.4421 to 0.1529 on unseen high-risk prompts (preprint) [@liu2026mitigating, p. 7];
+  - "unlearning" cut it from 21.23% to 2.56% for a 7B model (preprint) [@spracklen2026llm, p. 10].
+- [V] All three were run on data-centre hardware: 8 × A100 GPUs, or 12–24-hour runs on AMD MI210/MI300 accelerators [@liu2026packmonitor, p. 12; @spracklen2026llm, p. 19]. Fine-tuning can also damage coding skill: on one benchmark the score fell from 51.4% to 25.3% [@spracklen2024we, p. 13].
+- [V] *Black-box* options, which only need the model's text output, are cheap but inconsistent:
+  - *retrieval-augmented generation* (RAG, giving the model looked-up documentation) lowered the average rate from 29.7% to 18.1% in one study but raised it by 12.7 percentage points for JavaScript [@djire2026evaluating, p. 6];
+  - *greedy decoding* (always choosing the most likely next word) was the best simple trade-off for small models [@djire2026evaluating, p. 8];
+  - self-check prompts and an optional PyPI lookup tool reduced hallucination without removing it. One model called the tool on only 7.89% of responses [@twist2026library, p. 18; @twist2026library, p. 21].
+- [A]/[V] Checking only whether a name exists in the registry is not enough, because an attacker can register the name first [@spracklen2024we, p. 12]. PackMonitor's filter passes any registered name, including squatted ones [@liu2026packmonitor, p. 6].
+- [V] The only tool-side guard in the set finished cleanly on 228 of 300 hand-written prompts. Its evaluation is small, and its top signal (maintainer count) is not available through the public PyPI API (preprint) [@raj2026names, p. 7; @raj2026names, p. 13].
+- [V] Only static code analysis was run on a laptop-class machine (Apple M2, 24 GB) [@mirandapena2026empirical, p. 17]. Its recall on library hallucinations varied from 0.14 to 0.85 [@mirandapena2026empirical, p. 8].
+
+**Strength.** *Weak to moderate.* Comparisons within a paper are sound, but most papers use single runs and hand-picked or "high-risk" prompt sets, and nothing has been independently replicated. Defences cannot be ranked across papers because baselines and units differ.
+
+**What would change the answer.** An independent comparison of guards on a shared, labelled set of hard cases (gap G2), and the full text of the Bayesian-calibrated detection preprint we found during the novelty checks.
+
+### RQ4: How do studies measure package hallucination, and what threatens validity?
+
+**Answer.**
+- [V] Studies differ on five design choices:
+  - where prompts come from;
+  - how names are extracted (install commands, lists the model is asked for, or parsed `import` lines);
+  - the existence rule (a fixed registry snapshot or a live check, with or without a release-date cutoff);
+  - whether built-in modules and import names are handled;
+  - the unit of the rate (per mention, per answer or per prompt).
+
+  Because of these differences, rates cannot be pooled or ranked across papers [@spracklen2024we, p. 6; @krishna2025importing, p. 4; @churilov2026range, p. 5].
+- [V] The two largest measured biases:
+  - counting Python's *standard library* modules (built-in modules that never need installing) as hallucinations adds 7.6 to 9.4 percentage points [@djire2026evaluating, p. 5];
+  - import names of real packages (for example `cv2` for the package `opencv-python`) were the largest false-positive class, and a live re-check lowered rates by about a fifth [@churilov2026range, p. 10].
+- [V] Further threats:
+  - statistics built on repeated data points that are not independent [@krishna2025importing, p. 6];
+  - quantization mixed up with model size [@dasu2026refusing, p. 10];
+  - compliance with a planted fake name counted as invention [@twist2026library, p. 6];
+  - in small studies, most early "hallucinations" were really errors in the name extractor [@raj2026names, p. 7];
+  - some studies judge "non-existent" against the task's own environment, not a registry. In one such study, missing-package errors made up only 0.94% of all code hallucinations, so its numbers do not measure slopsquatting exposure [@zhang2025llm, p. 6].
+
+**Strength.** *Moderate.* The biases are quantified in one peer-reviewed paper and one preregistered preprint, and the cross-paper pattern is consistent.
+
+**What would change the answer.** A study that re-scores identical outputs under each published rule and checks them against human labels (gap G3).
+
+### RQ5: What has not been tested that a laptop-scale study could address?
+
+**Answer.** Five gaps passed a recorded novelty check (section 6). In short:
+- natural install attempts by coding agents (G1);
+- an independent benchmark of client-side guards (G2);
+- a validated, shared measurement protocol (G3);
+- quantization as shipped in local runtimes (G4);
+- long-term registration of published names (G5).
+
+Five analysed papers name agentic settings as untested [@churilov2026range, p. 14; @dasu2026refusing, p. 10; @twist2026library, p. 9; @liu2026packmonitor, p. 19; @okwor2026hallucination, p. 8].
+
+**Strength.** *Preliminary to moderate*, depending on the gap; see the confidence levels in section 6. The gaps are stated as "we found no paper that…" on 2026-11-12, not as "never studied". The three unanalysed attack papers and four high-priority new papers must be read before G1 and G2 are final.
+
+---
+
+## 4. Key papers to read first
+
+1. **churilov2026range** (preprint). The most rigorous measurement in the set: a preregistered replication with a live registry check, confidence intervals and a registration experiment. Read it as the model for a careful protocol [@churilov2026range, p. 5].
+2. **spracklen2024we** (USENIX Security 2025). The founding large-scale study. Its prompt corpus is reused by later work, and it gives the persistence and edit-distance results behind the attack model [@spracklen2024we, p. 9].
+3. **twist2026library** (EMNLP 2026). A peer-reviewed controlled study showing which prompts trigger hallucination, and that models rarely use an optional lookup tool. This is the argument for a *forced* pre-install check [@twist2026library, p. 8].
+4. **djire2026evaluating** (ASE 2026). Peer-reviewed comparison of cheap inference-time defences on small open models. It also measures the standard-library counting bias [@djire2026evaluating, p. 5].
+5. **raj2026names** (preprint). The closest existing laptop-style guard. It is useful mostly for its pitfalls: extractor errors, import-name collisions, and a metadata signal that is hard to obtain [@raj2026names, p. 9].
+
+---
+
+## 5. Where studies disagree
+
+Explanations are our interpretation [I]; none has been tested.
+
+1. **Python vs JavaScript.** One study found JavaScript worse [@spracklen2024we, p. 7]; two others found Python worse [@krishna2025importing, p. 8; @churilov2026range, p. 7]. *Likely reason:* the first asks for install names, while the others parse `import` lines. Python import names often differ from install names (`cv2` vs `opencv-python`), so import parsing can inflate Python's rate.
+2. **Stack Overflow vs AI-written prompts, on the same prompts.** Stack Overflow prompts gave higher rates in 2024 [@spracklen2024we, p. 20], and AI-written prompts gave higher rates in 2026 [@churilov2026range, p. 7]. *Likely reason:* different models and extraction methods. This is the cleanest contradiction in the set, and re-scoring one set of outputs with both extractors would test it.
+3. **Model size.** Larger models looked better in one study, but its significance rests on non-independent data points [@krishna2025importing, p. 6]. Another found no size effect for Rust [@zheng2026when, p. 6], and a newer 8B model produced more unique invented names than its predecessor [@zhao2025hfuzzer, p. 7]. *Likely reason:* size is mixed up with quantization in several studies [@spracklen2024we, p. 6; @dasu2026refusing, p. 10].
+4. **Temperature.** Rates rose sharply above temperature 1 in one study [@spracklen2024we, p. 8] and did not change for Rust in another [@zheng2026when, p. 6]. *Likely reason:* different ecosystems and counting rules. Unresolved.
+5. **Are registered import names valid?** One paper counts them as valid [@twist2026library, p. 4]. Another flags `pil` and `faiss` as squats [@raj2026names, p. 8]. A third probably counts unregistered ones such as `cv2` as hallucinations [@djire2026evaluating, p. 6]. *Likely reason:* the field has no shared import-to-install-name map.
+6. **Does RAG help?** Large gains in Python [@spracklen2024we, p. 13], almost nothing in Rust [@zheng2026when, p. 9], and slight increases in two other setups [@liu2026packmonitor, p. 13; @djire2026evaluating, p. 6]. *Likely reason:* "RAG" means different retrievers and document collections in each paper.
+7. **Registration (compatible, not a real contradiction).** 25 of 2,282 names were registered over about six months [@churilov2026range, p. 12], against 0 of 1,641 private names after four days [@okwor2026hallucination, p. 5]. The time windows and name sources differ.
+
+---
+
+## 6. Research gaps and possible contributions
+
+All novelty checks ran on 2026-11-12 (Crossref, arXiv and a web search; OpenAlex was over its limit). Each gap below means "we found no paper that does this", not "this has never been studied". *Confidence* is how sure we are that the gap is real and still open.
+
+| Rank | Gap | Confidence | Beginner feasibility | Cost / time (gap report estimate) |
+|---|---|---|---|---|
+| G1 | How often coding agents actually try to install non-existent or suspicious packages during ordinary tasks, and what they do after the install fails | medium | moderate | ≤ $100 API + 20–50 h unattended runs; 4–6 weeks |
+| G2 | An independent comparison, on a shared labelled set, of pre-install guards that run on a laptop, focusing on hard cases | medium | easy–moderate | $0 API; 2–3 weeks |
+| G3 | A validated, shared rule for deciding whether a package name is hallucinated | medium-high | easy | $5–30 API; 3–4 weeks including labelling |
+| G4 | The effect of local quantization levels (GGUF files run with Ollama) on PyPI/npm hallucination | medium-low | moderate | $0; 40–80 h unattended |
+| G5 | Re-checking published hallucinated names for 12 months or more | low | easy | $0; 1 day setup + monthly check |
+
+**G1: natural agent install attempts.**
+- *Evidence.* [A] Five papers name the agentic setting as untested (RQ5). [V] Installation is the harmful step, because most real malicious packages run at install time [@ohm2020backstabbers, p. 8].
+- *Novelty check.* The nearest work found is adversarial (an attacker plants instructions) or about the agent's local environment, not the public registry.
+- *Suggested study.* Run benign everyday tasks through an open-source coding agent with one cheap API model and one local model. Route every install request through a local logging proxy. Count install attempts on missing, lookalike or recently registered names, and classify what the agent does after a failure.
+- *Main risk.* The base rate may be very low. A tight upper bound would still be a useful result.
+
+**G2: guard benchmark.**
+- *Evidence.* [V] Registry existence checks pass squatted names [@liu2026packmonitor, p. 6]. [V] Hard cases are real: about half of one guard's "registered lookalike" flags were really import names [@raj2026names, p. 9].
+- *Novelty check.* Individual guards exist (a demo tool, a Bayesian detector preprint, community tools), but we found no independent head-to-head false-positive and false-negative comparison.
+- *Suggested study.* Build about 1,000–2,000 labelled install requests in six classes: popular packages, new legitimate packages, import names used as install names, unregistered hallucinations, registered hallucinations, and known-malicious names (names and metadata only). Run existing guards and a simple reference guard on them.
+
+**G3: shared measurement protocol (the best first step).**
+- *Evidence.* [V] Counting rules differ enough to move rates by several percentage points [@djire2026evaluating, p. 5; @churilov2026range, p. 10] and may explain contradictions 1 and 2.
+- *Novelty check.* We found no study that re-scores the same outputs under the published rules and checks them against human labels.
+- *Suggested study.* Build an open scorer, implement the rules from the published papers plus one careful rule, label about 400 names with a second person, and test whether the contradictions survive.
+- *Why first.* G1, G2 and G4 all need this scorer, and it is publishable on its own.
+
+**G4 and G5** are smaller increments. G4 extends the only quantization study (Go only) to PyPI and npm with the GGUF files people actually run locally [@haque2025secure, p. 6]. G5 was largely narrowed by the TOSEM paper found during the novelty check. It is best treated as a cheap add-on.
+
+**Recommended project (from the gap report).** G3 (weeks 1–3) → G1 (weeks 3–7) → G2 (weeks 6–9): "Do AI coding agents actually install hallucinated packages, and can a simple pre-install guard stop it?" The estimate is about $100–150 in API fees and no GPU. The study uses benign tasks only and never registers names.
+
+---
+
+## 7. Limitations of this review
+
+- **Three papers unanalysed.** The three agent-attack papers (arXiv 2610.09264 on rule-file prompt injection, arXiv 2605.29354 on neutral prompting attacks through agent skills, and arXiv 2605.09594 on dependency steering through malicious skills) are in the project with full text. They were not analysed because a safety check stopped the analysis output, and they are not used as evidence here. They are the closest work to G1, so G1 is provisional until you decide how to handle them.
+- **Coverage.** The first pass was capped at 20 papers. The novelty checks found 13 more relevant papers (4 high priority) that are not yet added or analysed. One of them, a peer-reviewed TOSEM 2026 field study, bears directly on RQ2.
+- **Search sources.** OpenAlex ran out of its free daily quota partway through discovery, so later discovery searches and all 27 novelty searches used Crossref and arXiv only, plus web search. Semantic Scholar was not used. Papers indexed only in OpenAlex or in other databases may be missing.
+- **Search date.** All searches ran on a single day, 2026-11-12. The field produces new preprints monthly, so the gaps should be re-checked before starting.
+- **Preprints.** 10 of the 17 analysed papers are preprints or self-published reports, and most findings rest on a single study. Evidence strength was lowered accordingly.
+- **Versions.** spracklen2024we was analysed from its arXiv version 3, not the USENIX proceedings version. zhang2025llm was analysed from its arXiv version, although an open-access published version exists; replacing the PDF needs your permission.
+- **Who did the reading.** AI agents wrote the analyses. Each was checked by a critical review against the paper text, and cited pages were spot-checked, but not every number was re-verified by a human.
+- **Grey sources.** Vendor reports and blog posts seen during the novelty checks guided the searching but are never used as evidence.
+
+---
+
+## 8. Recommended next steps
+
+1. **Decide on the three attack papers** (wang2026package, hsu2026harmless, liu2026trust). Options:
+   - (a) a limited analysis of their abstracts and study design only, labelled "abstract-only";
+   - (b) you read them yourself and we record your notes;
+   - (c) leave them out and state that in the review.
+
+   Until you decide, G1 stays provisional.
+2. **Add and analyse the four high-priority papers before committing to G1 or G2:**
+   - Huang et al., "Package Hallucinations as Phantoms in Open Source Software Supply Chains" (ACM TOSEM 2026; peer-reviewed field study of registered hallucinated names on npm);
+   - Shan et al., "StateMirror" (arXiv preprint; 4,398 natural agent trajectories, which may already contain counts relevant to G1);
+   - Bagmar & Saraf, "Setup Complete, Now You Are Compromised" (arXiv preprint; adversarial agent installs and a pre-install check);
+   - Hillah et al., "Bayesian-Calibrated Detection of Hallucinated Package Imports" (arXiv preprint; the closest baseline for G2).
+
+   We add them with `rlab add` so the metadata is verified, then re-run the G1 and G2 novelty checks against their full texts.
+3. **First experiment (G3, week 1): build a scorer and score 200 prompts.** [I] This is a plan, not a finding.
+   - *Prompts.* Take 200 prompts from the publicly released Spracklen/Churilov prompt corpus [@churilov2026range, p. 4]: 50 each from {Stack Overflow, AI-written} × {Python, JavaScript}. Check the licence first.
+   - *Answers.* Generate one answer per prompt with one free local model through Ollama (for example a 7B coding model). Optionally add one cheap API model. A local small model will produce more hallucinations to work with than a frontier model.
+   - *Scorer v0 (Python).*
+     - Extract names separately from install commands and from `import`/`require` lines.
+     - Remove standard-library and built-in modules.
+     - Map import names to install names using a small table, starting from the pipreqs mapping used by Churilov [@churilov2026range, p. 14].
+     - Normalise names the PyPA way [@twist2026library, p. 15].
+     - Look each name up live in the PyPI or npm registry, recording whether it exists and its first-release date. Send at most 1 request per second [@churilov2026range, p. 5] and cache the results.
+     - Label each name: exists / not found / import name of a real package / first released after the model's training cutoff.
+   - *Comparison.* Score every answer twice: with a naive rule (any name not found = hallucinated) and with the scorer above. Report per-mention and per-answer rates with Wilson 95% confidence intervals. Hand-check about 50 names where the two rules disagree.
+   - *Deliverable.* The scorer, a small results table and a list of disagreement types. This becomes the scoring engine for G1, G2 and G4.
+4. **Safety rules (apply from day 1):**
+   - **Never install unknown packages.** The scorer only reads registry metadata. Any later agent runs (G1) happen in a disposable container whose only network route is a **local logging package proxy**. The proxy forwards only names that exist and were released before a fixed cutoff, and returns a normal "not found" for everything else, so no unknown package code ever runs.
+   - **Never register any hallucinated name**, not even as a harmless placeholder.
+   - **Use coordinated disclosure.** Report risky names privately to the PyPI and npm security teams. Do not publish lists of unregistered hallucinated names. [I] The only test of whether publishing names leads to registration was too small to show that publishing is harmless [@churilov2026range, p. 12].
+5. **Housekeeping.** Re-run the shared novelty searches (`package hallucination`, `hallucinated packages`, `slopsquatting`) on the day the project starts, and note the date.
+
+---
+
+## 9. Glossary
+
+- **LLM (large language model):** an AI model trained on large amounts of text that generates text or code, such as ChatGPT or Claude.
+- **Coding assistant / coding agent:** an AI tool that suggests code; an *agent* can also run commands (such as `pip install`) on its own.
+- **Package / dependency:** a reusable piece of third-party code that a project installs and relies on.
+- **Package registry:** the public store that install tools download from (PyPI for Python, npm for JavaScript, crates.io for Rust).
+- **Package hallucination:** an AI recommending or importing a package name that does not exist in the registry.
+- **Slopsquatting:** registering a hallucinated package name and filling it with malware so that people who follow the AI's advice install it.
+- **Typosquatting:** registering a misspelled version of a popular package name to catch typing mistakes.
+- **Software supply-chain attack:** an attack that reaches victims through third-party code their project depends on.
+- **Install-time execution:** code in a package that runs automatically while it is being installed, before you ever use it.
+- **Import name vs install (distribution) name:** in Python, the name you `import` (for example `cv2`) can differ from the name you install (`opencv-python`).
+- **Standard library:** modules built into a language that never need installing.
+- **Registry snapshot vs live check:** checking names against a saved copy of the registry list from one date, or querying the registry at the moment of checking.
+- **Hallucination rate (per mention / per answer / per prompt):** the share of hallucinated items, which differs depending on what is counted. Rates with different units cannot be compared directly.
+- **Persistence:** whether the same invented name comes back when the same question is asked again.
+- **Edit (Levenshtein) distance:** the number of single-character changes needed to turn one name into another.
+- **Jaccard overlap:** the size of the overlap between two sets divided by the size of their combined set.
+- **Peer review:** independent experts checking a paper before a journal or conference publishes it.
+- **Preprint:** a paper shared publicly without, or before, peer review.
+- **Grey literature:** reports, blogs and vendor material outside academic publishing; not used here as evidence.
+- **Evidence strength (strong / moderate / weak):** how much a conclusion can be trusted, based on sample size, design and replication.
+- **Replication:** repeating a study to see whether the result holds.
+- **Preregistration:** publishing the analysis plan before collecting data, so results cannot be cherry-picked.
+- **Contradiction:** studies reporting results that disagree.
+- **Research gap:** a question the existing studies leave open.
+- **Novelty check:** a targeted search to confirm that nobody has already done a proposed study.
+- **Saturation:** the point where new searches keep returning papers already found.
+- **Confidence interval (Wilson 95% CI):** a range that likely contains the true rate. Wilson's method works well for small counts.
+- **Rule of three:** if 0 events are seen in n tries, the true rate is likely below 3/n.
+- **Quantization:** storing a model's numbers with fewer bits so it runs on smaller hardware, possibly at some cost to quality.
+- **GGUF / Ollama:** a file format for quantized models, and a popular tool for running such models on a laptop.
+- **Temperature:** a setting that controls how random the model's word choices are.
+- **Greedy decoding:** always picking the single most likely next word (temperature 0).
+- **Logits:** the scores a model gives every possible next token (word piece) before choosing one.
+- **White-box / black-box:** methods that need access to the model's internals versus methods that only use its text output.
+- **RAG (retrieval-augmented generation):** looking up relevant documents and giving them to the model along with the question.
+- **Fine-tuning:** further training a model on extra examples to change its behaviour.
+- **Model editing / LoRA:** changing specific behaviours by training a small add-on set of weights instead of the whole model.
+- **Unlearning:** training a model to make specific outputs less likely.
+- **DFA (deterministic finite automaton):** a simple state machine that accepts exactly a given list of strings, here valid package names.
+- **Fuzzing:** automatically generating many varied test inputs to find failures.
+- **HumanEval:** a standard benchmark of programming problems used to check that a model can still code.
+- **Gold set / Cohen's kappa:** a set of examples labelled by people, used as ground truth, and a statistic for how well two labellers agree beyond chance.
+- **Logging proxy:** a local server between your machine and the registry that records every install request and can block it.
+- **Coordinated disclosure:** reporting a security problem privately to those who can fix it before making it public.

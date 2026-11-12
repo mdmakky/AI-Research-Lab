@@ -1,0 +1,85 @@
+{
+  "title": "Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code",
+  "authors": [
+    {
+      "family": "Djire",
+      "given": "Alberick Euraste"
+    },
+    {
+      "family": "Olatunji",
+      "given": "Iyiola E."
+    },
+    {
+      "family": "Tessa",
+      "given": "Melissa"
+    },
+    {
+      "family": "Barr",
+      "given": "Earl T."
+    },
+    {
+      "family": "Klein",
+      "given": "Jacques"
+    },
+    {
+      "family": "Bissyandé",
+      "given": "Tegawendé F."
+    }
+  ],
+  "year": 2026,
+  "venue": "Proceedings of the 41st IEEE/ACM International Conference on Automated Software Engineering",
+  "type": "proceedings-article",
+  "venue_kind": "published",
+  "doi": "10.1145/3832783.3837555",
+  "arxiv_id": "2608.22652",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7204189675",
+  "url": "https://doi.org/10.1145/3832783.3837555",
+  "oa_pdf_url": "https://arxiv.org/pdf/2608.22652",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 1,
+  "abstract": "LLMs are increasingly used for code generation, yet they frequently hallucinate non-existent software packages, creating exploitable entry points into the software supply chain. We make four contributions to this problem. First, we show that prior evaluation methodologies systematically inflate hallucination rates by misclassifying standard-library modules as hallucinations in some languages. For Python, the overestimation reaches 9.4 percentage points. Second, we evaluate seven inference-time defenses for mitigating package hallucinations, including five guided decoding strategies (Greedy, Contrastive, DoLa, Nudging, and Active Layer-Contrastive Decoding), an iterative self-refinement approach (Self-Refine), and a Retrieval-Augmented Generation (RAG)-based defense. Across eight models spanning five families and four programming languages (Python, JavaScript, Ruby, Rust), RAG reduces the package hallucination rate (PHR) in 18 of 32 model–language configurations. Third, we introduce Package Utility (PU) to assess whether defenses preserve valid and task-relevant recommendations. Among strategies evaluated, Greedy decoding provides the strongest average mitigation–utility trade-off. Fourth, we stress-test all strategies under adversarial prompts seeded with fabricated package names and find that PHR surges by up to 45 percentage points relative to standard prompts, with Ruby consistently the most vulnerable language (80.9–95.2%). Under adversarial conditions, RAG and Self-Refine outperform all decoding-only strategies, indicating that robust defense requires either external grounding or iterative self-verification when prompts are actively hostile.",
+  "sources": [
+    "crossref",
+    "openalex"
+  ],
+  "key": "djire2026evaluating",
+  "added": "2026-11-12T04:55:40+06:00",
+  "added_reason": "F3 defences against package hallucination (RQ3, RQ5)",
+  "found_via": "mitigating package hallucination; package hallucination unlearning model editing",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T17:53:57+06:00",
+    "cross_checks": {
+      "crossref": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "openalex": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      },
+      "arxiv": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2608.22652",
+    "retrieved": "2026-11-12T04:56:19+06:00",
+    "sha256": "7c0f95992e1fa3cf7c0376c6007141149908d1fade6fdbdc0f0b9926756f2ba9",
+    "pages": 13,
+    "text_layer": "ok",
+    "identity": "match (DOI printed in PDF)"
+  }
+}

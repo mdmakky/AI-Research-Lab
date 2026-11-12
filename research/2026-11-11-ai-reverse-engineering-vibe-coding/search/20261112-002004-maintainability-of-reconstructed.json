@@ -1,0 +1,420 @@
+{
+  "query": "maintainability of reconstructed application compared to original functional equivalence LLM",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T00:20:04+06:00",
+  "raw_hits": 10,
+  "unique": 9,
+  "errors": {},
+  "results": [
+    {
+      "title": "EMERGE: Checking Implementation Equivalence for LLMs via Rule Synthesis",
+      "authors": [
+        {
+          "family": "Zhan",
+          "given": "Qi"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        },
+        {
+          "family": "Li",
+          "given": "Shanping"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3832783.3834405",
+      "arxiv_id": "2603.21851",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7165392367",
+      "url": "https://doi.org/10.1145/3832783.3834405",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832783.3834405?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Verifying whether two implementations of the same large language model are equivalent across frameworks is difficult in practice. Even when they implement the same computation, the graphs may differ in operator decomposition, tensor layout, and the use of fused or opaque kernels, making manual rewrite rules hard to build and maintain. We present Emerge, a framework for checking Implementation Equivalence over computation graphs extracted from model implementations. Instead of writing rules manually, Emerge infers candidate relations from execution values, and synthesizes rewrite rules on demand when existing rules are insufficient. Each synthesized rule is then validated using SMT solving when possible and constraint-aware randomized testing for opaque kernels. As these local equivalences accumulate, Emerge eventually establishes whether the two implementations are equivalent. Our implementation targets inference computation graphs captured from HuggingFace Transformers and vLLM. Our evaluation shows that Emerge establishes equivalence for correct implementation pairs at practical cost. It also detects 10 of 13 known implementation bugs, uncovers 8 previously unknown implementation issues that were later confirmed by developers, and localizes the first mismatch when equivalence cannot be established.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "TrainVerify: Equivalence-Based Verification for Distributed LLM Training",
+      "authors": [
+        {
+          "family": "Lu",
+          "given": "Yunchi"
+        },
+        {
+          "family": "Miao",
+          "given": "Youshan"
+        },
+        {
+          "family": "Tan",
+          "given": "Cheng Ling"
+        },
+        {
+          "family": "Huang",
+          "given": "Peng"
+        },
+        {
+          "family": "Zhu",
+          "given": "Yi"
+        },
+        {
+          "family": "Zhang",
+          "given": "Xian"
+        },
+        {
+          "family": "Yang",
+          "given": "Fan"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM SIGOPS Symposium on Operating Systems Principles (SOSP)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3731569.3764850",
+      "arxiv_id": "2506.15961",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414735796",
+      "url": "https://doi.org/10.1145/3731569.3764850",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.15961",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "Training large language models (LLMs) at scale requires parallel execution across thousands of devices, incurring enormous computational costs. Yet, these costly distributed trainings are prone to correctness bugs, causing silent errors and potentially wasting millions of GPU hours. These bugs are challenging to expose through testing.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs)",
+      "authors": [
+        {
+          "family": "Nazzal",
+          "given": "Mahmoud"
+        },
+        {
+          "family": "Khalil",
+          "given": "Issa M."
+        },
+        {
+          "family": "Khreishah",
+          "given": "Abdallah A."
+        },
+        {
+          "family": "Phan",
+          "given": "NhatHai"
+        }
+      ],
+      "year": 2024,
+      "venue": "ACM SIGSAC Conference on Computer and Communications Security (CCS)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3658644.3690298",
+      "arxiv_id": "2409.12699",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4403747722",
+      "url": "https://doi.org/10.1145/3658644.3690298",
+      "oa_pdf_url": "https://arxiv.org/pdf/2409.12699",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 54,
+      "abstract": "The capability of generating high-quality source code using large language models (LLMs) reduces software development time and costs. However, they often introduce security vulnerabilities due to training on insecure open-source data. This highlights the need for ensuring secure and functional code generation. This paper introduces PromSec, an algorithm for prom optimization for secure and functioning code generation using LLMs. In PromSec, we combine 1) code vulnerability clearing using a generative adversarial graph neural network, dubbed as gGAN, to fix and reduce security vulnerabilities in generated codes and 2) code generation using an LLM into an interactive loop, such that the outcome of the gGAN drives the LLM with enhanced prompts to generate secure codes while preserving their functionality. Introducing a new contrastive learning approach in gGAN, we formulate code-clearing and generation as a dual-objective optimization problem, enabling PromSec to notably reduce the number of LLM inferences. PromSec offers a cost-effective and practical solution for generating secure, functional code. Extensive experiments conducted on Python and Java code datasets confirm that PromSec effectively enhances code security while upholding its intended functionality. Our experiments show that while a state-of-the-art approach fails to address all code vulnerabilities, PromSec effectively resolves them. Moreover, PromSec achieves more than an order-of-magnitude reduction in operation time, number of LLM queries, and security analysis costs. Furthermore, prompts optimized with PromSec for a certain LLM are transferable to other LLMs across programming languages and generalizable to unseen vulnerabilities in training. This study is a step in enhancing the trustworthiness of LLMs for secure and functional code generation, supporting their integration into real-world software development.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "DeGPT: Optimizing Decompiler Output with LLM",
+      "authors": [
+        {
+          "family": "Hu",
+          "given": "Peiwei"
+        },
+        {
+          "family": "Liang",
+          "given": "Ruigang"
+        },
+        {
+          "family": "Chen",
+          "given": "Kai"
+        }
+      ],
+      "year": 2024,
+      "venue": "Network and Distributed System Security Symposium",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.14722/ndss.2024.24401",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4391725269",
+      "url": "https://doi.org/10.14722/ndss.2024.24401",
+      "oa_pdf_url": "https://doi.org/10.14722/ndss.2024.24401",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 67,
+      "abstract": "Reverse engineering is essential in malware analysis, vulnerability discovery, etc. Decompilers assist the reverse engineers by lifting the assembly to the high-level programming language, which highly boosts binary comprehension.However, decompilers suffer from problems such as meaningless variable names, redundant variables, and lacking comments describing the purpose of the code.Previous studies have shown promising performance in refining the decompiler output by training the models with huge datasets containing various decompiler outputs.However, even datasets that take much time to construct cover limited binaries in the real world.The performance degrades severely facing the binary migration.In this paper, we present DeGPT, an end-to-end framework aiming to optimize the decompiler output to improve its readability and simplicity and further assist the reverse engineers in understanding the binaries better.The Large Language Model (LLM) can mitigate performance degradation with its extraordinary ability endowed by large model size and training set containing rich multi-modal data.However, its potential is difficult to unlock through one-shot use.Thus, we propose the three-role mechanism, which includes referee (R_ref), advisor (R_adv), and operator (R_ope), to adapt the LLM to our optimization tasks.Specifically, R_ref provides the optimization scheme for the target decompiler output, while R_adv gives the rectification measures based on the scheme, and R_ope inspects whether the optimization changes the original function semantics and concludes the final verdict about whether to accept the optimizations.We evaluate DeGPT on the datasets containing decompiler outputs of various software, such as the practical command line tools, malware, a library for audio processing, and implementations of algorithms.The experimental results show that even on the output of the current top-level decompiler (Ghidra), DeGPT can achieve 24.4% reduction in the cognitive burden of understanding the decompiler outputs and provide comments of which 62.9% can provide practical semantics for the reverse engineers to help the understanding of binaries.Our user surveys also show that the optimizations can significantly simplify the code and add helpful semantic information (variable names and comments), facilitating a quick and accurate understanding of the binary.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "SQLGovernor: An LLM-powered SQL Toolkit for Real World Application",
+      "authors": [
+        {
+          "family": "Jiang",
+          "given": "Jie"
+        },
+        {
+          "family": "Shen",
+          "given": "Siqi"
+        },
+        {
+          "family": "Xie",
+          "given": "Haining"
+        },
+        {
+          "family": "Li",
+          "given": "Yang"
+        },
+        {
+          "family": "Shen",
+          "given": "Yu"
+        },
+        {
+          "family": "Huang",
+          "given": "Danqing"
+        },
+        {
+          "family": "Qian",
+          "given": "Bo"
+        },
+        {
+          "family": "Wu",
+          "given": "Yinjun"
+        },
+        {
+          "family": "Zhang",
+          "given": "Wentao"
+        },
+        {
+          "family": "Cui",
+          "given": "Bin"
+        },
+        {
+          "family": "Chen",
+          "given": "Peng"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2509.08575",
+      "arxiv_id": "2509.08575",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417070755",
+      "url": "http://arxiv.org/abs/2509.08575",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.08575",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "SQL queries in real world analytical environments, whether written by humans or generated automatically often suffer from syntax errors, inefficiency, or semantic misalignment, especially in complex OLAP scenarios. To address these challenges, we propose SQLGovernor, an LLM powered SQL toolkit that unifies multiple functionalities, including syntax correction, query rewriting, query modification, and consistency verification within a structured framework enhanced by knowledge management. SQLGovernor introduces a fragment wise processing strategy to enable fine grained rewriting and localized error correction, significantly reducing the cognitive load on the LLM. It further incorporates a hybrid self learning mechanism guided by expert feedback, allowing the system to continuously improve through DBMS output analysis and rule validation. Experiments on benchmarks such as BIRD and BIRD CRITIC, as well as industrial datasets, show that SQLGovernor consistently boosts the performance of base models by up to 10%, while minimizing reliance on manual expertise. Deployed in production environments, SQLGovernor demonstrates strong practical utility and effective performance.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "LLMs are Brittle to Simple Code Transformations: Introducing CETBench - A Benchmark for Code-Equivalence Checking",
+      "authors": [
+        {
+          "family": "Oza",
+          "given": "Neeva"
+        },
+        {
+          "family": "Govil",
+          "given": "Ishaan"
+        },
+        {
+          "family": "Gupta",
+          "given": "Parul"
+        },
+        {
+          "family": "Khandelwal",
+          "given": "Dinesh"
+        },
+        {
+          "family": "Garg",
+          "given": "Dinesh"
+        },
+        {
+          "family": "Singla",
+          "given": "Parag"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2506.04019",
+      "arxiv_id": "2506.04019",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416074954",
+      "url": "https://arxiv.org/abs/2506.04019",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.04019",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "We study how well LLMs can determine whether two programs are functionally equivalent. This is an important problem because benchmarking code equivalence helps assess LLM capability in tasks such as code rewriting and translation. To this end, we introduce CETBench - Code Equivalence with Transformations Benchmark - built from a repository of programs that may solve the same or different tasks. Each dataset instance is created by sampling a program pair and applying a random sequence of predefined code transformations, yielding either equivalent or non-equivalent pairs. Our analysis shows that even simple transformations cause a significant performance drop in state-of-the-art LLMs on code-equivalence checking. These challenges are further amplified in the cross-lingual setting when comparing programs written in different languages. To remedy this, we present a simple fine-tuning-based approach to boost LLM performance on the transformed pairs of programs. Our approach for dataset generation is generic, supporting cross-lingual equivalence checking, the generation of program pairs with varying difficulty levels, and the application of diverse transformations. In our experiments, we perform ablations over the difficulty level of original programs, as well as the kind of transformations used in generating pairs for equivalence checking. Our analysis presents deep insights into the working of LLMs for the task of code-equivalence, and points to the fact that they may still be far from what could be termed as a semantic understanding of the underlying code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "The Code Barrier: What LLMs Actually Understand?",
+      "authors": [
+        {
+          "family": "Nikiema",
+          "given": "Serge Lionel"
+        },
+        {
+          "family": "Samhi",
+          "given": "Jordan"
+        },
+        {
+          "family": "Kaboré",
+          "given": "Abdoul Kader"
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Bissyandé",
+          "given": "Tegawendé François"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2504.10557",
+      "arxiv_id": "2504.10557",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416053423",
+      "url": "http://arxiv.org/abs/2504.10557",
+      "oa_pdf_url": "https://arxiv.org/pdf/2504.10557",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 17,
+      "abstract": "Understanding code represents a core ability needed for automating software development tasks. While foundation models like LLMs show impressive results across many software engineering challenges, the extent of their true semantic understanding beyond simple token recognition remains unclear. This research uses code obfuscation as a structured testing framework to evaluate LLMs' semantic understanding capabilities. We methodically apply controlled obfuscation changes to source code and measure comprehension through two complementary tasks: generating accurate descriptions of obfuscated code and performing deobfuscation, a skill with important implications for reverse engineering applications. Our testing approach includes 13 cutting-edge models, covering both code-specialized (e.g., StarCoder2) and general-purpose (e.g., GPT-4o) architectures, evaluated on a benchmark created from CodeNet and consisting of filtered 250 Java programming problems and their solutions. Findings show a statistically significant performance decline as obfuscation complexity increases, with unexpected resilience shown by general-purpose models compared to their code-focused counterparts. While some models successfully identify obfuscation techniques, their ability to reconstruct the underlying program logic remains constrained, suggesting limitations in their semantic representation mechanisms. This research introduces a new evaluation approach for assessing code comprehension in language models and establishes empirical baselines for advancing research in security-critical code analysis applications such as reverse engineering and adversarial code analysis.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "BabeLLM: A unified taxonomy for NLP-based LLM cybersecurity applications",
+      "authors": [
+        {
+          "family": "Casoria",
+          "given": "Pellegrino"
+        },
+        {
+          "family": "Romano",
+          "given": "Simon Pietro"
+        }
+      ],
+      "year": 2026,
+      "venue": "Expert Systems with Applications",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.eswa.2026.133540",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7167729021",
+      "url": "https://doi.org/10.1016/j.eswa.2026.133540",
+      "oa_pdf_url": "https://www.sciencedirect.com/science/article/pii/S0957417426024498/pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "As cybersecurity becomes increasingly complex, Large Language Models (LLMs) are emerging as valuable tools for supporting security professionals in routine tasks. However, existing research remains fragmented: no unified, machine-readable reference exists to compare and consolidate LLM use cases across academia and industry, limiting knowledge sharing and encouraging duplicated efforts. This paper presents BabeLLM, a concept-based taxonomy and OWL ontology grounded in established literature and cybersecurity standards (NIST, ISO/IEC, FIRST, JRC, and IETF). BabeLLM integrates NLP tasks, cybersecurity processes, and their intersection as LLM-based cybersecurity applications. Our analysis of 46 taxonomic efforts shows that none covers all three dimensions, leaving 17 LLM application categories absent from existing taxonomies. BabeLLM also introduces an operational architecture organized around three capabilities: exploration of existing work, design of new use cases, and automated ontology maintenance through LLM-assisted metadata enrichment and classification. The ontology is constructed through an umbrella systematic literature review covering more than 1,400 publications, combined with a concept-based cross-dimensional analysis of NLP and cybersecurity, and refined through iterative expert review. BabeLLM is validated through complementary evaluations: coverage and agreement analyses across existing taxonomies, a real-world Security Operations Center (SOC) deployment demonstrating practical applicability, and an LLM-assisted classification pipeline benchmarked against human-annotated ground truth. The ontology is released as an open-source resource alongside this paper.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "The Memorization Problem: Can We Trust LLMs' Economic Forecasts?",
+      "authors": [
+        {
+          "family": "Lopez-Lira",
+          "given": "Alejandro"
+        },
+        {
+          "family": "Tang",
+          "given": "Yuehua"
+        },
+        {
+          "family": "Zhu",
+          "given": "Mingyin"
+        }
+      ],
+      "year": 2025,
+      "venue": "SSRN Electronic Journal",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5217505",
+      "arxiv_id": "2504.14765",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4409569681",
+      "url": "https://doi.org/10.2139/ssrn.5217505",
+      "oa_pdf_url": "https://arxiv.org/pdf/2504.14765",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 75,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    }
+  ]
+}

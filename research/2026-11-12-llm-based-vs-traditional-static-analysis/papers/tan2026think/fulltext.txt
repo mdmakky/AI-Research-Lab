@@ -1,0 +1,956 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents
+                   in Vulnerability Detection
+                   Hua Beng Tan                                        Ratnadira Widyasari                                          Merve Astekin
+      Singapore Management University                          Singapore Management University                                         SINTEF
+            Singapore, Singapore                                      Singapore, Singapore                                         Oslo, Norway
+     huabeng.tan.2024@engd.smu.edu.sg                          ratnadiraw.2020@phdcs.smu.edu.sg                                merve.astekin@sintef.no
+
+                    Arda Goknil                                               Hasan Sözer                                          Yan Naing Tun
+                      SINTEF                                            Ozyegin University                               Singapore Management University
+                   Oslo, Norway                                          Istanbul, Turkiye                                     Singapore, Singapore
+               arda.goknil@sintef.no                                hasan.sozer@ozyegin.edu.tr                               yannaingtun@smu.edu.sg
+
+            Erik Johannes Husom                                            Lwin Khin Shar                                           Lingxiao Jiang
+                    SINTEF                                     Singapore Management University                           Singapore Management University
+                 Oslo, Norway                                        Singapore, Singapore                                      Singapore, Singapore
+        erik.johannes.husom@sintef.no                                 lkshar@smu.edu.sg                                        lxjiang@smu.edu.sg
+
+Abstract                                                                                       Keywords
+Large language models (LLMs) are increasingly studied for software                             LLM Reasoning, Vulnerability Detection, Agents, Thinking Mode
+vulnerability detection, but the benefits of recent reasoning-enabled                          ACM Reference Format:
+(“thinking”) modes remain unclear. At the same time, agentic LLM                               Hua Beng Tan, Ratnadira Widyasari, Merve Astekin, Arda Goknil, Hasan
+designs aim to enhance analysis through structured collaboration,                              Sözer, Yan Naing Tun, Erik Johannes Husom, Lwin Khin Shar, and Lingxiao
+while practical software security workflows require explanations                               Jiang. 2026. To Think or Not to Think: Evaluating LLM Reasoning and Agents
+that facilitate inspection, validation, and remediation. Because prior                         in Vulnerability Detection. In Proceedings of the 41st IEEE/ACM International
+studies often examine these dimensions separately or under het-                                Conference on Automated Software Engineering (ASE ’26), October 12–16,
+erogeneous settings, their individual effects on vulnerability detec-                          2026, Munich, Germany. ACM, New York, NY, USA, 13 pages. https://doi.
+tion remain difficult to disentangle. This paper addresses the gap                             org/10.1145/3832783.3837521
+through a phased, factor-separated empirical study on the PrimeVul
+Pair benchmark. In the first phase, we compare instruct and think-
+                                                                                               1    Introduction
+ing variants of four open models under zero- and few-shot prompt-                              Large language models (LLMs) have become central to automated
+ing without agents. In the second phase, we evaluate single-, dual-,                           software engineering, supporting tasks such as code understanding,
+and multi-agent (SA, DA, and MA) designs alongside call-matched                                synthesis, repair, and security analysis [4, 18, 24, 28–30, 37, 50].
+single-agent baselines, alert-burden metrics, and cost analysis. In                            In software security, this trend has been increasingly applied to
+the third, we assess explanations through blinded human and cal-                               vulnerability detection, where recent studies [3, 6, 8, 14, 16, 20, 22,
+ibrated LLM evaluation across correct and incorrect predictions,                               25, 33, 39–41, 54, 55, 62, 68, 69] show that LLMs can be compet-
+controlling for response length and model family. Thinking im-                                 itive under prompt-based settings, yet reveal substantial limita-
+proves non-agent (NA) F1 in 7 of 8 settings, mainly through recall,                            tions under more realistic and demanding evaluation conditions.
+while DA achieves the highest F1/recall but flags 88.2% of func-                               More broadly, evidence from code analysis suggests that LLMs can
+tions as vulnerable. MA performs better on pairwise discrimination,                            support security-oriented reasoning, although their effectiveness
+although call-matched self-revision achieves the best Pair-wise                                remains highly sensitive to task formulation, dataset quality, and
+Correct Prediction (P-C) overall. Thinking also uses 2.7–4.4× more                             evaluation protocol [19].
+energy, and its F1 benefit declines with greater orchestration. Ex-                               This context makes vulnerability detection an especially impor-
+planation gains are model-specific, partly length-mediated, and do                             tant testbed for current LLM design choices. Unlike many generic
+not distinguish correct from incorrect predictions.                                            code tasks, vulnerability detection requires models to distinguish
+                                                                                               subtle semantic differences between secure and insecure implemen-
+CCS Concepts                                                                                   tations, reason about security-relevant behavior, and communicate
+                                                                                               decisions in a form that developers can inspect and act on [19, 42].
+• Software and its engineering;
+                                                                                               Recent benchmark work has sharpened this challenge [2, 15, 44,
+                                                                                               48, 62]. Ding et al. [15] show that earlier vulnerability datasets
+                                                                                               can overestimate model capability because of duplication, label-
+This work is licensed under a Creative Commons Attribution 4.0 International License.          quality issues, and unrealistic evaluation conditions, and introduce
+ASE ’26, Munich, Germany                                                                       PrimeVul to better reflect real-world vulnerability detection settings.
+© 2026 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-2882-2/2026/10                                                             More recent benchmarking further indicates that LLM performance
+https://doi.org/10.1145/3832783.3837521                                                        in practical vulnerability discovery remains far from solved [62].
+
+
+
+
+                                                                                        2856
+
+=== [PDF page 2] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                 Tan et al.
+
+
+    Two recent developments further motivate a closer empirical                  zero- and few-shot prompting. Second, we examine orchestration
+study. First, modern LLMs increasingly provide explicit reasoning-               through single-agent (SA), dual-agent (DA) proposer–reviewer, and
+enabled or thinking modes, extending prior work showing that                     multi-agent (MA) review-pipeline designs, complemented by call-
+intermediate reasoning can improve performance on complex tasks;                 matched self-revision and best-of-(N) baselines, an alternative role
+for example, chain-of-thought prompting demonstrated that step-                  workflow, and alert-burden and cost analyses. Third, we assess
+wise reasoning can substantially improve results on difficult reason-            explanations under a blinded human and calibrated LLM-judge pro-
+ing benchmarks [53]. Second, agentic LLM systems have become a                   tocol spanning correct and incorrect predictions, while controlling
+prominent design pattern in software engineering, allowing models                for response length and testing model-family dependence.
+to plan, critique, revise, and interact with tools or other agents                  Our results show that thinking mode improves NA F1 in 7 of
+rather than producing a single one-shot output [28, 32]. Prior work              8 settings, with a statistically significant aggregate effect driven
+on SWE-agent and related software-engineering agents suggests                    mainly by recall, while improving Pair-wise Correct Prediction (P-
+that such orchestration can significantly affect task outcomes, while            C) in 6 of 8 settings. Under orchestration, DA achieves the highest
+also introducing additional complexity and overhead [58, 60].                    and most stable F1/recall but does so by flagging 88.2% of functions
+    At the same time, software security practice requires more than              as vulnerable, whereas MA more often provides stronger pairwise
+accurate labels [17, 21]. A vulnerability prediction is far more useful          discrimination at a lower false-positive rate. Call-matched experi-
+when accompanied by an explanation that helps developers under-                  ments further show that four-call self-revision can equal or exceed
+stand the risk, assess the supporting evidence, and guide inspection             MA P-C, indicating that part of the apparent collaboration benefit
+or remediation. Yet explanation quality is inherently multidimen-                comes from additional inference budget. Thinking costs 2.7–4.4×
+sional [10, 23, 36]. Prior interpretability research shows that fluent           more energy, and its F1 advantage weakens as orchestration in-
+or plausible explanations are not necessarily faithful to the actual             creases. For explanations, humans corroborate a thinking-mode
+basis of a model’s decision, and that explanation evaluation must                informativeness benefit for Nemotron, but the automatic judge’s
+distinguish readability and usefulness from grounding and eviden-                broader advantage is substantially length-mediated and does not
+tial support [13, 31]. This distinction is particularly important in             generalize to Qwen3-30B. Blinded evaluations show that fluent
+vulnerability detection, where persuasive but weakly grounded                    explanations do not signal whether their predictions are correct.
+explanations may foster misplaced trust.                                            This paper makes the following four contributions: a controlled
+    These developments reveal a central problem in the current                   statistical and pairwise evaluation of thinking modes across four
+literature: the effects of reasoning capability, agentic orches-                 open models; an analysis of agentic orchestration covering per-
+tration, and explanation quality are often entangled. Apparent                   formance, stability, alert burden, and reasoning interactions; call-
+improvements may stem from reasoning mode, reviewer-style col-                   matched baselines and cost measurements that separate collab-
+laboration, richer prompting, or simply longer and more elaborate                oration from inference budget; and a blinded, length-controlled,
+outputs. Likewise, an explanation that seems better may reflect flu-             model-aware explanation study showing that explanation quality
+ency rather than security-relevant grounding. This makes it difficult            does not imply prediction reliability.
+to identify which design choices genuinely improve vulnerability
+detection and which primarily add computational cost or stylistic
+variation. In security-sensitive settings, such ambiguity is especially          2   Related Work
+problematic, as overstated model capability can lead to misplaced                LLMs for Software Vulnerability Detection. Recent studies iden-
+confidence in automated analysis.                                                tify LLMs as promising for vulnerability detection but show that
+    To address this problem, this paper presents a phased, factor-               measured effectiveness depends strongly on benchmark quality and
+separated evaluation of LLM-based vulnerability detection. We                    evaluation protocol. Early prompt-based work [69] suggested that
+focus exclusively on vulnerability detection to obtain a tighter and             general-purpose LLMs can capture vulnerability-relevant patterns,
+more internally valid study than a broader multi-task design would               whereas later benchmarks revealed inflated performance caused by
+allow. Using the PrimeVul Pair benchmark [15], we analyze how                    duplication, noisy labels, and unrealistic settings. Ding et al. [15]
+reasoning-enabled inference, agentic coordination, and explanation               demonstrate the impact of benchmark design, while Yildiz et al. [62]
+behavior interact under controlled conditions. Our study design is               report substantial degradation in interprocedural, repository-level
+organized around three research questions (RQs):                                 settings. Broader evidence likewise shows uneven robustness and
+                                                                                 generalization [19]. Prior work establishes LLM viability, but rarely
+• RQ1. Do reasoning-enabled LLMs outperform non-reasoning
+                                                                                 examines how reasoning mode, agentic configuration, and explana-
+  LLMs in software vulnerability detection?
+                                                                                 tion quality jointly affect vulnerability detection.
+• RQ2. How do multi-agent configurations compare to single-agent
+                                                                                    Reasoning-Enabled LLMs for Code and Security Analy-
+  setups in terms of performance, cross-setting stability, and im-
+                                                                                 sis. Reasoning-enabled LLMs are motivated by evidence that ex-
+  provement consistency for vulnerability detection?
+                                                                                 plicit intermediate reasoning can improve complex-task perfor-
+• RQ3. How does explanation quality differ between thinking and
+                                                                                 mance. Chain-of-thought prompting [53] suggests similar benefits
+  non-thinking LLMs in vulnerability detection?
+                                                                                 for vulnerability detection, which depends on security-relevant
+  Methodologically, the evaluation proceeds in three stages. First,              semantics rather than shallow lexical cues. However, such gains
+we compare instruct- and thinking-mode variants of four open                     are not guaranteed: performance remains uneven under demand-
+models (Nemotron-Nano-8B, Nemotron-Super-49B, Qwen3-                             ing generalization settings [19], benchmark quality and evaluation
+4B, and Qwen3-30B-A3B) under non-agent (NA) execution with                       protocol strongly affect conclusions [15], and results decline in
+
+
+
+
+                                                                          2857
+
+=== [PDF page 3] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                           ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+repository-level settings requiring richer context [62]. Thus, rea-                         Table 1: Experimental design for vulnerability detection.
+soning is promising for code and security analysis, but it remains                           Factor         Levels / Description
+unclear whether thinking-enabled models outperform non-thinking                              Models         Nemotron-Nano-8B, Nemotron-Super-49B, Qwen3-4B, Qwen3-30B-A3B
+variants under controlled vulnerability-detection conditions.                                Modes          Instruct-mode (non-reasoning), Thinking-mode (reasoning-enabled)
+                                                                                             Prompting
+                                                                                                            Zero-shot, Few-shot
+   Agentic LLMs for Software Engineering and Security. Re-                                   strategies
+                                                                                             Agent
+cent work suggests that agentic orchestration can improve LLM                                               Single-agent (SA); Dual-agent (DA, proposer–reviewer); Multi-agent (MA,
+                                                                                             configurations four-agent pipeline with moderator and review board)
+performance by replacing one-shot generation with structured rea-                                           4 models × 2 modes × 2 prompting strategies × non-agentic configuration
+                                                                                             RQ1 design
+soning, action, review, and revision [28, 32, 34, 51]. ReAct [61]                                           (direct LLM query, no state) = 16 experiments
+                                                                                                            4 models × 2 modes × 2 prompting strategies × 3 agent configurations (SA,
+established this pattern for multi-step problem solving, while sys-                          RQ2 design
+                                                                                                            DA, MA) = 48 experiments
+tems such as RepairAgent [7] applied it to software engineering                                             Explanations analyzed for the same configurations used in RQ1, comparing
+                                                                                             RQ3 design     instruct-mode and thinking-mode outputs in terms of completeness, informa-
+through planning, evidence gathering, tool use, and iterative refine-                                       tiveness, clarity, and actionability
+                                                                                             Total
+ment. In software security, Yildiz et al. [62] show that ReAct-style                                        16 (RQ1) + 48 (RQ2) = 64 experimental configurations, with RQ3 conducted
+                                                                                             configurations on the generated outputs
+agents with contextual retrieval can outperform plain prompting,
+though performance remains inconsistent in repository-level set-
+tings. Thus, agentic vulnerability analysis is promising but insuffi-                      whether it is vulnerable or benign. Specifically, we utilize a high-
+ciently understood, and prior work lacks a controlled comparison of                        quality and challenging dataset for vulnerability detection, Prime-
+non-agent, single-agent, dual-agent, and multi-agent configurations                        Vul Pair [15], comprising 870 balanced instances (435 vulnerable and
+under matched models, reasoning modes, and prompts.                                        435 benign functions). PrimeVul Pair is particularly well suited to
+   Explanation Quality in LLM-Based Vulnerability Analysis.                                our study because each vulnerable function is paired with a benign
+As LLMs enter security-sensitive software tasks, explanation quality                       counterpart sharing at least 80% of its string content. This construc-
+matters alongside accuracy [65]. Prior work shows that explanation                         tion reduces the effectiveness of superficial lexical matching and
+quality is multidimensional [10, 23, 36]: fluent explanations may be                       makes successful classification more dependent on finer-grained se-
+plausible yet unfaithful to the model’s actual reasoning [31], while                       mantic reasoning about security-relevant code behavior. Although
+evidence-based frameworks such as ERASER emphasize ground-                                 the benchmark is constructed from vulnerable–benign pairs, each
+ing in supporting artifacts [13]. Recent studies distinguish dimen-                        function is treated as an individual input instance during infer-
+sions such as faithfulness, completeness, and overall quality [10].                        ence, and the paired counterpart is not provided to the model. This
+In software engineering, explanations are useful only when they                            allows us to evaluate vulnerability detection as a balanced classifi-
+help developers inspect, validate, and act on predictions [46], and                        cation problem while preserving the benchmark’s core challenge of
+explainable-AI research similarly stresses actionability and practical                     distinguishing highly similar secure and insecure implementations.
+value over readability alone [5, 9, 11, 38, 43, 59, 63]. Yet controlled                       PrimeVul Pair is appropriate for all three research questions ad-
+evidence comparing explanation quality between thinking and non-                           dressed in this paper. For RQ1, it enables a controlled comparison
+thinking LLMs in vulnerability detection remains limited.                                  between instruct-mode and thinking-mode models on a task that re-
+                                                                                           quires semantic discrimination rather than shallow pattern recogni-
+3     Study Design                                                                         tion. For RQ2, it provides a meaningful basis for evaluating whether
+                                                                                           proposer–reviewer and multi-agent pipelines improve detection
+This section presents the study design, including the dataset, models,                     accuracy and robustness by supporting structured critique and re-
+variables, research questions, and methodology (see Table 1).                              finement. For RQ3, the function-level setting facilitates analysis of
+                                                                                           explanation quality, since model justifications can be examined in
+3.1     Research Questions                                                                 relation to specific code fragments and vulnerability-related reason-
+RQ1 examines whether thinking-mode models outperform their                                 ing. A limitation of the dataset is that it focuses on function-level
+instruct-mode counterparts in a non-agent setup under zero-                                vulnerabilities and therefore does not capture broader project-level
+shot and few-shot prompting. It isolates the contribution of                               or inter-procedural security contexts; however, it offers a suitable
+explicit reasoning without agentic collaboration, using standard                           and challenging benchmark for controlled empirical comparison.
+vulnerability-detection metrics.
+   RQ2 investigates whether agentic orchestration improves                                 3.3     Models
+vulnerability detection beyond simpler execution settings. To an-                          The study employs four open LLMs: Qwen3-4B, Qwen3-30B-
+swer this question, we compare single-agent (SA), dual-agent                               A3B, Nemotron-Nano-8B, and Nemotron-Super-49B. These
+(DA), and multi-agent (MA) configurations under the same model,                            models were selected to provide diversity in both model family
+reasoning-mode, and prompting settings.                                                    and model scale, while also supporting a controlled comparison
+   RQ3 analyzes how the quality of explanations differs between                            between instruct-mode and thinking-mode operation. This makes
+thinking and non-thinking models. Explanations are evaluated                               them well suited for the objectives of the study, which require
+along four dimensions (completeness, informativeness, clarity,                             examining the effect of reasoning capability within the same model
+and actionability) using both manual and automatic assessment.                             family rather than across unrelated models only.
+                                                                                              A key requirement of the experimental design is the ability to
+3.2     Vulnerability Detection Task and Dataset                                           compare non-reasoning and reasoning-enabled behavior under
+We study software vulnerability detection as a binary classi-                              otherwise comparable conditions. For this reason, each model is
+fication task in which an LLM receives a function and predicts                             evaluated in two variants: instruct-mode, which serves as the
+
+
+
+
+                                                                                 2858
+
+=== [PDF page 4] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                   Tan et al.
+
+
+non-reasoning baseline, and thinking-mode, which serves as the                   • Multi-Agent (MA): Four agents are involved in a coordinated setup
+reasoning-enabled variant. The instruct-mode configuration is in-                  with task-specific roles [55]. A Security Researcher analyzes the
+tended to produce direct task outputs with no explicit extended                    code for vulnerabilities, a Code Author responds to the Security
+reasoning process, whereas the thinking-mode configuration allows                  Researcher’s findings, a Moderator summarizes the discussion,
+the model to engage in more deliberate reasoning before generating                 and a Review Board makes the final vulnerability decision.
+its final answer. This paired setup forms the foundation for RQ1,
+which investigates whether reasoning-enabled LLMs outperform                        These configurations represent distinct levels of agentic interac-
+non-reasoning LLMs in software engineering tasks.                                tion and orchestration [35, 47]. The NA setup captures the simplest
+   The selected models also cover a range of capacities, from rela-              use of an LLM as a direct classifier, without any explicit orches-
+tively compact models to substantially larger ones. Including both               tration, aligning with the one-shot model querying [35] pattern. It
+the Nemotron and Qwen model families reduces the likelihood                      serves as a minimal non-agentic baseline and therefore provides the
+that the findings are tied to a single architecture lineage or ven-              cleanest reference point for assessing the effect of reasoning mode
+dor ecosystem. At the same time, the variation in model size en-                 alone. The SA setup wraps the same LLM in an agent abstraction
+ables analysis of whether the effects of reasoning, prompting, and               that manages prompts, execution flow, and internal state; although
+agentic orchestration remain stable across scales or become more                 NA and SA both rely on a single LLM and are therefore expected
+pronounced in larger models.                                                     to show similar task performance, distinguishing them allows us
+                                                                                 to isolate the effect of adopting an agentic framework from the
+3.4     Implementation and Hardware Details                                      additional effect of adding inter-agent collaboration. The DA con-
+                                                                                 figuration introduces competitive collaboration through debate-like
+All models were served using vLLM (v0.17–v0.18), an open-source                  review and cross-reflection [35, 47], aiming to improve reasoning
+inference engine that provides an OpenAI-compatible API. Each                    consistency and output reliability at the cost of additional com-
+model was loaded with a standardized context window of 65,536                    munication overhead and energy consumption. The MA employs
+tokens (64K) and served on NVIDIA H100 80GB HBM3 GPUs via                        role-based and voting-based cooperation [35, 47], representing a
+RunPod cloud infrastructure. To ensure reproducibility and elim-                 more collaborative division of labor that may yield more refined
+inate stochastic variation in outputs, all experiments were con-                 and robust outcomes, albeit with greater coordination overhead.
+ducted with the temperature parameter fixed at 0, following prior
+work [55]. In our own pilot repetitions under this setting, we ob-
+served no variation in the outputs consistent with the previous                  3.6     Prompting Strategies
+study [55]; therefore, we report a single run per configuration.                 We use two prompting strategies throughout the study: zero-shot
+Agent construction was performed using the AG2 framework [1],                    and few-shot. In both cases, vulnerability detection is framed as a
+an open-source platform for building multi-agent systems.                        binary classification task over a single input function, requiring
+                                                                                 the model to predict whether the function is vulnerable or benign.
+3.5     System Configurations                                                    All prompts follow the same basic structure: a task instruction, the
+To systematically evaluate the impact of agentic collaboration on                input code snippet, an output-format constraint requiring a binary
+vulnerability-detection accuracy, we implemented four progres-                   label, and, when applicable, a brief justification. In the few-shot set-
+sively collaborative configurations. Designing multi-agent LLM sys-              ting, the prompt additionally includes a small set of representative
+tems involves a large design space, including the number of agents,              labeled examples before the target function. The same demonstra-
+their roles, and their communication and coordination strategies;                tion examples are used across all models and reasoning modes.
+accordingly, there is no single universally optimal multi-agent ar-                 All prompt templates can be found in the replication package [45].
+chitecture for vulnerability detection. In this study, our objective is          Across all settings, we keep the prompt wording, label space, and
+not to propose a new task-specific multi-agent design, but rather                response-format constraints as consistent as possible, varying only
+to evaluate how representative agentic configurations influence                  the information needed by the orchestration pattern.
+vulnerability-detection performance under controlled conditions.
+The implementations used in our experiments instantiate repre-                   3.7     Variables
+sentative role configurations inspired by patterns previously re-
+                                                                                 3.7.1   Independent Variables (Factors We Manipulate).
+ported in the literature for vulnerability detection [55], enabling
+a controlled comparison of how increasing collaboration affects                  (1) Model (Nemotron-Nano-8B, Nemotron-Super-49B, Qwen3-4B,
+performance, cross-setting stability, and improvement consistency                    and Qwen3-30B-A3B) captures differences across model families
+in our study, rather than claiming a task-optimal architecture.                      and scales.
+• Non-Agentic (NA): This involves direct calls to the LLM without                (2) Reasoning mode (instruct-mode and thinking-mode) repre-
+  maintaining any state or exhibiting agent-like behavior.                           sents the central comparison in the study, contrasting non-
+• Single Agent (SA): A single LLM-based agent acts autonomously                      reasoning behavior in instruct-mode with reasoning-enabled
+  to complete the task.                                                              behavior in thinking-mode.
+• Dual Agent (DA): This includes two LLM-based agents with task-                 (3) Prompting strategy (zero-shot and few-shot) allows us to
+  specific roles. A Code Author proposes an analysis of the function,                examine whether the observed effects remain stable when the
+  and a Security Analyst reviews the Code Author’s reasoning and                     models are provided with no demonstrations or with a small
+  the code itself to make the final vulnerability decision.                          number of examples.
+
+
+
+
+                                                                          2859
+
+=== [PDF page 5] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+(4) System configuration (NA, SA, DA, and MA) captures the                                 3.9.1 RQ1. To answer RQ1, we compared instruct- and thinking-
+    system-level orchestration design, ranging from a single model                         mode variants of Nemotron-Nano-8B, Nemotron-Super-49B, Qwen3-
+    instance to multi-agent review pipelines.                                              4B, and Qwen3-30B-A3B under the NA setup. Each model–mode
+                                                                                           combination was evaluated with both zero-shot and few-shot prompt-
+3.7.2 Dependent Variables (Measured Outcomes).
+                                                                                           ing, yielding 16 configurations for vulnerability detection. The aim
+(1) Vulnerability detection performance captures how accu-                                 was to isolate the effect of explicit reasoning at the model level
+    rately a configuration classifies a code function as vulnerable.                       while keeping orchestration fixed.
+(2) Cross-setting stability (consistency) captures how stable and
+    consistently beneficial a configuration is across experimental                         3.9.2 RQ2. To answer RQ2, we evaluated SA, DA, and MA across
+    settings. We assess cross-setting stability and improvement                            four models, two reasoning modes, and two prompting strategies,
+    consistency through the stability of performance across models,                        yielding 48 configurations. All designs used the same dataset, task
+    prompting strategies, and reasoning modes, and through the                             instruction, output constraints, and binary label space, so differ-
+    consistency of improvement relative to simpler baselines.                              ences reflect orchestration. In DA, a reviewer validates the pro-
+(3) Explanation quality captures the quality of the explanations                           poser’s prediction and justification; in MA, specialized agents re-
+    generated by the models in different configurations and is an-                         view the initial analysis and a moderator produces the final verdict.
+    alyzed along four dimensions: completeness, informativeness,                           All final outputs were mapped to the same binary label space as
+    clarity, and actionability.                                                            the SA baseline, ensuring direct metric comparability.
+                                                                                           3.9.3 RQ3. To answer RQ3, we compared Nemotron-Super-49B
+3.8     Evaluation Metrics
+                                                                                           explanations in thinking and instruct modes, as it performed best
+For RQ1 and RQ2, we treat vulnerability detection as binary clas-                          in RQ1 (Section 4.1). Under a blinded protocol, two annotators
+sification and report accuracy, precision, recall, and F1, capturing                       rated 120 explanations from 60 snippets—15 each from TP, TN,
+overall correctness, prediction reliability, vulnerability coverage,                       FP, and FN—with every snippet evaluated in both modes. Ground
+and their balance. Because the dataset is balanced, these metrics                          truth, CWE, CVE description, model, and mode were withheld, and
+are directly interpretable. Following Ding et al. [15], we report Pair-                    annotators received detailed guidelines and calibration examples.
+wise Correct Prediction (P-C), which counts a vulnerable–benign                            The paired tests in Section 4.3 use 59 matched thinking/instruct
+pair as correct only when both functions are classified correctly,                         pairs for both human and automatic evaluations; one snippet was
+measuring discrimination between highly similar code instances.                            excluded because a duplicate PrimeVul instance lacked a paired
+    For RQ2, we assess each agent configuration’s cross-setting sta-                       judge score in one mode.
+bility and improvement consistency. Stability is measured by mean                             We complemented manual evaluation with Claude Sonnet 4.6
+F1, standard deviation, and coefficient of variation across models,                        as an independent LLM judge, following prior LLM-as-a-judge and
+prompts, and reasoning modes, with lower variability indicating                            SE studies [26, 27, 54]. Chosen outside the Qwen3 and Nemotron
+greater stability. Improvement consistency is the proportion of                            families to reduce self-evaluation bias [55], it used the same blinded
+matched settings in which a configuration outperforms the single-                          rubric as human raters, with ground truth, CWE, and CVE withheld.
+agent baseline in F1.                                                                      Because the compressed 1–5 scales are sensitive to calibration off-
+    For RQ3, following prior work [55], we evaluate explanations                           sets, we used few-shot exemplars from held-out human ratings. Five-
+on completeness, informativeness, clarity, and actionability.                              fold cross-validation assessed adjacent (±1) agreement, mean abso-
+These capture whether an explanation covers the prediction ratio-                          lute error, and Spearman’s 𝜌 [64] against the inter-human ceiling,
+nale, provides specific security-relevant insight, is coherent and                         which the calibrated judge reached on all dimensions. Neither an-
+understandable, and supports inspection, validation, or remediation.                       other judge (Claude Opus 4.8) nor consensus-based calibration im-
+Each dimension is rated on a five-point Likert scale [12, 49, 55, 56,                      proved alignment. Thus, automatic evaluation complements rather
+67].                                                                                       than replaces human judgment and supports triangulation [55, 66].
+                                                                                              For analysis, we aggregated manual ratings by averaging anno-
+3.9     Methodology                                                                        tator scores for each explanation and metric. We then compared
+To ensure fairness and reproducibility, all configurations were eval-                      explanation quality between thinking and instruct modes, for both
+uated on the same PrimeVul Pair dataset using the same task for-                           manual and automatic evaluations, using the Wilcoxon signed-
+mulation, prompt structure, and output-parsing protocol, except                            rank test [57], which is appropriate for paired ordinal data without
+where explicitly varied by the factor under study. In every experi-                        assuming normality.
+ment, the input consisted of a single function, and the model was
+asked to classify it as vulnerable or benign and, when requested,                          4 Results
+justify its decision. The paired counterpart in PrimeVul Pair was
+not shown during inference. Across models and settings, we used
+                                                                                           4.1 RQ1. Reasoning Effects in Non-Agent (Direct
+the same label space, response format, and zero-shot and few-shot                              LLM) Vulnerability Detection
+prompt templates. In the few-shot setting, the same demonstration                          Table 2 and Figure 1 summarize the NA results. Thinking mode out-
+examples were used for all models and modes. Predictions were                              performs instruct mode in 7 of 8 model–prompting combinations,
+automatically parsed into binary labels, and non-conforming out-                           with the exception being Qwen-30B-A3B zero-shot, where instruct
+puts were handled conservatively in the analysis. The source code,                         is slightly better (F1 = 0.533 vs. 0.508). The gains nevertheless vary
+prompts, and dataset are provided in the replication package [45].                         substantially across models. The aggregate advantage is statistically
+
+
+
+
+                                                                                 2860
+
+=== [PDF page 6] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                               Tan et al.
+
+
+Table 2: NA vulnerability detection results on PrimeVul
+Pair (870 samples) across four models, two modes, and two
+prompting strategies. Best F1 and P-C per model are bold.
+Family     Model       Mode       Prompt   Accur.      Prec.   Recall     F1    P-C
+Nemotron   Nano-8B     Instruct   Few           .497    .487     .090    .151    2.9
+                       Instruct   Zero          .499    .500     .005    .009    0.5
+                       Thinking   Few           .493    .487     .223   .306     4.4
+                       Thinking   Zero          .506    .583     .048    .089    1.5
+           Super-49B   Instruct   Few           .528    .547     .336    .416   18.6
+                       Instruct   Zero          .543    .574     .338    .425   19.3
+                       Thinking   Few           .538    .532     .655    .587   19.8
+                       Thinking   Zero          .540    .529     .749   .620    19.3
+Qwen       4B          Instruct   Few           .509    .541     .136    .217    9.3
+                       Instruct   Zero          .522    .576     .175    .268    9.0
+                       Thinking   Few           .510    .526     .234    .324   12.7
+                       Thinking   Zero          .529    .552     .315   .401    18.6
+           30B-A3B     Instruct   Few           .497    .497     .423    .457   16.6
+                       Instruct   Zero          .550    .555     .513   .533    22.5
+                       Thinking   Few           .529    .538     .425    .475   17.8
+                       Thinking   Zero          .536    .542     .478    .508   19.6
+
+
+significant and practically large: across the eight NA configurations,
+thinking improves mean F1 from 0.31 to 0.41 (Wilcoxon 𝑝 = 0.023,
+Cohen’s 𝑑 = 1.37). The gain is driven mainly by recall, as accuracy                           Figure 1: NA vulnerability detection F1 heatmap across mod-
+differs only marginally (0.523 vs. 0.518, 𝑝 = 0.46, 𝑑 = 0.35), indicat-                       els and configurations. Rows represent model–mode combi-
+ing a shift in the false-negative/false-positive balance rather than                          nations; columns represent prompting strategies.
+overall agreement. Therefore, we avoid over-interpreting individual                           see: most rows show stronger performance in the zero-shot column,
+cells, including Qwen3-30B-A3B zero-shot, where instruct slightly                             except for the 8B model, where few-shot is superior. This suggests
+outperforms thinking (F1 0.533 vs. 0.508).                                                    that the usefulness of demonstrations depends on model capacity
+    The strongest model is Nemotron-Super-49B. Its instruct-mode                              and is not uniformly beneficial.
+achieves F1 = 0.416 with few-shot prompting and 0.425 with zero-                                 The P-C metric provides a complementary view: thinking im-
+shot prompting, while thinking-mode increases these scores to                                 proves P-C in 6 of 8 model–prompting combinations. Gains oc-
+0.587 and 0.620, respectively. This makes thinking zero-shot                                  cur for Nemotron-Nano-8B (2.9→4.4 few-shot; 0.5→1.5 zero-shot),
+Nemotron-Super-49B the best overall configuration in terms of                                 Qwen3-4B (9.3→12.7; 9.0→18.6), and Qwen3-30B-A3B few-shot
+F1, as also reflected by the heatmap in Figure 1. These gains are                             (16.6→17.8). The exceptions are Nemotron-Super-49B zero-shot,
+driven primarily by a large increase in recall, which rises from                              which is essentially unchanged at 19.3, and Qwen3-30B-A3B zero-
+∼0.34 in instruct-mode to 0.655 and 0.749 in thinking-mode, indi-                             shot, where instruct is higher (22.5 vs. 19.6). The best overall P-C is
+cating a much stronger ability to identify vulnerable functions. The                          Qwen3-30B-A3B instruct zero-shot (22.5), followed by Nemotron-
+improvement in accuracy, by contrast, is modest, suggesting that                              Super-49B thinking few-shot and Qwen3-30B-A3B thinking zero-
+reasoning mainly changes the balance between false negatives and                              shot (both about 20). Thus, thinking improves pair-wise discrimi-
+false positives rather than overall label agreement alone.                                    nation in most, but not all, settings.
+    The Qwen models show a similar pattern. For Qwen3-4B, think-
+ing raises F1 from 0.217 to 0.324 with few-shot prompting and from                             RQ1 Conclusion. Thinking mode generally improves non-
+0.268 to 0.401 with zero-shot prompting. For Qwen3-30B-A3B, the                                agent vulnerability detection, outperforming instruct mode in 7
+gain is smaller: F1 increases from 0.457 to 0.475 in few-shot mode,                            of 8 model–prompt combinations and increasing mean F1 from
+while zero-shot instruct slightly outperforms thinking (0.533 vs.                              0.31 to 0.41 (𝑝 = 0.023, 𝑑 = 1.37). The gains are driven mainly by
+0.508). Thus, reasoning substantially benefits Qwen3-4B but not                                higher recall rather than accuracy. Nemotron-Super-49B think-
+the larger Qwen3-30B-A3B under zero-shot prompting.                                            ing zero-shot achieves the best F1 (0.620), while Qwen3-30B-A3B
+    The weakest model is Nemotron-Nano-8B. Thinking-mode                                       instruct zero-shot achieves the best P-C (22.5). Thinking also im-
+improves F1 from 0.151 to 0.306 in the few-shot setting and from                               proves P-C in 6 of 8 settings, although benefits vary substantially
+0.009 to 0.089 in the zero-shot setting, so the directional benefit                            by model and prompting strategy.
+remains positive. However, the absolute performance remains poor,
+especially in zero-shot mode, where recall is extremely low in both
+instruct and thinking settings. This indicates that reasoning alone
+                                                                                              4.2    RQ2. Agentic Effects in Vulnerability
+is insufficient to compensate for limited model capacity.                                            Detection
+    The effect of prompting strategy is also more nuanced than                                Table 3, Table 4, Figure 2, and Figure 3 compare the three agentic
+a simple few-shot-versus-zero-shot conclusion. For Nemotron-                                  designs (SA, DA, and MA) across all model, reasoning-mode, and
+Super-49B, Qwen3-4B, and Qwen3-30B-A3B, zero-shot yields                                      prompting combinations. The results show that the agentic config-
+higher F1 than few-shot in both instruct and thinking modes. In                               uration changes the error profile of vulnerability detection
+contrast, for Nemotron-Nano-8B, few-shot clearly outperforms                                  substantially, but not uniformly. We attribute these differences
+zero-shot in both modes. The heatmap makes this pattern easy to                               to the configuration as a whole rather than to collaboration per se:
+
+
+
+
+                                                                                       2861
+
+=== [PDF page 7] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                         ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 3: Vulnerability detection results across three agentic designs (SA, DA, MA) on PrimeVul Pair (870 samples). Each cell
+group shows Acc. / Prec. / Rec. / F1 / P-C for one design.
+                                                                      SA                                  DA                                   MA
+                Family   Model       Mode     Prom.   Acc.     Pr.    Re.      F1    P-C    Acc.   Pr.    Re.       F1    P-C    Acc.   Pr.    Re.     F1    P-C
+                Nem.     Nano-8B     Inst.    Few     .497    .487    .086    .146    2.7   .502   .501   .968    .660     3.2   .480   .485   .579   .528   17.4
+                                     Inst.    Zero    .498    .333    .002    .005    0.2   .500   .500   .933    .651     3.2   .495   .468   .053   .095    4.2
+                                     Think    Few     .503    .510    .241    .327    5.9   .506   .503   .961    .660     2.7   .525   .523   .597   .558   19.3
+                                     Think    Zero    .502    .541    .046    .085    1.5   .502   .501   .943    .654     3.4   .499   .526   .079   .138    5.9
+                         Sup-49B     Inst.    Few     .516    .528    .326    .403   16.1   .503   .502   .959    .659     3.7   .503   .502   .851   .631    9.8
+                                     Inst.    Zero    .541    .566    .363    .443   21.0   .501   .501   .984    .664     2.2   .480   .484   .600   .536   19.1
+                                     Think    Few     .529    .524    .651    .581   18.9   .518   .510   .917    .656     9.5   .529   .522   .678   .590   21.0
+                                     Think    Zero    .536    .524    .744    .615   19.2   .500   .500   .952    .656     3.9   .494   .493   .425   .457   20.5
+                Qwen     4B          Inst.    Few     .522    .581    .167    .259   11.2   .503   .502   .982    .664     1.5   .498   .499   .816   .619   10.0
+                                     Inst.    Zero    .527    .587    .188    .284   11.5   .506   .503   .982    .665     2.4   .471   .480   .680   .562   15.2
+                                     Think    Few     .534    .579    .255    .354   16.9   .503   .504   .421    .459    17.4   .499   .497   .415   .453   20.1
+                                     Think    Zero    .524    .546    .301    .388   15.2   .503   .502   .818    .622    12.0   .520   .530   .334   .410   20.8
+                         30B         Inst.    Few     .532    .539    .464    .499   20.3   .495   .498   .984    .661     0.7   .526   .513   .930   .662    9.8
+                                     Inst.    Zero    .532    .538    .471    .502   20.8   .498   .499   .995    .665     0.7   .528   .520   .715   .602   20.1
+                                     Think    Few     .531    .541    .421    .473   18.1   .509   .507   .634    .564    18.8   .522   .516   .649   .575   19.1
+                                     Think    Zero    .538    .543    .497    .519   20.5   .490   .493   .729    .588    14.7   .516   .514   .548   .531   21.5
+                Mean                                  .523    .529    .326    .368   13.7   .503   .502   .885    .634     6.2   .505   .505   .559   .497   15.8
+                Std                                    .014    .057   .203    .170    7.1   .006   .004    .161    .055    6.1   .018   .018   .241   .158    5.7
+                CV (%)                                                          46    52                              9    98                           32     36
+
+
+Table 4: Pairwise Correct Prediction (P-C, %) across three
+agentic designs on PrimeVul Pair.
+       Family       Model          Mode      Prompt    SA      DA      MA
+       Nemotron     Nano-8B        Inst.     Few        2.7     3.2    17.4
+                                   Inst.     Zero       0.2     3.2     4.2
+                                   Think     Few        5.9     2.7    19.3
+                                   Think     Zero       1.5     3.4     5.9
+                    Super-49B      Inst.     Few      16.1      3.7     9.8                 Figure 2: Vulnerability detection performance comparison
+                                   Inst.     Zero     21.0      2.2    19.1                 across SA, DA, and MA designs on PrimeVul Pair (870 sam-
+                                   Think     Few      18.9      9.5    21.0
+                                   Think     Zero     19.2      3.9    20.5                 ples), grouped by model and reasoning mode.
+       Qwen         30B-A3B        Inst.     Few      20.3      0.7     9.8
+                                   Inst.     Zero     20.8      0.7    20.1                 at 30.3% (PPR = 0.303, FPR = 0.280) and MA at 55.4% (PPR = 0.554,
+                                   Think     Few      18.1     18.8    19.1                 FPR = 0.549). With precision near 0.50, DA produces roughly one
+                                   Think     Zero     20.5     14.7    21.5
+                                                                                            false positive per true positive, so its higher F1 reflects a recall shift
+                    4B             Inst.     Few      11.2      1.5    10.0
+                                   Inst.     Zero     11.5      2.4    15.2
+                                                                                            rather than better discrimination; it is therefore better suited to
+                                   Think     Few      16.9     17.4    20.1                 high-recall screening than stand-alone use. Nevertheless, the F1
+                                   Think     Zero     15.2     12.0    20.8                 gains over SA are statistically significant and practically large: over
+                                                                                            the 16 matched configurations (paired Wilcoxon signed-rank), DA
+SA, DA, and MA differ not only in agent structure but also in the                           vs. SA gives 0.634 vs. 0.368 (𝑝 < 0.0001, Cohen’s 𝑑 = 1.40) and
+number of inference calls, the amount of accumulated context, and                           MA vs. SA gives 0.497 vs. 0.368 (𝑝 = 0.0013, 𝑑 = 0.92). Therefore,
+the opportunities for self-revision. The call-matched single-agent                          we treat F1/recall and P-C as complementary criteria rather than
+baselines in Section 5.2 isolate the inference-budget component, and                        declaring one design universally best.
+show that much of the apparent multi-agent benefit is recoverable                              DA is the most consistently beneficial design when F1 is used as
+by a single agent given the same call budget.                                               the primary metric. It outperforms SA in all 16 matched configura-
+   At the aggregate level, DA achieves the highest mean F1-score                            tions. The strongest DA gains occur for weaker or mid-sized models.
+(0.634) and by far the highest mean recall (0.885), clearly exceeding                       For Nemotron-Nano-8B, DA raises F1 from 0.005–0.327 under SA
+both SA (F1 = 0.368, recall = 0.326) and MA (F1 = 0.497, recall =                           to a tightly clustered 0.651–0.660 across all four settings, effectively
+0.559) (Table 3, Figure 2). However, this gain is not accompanied by                        eliminating the severe failures observed in the non-collaborative
+higher accuracy or precision. In fact, SA retains the highest mean                          setup. Similarly, for Qwen-4B, DA increases F1 from 0.259–0.388
+accuracy (0.523) and precision (0.529), whereas DA averages only                            under SA to 0.459–0.665, with especially large gains in the instruct-
+0.503 accuracy and 0.502 precision. This indicates that its F1 gain                         mode settings. For Qwen-30B-A3B, DA again outperforms SA in all
+comes mainly from a recall-oriented shift, often at the cost of more                        four settings, improving F1 from 0.473–0.519 to 0.564–0.665. MA
+false positives. MA lies between the two extremes, with mean F1                             also outperforms SA in 15 of 16 settings and is more stable (F1
+(0.497) well above SA and below DA; its accuracy (0.505) is close to                        coefficient of variation - CV: 32% vs. 46%). Its mean F1 remains
+SA while its precision (0.505) is marginally lower.                                         below DA’s because it avoids DA’s flag-everything operating point,
+   To quantify alert burden, we report false-positive rate (FPR) and                        while its main advantage appears in pairwise correctness.
+predicted-positive rate (PPR). Across 16 configurations, DA flags                              The P-C results in Table 4 provide a complementary perspective.
+88.2% of functions (PPR = 0.882, FPR = 0.880), compared with SA                             Unlike F1, which rewards recall improvements, P-C requires both
+
+
+
+
+                                                                                     2862
+
+=== [PDF page 8] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                   Tan et al.
+
+
+                                                                                     The benefit of thinking mode depends strongly on orchestration
+                                                                                  (Table 5). Thinking raises F1 substantially in NA and SA (+0.104
+                                                                                  and +0.100), but the gain reverses under both DA (−0.054) and
+                                                                                  MA (−0.066), suggesting that individual-model reasoning is diluted
+                                                                                  across agents. For P-C, however, thinking remains beneficial in DA
+                                                                                  and MA (+8.1 and +5.4), indicating improved vulnerable–benign
+                                                                                  discrimination even without higher F1. This reasoning×orchestration
+                                                                                  interaction is promising but requires deeper per-model analysis
+                                                                                  and significance testing.
+
+
+                                                                                   RQ2 Conclusion. Agentic orchestration helps unevenly. DA
+                                                                                   gives the highest, most stable F1/recall (beating SA in all 16
+                                                                                   settings) but mainly by over-flagging—it labels ∼88% of functions
+                                                                                   vulnerable (FPR = 0.880) at lower precision, acting as a high-
+                                                                                   recall screen. MA is more stable than SA and best on pairwise
+                                                                                   discrimination (P-C in 11 of 16 settings) at a moderate FPR (0.549),
+                                                                                   making it preferable when vulnerable–benign discrimination
+                                                                                   matters. Thinking mode also interacts with orchestration: it
+Figure 3: Vulnerability detection F1 heatmap across all 48                         helps F1 in NA and SA settings but reverses under both DA and
+SA/DA/MA configurations on PrimeVul Pair (870 samples).                            MA, while still improving P-C in collaborative settings.
+
+Table 5: Reasoning benefit (mean thinking − instruct) by or-
+chestration level, on PrimeVul Pair (870 samples). Subscripts                     4.3    RQ3. Explanation Quality across Thinking
+I/T denote instruct/thinking.
+                                                                                         and Non-Thinking Models
+            Design    F1I    F1T     ΔF1    P-CI       P-CT   ΔP-C                Table 6 reports explanation quality for Nemotron-Super-49B un-
+            NA        .310   .414   +.104       12.3   14.2   +1.9                der a blinded protocol, in which the ground-truth label, CWE, and
+            SA        .318   .418   +.100       13.0   14.5   +1.5                CVE description are withheld from both the human raters and the
+            DA        .661   .607   −.054        2.2   10.3   +8.1
+            MA        .529   .464   −.066       13.2   18.5   +5.4                LLM judge (Sonnet-4.6, calibrated to the human ratings; see below).
+                                                                                  Blinding is necessary so that each explanation is rated on its own
+                                                                                  merits rather than on knowledge of whether the prediction was cor-
+the vulnerable function and its paired benign counterpart to be                   rect. Under this protocol, both evaluators agree that thinking-mode
+classified correctly, making it more sensitive to fine-grained dis-               explanations are more informative, but the judge sees a broader
+crimination between highly similar code pairs. Under this metric,                 advantage: it also rates thinking higher on completeness and clarity,
+the picture changes markedly. MA yields the best P-C in 11 of the                 which the blinded human raters do not corroborate (their complete-
+16 settings, whereas SA is best in 5 and DA in none (mean P-C:                    ness, clarity, and actionability means differ by at most 0.15 between
+MA 15.8, SA 13.7, DA 6.2). This is particularly evident in the few-               modes, with no clear direction). The core informativeness advan-
+shot and thinking settings — for Nemotron-Nano-8B, Qwen-4B,                       tage is thus human-corroborated, whereas the judge’s additional
+and Nemotron-Super-49B, MA is strongest in most few-shot and                      completeness and clarity gains are specific to the automatic judge.
+thinking configurations (MA P-C up to 21.5) — whereas SA remains                     Paired Wilcoxon signed-rank tests (Nemotron-Super-49B, on
+competitive in several instruct zero-shot settings. By contrast, DA               59 of the 60 thinking/instruct snippet pairs that make up the 120-
+attains high recall but the poorest pair-wise correctness of the three            explanation manual set; one snippet is excluded for a missing paired
+designs — it is never the best design on P-C — indicating that its                judge score, and both evaluators are tested on the same 59 pairs)
+aggressive vulnerability predictions do not preserve the vulner-                  refine this picture. The calibrated judge rates thinking-mode expla-
+able–benign distinction required by P-C. Thus, while DA is the                    nations significantly higher than instruct-mode on completeness
+strongest design for maximizing F1, MA more often yields the best                 (+0.49), clarity (+0.51), and informativeness (+0.64) (all 𝑝 < 0.0001);
+pair-wise discrimination.                                                         actionability is higher but only marginally (+0.25, 𝑝 = 0.023, not
+   The cross-setting stability statistics in Table 3 further differenti-          surviving Bonferroni correction). The human raters corroborate
+ate the designs. DA has the lowest standard deviation and coefficient             the informativeness advantage (+0.30, 𝑝 = 0.006) but show no
+of variation for F1 (Std = 0.055, CV = 9%), compared with MA (Std                 significant difference on the other three dimensions. Both evalu-
+= 0.158, CV = 32%) and SA (Std = 0.170, CV = 46%). Similar trends                 ators, therefore, agree that thinking-mode explanations are more
+hold for accuracy and precision. This indicates that DA is not only               informative; the judge’s additional completeness and clarity advan-
+stronger in average F1, but also the most stable configuration across             tages are not corroborated by humans and, as the length analysis
+models, prompting strategies, and reasoning modes. MA is more sta-                below shows, are substantially length-mediated. The judge thus
+ble than SA (CV 32% vs. 46%), though less so than DA, and achieves                reproduces the human-visible informativeness gain while over-
+the best P-C in most settings.                                                    attributing a broader thinking advantage.
+
+
+
+
+                                                                           2863
+
+=== [PDF page 9] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                                  ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 6: Explanation quality for Nemotron-Super-49B under                                        Table 7: Length-sensitivity analysis for the RQ3 LLM judge
+the blinded protocol: mean score (1–5), reported as Human                                        (Nemotron-Super-49B; calibrated blinded Sonnet-4.6 judge;
+consensus / calibrated Sonnet-4.6 judge (H / J), by reasoning                                    four strata; 𝑛 ≈ 120 per mode): (a) response length, (b) score–
+mode and by confusion-matrix stratum.                                                            length Spearman correlations, and (c) raw versus length-
+                     Completeness    Informativeness   Clarity      Actionability                partialled mode–score correlations.
+                        (H / J)           (H / J)       (H / J)         (H / J)                     (a) Response length
+       By reasoning mode                                                                            Mode           Mean chars.   Median chars.       Mean BPE tokens            Median BPE tokens
+       Thinking        3.5 / 3.4         3.4 / 3.2      3.6 / 4.1      2.6 / 2.5
+                                                                                                    Thinking            13,579            12,122                   3,129                        2,908
+       Instruct        3.6 / 2.9         3.1 / 2.6      3.5 / 3.6      2.8 / 2.2
+                                                                                                    Instruct             2,935             2,854                     666                          635
+       By confusion stratum                                                                                (b) Score–length Spearman 𝜌 (characters)
+       TP                3.2 / 3.1       3.2 / 3.0      3.5 / 3.8      3.1 / 2.9
+       TN                3.8 / 3.2       3.3 / 2.9      3.8 / 3.9      2.2 / 1.7                           Split        Completeness      Informativeness     Clarity           Actionability
+       FP                3.6 / 3.1       3.4 / 3.0      3.5 / 3.7      3.4 / 3.0
+                                                                                                           Overall               0.35                  0.38          0.30                0.10
+       FN                3.8 / 3.4       3.2 / 2.8      3.4 / 4.0      2.2 / 1.7
+                                                                                                           Thinking              0.00                − 0.08        − 0.16              − 0.33
+       Overall           3.6 / 3.2       3.3 / 2.9      3.6 / 3.8      2.7 / 2.3
+                                                                                                           Instruct              0.22                  0.28          0.21                0.35
+
+                                                                                                                        (c) Mode→score: raw vs. length-partialled 𝜌
+   Across dimensions, both human and LLM evaluators consistently
+                                                                                                                        Dimension           Raw 𝜌      Partial 𝜌            𝑝
+assign the highest scores to clarity, followed by completeness, in-
+                                                                                                                        Completeness         0.356       +0.134        0.039
+formativeness, and actionability. Actionability receives the lowest                                                     Informativeness      0.419       +0.198        0.002
+scores in both evaluation settings, suggesting that, regardless of                                                      Clarity              0.359       +0.204        0.002
+                                                                                                                        Actionability        0.134       +0.089         0.17
+mode, the generated explanations are often difficult to translate
+into concrete follow-up actions.
+   We validate the calibrated judge (Sonnet-4.6, 24 few-shot exem-                               (𝜌 = 0.10, n.s.; Table 7b). A partial Spearman correlation of mode
+plars drawn from held-out human ratings, blind-preserving) before                                on score controlling for response length shrinks the thinking-vs-
+extending it to the full 480-explanation frame. On this compressed                               instruct association by roughly 40–60% but does not eliminate it:
+1–5 scale, the two human raters themselves agree only moderately                                 completeness (𝜌: 0.356 → 0.134, 𝑝 = 0.039), clarity (0.359 → 0.204,
+by rank (𝜌 = 0.26–0.68, highest on actionability) yet within one                                 𝑝 = 0.002), and informativeness (0.419 → 0.198, 𝑝 = 0.002) re-
+point 96–98% of the time, so we benchmark agreement against this                                 tain a significant length-independent residual, while actionability
+inter-human ceiling using MAE and adjacent (±1) agreement along-                                 shows no mode effect either way (0.134 → 0.089, n.s.). The blind
+side 𝜌. Under 5-fold cross-validation, the calibrated judge agrees                               judge’s thinking-mode advantage on completeness, clarity, and
+with the human ratings as well as the two humans agree with each                                 informativeness is therefore substantially but not wholly length-
+other on all four dimensions (completeness 𝜌 = 0.30 vs. ceiling 0.26;                            mediated: longer, more elaborate explanations are rewarded, yet
+clarity 0.19/0.32; actionability 0.65/0.68; informativeness 0.30/0.28;                           a modest quality signal survives length control. This partial medi-
+MAE 0.51–0.64, adjacent 92–95%), and both order the dimensions                                   ation, together with the model-specificity above and the absence
+identically.1 Because it agrees at the human ceiling and reproduces                              of a corresponding human advantage (Table 6), cautions against
+the one mode-level effect humans corroborate (the informative-                                   reading the judge’s scores as a purely qualitative endorsement of
+ness advantage), we use the judge to score the full 480-explanation                              thinking-mode explanations.
+frame as a stand-in for human ratings; agreement is nonetheless                                     Explanation quality on false positives and negatives. The
+weakest on false positives, and the judge’s non-corroborated com-                                analysis above is restricted to correctly classified snippets. Because
+pleteness/clarity thinking-preference is length-mediated, so we                                  explanation quality on incorrect predictions is central to developer
+read those mode gaps with that caveat.                                                           trust, we extend the LLM-judge evaluation to all four confusion
+   Figure 4 breaks the blind LLM-judge scores down by model                                      strata (TP, TN, FP, FN) on a 480-explanation frame—240 code snip-
+and shows that the thinking-mode advantage is model-specific.                                    pets from Nemotron-Super-49B and Qwen3-30B (SA zero-shot),
+For Nemotron-Super-49B, thinking exceeds instruct on complete-                                   each explained in both thinking and instruct modes (2 models ×
+ness, clarity, and informativeness (as above); for Qwen3-30B, the                                2 modes × 4 strata × 30)—with a nested 120-explanation subset
+two modes are statistically comparable, with thinking if anything                                (Nemotron-Super-49B only) re-rated by two blinded human anno-
+marginally lower (differences ≤ 0.3). Together with the length ef-                               tators. Critically, the judge is run blind to the ground-truth label,
+fects and human–judge divergence in Table 6, this cautions against                               matching the blinded human protocol. Under this setup, explanation
+broadly claiming that thinking-mode explanations are better.                                     quality is statistically indistinguishable between correct (TP/TN,
+   Because thinking-mode responses are far longer than instruct-                                 𝑛 ≈ 238) and incorrect (FP/FN, 𝑛 ≈ 237) predictions on every di-
+mode responses (Nemotron-Super-49B, blinded judge, all four strata,                              mension: the calibrated blind judge gives completeness 3.58 vs. 3.61,
+𝑛 = 120 per mode: mean 13,579 vs. 2,935 characters, a 4.6× differ-                               clarity 4.10 vs. 4.13, actionability 2.44 vs. 2.51, and informativeness
+ence; 3,129 vs. 666 BPE tokens; Table 7a), we test whether the blind                             3.37 vs. 3.34 (Mann–Whitney, all 𝑝 > 0.3), and no human dimension
+judge’s thinking advantage is confounded by length. Length cor-                                  survives multiple-comparison correction (smallest 𝑝 = 0.014 on
+relates positively with completeness, clarity, and informativeness                               clarity, above the Bonferroni threshold 0.0125). A fluent explanation
+overall (𝜌 = 0.30–0.38, all 𝑝 < 0.001) but not with actionability                                for a wrong prediction reads as good as one for a correct prediction
+                                                                                                 when the evaluator cannot see the label — the explanation does
+1 These estimates are robust: a newer judge (Opus-4.8), consensus-target calibration, a
+                                                                                                 not reveal its own incorrectness. An unblinded judge shown the
+leakage-free snippet-level cross-validation, and stratum-balanced/contrastive-pair ex-
+ample selections all yield statistically equivalent agreement (within the ±0.1 sampling          ground truth produced a large spurious gap (e.g., completeness
+error at 𝑛 ≈ 118); full results are in the replication package.                                  3.51 vs. 2.22), which is an artifact of label leakage rather than a
+
+
+
+
+                                                                                          2864
+
+=== [PDF page 10] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                                    Tan et al.
+
+
+
+
+Figure 4: Calibrated blind LLM-judge (Sonnet-4.6) explanation scores (mean, 1–5; thinking vs. instruct) by model. The thinking-
+mode advantage is confined to Nemotron-Super-49B; for Qwen3-30B the two modes are statistically comparable, if anything
+marginally favouring instruct.
+property of the explanations, and motivates the blind protocol. On             Table 8: Cost–performance by system configuration and rea-
+this two-model frame, the thinking-mode benefit is also confined               soning mode on PrimeVul Pair (870 samples). Duration, en-
+to Nemotron: Qwen3-30B shows no significant thinking–instruct                  ergy, and cost are totals over 8 configurations per cell (4
+difference on any dimension. After calibration, human–judge agree-             models × 2 prompts). “Dur.” denotes aggregate wall-clock
+ment reaches inter-human ceiling for four dimensions (adjacent                 GPU-time, a throughput measure rather than per-sample
+agreement 77–100% across strata), strongest in correctly classified            latency because runs were sharded across pods and sessions.
+cases and weakest on false positives.                                          Tokens are reported per sample and in total; cost assumes
+                                                                               RunPod H100 SXM at $2.69/GPU-hour.
+ RQ3 Conclusion. Under a blinded protocol, both the automatic                                           Total           Avg Tok./Sample      Total Tok.             Total
+ LLM judge and the human raters find thinking-mode expla-                       Design    Mode    Dur. (h)      kWh         In     Out    In (M)   Out (M)       Cost ($)
+ nations more informative; the judge additionally rates think-                  NA        Inst.      44.0        19.2     220     1,096      1.5           7.6       133
+                                                                                          Think     132.9        68.5     220     3,483      1.5          24.2       438
+ ing higher on completeness and clarity, which humans do not
+ corroborate—so that broader advantage is largely a property of                 SA        Inst.      25.4        17.6     220     1,099      1.5           7.6        83
+                                                                                          Think     102.7        76.7     220     3,482      1.5          24.2       357
+ the judge. It is further tempered on three fronts: substantially
+                                                                                DA        Inst.      38.3        24.9    4,182    1,287     29.0           8.9       127
+ length-mediated (thinking’s ∼4.6× longer explanations explain                            Think     145.9        85.4    6,515    4,598     45.2          31.9       466
+ 40–60% of the gap), model-specific (Nemotron-Super-49B but                     MA        Inst.      64.2        51.6    5,453    3,310     37.9          23.0       228
+ not Qwen3-30B), and weakest on false positives, even though the                          Think     166.7       137.5   17,337    8,196    120.4          56.9       615
+
+ calibrated judge matches the inter-human agreement ceiling and                 Total                 720        481                      238.6      184.4         2,448
+
+ both evaluators rank the dimensions identically (clarity high-
+ est, actionability lowest). Evaluated blind, explanation quality              latency would therefore mix model computation with scheduling
+ also does not differ between correct and incorrect predictions—a              and batching effects. Despite its higher cost, thinking mode does not
+ fluent explanation does not signal its own correctness.                       consistently improve detection. In NA and SA, it raises F1 by only
+                                                                               0.10–0.11 while using 2.7–4.4× more energy; under DA, it slightly
+                                                                               lowers mean F1 (−0.05; Table 5) despite nearly tripling energy use.
+5 Discussion                                                                   MA shows mixed effects, with some gains and some degradations.
+5.1 Cost–Performance Trade-off                                                 Overall, the 64 configurations consumed about $2,448, 481 kWh of
+Table 8 summarizes the computational cost of thinking versus in-               energy, and 423.0 million tokens.
+struct mode across all four system configurations. Token counts                   Thinking mode offers the best cost–benefit trade-off in NA and
+use model-specific BPE tokenizers: Qwen for Qwen3 and Llama for                SA, where extended reasoning influences the final prediction. In DA
+Nemotron. Input tokens include system messages, task prompts,                  and MA, this benefit is diluted across agents while cost increases.
+and accumulated conversation context across all agent turns; output            Per configuration, SA averages 8.0 h, 2.2 M tokens, and $27.5; DA
+tokens include all agent responses.                                            11.5 h, 7.2 M tokens, and $37.1; and MA 14.4 h, 14.9 M tokens, and
+   Thinking mode uses 2.7–4.4× more energy and produces 2.5–                   $52.7. Relative to SA, DA uses 3.3× more tokens and costs 1.35×
+3.6× more output tokens than instruct mode. This compounds                     more, while MA uses 6.8× more tokens and costs 1.9× more.
+in MA, where thinking averages 25,533 tokens per sample (17,337
+input + 8,196 output), versus 3,703 for NA. The costliest setting, MA
+                                                                               5.2       Collaboration versus Inference Budget, and
+with Nemotron-Super-49B thinking, consumes 36.4,kWh and costs                            Role Sensitivity
+$166.8 at RunPod H100 rates. Table 8 reports aggregate wall-clock              The RQ2 gains from orchestration could stem from collaboration
+GPU-time rather than per-sample end-to-end latency because runs                itself or simply from a larger inference budget. To separate the two,
+were sharded and resumed across pods and sessions; per-sample                  we add call-matched single-agent baselines: Rev2 and Rev4 apply
+
+
+
+
+                                                                        2865
+
+=== [PDF page 11] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                     ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 9: Budget-matched zero-shot comparison on 193 Prime-                                      instance-level classification and pairwise discrimination; stability
+Vul pairs by model and mode. Each cell reports F1 / P-C(%)                                      measures cross-setting variability and improvement consistency
+from one run; “Calls” denotes per-sample inference budget.                                      across models, prompts, and reasoning modes; and explanation
+Four-call self-revision achieves the best or near-best P-C in                                   quality is assessed through completeness, informativeness, clar-
+every cell, while DA retains competitive F1 but weak P-C.                                       ity, and actionability. We reduce subjectivity through two blinded
+                                Nemotron-49B                       Qwen-30B
+                                                                                                annotators, detailed guidelines, calibration examples, and comple-
+ Design          Calls   Inst. (F1/PC)   Think (F1/PC)   Inst. (F1/PC)   Think (F1/PC)
+                                                                                                mentary LLM-based assessment, although interpretation remains
+ SA               1       .419 / 21.8      .624 / 22.9    .478 / 20.7      .516 / 22.3
+                                                                                                partly subjective. The rubric measures developer-facing explanation
+ DA               2        .657 / 1.0       .661 / 4.1     .666 / 0.5      .589 / 13.0          quality, not faithfulness or causal validity: fluent, well-structured
+ MA               4       .547 / 21.8      .489 / 23.8    .607 / 21.2      .528 / 20.7
+                                                                                                explanations may not reflect the model’s actual reasoning, and
+ Self-Rev (2)     2       .603 / 26.4      .596 / 18.1    .539 / 20.7      .512 / 23.3
+ Self-Rev (4)     4       .558 / 26.9      .604 / 21.8    .522 / 25.9      .518 / 24.3
+                                                                                                blinded evaluators cannot distinguish correct from incorrect expla-
+ Best-of-4        4       .484 / 21.8      .629 / 13.5    .541 / 16.6      .562 / 19.7          nations (Section 4.3). The single external Claude judge may have
+ VulAgent-lite    6        .176 / 6.7       .615 / 9.3    .600 / 21.8      .594 / 17.1
+                                                                                                stylistic preferences and residual sensitivity to response length. We
+                                                                                                mitigate these threats through blinding, human calibration, valida-
+deterministic self-revision with two and four calls (matching DA                                tion against the inter-human agreement ceiling, robustness checks
+and MA), and Bon4 generates four responses at 𝑇 =0.7 and takes the                              with an alternative judge and exemplar settings, and by treating
+majority label (ties broken as vulnerable). To probe role sensitivity,                          automatic scores as complementary to human ratings, especially
+VulAgent-lite adopts VulAgent’s specialist hypothesis–validation                                where agreement is weakest (clarity and false positives).
+workflow [52] without Joern-based CFG/DFG extraction, using four                                   External Validity. Generalizability is limited by the task, dataset,
+specialists, an aggregator, and a validator. All four configurations                            and models. We study only vulnerability detection on PrimeVul
+are evaluated on a pair-preserving 193-pair subset of PrimeVul Pair                             Pair, so results may not transfer to other SE tasks such as repair
+with the two largest models (Nemotron-Super-49B and Qwen-30B),                                  or code generation. The benchmark supports controlled function-
+both modes, and zero-shot (Table 9). Because each model–mode                                    level discrimination between lexically similar vulnerable and be-
+cell is a single run, we report these findings descriptively.                                   nign code but omits project context, interprocedural reasoning,
+    On these matched cells, four-call self-revision attains the highest                         and repository-level vulnerabilities. Our four open Nemotron and
+mean P-C (24.7), modestly above SA and MA (both 21.9) and far                                   Qwen models provide comparable instruct/thinking modes within
+above DA (4.7), at a much lower false-positive rate than DA (0.47 vs.                           our hardware budget, but do not represent the wider LLM land-
+0.93), while DA’s higher F1 stems from over-flagging rather than                                scape; larger models such as DeepSeek-V3.1 and Kimi-K2 require
+better discrimination. Two conclusions follow. First, DA’s aggres-                              greater multi-GPU resources. Future work should evaluate addi-
+sive flagging destroys pairwise discrimination—its P-C collapses                                tional reasoning-oriented families, including distilled DeepSeek-R1
+to 0.5–13.0 across cells despite competitive F1. Second, the four-                              and Gemma variants, and extend to costlier repository-level settings
+agent MA’s pairwise-discrimination edge does not exceed what a                                  requiring dependency resolution, retrieval, and tool support.
+single agent achieves under the same call budget by critiquing and                                 Conclusion Validity. The single-run, temperature-0 setup sup-
+revising its own answer, indicating that much of the apparent col-                              ports controlled comparison by avoiding sampling variance, but
+laboration benefit reflects additional inference budget rather than                             limits conclusions to deterministic decoding and does not capture
+multi-agent structure itself. The alternative role design, VulAgent-                            repeated-run variability. For RQ3, manual evaluation uses a blinded
+lite [52], mainly shifts the false-positive rate rather than improving                          sample covering correct and incorrect predictions, introducing
+P-C and is unstable across families—it fails on Nemotron instruct                               sampling uncertainty; we partly mitigate this by applying a cal-
+(F1 = 0.176) while performing normally on Qwen—corroborating                                    ibrated automatic judge, validated against human ratings at the
+that orchestration primarily reshapes the alert burden rather than                              inter-annotator agreement ceiling, to the full evaluation frame.
+the underlying pairwise discrimination.
+
+6     Threats to Validity                                                                       7   Conclusion
+Internal Validity. Observed differences may reflect uncontrolled                                This paper presented a controlled study of reasoning modes, agentic
+variation. We mitigated this by keeping the dataset, task, label space,                         orchestration, and explanation quality in LLM-based vulnerability
+response constraints, and prompt structure fixed, varying only the                              detection. On PrimeVul Pair, thinking improves non-agent F1 in
+factor studied. Deterministic decoding (𝑇 = 0) reduced stochas-                                 7 of 8 settings, mainly through recall, but discrimination remains
+ticity but does not represent non-deterministic settings. Prompt                                limited. DA achieves the highest F1/recall while flagging 88.2% of
+sensitivity remains despite using identical structures and few-shot                             functions, making it a high-recall screen; MA offers better pair-
+examples across models and modes. Agent design is another threat                                wise discrimination at a lower false-positive rate. Budget-matched
+because many role, coordination, and aggregation choices exist;                                 self-revision can match or exceed MA on P-C, showing that some
+our configurations are representative, not task-optimal. To partially                           agentic gains stem from additional inference budget. Explanation
+assess role sensitivity, we compared our debate-oriented MA with                                gains are model-specific, largely length-mediated, and do not indi-
+VulAgent-lite (Table 9), which mainly changed alert burden rather                               cate prediction correctness. Thinking uses 2.7–4.4× more energy
+than pairwise discrimination.                                                                   and 2.5–3.6× more output tokens. Overall, reasoning and orches-
+   Construct Validity. Our metrics may not fully capture the in-                                tration involve objective- and budget-dependent trade-offs under
+tended constructs. Accuracy, precision, recall, F1, and P-C cover                               deterministic, function-level evaluation.
+
+
+
+
+                                                                                         2866
+
+=== [PDF page 12] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                                                     Tan et al.
+
+
+Acknowledgments                                                                                          Survey and open problems. In 2023 IEEE/ACM International Conference on Software
+                                                                                                         Engineering: Future of Software Engineering (ICSE-FoSE). IEEE, 31–53.
+The work has been conducted as part of the ENFIELD project                                          [19] Chongzhou Fang, Ning Miao, Shaurya Srivastav, Jialin Liu, Ruoyu Zhang, Ruijie
+(101120657), the INTEND project (101135576), and the SECAS-                                              Fang, Ryan Tsang, Najmeh Nazari, Han Wang, Houman Homayoun, et al. 2024.
+                                                                                                         Large language models for code analysis: Do LLMs really do their job?. In 33rd
+SURED project (101225858) funded by the European Commission                                              USENIX Security Symposium (USENIX Security 24). 829–846.
+within the HEU Programme, and the Privacy@Edge project (338909)                                     [20] Mohamed Amine Ferrag, Ammar Battah, Norbert Tihanyi, Ridhi Jain, Diana
+funded by the Research Council of Norway’s IKTPLUS-ICT and                                               Maimuţ, Fatima Alwahedi, Thierry Lestable, Narinderjit Singh Thandi, Abdechak-
+                                                                                                         our Mechri, Merouane Debbah, et al. 2025. SecureFalcon: Are we there yet in
+digital innovation Programme.                                                                            automated software vulnerability detection with LLMs? IEEE Transactions on
+                                                                                                         Software Engineering (2025).
+Data Availability Statement                                                                         [21] Michael Fu, Jirat Pasuksmit, and Chakkrit Tantithamthavorn. 2025. Ai for de-
+                                                                                                         vsecops: A landscape and future opportunities. ACM Transactions on Software
+The replication package is publicly available on Zenodo at https:                                        Engineering and Methodology 34, 4 (2025), 1–61.
+//doi.org/10.5281/zenodo.21401826.                                                                  [22] Michael Fu, Chakkrit Kla Tantithamthavorn, Van Nguyen, and Trung Le. 2023.
+                                                                                                         Chatgpt for vulnerability detection, classification, and repair: How far are we?. In
+                                                                                                         2023 30th Asia-Pacific Software Engineering Conference (APSEC). IEEE, 632–636.
+References                                                                                          [23] Diana Galvan-Sosa, Gabrielle Gaudeau, Pride Kavumba, Yunmeng Li, Hongyi Gu,
+ [1] AG2 (formerly AutoGen). 2026. AG2: Open-Source AgentOS for AI Agents.                               Zheng Yuan, Keisuke Sakaguchi, and Paula Buttery. 2025. Rubrik’s cube: Testing
+     https://github.com/ag2ai/ag2                                                                        a new rubric for evaluating explanations on the CUBE dataset. In Proceedings of
+ [2] Md Basim Uddin Ahmed, Nima Shiri Harzevili, Jiho Shin, Hung Viet Pham,                              the 63rd Annual Meeting of the Association for Computational Linguistics (Volume
+     and Song Wang. 2025. SecVulEval: Benchmarking LLMs for real-world C/C++                             1: Long Papers). 23800–23839.
+     vulnerability detection. arXiv preprint arXiv:2505.19828 (2025).                               [24] Cuiyun Gao, Xing Hu, Shan Gao, Xin Xia, and Zhi Jin. 2025. The current chal-
+ [3] Md Tauseef Alam, Raju Halder, and Abyayananda Maiti. 2024. Detection made                           lenges of software engineering in the era of large language models. ACM Trans-
+     easy: Potentials of large language models for solidity vulnerabilities. arXiv                       actions on Software Engineering and Methodology 34, 5 (2025), 1–30.
+     preprint arXiv:2409.10574 (2024).                                                              [25] Zeyu Gao, Hao Wang, Yuchen Zhou, Wenyu Zhu, and Chao Zhang. 2023. How
+ [4] Merve Astekin, Arda Goknil, Sagar Sen, Simeon Tverdal, and Phu Nguyen. 2025.                        far have we gone in vulnerability detection using large language models. arXiv
+     Detecting Technical Debt in Source Code Changes Using Large Language Models.                        preprint arXiv:2311.12420 (2023).
+     In International Conference on Product-Focused Software Process Improvement.                   [26] Jiawei Gu, Xuhui Jiang, Zhichao Shi, Hexiang Tan, Xuehao Zhai, Chengjin Xu,
+     Springer, 334–352.                                                                                  Wei Li, Yinghan Shen, Shengjie Ma, Honghao Liu, et al. 2024. A survey on
+ [5] Md Abdul Awal, Mrigank Rochan, and Chanchal K Roy. 2025. Investigating                              LLM-as-a-judge. The Innovation (2024).
+     adversarial attacks in software analytics via machine learning explainability.                 [27] Junda He, Jieke Shi, Terry Yue Zhuo, Christoph Treude, Jiamou Sun, Zhenchang
+     Software Quality Journal 33, 3 (2025), 31.                                                          Xing, Xiaoning Du, and David Lo. 2026. LLM-as-a-Judge for Software Engineering:
+ [6] Biagio Boi, Christian Esposito, and Sokjoon Lee. 2024. Smart contract vulnera-                      Literature Review, Vision, and the Road Ahead. ACM Transactions on Software
+     bility detection: The role of large language model (LLM). ACM SIGAPP applied                        Engineering and Methodology (2026). doi:10.1145/3797276
+     computing review 24, 2 (2024), 19–29.                                                          [28] Junda He, Christoph Treude, and David Lo. 2025. LLM-based multi-agent systems
+ [7] Islem Bouzenia, Premkumar Devanbu, and Michael Pradel. 2025. Repairagent:                           for software engineering: Literature review, vision, and the road ahead. ACM
+     An autonomous, LLM-based agent for program repair. In 2025 IEEE/ACM 47th                            Transactions on Software Engineering and Methodology 34, 5 (2025), 1–30.
+     International Conference on Software Engineering (ICSE). IEEE, 2188–2200.                      [29] Xinyi Hou, Yanjie Zhao, Yue Liu, Zhou Yang, Kailong Wang, Li Li, Xiapu Luo,
+ [8] Di Cao, Yong Liao, and Xiuwei Shang. 2024. Realvul: Can we detect vulnerabilities                   David Lo, John Grundy, and Haoyu Wang. 2024. Large language models for
+     in web applications with LLM?. In Proceedings of the 2024 Conference on Empirical                   software engineering: A systematic literature review. ACM Transactions on
+     Methods in Natural Language Processing. 8268–8282.                                                  Software Engineering and Methodology 33, 8 (2024), 1–79.
+ [9] Sicong Cao, Xiaobing Sun, Ratnadira Widyasari, David Lo, Xiaoxue Wu, Lili Bo,                  [30] Xing Hu, Feifei Niu, Junkai Chen, Xin Zhou, Junwei Zhang, Junda He, Xin Xia,
+     Jiale Zhang, Bin Li, Wei Liu, Di Wu, et al. 2025. A Systematic Literature Review on                 and David Lo. 2025. Assessing and advancing benchmarks for evaluating large
+     Explainability for ML/DL-based Software Engineering. Comput. Surveys (2025).                        language models in software engineering tasks. ACM Transactions on Software
+[10] Zichen Chen, Jianda Chen, Ambuj Singh, and Misha Sra. 2024. XplainLLM:                              Engineering and Methodology (2025).
+     A knowledge-augmented dataset for reliable grounded explanations in LLMs.                      [31] Alon Jacovi and Yoav Goldberg. 2020. Towards faithfully interpretable NLP
+     In Proceedings of the 2024 conference on empirical methods in natural language                      systems: How should we define and evaluate faithfulness?. In Proceedings of the
+     processing. 7578–7596.                                                                              58th annual meeting of the association for computational linguistics. 4198–4205.
+[11] Hoa Khanh Dam, Truyen Tran, and Aditya Ghose. 2018. Explainable software an-                   [32] Haolin Jin, Linghan Huang, Haipeng Cai, Jun Yan, Bo Li, and Huaming Chen.
+     alytics. In Proceedings of the 40th international conference on software engineering:               2024. From LLMs to LLM-based agents for software engineering: A survey of
+     New ideas and emerging results. 53–56.                                                              current, challenges and future. arXiv preprint arXiv:2408.02479 (2024).
+[12] Helmut Degen, Christof Budnik, Gregory Conte, Andrew Lintereur, and Seth                       [33] Avishree Khare, Saikat Dutta, Ziyang Li, Alaia Solko-Breslin, Rajeev Alur, and
+     Weber. 2022. How to explain it to energy engineers? A qualitative user study about                  Mayur Naik. 2025. Understanding the effectiveness of large language models in
+     trustworthiness, understandability, and actionability. In International Conference                  detecting security vulnerabilities. In 2025 IEEE Conference on Software Testing,
+     on Human-Computer Interaction. Springer, 262–284.                                                   Verification and Validation (ICST). IEEE, 103–114.
+[13] Jay DeYoung, Sarthak Jain, Nazneen Fatema Rajani, Eric Lehman, Caiming Xiong,                  [34] Junwei Liu, Kaixin Wang, Yixuan Chen, Xin Peng, Zhenpeng Chen, Lingming
+     Richard Socher, and Byron C Wallace. 2020. ERASER: A benchmark to evalu-                            Zhang, and Yiling Lou. 2024. Large language model-based agents for software en-
+     ate rationalized NLP models. In Proceedings of the 58th annual meeting of the                       gineering: A survey. ACM Transactions on Software Engineering and Methodology
+     association for computational linguistics. 4443–4458.                                               (2024).
+[14] Yangruibo Ding, Yanjun Fu, Omniyyah Ibrahim, Chawin Sitawarin, Xinyun                          [35] Yue Liu, Sin Kit Lo, Qinghua Lu, Liming Zhu, Dehai Zhao, Xiwei Xu, Stefan
+     Chen, Basel Alomair, David Wagner, Baishakhi Ray, and Yizheng Chen. 2024.                           Harrer, and Jon Whittle. 2025. Agent design pattern catalogue: A collection of
+     Vulnerability detection with code language models: How far are we? arXiv                            architectural patterns for foundation model based agents. Journal of Systems and
+     preprint arXiv:2403.18624 (2024).                                                                   Software 220 (2025), 112278.
+[15] Yangruibo Ding, Yanjun Fu, Omniyyah Ibrahim, Chawin Sitawarin, Xinyun                          [36] Meike Nauta, Jan Trienes, Shreyasi Pathak, Elisa Nguyen, Michelle Peters, Yasmin
+     Chen, Basel Alomair, David Wagner, Baishakhi Ray, and Yizheng Chen. 2025.                           Schmitt, Jörg Schlötterer, Maurice Van Keulen, and Christin Seifert. 2023. From
+     Vulnerability Detection with Code Language Models: How Far are We?. In 2025                         anecdotal evidence to quantitative evaluation methods: A systematic review on
+     IEEE/ACM 47th International Conference on Software Engineering (ICSE). 1729–                        evaluating explainable ai. Comput. Surveys 55, 13s (2023), 1–42.
+     1741. doi:10.1109/ICSE55347.2025.00038                                                         [37] Adela Nedisan Videsjorden, Hui Song, Arda Goknil, Dumitru Roman, and Ahmet
+[16] Xueying Du, Geng Zheng, Kaixin Wang, Yi Zou, Yujia Wang, Wentai Deng, Jiayi                         Soylu. 2026. LUMEN: Enhancing IoT system observability with multi-agent large
+     Feng, Mingwei Liu, Bihuan Chen, Xin Peng, et al. 2024. Vul-rag: Enhancing                           language models and knowledge graphs. ACM Transactions on Internet of Things
+     LLM-based vulnerability detection via knowledge-level rag. ACM Transactions                         7, 2 (2026), 1–40.
+     on Software Engineering and Methodology (2024).                                                [38] Khouloud Oueslati, Gabriel Laberge, Maxime Lamothe, and Foutse Khomh. 2024.
+[17] Sarah Elder, Md Rayhanur Rahman, Gage Fringer, Kunal Kapoor, and Laurie                             Mining action rules for defect reduction planning. Proceedings of the ACM on
+     Williams. 2024. A survey on software vulnerability exploitability assessment.                       Software Engineering 1, FSE (2024), 2309–2331.
+     Comput. Surveys 56, 8 (2024), 1–41.                                                            [39] Niklas Risse, Jing Liu, and Marcel Böhme. 2025. Top score on the wrong exam:
+[18] Angela Fan, Beliz Gokkaya, Mark Harman, Mitya Lyubarskiy, Shubho Sengupta,                          On benchmarking in machine learning for vulnerability detection. Proceedings
+     Shin Yoo, and Jie M Zhang. 2023. Large language models for software engineering:                    of the ACM on Software Engineering 2, ISSTA (2025), 388–410.
+
+
+
+
+                                                                                             2867
+
+=== [PDF page 13] ===
+
+To Think or Not to Think: Evaluating LLM Reasoning and Agents in Vulnerability Detection                                             ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+[40] Ze Sheng, Zhicheng Chen, Shuning Gu, Heqing Huang, Guofei Gu, and Jeff                           (2025).
+     Huang. 2025. LLMs in software security: A survey of vulnerability detection                 [55] Ratnadira Widyasari, Martin Weyssow, Ivana Clairine Irsan, Han Wei Ang, Frank
+     techniques and insights. Comput. Surveys 58, 5 (2025), 1–35.                                     Liauw, Eng Lieh Ouh, Lwin Khin Shar, Hong Jin Kang, and David Lo. 2025. Let
+[41] Aleksei Shestov, Rodion Levichev, Ravil Mussabayev, Evgeny Maslov, Pavel                         the trial begin: A mock-court approach to vulnerability detection using llm-based
+     Zadorozhny, Anton Cheshkov, Rustam Mussabayev, Alymzhan Toleu, Gulmira                           agents. arXiv preprint arXiv:2505.10961 (2025).
+     Tolegen, and Alexander Krassovitskiy. 2025. Finetuning large language models                [56] Ratnadira Widyasari, Ting Zhang, Abir Bouraffa, Walid Maalej, and David Lo.
+     for vulnerability detection. IEEE Access (2025).                                                 2025. Explaining explanations: An empirical study of explanations in code
+[42] Benjamin Steenhoek, Md Mahbubur Rahman, Monoshi Kumar Roy, Mirza Sanjida                         reviews. ACM Transactions on Software Engineering and Methodology 34, 6 (2025),
+     Alam, Hengbo Tong, Swarna Das, Earl T Barr, and Wei Le. 2024. To err is machine:                 1–30.
+     Vulnerability detection challenges LLM reasoning. arXiv preprint arXiv:2403.17218           [57] Robert F Woolson. 2007. Wilcoxon signed-rank test. Wiley encyclopedia of clinical
+     (2024).                                                                                          trials (2007), 1–3.
+[43] Chi Sun, Yong Li, and Zheyuan Pan. 2025. SDPFE: A Formal Reasoning Approach                 [58] Chunqiu Steven Xia, Yinlin Deng, Soren Dunn, and Lingming Zhang. 2025. De-
+     for Explaining Software Defect Predictions. In 2025 25th International Conference                mystifying LLM-based software engineering agents. Proceedings of the ACM on
+     on Software Quality, Reliability, and Security Companion (QRS-C). IEEE, 168–177.                 Software Engineering 2, FSE (2025), 801–824.
+[44] Karl Tamberg and Hayretdin Bahsi. 2025. Harnessing large language models for                [59] Guifang Xu, Chengbin Feng, Xingcheng Guo, Zhiling Zhu, and Wei Wang. 2025.
+     software vulnerability detection: A comprehensive benchmarking study. IEEE                       A joint learning framework for bridging defect prediction and interpretation.
+     Access (2025).                                                                                   IEEE Transactions on Reliability (2025).
+[45] Hua Beng Tan, Ratnadira Widyasari, Merve Astekin, Arda Goknil, Hasan Sözer,                 [60] John Yang, Carlos E Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik
+     Yan Naing Tun, Erik Johannes Husom, Lwin Khin Shar, and Lingxiao Jiang. 2026.                    Narasimhan, and Ofir Press. 2024. SWE-agent: Agent-computer interfaces enable
+     Replication Package for “To Think or Not to Think: Evaluating LLM Reasoning                      automated software engineering. Advances in Neural Information Processing
+     and Agents in Vulnerability Detection”. doi:10.5281/zenodo.21401826                              Systems 37 (2024), 50528–50652.
+[46] Chakkrit Kla Tantithamthavorn and Jirayus Jiarpakdee. 2021. Explainable AI                  [61] Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan,
+     for software engineering. In 2021 36th IEEE/ACM International Conference on                      and Yuan Cao. 2022. React: Synergizing reasoning and acting in language models.
+     Automated Software Engineering (ASE). IEEE, 1–2.                                                 In The eleventh international conference on learning representations.
+[47] K.-T. Tran, D. Dao, M.-D. Nguyen, Q.-V. Pham, B. O’Sullivan, and H.D.                       [62] Alperen Yildiz, Sin G Teo, Yiling Lou, Yebo Feng, Chong Wang, and Dinil Mon
+     Nguyen. 2025. Multi-Agent Collaboration Mechanisms: A Survey of LLMs.                            Divakaran. 2025. Benchmarking LLMs and LLM-based agents in practical vulner-
+     arXiv:2501.06322 [cs.AI] https://arxiv.org/abs/2501.06322                                        ability detection for code repositories. In Proceedings of the 63rd Annual Meeting
+[48] Saad Ullah, Mingji Han, Saurabh Pujar, Hammond Pearce, Ayse Coskun, and                          of the Association for Computational Linguistics (Volume 1: Long Papers). 30848–
+     Gianluca Stringhini. 2024. LLMs cannot reliably identify and reason about security               30865.
+     vulnerabilities (yet?): A comprehensive evaluation, framework, and benchmarks.              [63] Jinqiang Yu, Michael Fu, Alexey Ignatiev, Chakkrit Tantithamthavorn, and Peter
+     In 2024 IEEE symposium on security and privacy (SP). IEEE, 862–880.                              Stuckey. 2024. A formal explainer for just-in-time defect predictions. ACM
+[49] Mythreyi Velmurugan, Chun Ouyang, Yue Xu, Renuka Sindhgatta, Bemali Wick-                        Transactions on Software Engineering and Methodology 33, 7 (2024), 1–31.
+     ramanayake, and Catarina Moreira. 2025. Developing guidelines for functionally-             [64] Jerrold H Zar. 2005. Spearman rank correlation. Encyclopedia of biostatistics 7
+     grounded evaluation of explainable artificial intelligence using tabular data.                   (2005).
+     Engineering Applications of Artificial Intelligence 141 (2025), 109772.                     [65] Haiyan Zhao, Hanjie Chen, Fan Yang, Ninghao Liu, Huiqi Deng, Hengyi Cai,
+[50] Junjie Wang, Yuchao Huang, Chunyang Chen, Zhe Liu, Song Wang, and Qing                           Shuaiqiang Wang, Dawei Yin, and Mengnan Du. 2024. Explainability for large lan-
+     Wang. 2024. Software testing with large language models: Survey, landscape,                      guage models: A survey. ACM Transactions on Intelligent Systems and Technology
+     and vision. IEEE Transactions on Software Engineering 50, 4 (2024), 911–936.                     15, 2 (2024), 1–38.
+[51] Yanlin Wang, Wanjun Zhong, Yanxian Huang, Ensheng Shi, Min Yang, Jiachi                     [66] Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu,
+     Chen, Hui Li, Yuchi Ma, Qianxiang Wang, and Zibin Zheng. 2025. Agents in soft-                   Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric Xing, et al. 2023. Judging
+     ware engineering: Survey, landscape, and vision. Automated Software Engineering                  LLM-as-a-judge with mt-bench and chatbot arena. Advances in neural information
+     32, 2 (2025), 70.                                                                                processing systems 36 (2023), 46595–46623.
+[52] Z. Wang, G. Li, J. Li, H. Zhu, and Z. Jin. 2026. VulAgent: Hypothesis-Validation            [67] Jianlong Zhou, Amir H Gandomi, Fang Chen, and Andreas Holzinger. 2021.
+     Driven Multi-Agent Architecture for Vulnerability Detection. In Findings of the                  Evaluating the quality of machine learning explanations: A survey on methods
+     Association for Computational Linguistics: ACL 2026, M. Liakata, V. P. Moreira,                  and metrics. Electronics 10, 5 (2021), 593.
+     J. Zhang, and D. Jurgens (Eds.). Association for Computational Linguistics, 18598–          [68] Xin Zhou, Sicong Cao, Xiaobing Sun, and David Lo. 2025. Large language model
+     18616. doi:10.18653/v1/2026.findings-acl.928                                                     for vulnerability detection and repair: Literature review and the road ahead. ACM
+[53] Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi,                         Transactions on Software Engineering and Methodology 34, 5 (2025), 1–31.
+     Quoc V Le, Denny Zhou, et al. 2022. Chain-of-thought prompting elicits reasoning            [69] Xin Zhou, Ting Zhang, and David Lo. 2024. Large language model for vulner-
+     in large language models. Advances in neural information processing systems 35                   ability detection: Emerging results and future directions. In Proceedings of the
+     (2022), 24824–24837.                                                                             2024 ACM/IEEE 44th International Conference on Software Engineering: New Ideas
+[54] Martin Weyssow, Chengran Yang, Junkai Chen, Ratnadira Widyasari, Ting Zhang,                     and Emerging Results. 47–51.
+     Huihui Huang, Huu Hung Nguyen, Yan Naing Tun, Tan Bui, Yikun Li, et al. 2025.
+     R2vul: Learning to reason about software vulnerabilities with reinforcement                 Received 2026-03-26; accepted 2026-06-18
+     learning and structured reasoning distillation. arXiv preprint arXiv:2504.04699
+
+
+
+
+                                                                                          2868

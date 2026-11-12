@@ -1,10 +1,10 @@
 ---
 key: kim2026programdistill
-status: ready
+status: complete
 evidence_basis: full-text
 design: automated benchmark construction (LLM mine-craft-patch pipeline) + evaluation of 9 coding agents on partial and 3 agents on full web-app reconstruction from a live reference
 dataset: ProgramDistill, 26 interactive web apps (18 OSWorld-derived, 8 open-source clones); 1,975 replay-verified browser behaviours; 4,063 repair tasks
-sample_size: partial: 300 tasks x 9 models (1 run each); full: 12 apps x 3 models = 36 runs, 590 atomic + 413 cumulative behaviour tests
+sample_size: partial: 300 tasks x 9 models (runs per task not stated); full: 12 apps x 3 models = 36 runs, 590 atomic + 413 cumulative behaviour tests
 metrics: binary score and chain score from deterministic browser-trace replay; atomic behaviour recovery; cumulative workflow recovery; cost per trajectory; failure categories; shortcut-attempt rate
 main_finding: Agents rebuild web apps from a live reference only partly: best full-app rebuild passes 49.2% of cumulative workflows; partial-repair success falls sharply as more dependent behaviours must be restored.
 relevance: high
@@ -21,6 +21,7 @@ analysed: 2026-11-11
 - Year / venue: 2026, arXiv (preprint, not peer-reviewed; v1 dated 16 Sep 2026). Affiliations: KAIST, Microsoft Research Montréal, Microsoft AI (p. 1).
 - DOI: 10.48550/arxiv.2609.18805 · URL: https://arxiv.org/abs/2609.18805
 - Source text: `fulltext.txt` (page refs = PDF page index)
+- PDF version analysed: arXiv v1, "arXiv:2609.18805v1 [cs.SE] 16 Sep 2026" (p. 1), from arxiv.org/pdf/2609.18805. No peer-reviewed version is known.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -60,7 +61,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [V] Determinism: application state is reset before each collection and replay, and a shared fake clock (libfaketime plus a browser Date offset) is used (p. 3; p. 19; p. 20).
 - [V] Isolation: the reference is reachable only via the browser helper, public egress is blocked, there is no pre-mask git history, and grading traces are private. Submissions are rebuilt and replayed in a fresh verifier (p. 10; p. 23; p. 24).
 - [V] The full-reconstruction scaffold requires an `app.js` exporting `async function handle(req, res, context)`, with state kept in `context.state` (p. 37).
-- [V] Number of runs: one per model and task (partial) and one per model and app (36 full-reconstruction runs, p. 12). Repeats or seeds: not reported.
+- [V] Number of runs, full reconstruction: 36 runs = 12 apps x 3 models (p. 11; p. 12). [I] Partial reconstruction: the number of runs per task is not stated. No variance is reported, so presumably one run each. Repeats or seeds: not reported.
 - [V] Cost: tokens x LiteLLM list prices (p. 37). One GPT-6 Astra pass over 300 tasks took about 557 minutes on 4 servers (p. 37).
 - Code availability: [A] release in progress (p. 1).
 
@@ -93,7 +94,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [A] Possible misuse for cloning proprietary apps; experiments are limited to public/open-source apps (p. 15).
 
 ## 9. Limitations we identified
-- [I] Code quality and maintainability of the rebuilt or repaired code are not measured at all. Only behavioural replay is scored (p. 6). The full-reconstruction contract forces a single Node `handle()` entry with in-memory `context.state` (p. 37), while the originals use Django, Angular, React or Next.js with databases (p. 19). The rebuild's architecture is therefore imposed and not comparable to the original.
+- [I] Code quality and maintainability of the rebuilt or repaired code are not measured at all. Only behavioural replay is scored (p. 6). The full-reconstruction contract forces a single Node `handle()` entry, with application state kept in `context.state` "so the verifier can reset it" (p. 37), while the originals use Django, Angular, React or Next.js with databases (p. 19). The rebuild's architecture is therefore imposed and not comparable to the original.
 - [I] Possible self-preference and family bias:
   - GPT-5.6 Sol builds the traces, masks and problem statements (p. 2) and is also an evaluated model; the top model is from the same vendor (GPT-6 Astra) (p. 8).
   - The full-reconstruction failure analysis is done by GPT-6 Astra (p. 12), which judges its own and its competitors' failures, with no human validation reported.
@@ -101,7 +102,8 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [I] Oracle completeness is not measured. Unlike ProgramBench, no code coverage is reported for the trace suites. Behaviours exist only if the mining LLM found and stably replayed them; 29.5% of goals were lost (p. 7). Behaviours an agent never observes still count as failures (59.2% of failures, p. 12), but the trace bank itself may miss large parts of each app.
 - [I] The full-reconstruction oracle checks surface identity (selectors, accessible names, labels) (p. 35), and the agent is shown the reference's selectors (p. 24). This mixes functional fidelity with DOM-level mimicry. A functionally equivalent rebuild with different labels would fail, while visual appearance is not checked at all (p. 14).
 - [I] Contamination is not discussed. The 8 real-world apps are public GitHub projects (p. 19), so agents may partly reconstruct masked code from memory, especially for well-known clones.
-- [I] Small and uneven samples for headline claims: one run per cell, full reconstruction on 12 apps x 3 models (36 runs) (p. 12), and per-app task pools from 2 to 372 (p. 19). Differences between close models (e.g. 45.3% vs 45.7%, p. 8) are not interpretable without variance estimates.
+- [I] The abstract places the full-reconstruction results under "Across nine frontier coding agents" (p. 1; same wording p. 2), but only 3 models were evaluated in that setting (p. 11). Synthesis should not describe 49.2% as best-of-nine.
+- [I] Small and uneven samples for headline claims: apparently one run per cell (runs per task not stated for partial reconstruction), full reconstruction on 12 apps x 3 models (36 runs) (p. 12), and per-app task pools from 2 to 372 (p. 19). Differences between close models (e.g. 45.3% vs 45.7%, p. 8) are not interpretable without variance estimates.
 - [I] The model names (GPT-6 Astra, Claude Opus 5, GPT-5.6 Sol) were very recent at publication and are cited to system cards (p. 16; p. 17). Results may not be reproducible once these API versions change.
 
 ## 10. Threats to validity

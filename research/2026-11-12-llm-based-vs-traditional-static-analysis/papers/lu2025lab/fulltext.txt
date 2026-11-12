@@ -1,0 +1,1294 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                         From Lab to Reality: A Practical Evaluation of Deep Learning Models and LLMs for
+                                                                       Vulnerability Detection
+
+                                                                                                  Chaomeng Lu∗, Bert Lagaisse
+                                                                                            DistriNet Group-T, KU Leuven, Leuven, Belgium
+
+
+
+
+                        Abstract
+                        Vulnerability detection methods based on deep learning (DL) have shown strong performance on benchmark datasets, yet their
+
+
+
+
+arXiv:2512.10485v4 [cs.CR] 4 Nov 2026
+                        real-world effectiveness remains underexplored. Recent work suggests that graph neural network-based and transformer-based
+                        models, including large language models (LLMs), yield promising results when evaluated on curated benchmark datasets. These
+                        datasets are typically characterized by similar data distributions and may contain synthetic samples, heuristic labels, or labeling
+                        noise. In this study, we systematically evaluate four representative DL models—Devign, ReVeal, LineVul, and VulBERTa—across
+                        four representative datasets: Juliet, Devign, BigVul, and ICVul. Each model is trained independently on each dataset, and the
+                        graph-based and CodeBERT representations adopted by these models are analyzed using t-SNE and centroid distance to examine
+                        vulnerability-related patterns. To assess realistic applicability, we further evaluate trained ReVeal and LineVul models, along with
+                        four open-weight LLMs, on VentiVul, our newly constructed temporally separated out-of-distribution (OOD) dataset comprising
+                        200 recent vulnerabilities from Linux and Chromium. Our experiments reveal that the evaluated representation methods struggle to
+                        distinguish vulnerable from non-vulnerable code and that trained models generalize poorly across datasets with differing distribu-
+                        tions and characteristics. When evaluated on VentiVul, performance drops sharply, with most models failing to detect vulnerabilities
+                        reliably or distinguish vulnerable functions from their patched counterparts. These results expose a persistent gap between academic
+                        benchmarks and real-world deployment, emphasizing the value of our deployment-oriented evaluation framework and the need for
+                        more robust code representations, higher-quality datasets, and evaluation methods that account for vulnerability-fixing changes.
+                        Keywords: Deep learning, Large Language Models, Vulnerability Detection, Code Representation
+
+
+                        1. Introduction                                                                              prioritize potentially vulnerable functions or commits for fur-
+                                                                                                                     ther analysis or human review.
+                           Software vulnerabilities remain a persistent and critical                                    In recent years, deep learning models (Shiri Harzevili et al.,
+                        threat in modern computing environments, enabling attackers                                  2024; Chakraborty et al., 2021; Fu and Tantithamthavorn, 2022)
+                        to exploit bugs for unauthorized access, data leakage, or system                             and LLM-based approaches (Zhang et al., 2024; Lu et al.,
+                        compromise (Binosi et al., 2024). Over the years, numerous                                   2024; Zhou et al., 2025) have achieved state-of-the-art results
+                        high-profile breaches have demonstrated that even a single vul-                              on widely used benchmark datasets such as Juliet (Boland and
+                        nerability can lead to significant economic losses and reputa-                               Black, 2012), Devign (Zhou et al., 2019), and BigVul (Fan
+                        tional damage (Zhou et al., 2023). As the scale and complexity                               et al., 2020). These datasets have accelerated research progress
+                        of codebases increase, manually auditing source code for poten-                              by providing standardized evaluation environments that facili-
+                        tial vulnerabilities becomes not only impractical but also error-                            tate direct comparisons between different methods. However,
+                        prone (Sun et al., 2024). In response, the research community                                these datasets suffer from issues such as limited size, low label
+                        and industry have turned to automation, leading to the devel-                                quality, synthetic constructs, or duplication, which raise con-
+                        opment of a variety of techniques for detecting vulnerabilities                              cerns about their representativeness (Croft et al., 2023a; Chen
+                        automatically (Neuhaus and Zimmermann, 2009; Yan et al.,                                     et al., 2023; Croft et al., 2023b).
+                        2017; Zheng et al., 2020). Rather than replacing static analysis,
+                        learning-based vulnerability detection can complement existing                                  Our primary motivation arises from a mismatch between how
+                        techniques by estimating the likelihood that previously unseen                               learning-based vulnerability detectors are commonly evaluated
+                        code contains vulnerabilities. These estimates can be used to                                and how they are expected to operate in practice. Although ex-
+                                                                                                                     isting models report promising results on benchmark datasets,
+                                                                                                                     such results may not reliably indicate deployment effectiveness.
+                                        ⋆ This manuscript has been accepted for publication in the Journal of Sys-
+                                                                                                                     In security applications, seemingly minor choices in dataset
+                        tems and Software.
+                           ∗ Corresponding author.                                                                   construction, experimental design, and evaluation can lead to
+                             Email addresses: chaomeng.lu@kuleuven.be (Chaomeng Lu),                                 unrealistic performance estimates and misleading conclusions
+                        bert.lagaisse@kuleuven.be (Bert Lagaisse)                                                    about model capability (Arp et al., 2022). Moreover, an evalua-
+
+=== [PDF page 2] ===
+
+tion is practically meaningful only when its setting reflects the              Function-Pair evaluation to distinguish vulnerability cov-
+conditions under which the detector is intended to support de-                 erage from sensitivity to security patches.
+velopers (Lomio et al., 2022). However, most vulnerability de-
+tection studies train and test models on samples drawn from the              Together, these contributions form a reproducible frame-
+same historical dataset, where the data share similar distribu-           work for evaluating the reliability, transferability, and robust-
+tions, labeling assumptions, class proportions, and project char-         ness of vulnerability detection models under both controlled
+acteristics. Public datasets may further contain synthetic sam-           and deployment-oriented conditions. Overall, our findings pro-
+ples, heuristic labels, duplicated code, or unrelated functions           vide strong empirical evidence that, despite recent progress,
+labeled through commit-level assumptions (Croft et al., 2023a;            current DL-based vulnerability detection techniques remain in-
+Jimenez et al., 2019). Consequently, strong within-dataset per-           sufficiently robust for real-world deployment. The evaluated
+formance may reflect dataset-specific regularities rather than            LLMs also demonstrate limited and inconsistent vulnerability
+a transferable understanding of vulnerability-related code pat-           detection and patch-pair differentiation capabilities. All of our
+terns (Chakraborty et al., 2021, 2024). This motivates us to ex-          datasets, code, and results are available at the following link1 .
+amine vulnerability detection from three complementary per-                  The rest of this paper is organized as follows. Section 2 re-
+spectives: whether the adopted code representations expose                views related work, Section 3 presents the evaluated datasets
+separable vulnerability-related signals, whether trained models           and VentiVul, Section 4 describes the methodology and exper-
+generalize across heterogeneous datasets, and whether both DL             imental design, Section 5 details the results and analysis, Sec-
+models and LLMs can detect recent vulnerabilities and distin-             tion 6 discusses our key findings and future research directions,
+guish them from their patched counterparts under temporally               Section 7 presents the threats and limitations, and Section 8
+separated, deployment-oriented evaluation.                                concludes the paper.
+   To this end, we design a deployment-oriented evaluation
+framework for assessing vulnerability detection models, as                2. Related Work
+shown in Figure 2. We evaluate four widely studied DL-
+based models on four public vulnerability datasets. Our eval-               This section summarizes prior work on DL and LLM-based
+uation consists of three systematic stages. First, we exam-               vulnerability detection models and empirical studies evaluating
+ine whether the graph-based and token-based feature extrac-               their effectiveness.
+tion pipelines adopted by representative detectors exhibit vis-
+ible vulnerability-related structure before task-specific training.       2.1. Vulnerability Detection Techniques
+Second, we conduct within-dataset and cross-dataset evalua-
+                                                                             Existing DL-based approaches have explored diverse code
+tions to examine how DL model performance and transfer pat-
+                                                                          representations and model architectures (Shiri Harzevili et al.,
+terns vary across independently constructed benchmarks with
+                                                                          2024). Graph-based models such as Devign (Zhou et al., 2019),
+different characteristics. Third, we evaluate trained ReVeal
+                                                                          DeepWukong (Cheng et al., 2021), LineVD (Hin et al., 2022),
+and LineVul models and four open-weight LLMs on VentiVul,
+                                                                          DeepVD (Wang et al., 2023), EPVD (Zhang et al., 2023), AM-
+a newly constructed, temporally separated out-of-distribution
+                                                                          PLE (Wen et al., 2023), and MGVD (Qiu et al., 2024) incor-
+(OOD) benchmark containing recent Linux and Chromium vul-
+                                                                          porate structural semantics of source code using graph neural
+nerabilities.
+                                                                          networks (GNNs) or convolutional neural networks (CNNs) to
+   The novelty of this work lies in its systematic and
+                                                                          improve detection accuracy. Other methods like IVDetect (Li
+deployment-oriented perspective. Our key contributions are
+                                                                          et al., 2021) and LIVABLE (Wen et al., 2024) emphasize in-
+summarized as follows:
+                                                                          terpretability and attempt to mitigate issues related to class im-
+                                                                          balance. ReVeal (Chakraborty et al., 2021) underscores a key
+  • We analyze graph-based and CodeBERT representations
+                                                                          challenge in the field—many of these models are trained on
+    across four benchmark datasets, revealing limited and
+                                                                          low-quality or biased datasets, which contributes to sharp per-
+    inconsistent separability between vulnerable and non-
+                                                                          formance degradation when evaluated in real-world scenarios.
+    vulnerable code.
+                                                                          Although some studies, such as (Hin et al., 2022) and (Zhang
+  • We evaluate four DL models under within-dataset and                   et al., 2023), have attempted real-world evaluations across
+    cross-dataset settings, showing that dataset characteristics          different projects, their models were trained on imbalanced
+    strongly affect model performance and transferability.                datasets and tested on historical codebases, limiting their ability
+                                                                          to generalize to novel and emerging vulnerabilities. Overall, the
+  • We evaluate trained DL models and four open-weight                    lack of robust cross-project and real-world validation remains a
+    LLMs on recent Linux and Chromium vulnerabilities, re-                major barrier to the practical deployment of these techniques.
+    vealing substantial performance degradation and limited               Another major direction uses pretrained language models to
+    sensitivity to vulnerability-fixing changes.                          represent source code as token sequences. Models based on
+                                                                          CodeBERT (Feng et al., 2020), GraphCodeBERT (Guo et al.,
+  • We construct VentiVul, a temporally separated OOD
+    benchmark containing 200 CVEs and 263 vulnerable–
+    patched function pairs, and introduce a deployment-                      1 https://github.com/Chaomeng-Lu/A-Practical-Evaluation-of-Deep-
+
+    oriented evaluation protocol that combines Whole-File and             Learning-Models-and-LLMs-for-Vulnerability-Detection.git
+
+                                                                      2
+
+=== [PDF page 3] ===
+
+2020), GPT-2 (Thapa et al., 2022), and RoBERTa, such as Vul-                 Distinct from earlier work, our study connects representa-
+BERTa (Hanif and Maffeis, 2022), have been applied to vul-                tion analysis, cross-dataset evaluation, and temporally sepa-
+nerability detection. LineVul (Fu and Tantithamthavorn, 2022)             rated OOD testing within a deployment-oriented framework.
+uses CodeBERT and attention information for function-level                We examine how representation and dataset characteristics af-
+detection and line-level localization, while GRACE (Lu et al.,            fect model behavior and evaluate both trained DL models and
+2024) incorporates graph information into pretrained code rep-            open-weight LLMs on recent vulnerabilities using Whole-File
+resentations. Transformer-based architectures have also been              and Function-Pair evaluation.
+applied to vulnerability repair (Fu et al., 2024). More re-
+cently, LLMs such as GPT-3.5 and GPT-4 have shown poten-                  3. Datasets
+tial for vulnerability detection, with existing studies examining
+prompt design and few-shot learning to improve their perfor-                This section describes the benchmark datasets used in our ex-
+mance (Zhou et al., 2024; Zhang et al., 2024). However, these             periments. We present four widely used vulnerability detection
+approaches are still primarily evaluated on structured and cu-            datasets and our newly curated, out-of-distribution, temporally
+rated datasets containing known vulnerabilities. Overall, the             separated evaluation dataset.
+lack of robust cross-dataset and deployment-oriented evalua-
+tion remains a major barrier to determining whether current DL            3.1. Benchmark Datasets
+models and LLMs can generalize to recently discovered vulner-                Juliet (Boland and Black, 2012) is a large synthetic dataset
+abilities.                                                                developed by the National Institute of Standards and Technol-
+                                                                          ogy (NIST). It contains small, labeled C/C++ code snippets
+2.2. Empirical Studies                                                    with vulnerabilities corresponding to various CWE types. It
+   Empirical studies have identified substantial limitations in           is often used for benchmarking due to its controlled and well-
+DL-based vulnerability detection. Comparative analyses show               labeled nature.
+that model architecture and preprocessing influence both ef-                 Devign (Zhou et al., 2019) contains C/C++ functions from
+fectiveness and efficiency (Tang et al., 2020). Different neu-            open-source GitHub projects FFmpeg and QEMU, labeled as
+ral architectures also capture different code properties, with            vulnerable or non-vulnerable manually. It offers a realistic but
+RNNs being effective at contextual information and CNNs at                smaller dataset than BigVul. The dataset focuses on function-
+local patterns (Lin et al., 2021). Nevertheless, DL models                level vulnerability detection, making it suitable for fine-grained
+do not consistently outperform simpler shallow-learning ap-               analysis and DL approaches.
+proaches (Mazuera-Rozo et al., 2021), indicating that architec-              BigVul (Fan et al., 2020) is a large-scale dataset mined from
+tural complexity alone does not guarantee reliable vulnerabil-            commit histories of open-source C/C++ repositories. Vulnera-
+ity detection. A central concern is the quality and distribution          ble functions were identified based on rule-based matching of
+of vulnerability datasets. Unrealistic labeling assumptions can           security-related commits, with buggy versions labeled as vul-
+lead to sharp performance degradation under practical evalu-              nerable, and both their fixes and unrelated unchanged functions
+ation conditions (Jimenez et al., 2019). Similarly, state-of-the-         labeled as non-vulnerable.
+art models may suffer performance drops exceeding 50% due to                 ICVul (Lu et al., 2025) is a high-quality software vulnerabil-
+flawed training data and simplistic model choices (Chakraborty            ity dataset addressing challenges in label quality, diversity, and
+et al., 2021). Since entirely noise-free vulnerability datasets are       comprehensiveness. It focuses on CVEs linked to GitHub fix
+difficult to construct, noisy-label learning has been explored to         commits, extracting relevant functions, files, and metadata. It
+improve model robustness to mislabeled samples (Croft et al.,             uses the SZZ algorithm to trace vulnerability-contributing com-
+2022). Class imbalance also has a substantial effect, causing             mits and the ESC (Eliminate Suspicious Commit) technique to
+F1-score reductions of up to 73% in some settings, although               improve label reliability.
+appropriate oversampling can mitigate part of this degrada-                  Table 1 presents a comparative overview of four selected
+tion (Yang et al., 2023). These dataset-related issues further            datasets. Key characteristics include the number of functions
+affect reproducibility and generalization. The reproduction of            (Functions), the proportion of vulnerable samples (Vul Ratio),
+nine state-of-the-art models revealed considerable variation in           availability of CWE type annotations (CWE Label), and type
+their outputs and strong dependence on training-data character-           of data collection method (Type). The Type column describes
+istics (Steenhoek et al., 2023). Existing function-level mod-             how vulnerability functions were collected: synthetically gen-
+els also struggle with multi-base-unit vulnerabilities, where             erated (Juliet), manually selected (Devign), or collected from
+the relevant evidence spans multiple code units (Sejfia et al.,           real-world patch data (BigVul and ICVul).
+2024). More realistic evaluations confirm these limitations.                    Table 1: Comparative analysis of selected benchmark datasets.
+Real-Vul exposes performance drops of up to 91 F1 points for
+models including DeepWukong, LineVul, ReVeal, and IVDe-                     Dataset     Functions      Vul Ratio     CWE Label           Type
+tect (Chakraborty et al., 2024). PRIMEVUL further reveals                   Juliet       253,002         37%           YES             Synthetic
+duplication, noisy labels, and unrealistic evaluation settings in           Devign        27,318         46%           NO               Manual
+existing datasets, showing that both DL models and advanced                 BigVul       188,636          6%           YES              Patches
+LLMs such as GPT-3.5 and GPT-4 can perform near randomly                    ICVul         15,396         41%           YES              Patches
+under real-world-like conditions (Ding et al., 2024).
+                                                                      3
+
+=== [PDF page 4] ===
+
+3.2. VentiVul as an Out-of-Distribution Benchmark                       source files, while the aligned pairs enable a focused evalua-
+   To further evaluate models that achieve promising re-                tion of whether a model can distinguish vulnerable functions
+sults under controlled experimental settings, we constructed            from their corresponding security patches. Table 2 summarizes
+a deployment-oriented out-of-distribution benchmark named               the resulting dataset. VentiVul contains 13,326 functions asso-
+VentiVul.       VentiVul contains recent vulnerabilities from           ciated with 200 CVEs and 263 strict one-to-one vulnerable–
+two large and security-critical C/C++ projects, Linux and               patched function pairs. The remaining extracted functions
+Chromium. We selected these projects because their publicly             come from the same affected source files but are unrelated to
+traceable vulnerability reports and fixing commits support re-          the corresponding vulnerability-fixing changes. The Chromium
+liable reconstruction of vulnerable–patched function pairs. To          subset contains 7,095 functions, 100 CVEs, 20 CWE cate-
+ensure data relevance and minimize labeling noise, the collec-          gories, and 147 function pairs, while the Linux subset contains
+tion process was conducted manually, with human inspection              6,231 functions, 100 CVEs, 27 CWE categories, and 116 func-
+applied to the CVE reports, linked issue reports, vulnerability-        tion pairs. Overall, the benchmark covers 39 distinct CWE cat-
+fixing commits, and affected source-code functions. For both            egories; this value is smaller than the sum of the project-level
+Linux and Chromium, we collected CVEs disclosed starting                counts because some CWE categories occur in both projects.
+from May 1, 2025, to ensure a clear temporal separation from
+the historical datasets used to train the four DL models evalu-                      Table 2: Statistics of the VentiVul benchmark.
+ated in this study. The selected LLMs were also released before
+                                                                            Project       Functions      CVEs       CWEs        Patch Pairs
+this cutoff. This temporal constraint reduces the likelihood that
+                                                                            Chromium          7,095       100         20               147
+the evaluated vulnerabilities or their corresponding fixes were             Linux             6,231       100         27               116
+included in the training data of either the DL models or the                Overall          13,326       200         39               263
+LLMs.
+   We began with project-specific CVE records from the Na-
+                                                                           The collected CVEs cover different vulnerability types and
+tional Vulnerability Database (NVD), ordered them by disclo-
+                                                                        code-change patterns. Figure 1 presents two examples from the
+sure date after the temporal cutoff, and manually inspected the
+                                                                        Linux subset. Figure 1a shows CVE-2025-37791, for which the
+records and their reference links in sequence. For each project,
+                                                                        fix modifies a single function to address potential stack corrup-
+eligible CVEs were retained until the predefined target of 100
+                                                                        tion. Figure 1b shows CVE-2025-37777, for which two func-
+CVEs was reached. For Linux, these references typically led
+                                                                        tions across two files were modified to address a use-after-free
+directly to the corresponding vulnerability-fixing commits. For
+                                                                        vulnerability. These cases illustrate that a CVE may correspond
+Chromium, they commonly led to reports in the Chromium Is-
+                                                                        to either a single function pair or multiple function pairs dis-
+sue Tracker, from which we traced the associated fixes and
+                                                                        tributed across different files.
+source-code changes. Despite this difference in the reference
+path, we applied the same inclusion and exclusion criteria to
+both projects. We retained only CVEs with valid and acces-              4. Study Design
+sible references, explicit vulnerability-fixing changes in non-
+test C/C++ source files, and available CWE information. We                 To address our research questions, we propose a deployment-
+excluded CVEs whose references were missing or inaccessi-               oriented evaluation framework for assessing vulnerability de-
+ble, whose fixes involved non-C/C++ code or only test files,            tection models, as illustrated in Figure 2. The framework is or-
+whose changes contained excessive unrelated files or functions,         ganized from representation-level diagnostics to trained-model
+or whose CWE information was unavailable. Each retained                 evaluation and finally to temporally separated OOD testing.
+CVE and its associated code changes were then manually ver-             This section first describes the benchmark model and dataset
+ified. The target size was fixed before data collection to obtain       selection, then presents the research questions and experimen-
+equally sized CVE subsets for Linux and Chromium; records               tal designs, and finally defines the evaluation metrics.
+were not selected based on model predictions or evaluation out-
+comes.                                                                  4.1. Benchmark Selection
+   For each retained CVE, we extracted the affected functions
+before and after the corresponding fix. The before-fix version            To identify representative datasets and models, we surveyed
+was labeled as vulnerable, while the after-fix version was la-          vulnerability detection studies published in major software en-
+beled as non-vulnerable. The two versions were aligned us-              gineering, security, and machine learning venues, including
+ing a pair identifier to form a vulnerable–patched function pair,       ICSE, TSE, EMSE, TOSEM, JSS, MSR, FSE, PROMISE,
+with each pair containing exactly one vulnerable function and           RAID, IJCNN, and NeurIPS. We considered publications avail-
+its corresponding patched function. When a CVE affected mul-            able up to May 2025, while acknowledging that the survey may
+tiple functions, each affected function and its patched counter-        not cover every relevant work.
+part formed a separate pair. We additionally extracted functions
+from the same affected source files that were unrelated to the          4.1.1. Model Selection
+fix and labeled them as non-vulnerable. This construction pre-            The selection of DL models was guided by four criteria: (1)
+serves the substantial class imbalance encountered when vul-            representativeness in prior vulnerability detection studies, (2)
+nerability detectors are applied across all functions in affected       availability of code or sufficient implementation details, (3)
+                                                                    4
+
+=== [PDF page 5] ===
+
+                                                                                                token-level embeddings are generated by methods such as
+                                                                                                Word2Vec (Mikolov et al., 2013) or GloVe (Pennington et al.,
+                                                                                                2014). These embeddings are incorporated as node features
+                                                                                                within these graphs, enhancing the expressiveness of structural
+                                                                                                representations (Wen et al., 2023; Li et al., 2021).
+                                                                                                   b. Token-based representations, which treat source code as
+(a) Fix for CVE-2025-37791: a single-function modification addressing stack corruption.
+                                                                                                a linear sequence of tokens and employ embedding techniques
+                                                                                                such as Word2Vec or pretrained transformer models like Code-
+                                                                                                BERT. These methods directly model the semantic and syntac-
+                                                                                                tic relationships between tokens and are widely used in LLMs
+                                                                                                for code understanding tasks (Fu and Tantithamthavorn, 2022;
+                                                                                                Lu et al., 2024).
+                                                                                                   From these categories, we selected four representative mod-
+                                                                                                els for detailed evaluation:
+
+                                                                                                  • Devign (Zhou et al., 2019), which represents functions as
+                                                                                                    code property graphs and applies a gated graph neural net-
+                                                                                                    work to learn vulnerability-related structural features.
+
+                                                                                                  • ReVeal (Chakraborty et al., 2021), which combines
+                                                                                                    Joern-derived program structures with token embeddings
+                                                                                                    and addresses class imbalance in vulnerability datasets.
+
+                                                                                                  • LineVul (Fu and Tantithamthavorn, 2022), which fine-
+                                                                                                    tunes CodeBERT on function-level source code and uses
+                                                                                                    self-attention scores for line-level vulnerability localiza-
+                                                                                                    tion.
+
+                                                                                                  • VulBERTa (Hanif and Maffeis, 2022), which pretrains a
+(b) Fix for CVE-2025-37777: multi-function and multi-file modifications addressing a use-
+after-free vulnerability.
+                                                                                                    RoBERTa-based model on C/C++ source code using a
+                                                                                                    code-specific tokenization pipeline.
+Figure 1: Examples of vulnerability-fixing code modifications in the Linux sub-
+set of VentiVul.                                                                                Together, these models cover both graph-based and token-based
+                                                                                                vulnerability detection paradigms.
+                                                                                                   In addition, we included four open-weight LLMs (released
+compatibility with function-level C/C++ vulnerability detec-                                    before May 2025) to evaluate vulnerability detection without
+tion, and (4) suitability for within-dataset, cross-dataset, and                                task-specific fine-tuning:
+OOD evaluation. These criteria prioritize representative and
+reproducible models over exhaustive coverage of recently pro-                                     • Qwen2.5-Coder-32B-Instruct (Hui et al., 2024), a
+posed architectures. We categorized existing models based on                                        32B-parameter instruction-tuned code model released in
+the type of code representations they employ. While newer                                           November 2024 for code generation, reasoning, and re-
+models exist, many continue to rely primarily on graph-based                                        pair.
+or token-based code representations. The models we consid-
+ered include Devign (Zhou et al., 2019), DeepWukong (Cheng                                        • DeepSeek-Coder-V2-Lite-Instruct (Zhu et al., 2024), a
+et al., 2021), ReVeal (Chakraborty et al., 2021), IVDe-                                             code-oriented Mixture-of-Experts model released in June
+tect (Li et al., 2021), LineVul (Fu and Tantithamthavorn, 2022),                                    2024 with 16B total and 2.4B activated parameters.
+LineVD (Hin et al., 2022), VulBERTa (Hanif and Maffeis,
+                                                                                                  • Qwen3-30B-A3B (Yang et al., 2025), a Mixture-of-
+2022), DeepVD (Wang et al., 2023), AMPLE (Wen et al.,
+                                                                                                    Experts model released in April 2025 with approximately
+2023), EPVD (Zhang et al., 2023), LIVABLE (Wen et al.,
+                                                                                                    30B total and 3B activated parameters, supporting think-
+2024), MGVD (Qiu et al., 2024), and GRACE (Lu et al., 2024).
+                                                                                                    ing and non-thinking inference modes.
+Broadly, these approaches can be grouped into two main cate-
+gories:                                                                                           • Mistral-Small-24B-Instruct-2501 (Mistral AI Team,
+   a. Graph-based representations are typically obtained us-                                        2025), a 24B-parameter instruction-tuned model released
+ing tools like Joern, which extract Abstract Syntax Tree                                            in January 2025 for efficient instruction following, reason-
+(ASTs), Program Dependency Graphs (PDGs), and other                                                 ing, and local inference.
+graph-based structures. These representations capture the syn-
+tactic and control or data flow information of source code                                      These models cover both code-specialized and general-purpose
+and are commonly used as input to GNNs. In many cases,                                          architectures while supporting reproducible local deployment.
+                                                                                            5
+
+=== [PDF page 6] ===
+
+                             Figure 2: A deployment-oriented framework for evaluating vulnerability detection models.
+
+
+
+4.1.2. Dataset Selection                                                    separability is sufficient for good detection performance; rather,
+   There are numerous publicly available datasets in the field              it provides a diagnostic view of whether the adopted feature
+of vulnerability detection. The datasets we considered in-                  extraction method exposes potentially learnable vulnerability-
+clude Juliet (Boland and Black, 2012), SARD (National Insti-                related signals. This RQ deliberately does not evaluate the
+tute of Standards and Technology, 2025), Devign (Zhou et al.,               hidden representations learned after training ReVeal or Line-
+2019), ReVeal (Chakraborty et al., 2021), BigVul (Fan et al.,               Vul. Instead, it isolates the vulnerability-label-free representa-
+2020), CrossVul (Nikitopoulos et al., 2021), CVEFixes (Bhan-                tions produced by the feature extraction pipelines adopted by
+dari et al., 2021), DiverseVul (Chen et al., 2023), D2A (Zheng              these models. This distinction is important because our goal
+et al., 2021), MegaVul (Ni et al., 2024), ICVul (Lu et al.,                 is to examine the representational substrate available to the
+2025). When selecting datasets for our pipeline, we consider                downstream learner, rather than the end-to-end capability of a
+two key factors. First, we prioritize datasets that are widely              trained detector. We also analyze separability across vulnera-
+used and well-established in the research community (Croft                  bility types when CWE metadata is available, because differ-
+et al., 2023a). Second, we evaluate the structure and organi-               ent CWE categories may correspond to different vulnerability
+zation of the dataset to ensure it meets our methodological re-             mechanisms and code patterns.
+quirements. We aim to select datasets that offer diversity in                  Experiment Design: To investigate RQ1, we compare
+terms of labeling strategy, data collection methodology, dataset            two feature extraction pipelines that correspond to the rep-
+volume, and class balance, ensuring a systematic evaluation of              resentation families used by the evaluated detectors: graph-
+DL models. Based on these criteria, we selected Juliet, Devign,             based structural representations used by ReVeal-style models
+BigVul, and ICVul, which cover synthetic, manually labeled,                 and token-based pretrained CodeBERT representations used by
+and patch-derived data with substantially different dataset sizes           LineVul-style models. For each function, we extract a repre-
+and class distributions.                                                    sentation before vulnerability-specific training and analyze its
+                                                                            separability with respect to vulnerability labels. For Devign and
+4.2. Research Questions                                                     ICVul, we use all available samples for both visualization and
+   We organize the RQs from representation-level diagnostics                quantitative analysis. For Juliet and BigVul, the full datasets
+to trained-model evaluation and finally to OOD testing.                     are too large for readable visualization, so we use sampled sub-
+                                                                            sets only for t-SNE plots. Specifically, we randomly sample
+4.2.1. RQ1: Do current vulnerability-oriented code represen-                5% of Juliet. For BigVul, whose original distribution is highly
+        tation methods provide separable embeddings for vul-                imbalanced, we construct a balanced visualization subset by
+        nerable and non-vulnerable code before task-specific                including all vulnerable functions and randomly sampling the
+        learning?                                                           same number of non-vulnerable functions. This balancing is
+   Motivation: Learning-based vulnerability detectors rely on               used only for visualization and does not affect model training
+feature extraction pipelines that transform source code into                or classification evaluation in RQ2.
+graph-based or token-based representations before task-specific                We apply t-SNE to project high-dimensional representations
+training. A downstream classifier can only learn from in-                   into two dimensions for qualitative inspection. To comple-
+formation preserved in these input representations. There-                  ment visualization, we compute centroid distances between vul-
+fore, if vulnerable and non-vulnerable functions are mapped to              nerable and non-vulnerable samples in the normalized t-SNE
+highly overlapping regions before training, the input represen-             space. When CWE metadata is available, we also compute cen-
+tation may provide only limited directly separable signals to               troid distances between selected vulnerability types and non-
+the downstream classifier. This does not mean that pre-training             vulnerable samples. These evaluations provide complementary
+                                                                        6
+
+=== [PDF page 7] ===
+
+descriptive evidence about whether the extracted features ex-              4.2.3. RQ3: How effectively do trained DL models and off-the-
+hibit label- or CWE-related structure in the projected space.                     shelf LLMs detect recent vulnerabilities in a temporally
+They are not used as direct measurements of separability in the                   separated deployment-oriented benchmark?
+original high-dimensional feature space or of downstream clas-                 Motivation: Conventional within-dataset evaluations draw
+sification performance.                                                    the training, validation, and test sets from the same collection
+                                                                           of historical vulnerabilities. However, commonly used vulner-
+4.2.2. RQ2: How do benchmark dataset characteristics influ-                ability datasets may contain inaccurate labels and duplicated
+        ence within-dataset performance and cross-dataset gen-             samples, which can affect model training and inflate evaluation
+        eralization of DL-based vulnerability detectors?                   results (Croft et al., 2023a). Moreover, strong performance un-
+   Motivation: Within-dataset evaluation is commonly used                  der random or project-independent data splits does not neces-
+to report the performance of DL-based vulnerability detec-                 sarily demonstrate that a model can detect vulnerabilities dis-
+tors, but such evaluation may not reveal whether a model has               closed after its training data were collected. Since vulnerability
+learned vulnerability-relevant patterns or dataset-specific short-         detectors are ultimately expected to identify previously unseen
+cuts. Cross-dataset evaluation provides additional insight into            vulnerabilities, their effectiveness should also be evaluated on
+model transferability across independently constructed bench-              temporally separated samples from realistic software projects.
+marks. Vulnerability datasets differ substantially in data origin,         This RQ therefore examines whether trained DL models and
+project scope, class balance, labeling strategy, CWE coverage,             off-the-shelf LLMs can generalize to recent, security-critical
+and code similarity, and these differences jointly shape transfer          vulnerabilities without additional task-specific training.
+patterns. To examine how model behavior varies under such
+                                                                               Experiment Design: To answer this RQ, we evaluated two
+heterogeneous benchmark conditions, we systematically evalu-
+                                                                           trained DL model families, namely ReVeal and LineVul, in
+ate models trained and tested across different datasets and inter-
+                                                                           inference-only mode. These two models were selected as rep-
+pret the observed transfer patterns in relation to the combined
+                                                                           resentative graph-based and pretrained transformer-based de-
+characteristics of the source and target datasets.
+                                                                           tectors, respectively, covering the two main DL representa-
+   Experiment design: To investigate RQ2, we conduct
+                                                                           tion families evaluated in RQ2. These models were trained
+within-dataset and cross-dataset evaluations involving both
+                                                                           on the historical benchmark datasets used in RQ2 and were
+model- and dataset-level comparisons. Our goal is to exam-
+                                                                           applied directly to VentiVul without retraining or adaptation.
+ine how model performance changes when the source and tar-
+                                                                           Because the ReVeal preprocessing pipeline cannot success-
+get datasets differ in characteristics such as labeling strategy,
+                                                                           fully process every function, its evaluation metrics are com-
+class balance, dataset size, data origin, project scope, and code
+                                                                           puted over the samples for which the model produces valid rep-
+representation. Because these characteristics vary simultane-
+                                                                           resentations and predictions. We additionally evaluated four
+ously across the selected datasets, the experiment is designed
+                                                                           open-weight LLMs: Qwen2.5-Coder-32B-Instruct, DeepSeek-
+to reveal performance sensitivity under changing benchmark
+                                                                           Coder-V2-Lite-Instruct, Qwen3-30B-A3B, and Mistral-Small-
+conditions. We train four representative models, namely De-
+                                                                           24B-Instruct-2501. The LLMs were deployed locally and eval-
+vign, ReVeal, LineVul, and VulBERTa, independently on each
+                                                                           uated without parameter updates, thereby representing off-the-
+of the four benchmark datasets using the model-specific set-
+                                                                           shelf use under reproducible inference conditions. All mod-
+tings recommended by their original implementations. The
+                                                                           els receive one function at a time. This function-level set-
+core of our experimental strategy is a cross-dataset evaluation
+                                                                           ting avoids variations caused by file length and context-window
+paradigm. Each model is evaluated both on the dataset used for
+                                                                           truncation and ensures that DL models and LLMs are evaluated
+training and on the other independently constructed benchmark
+                                                                           on the same inputs. For each function, an LLM must return
+datasets. This setup allows us to observe how model perfor-
+                                                                           a binary vulnerability label. The response is constrained to a
+mance changes when the target dataset differs from the training
+                                                                           JSON object to enable deterministic parsing and evaluation.
+dataset in its distribution, construction procedure, labeling strat-
+egy, project composition, and class balance. We also examine                   Based on these function-level predictions, we consider two
+how models trained on different datasets perform on the same               complementary evaluation settings, as summarized in Table 3.
+fixed target test set, enabling comparison of generalization pat-          The Whole-File setting evaluates all functions extracted from
+terns across varying training distributions.                               the affected source files, whereas the Function-Pair setting
+   To ensure data integrity and prevent leakage, we imple-                 groups predictions by CVE and vulnerable–patched pair iden-
+mented several precautions. First, within each dataset, we per-            tifiers to evaluate CVE-level vulnerability coverage and patch-
+formed strict train–test splits and filtered out duplicate func-           pair differentiation. CVE Detection Rate (CDR) treats a CVE as
+tions, ensuring no overlap between training and test samples.              detected when at least one of its associated vulnerable functions
+Second, to guarantee evaluation consistency, for each target               is correctly classified. Patch Pair Accuracy (PACC) measures
+benchmark, we fixed its test set across all trained model con-             the proportion of valid vulnerable–patched function pairs for
+figurations, ensuring that models evaluated on the same target             which the vulnerable function is classified as vulnerable and the
+dataset received identical test samples. Finally, to address tem-          corresponding patched function is classified as non-vulnerable.
+poral leakage, we introduced a time-wise out-of-distribution                   We considered three prompting settings for the LLMs, as
+dataset, VentiVul, which was used in RQ3 for further evalua-               summarized in Table 4. These settings provide a controlled
+tion.                                                                      comparison of representative prompting strategies rather than
+                                                                       7
+
+=== [PDF page 8] ===
+
+        Table 3: Evaluation Settings and metrics used for VentiVul.        dictions. Under this policy, a CVE is detected only when at
+                                                                           least one of its vulnerable functions receives a valid positive
+   Setting             Details
+   Whole-File          All functions in the vulnerable files are
+                                                                           prediction, while a patch pair is differentiated only when ev-
+                       evaluated. Each sample corresponds to               ery function in the pair receives a valid and correct prediction.
+                       a function. Functions modified by the               Reporting both policies separates classification performance on
+                       vulnerability-fixing commit are labeled us-         valid outputs from the practical impact of malformed or missing
+                       ing their before-fix and patched status,            LLM responses.
+                       while functions unrelated to the studied fix
+                       are treated as non-vulnerable with respect to       4.3. Implementation Details
+                       that CVE.
+   Function-Pair       Predictions are grouped by CVE and                     All LLM experiments were conducted locally using vLLM
+                       vulnerable–patched pair identifiers to eval-        on a multi-GPU server equipped with NVIDIA B200 GPUs.
+                       uate CVE-level vulnerability coverage and           We used deterministic decoding with temperature set to 0, top-
+                       patch-pair differentiation using CDR and            p to 1, a fixed random seed of 42, and a maximum output length
+                       PACC.                                               of 384 tokens. Qwen3-30B-A3B was evaluated with think-
+                                                                           ing mode disabled to maintain comparable inference and out-
+                                                                           put settings across models. Each function was evaluated inde-
+an exhaustive or model-specific prompt search. In the zero-shot            pendently, and invalid or unparseable responses were retained
+setting, the model directly classifies the supplied function with-         as failed predictions rather than manually corrected or regen-
+out demonstrations. In the few-shot setting, the zero-shot query           erated. All DL experiments were conducted on a multi-GPU
+is preceded by a fixed set of labeled functions selected from              server equipped with NVIDIA H100 GPUs. ReVeal, Devign,
+complete vulnerable–patched pairs. In the chain-of-thought                 LineVul, and VulBERTa were implemented using the open-
+setting, the prompt guides the model through security-relevant             source code and recommended settings provided by their origi-
+considerations before requesting the final decision. In all set-           nal authors. The trained ReVeal and LineVul checkpoints were
+tings, the system prompt instructs the model to analyze only               applied directly to VentiVul without retraining or adaptation.
+the supplied function, avoid assumptions about missing con-                Under both Whole-File and Function-Pair evaluation, DL mod-
+text, and return valid JSON only. Here, [X] denotes the target             els and LLMs received one function at a time to ensure a con-
+function.                                                                  sistent input scope.
+   For few-shot evaluation, we select the same number of com-
+plete vulnerable–patched pairs from each project. A selected               4.4. Evaluation Metrics
+demonstration pair must contain exactly one vulnerable func-                  To comprehensively evaluate the performance of our models,
+tion and one patched function, ensuring that the demonstrations            we adopt a set of feature representation measures as well as
+are balanced by both project and class. With k = 4, for ex-                classification and deployment metrics. These metrics allow us
+ample, the prompt contains four demonstration functions ob-                to assess both model predictions and the separability of code
+tained from two complete pairs, with one pair selected from                representations extracted before downstream classifier training.
+each of two projects. The same fixed demonstrations are used
+across LLMs to support a controlled comparison. To prevent                 4.4.1. Feature Representation Measures
+leakage, all target samples sharing an isolation identifier with a
+                                                                              To assess the separability of the graph-based and CodeBERT-
+selected demonstration are removed from the few-shot test set.
+                                                                           based features extracted before downstream classifier training,
+For paired samples, the isolation identifier is constructed from
+                                                                           we employ both visualization and quantitative analysis. We use
+the project and pair identifiers. Consequently, selecting one
+                                                                           t-Distributed Stochastic Neighbor Embedding (t-SNE) to re-
+member of a vulnerable–patched pair excludes the entire pair
+                                                                           duce high-dimensional feature vectors into two dimensions for
+from evaluation. We additionally verify that no target function
+                                                                           visualization. This technique enables us to inspect the separa-
+has the same code hash as any demonstration. These controls
+                                                                           bility of vulnerable and non-vulnerable code samples in the em-
+prevent a function, its patched counterpart, or an identical code
+                                                                           bedded space. Additionally, we calculate the centroid distance
+instance from appearing in both the few-shot prompt and the
+                                                                           between classes based on the normalized t-SNE coordinates.
+corresponding test set.
+                                                                           Let µvul and µnon denote the mean feature vectors (centroids) of
+   LLM outputs that cannot be parsed into a supported binary               the vulnerable and non-vulnerable samples, respectively. The
+label are recorded as failed responses. We therefore record                centroid distance is defined as the Euclidean distance between
+parsing success and apply two complementary evaluation poli-               the two centroids:
+cies. The valid-only policy computes classification metrics us-
+ing only successfully parsed predictions. For CDR, the valid-                                  Dcentroid = ∥µvul − µnon ∥2              (1)
+only policy includes only CVEs with at least one associated
+vulnerable function receiving a valid prediction. For PACC, it             This distance is computed in the normalized 2D space after ap-
+includes only structurally valid pairs for which all responses are         plying Min-Max scaling to the t-SNE output. A larger centroid
+successfully parsed. In contrast, the conservative policy eval-            distance indicates greater geometric separation between class
+uates all samples and treats failed responses as incorrect pre-            centroids in the normalized t-SNE projection. Because t-SNE
+                                                                       8
+
+=== [PDF page 9] ===
+
+                                       Table 4: Prompting settings and prompts used for LLM evaluation on VentiVul.
+
+ Setting            Description                         Prompt
+ Zero-shot          The LLM classifies a supplied       Determine whether the following function contains a security
+                    function as vulnerable or non-      vulnerability. Return exactly one JSON object with this schema:
+                    vulnerable without demonstra-       {"label":"vulnerable|non-vulnerable"}. Function: [X]
+                    tion examples.
+ Few-shot           The LLM receives a fixed set of     Example i: [function]. Answer: {"label":"vulnerable|non-vulnerable"}.
+                    labeled functions from complete     After all demonstrations, the model receives the same final query as in the
+                    vulnerable–patched pairs before     zero-shot setting.
+                    classifying the target function.
+ Chain-of-thought   The LLM is instructed to con-       Analyze the following function for security vulnerabilities. Consider:
+                    sider attacker-controlled inputs,   (1) attacker-controlled inputs; (2) dangerous memory, pointer, arithmetic,
+                    dangerous operations, missing       command, file, or resource operations; (3) missing validation or
+                    validation, violated security       sanitization; (4) violated security conditions; and (5) whether the supplied
+                    conditions, and whether the         function alone provides sufficient evidence. Make the best binary decision
+                    supplied function provides          using only the supplied function. Return exactly one JSON object with the
+                    sufficient evidence.                required label. Function: [X]
+
+
+
+does not preserve all global distances from the original high-                  where C denotes the set of CVEs, Fc denotes the set of vulner-
+dimensional space, this metric is interpreted as a complemen-                   able functions associated with CVE c, and ŷ f is the predicted
+tary descriptive indicator rather than a direct measure of classi-              label of function f .
+fication effectiveness.                                                            Patch Pair Accuracy (PACC) measures the proportion of
+                                                                                valid vulnerable–patched function pairs for which the vul-
+4.4.2. Classification and Deployment Metrics                                    nerable function is correctly classified as vulnerable and the
+   We report four standard metrics commonly used for binary                     corresponding patched function is correctly classified as non-
+classification tasks: accuracy, precision, recall, and F1-score.                vulnerable:
+Let T P, T N, FP, and FN denote the number of true positives,
+                                                                                                             h             patch
+                                                                                                                                   i
+                                                                                                        p∈P I ŷ p = 1 ∧ ŷ p    =0
+                                                                                                      P         vul
+true negatives, false positives, and false negatives, respectively.                          PACC =                                         (7)
+   Accuracy measures the overall proportion of correct predic-                                                      |P|
+tions and is defined as:                                                        where P denotes the set of valid vulnerable–patched function
+                                                                                                     patch
+                                     TP + TN                                    pairs, and ŷvul
+                                                                                             p and ŷ p    denote the predicted labels of the vul-
+               Accuracy =                                             (2)       nerable and patched functions in pair p, respectively.
+                               T P + T N + FP + FN
+  Precision evaluates the proportion of correctly predicted                     5. Results and Analysis
+positive instances among all instances predicted as positive:
+                                                                                 In this section, we present the experimental results and sum-
+                                     TP
+                      Precision =                                     (3)       marize the key findings of our three RQs.
+                                  T P + FP
+  Recall, also known as sensitivity, quantifies the proportion of               5.1. Representation Analysis (RQ1)
+actual positive instances that were correctly predicted:                        5.1.1. Visual Separability
+                                                                                   Figure 3a and 3b show binary t-SNE plots of features ex-
+                                       TP                                       tracted before downstream classifier training on four bench-
+                        Recall =                                      (4)
+                                    T P + FN                                    mark datasets, where each point represents a function colored
+                                                                                by its label (Non-vulnerable or Vulnerable). The feature space
+  F1-score is the harmonic mean of precision and recall and
+                                                                                visualizations using GNN-based embeddings (Figure 3a) show
+provides a balanced measure of the model’s performance:
+                                                                                limited class separability across most benchmark datasets. In
+                               Precision · Recall                               particular, Juliet and ICVul exhibit heavy overlap between vul-
+                    F1 = 2 ·                                          (5)       nerable and non-vulnerable functions, indicated by their small
+                               Precision + Recall
+                                                                                centroid distances (0.0242 and 0.0057, respectively). Although
+   The four standard classification metrics are used under the                  BigVul displays a larger centroid distance (0.1612), the clus-
+Whole-File setting. Under the Function-Pair setting, we addi-                   ters are still not clearly distinct. This suggests that even though
+tionally report CDR for CVE-level vulnerability coverage and                    graph-based representations such as AST and PDG are rich in
+PACC for vulnerable–patched pair differentiation. CVE Detec-                    structural information, they do not necessarily translate into dis-
+tion Rate (CDR) measures the proportion of CVEs for which at                    criminative features for vulnerability classification when visu-
+least one associated vulnerable function is correctly identified:               alized in low-dimensional space. The CodeBERT-based em-
+                              h                   i                             beddings (Figure 3b) demonstrate better, but still imperfect,
+                         c∈C I ∃ f ∈ Fc : ŷ f = 1
+                       P
+                                                                                class separation on some datasets. BigVul shows relatively
+               CDR =                                           (6)              more pronounced clustering of vulnerable and non-vulnerable
+                                   |C|
+                                                                            9
+
+=== [PDF page 10] ===
+
+                                      (a) GNN: Feature space visualization and cluster analysis using t-SNE and centroid distances.
+
+
+
+
+                            (b) CodeBERT representations: Feature space visualization and cluster analysis using t-SNE and centroid distances.
+
+    Figure 3: Comparison of feature space visualizations and cluster analysis on four benchmark datasets using (a) GNN and (b) CodeBERT representations.
+
+
+
+samples, with a centroid distance of 0.166, while Devign still                          zation.
+has a small centroid distance of 0.0068. However, the sep-                                 Furthermore, we observe that the centroid distances between
+aration is still inconsistent across datasets. ICVul and Juliet,                        vulnerability types and non-vulnerable samples in the realis-
+whose construction procedures are intended to provide more                              tic dataset ICVul are consistently lower than those in Juliet
+controlled or carefully filtered labels, do not exhibit strong                          and BigVul. This may be associated with two main factors.
+separation. This suggests that transformer-based methods can                            First, realistic code tends to be more complex, with higher se-
+sometimes better capture the contextual cues of vulnerabilities,                        mantic and structural similarity between vulnerable and non-
+but their effectiveness is still limited in realistic, well-labeled                     vulnerable functions, as well as among different vulnerability
+datasets. From Figure 3, we can find that across all datasets,                          types, making them harder to distinguish. Second, the datasets
+both methods struggle to form well-separated clusters of vul-                           contain different CWE distributions and labeling characteris-
+nerable and non-vulnerable functions. This effect is especially                         tics. Specifically, the top five CWE types in ICVul do not ap-
+prominent in ICVul and Devign, which contain real-world func-                           pear in Juliet, while BigVul may introduce larger apparent dif-
+tions with substantial syntactic and semantic heterogeneity.                            ferences between vulnerable and non-vulnerable samples due
+                                                                                        to its commit-based labeling strategy.
+5.1.2. Quantitative Separability                                                          Answer to RQ1
+   Figure 4 summarizes the projected centroid distances be-
+                                                                                          Before downstream classifier training, graph-based and
+tween the most frequent vulnerability types and non-vulnerable
+                                                                                          CodeBERT-based features provide limited and inconsistent
+samples. In ICVul (Figure 4c), both GNN and CodeBERT show
+                                                                                          separation between vulnerable and non-vulnerable functions
+relatively small and erratic centroid distances between different
+                                                                                          across the evaluated datasets. Neither feature extraction
+CWE types and non-vulnerable functions. In Juliet (Figure 4a),
+                                                                                          method consistently provides vulnerability-oriented separa-
+the pattern persists: the distances vary significantly, even within
+                                                                                          bility.
+the same dataset, with no consistent dominance of one embed-
+ding method over the other. In BigVul (Figure 4b), the centroid
+distances are generally larger than those in ICVul, especially                          5.2. Benchmark Evaluation (RQ2)
+for CWE-119, CWE-125, and CWE-20. However, this stronger                                5.2.1. Evaluation Results
+separability is consistent with the earlier visual observation that                        Tables 5 and 6 report the within-dataset and cross-dataset
+BigVul may contain inflated inter-class differences due to its la-                      performance of ReVeal, Devign, LineVul, and VulBERTa on
+beling strategy. This reveals a key insight—there is no reliable                        Juliet, Devign, BigVul, and ICVul. Cells in the tables are
+feature-level distinction between certain vulnerability types and                       shaded in three levels of gray, where darker shades represent
+non-vulnerable code. Moreover, distances between some vul-                              better performance within the same column, helping highlight
+nerability pairs are even greater than those between vulnerabili-                       how well models generalize across datasets when trained on a
+ties and non-vulnerabilities, indicating that the extracted feature                     single source. Bolded values indicate the highest score within
+spaces do not exhibit a consistent vulnerability-oriented organi-                       each row, showcasing the best model performance on a target
+                                                                                   10
+
+=== [PDF page 11] ===
+
+                                                                                        87.45, 94.09, and 94.39, respectively, but their corresponding
+                                                                                        F1-scores are only 23.58, 16.90, and 0.19. BigVul contains a
+                                                                                        substantially smaller proportion of vulnerable samples than the
+                                                                                        other benchmarks. Consequently, predictions biased toward the
+                                                                                        non-vulnerable majority class can produce high accuracy while
+                                                                                        detecting few vulnerable functions.
+                                                                                           Cross-dataset performance. In contrast to the within-
+                                                                                        dataset results, model performance generally decreases when
+                                                                                        the training and evaluation data come from different bench-
+                                                                                        marks. For example, LineVul trained on Juliet achieves an F1-
+                                    (a) Juliet                                          score of 94.52 on Juliet, but its F1-scores decrease to 53.95,
+                                                                                        10.73, and 51.22 on Devign, BigVul, and ICVul, respectively.
+                                                                                        ReVeal trained on BigVul shows an even larger decline, with
+                                                                                        F1-scores below 1.00 on all three external benchmarks. Sim-
+                                                                                        ilar degradation occurs across the other model–dataset combi-
+                                                                                        nations, although its extent varies by model and target dataset.
+                                                                                        This performance degradation should be interpreted in light of
+                                                                                        the substantial differences among the benchmarks. Juliet con-
+                                                                                        tains synthetic and systematically generated samples, Devign
+                                                                                        consists of manually labeled functions from a limited set of
+                                                                                        projects, and BigVul and ICVul are constructed from real-world
+                                   (b) BigVul                                           vulnerability-fixing commits using different collection and la-
+                                                                                        beling procedures. The datasets also differ considerably in size
+                                                                                        and class balance, with vulnerable-sample ratios ranging from
+                                                                                        6% in BigVul to 46% in Devign. Consequently, a model trained
+                                                                                        on one benchmark encounters different code characteristics, la-
+                                                                                        beling assumptions, and class distributions when evaluated on
+                                                                                        another. No evaluated model consistently preserves its within-
+                                                                                        dataset performance across the other benchmarks. This indi-
+                                                                                        cates that the models learn patterns that are effective under the
+                                                                                        characteristics of their training data but are not consistently
+                                                                                        transferable to independently constructed datasets. Therefore,
+                                   (c) ICVul
+                                                                                        strong within-dataset performance alone does not provide suffi-
+Figure 4: Centroid distance comparison between top five vulnerability types             cient evidence that a detector has learned robust vulnerability-
+and non-vulnerable samples in the Juliet, BigVul and ICVul datasets. "Vul" rep-         related patterns.
+resents the class vulnerable, and "Non-vul" represents the class non-vulnerable.           The observed cross-dataset behavior is associated with sev-
+                                                                                        eral dataset characteristics, including labeling strategy, class
+                                                                                        balance, dataset size, data origin, and project scope. BigVul
+dataset when trained on different sources. Each model name in                           combines patch-based labeling with substantial class imbal-
+parentheses indicates its training dataset. A, P, R, and F1 denote                      ance, and models trained on it often exhibit high accuracy but
+accuracy, precision, recall, and F1-score, respectively. The di-                        low recall or F1-score outside their matched evaluation setting.
+agonal entries correspond to within-dataset evaluation, whereas                         In contrast, models trained on Juliet, Devign, or ICVul exhibit
+the off-diagonal entries represent cross-dataset transfer.                              different transfer patterns, although no training dataset pro-
+   Within-dataset performance. When training and testing                                duces consistently strong results across all target benchmarks.
+data originate from the same benchmark, the evaluated mod-                              Juliet provides a large set of systematically generated samples
+els generally achieve their strongest results. This is particularly                     but differs considerably from real-world code. Devign con-
+evident on Juliet, where LineVul and VulBERTa obtain F1-                                tains manually labeled functions from a limited set of projects,
+scores of 94.52 and 94.14, respectively. LineVul also reaches                           while ICVul uses a patch-derived collection and filtering pro-
+an F1-score of 91.00 on BigVul. These results confirm that                              cedure intended to reduce labeling uncertainty. Because these
+the models can learn predictive patterns under matched train-                           dataset characteristics vary simultaneously, the current exper-
+ing and testing conditions. However, the variation across mod-                          iments cannot isolate the effect of any individual factor. The
+els and datasets also shows that within-dataset performance de-                         results instead show that model performance is sensitive to the
+pends strongly on the dataset construction and the compatibil-                          combined characteristics of the source and target datasets.
+ity between a model’s preprocessing pipeline and the evalu-                                Model architecture alone does not explain the observed trans-
+ated data. High within-dataset accuracy does not necessarily                            fer behavior. Both graph-based and transformer-based models
+indicate effective vulnerability detection. On BigVul, for ex-                          degrade under cross-dataset evaluation, although the extent and
+ample, ReVeal, Devign, and VulBERTa obtain accuracies of                                direction of degradation vary across model–dataset combina-
+                                                                                   11
+
+=== [PDF page 12] ===
+
+                         Table 5: Performance of ReVeal and Devign trained on four benchmark datasets with cross-dataset testing.
+
+ Bench-             ReVeal (Juliet)                      ReVeal (Devign)                      ReVeal (BigVul)                       ReVeal (ICVul)
+ mark        A        P        R         F1      A          P       R       F1         A         P       R        F1      A           P        R      F1
+ Juliet    74.87    60.13    92.62     72.92   47.36      38.84   76.71    51.57     63.38     32.84    0.24    0.47    52.71       38.27    48.01   42.59
+ Devign    48.59    46.14    74.56     57.01   49.81      47.59   96.84    63.82     54.29      50      0.25     0.5    48.97       45.86    64.51   53.61
+ BigVul    19.65     5.28    74.47      9.85   30.55      6.59    81.76    12.19     87.45     17.87   34.67    23.58   59.05        5.24    34.80   9.11
+ ICVul     41.86    40.23    86.48     54.91   49.08      41.49   59.43    48.86     58.89     33.33    0.41     0.81   42.64       41.92    95.20   58.21
+ Bench-             Devign (Juliet)                      Devign (Devign)                      Devign (BigVul)                       Devign (ICVul)
+ mark        A        P        R        F1       A          P       R        F1        A         P       R        F1      A           P        R      F1
+ Juliet    79.45    74.77    66.04     70.13   58.16      34.34   15.94    21.77     63.47      1.00    0.01     0.02   57.53       36.41    21.79   27.26
+ Devign    50.06    44.15    34.80     38.92   55.22      50.72   73.59    60.05     54.35     56.25    0.75     1.48   52.34       46.56    28.65   35.48
+ BigVul    80.10     6.99    19.30     10.26   54.33      4.02    29.48     7.08     94.09     49.63   10.18    16.90   49.61        6.73    58.66   12.07
+ ICVul     49.96    41.14    51.84     45.87   46.27      40.99   71.31    52.06     58.93     37.50    0.61     1.21   42.83       31.35    33.40   32.34
+
+                       Table 6: Performance of LineVul and VulBERTa trained on four benchmark datasets with cross-dataset testing.
+
+  Bench-            LineVul (Juliet)                     LineVul (Devign)                     LineVul (BigVul)                   LineVul (ICVul)
+  mark       A         P       R        F1        A         P        R      F1         A          P      R       F1       A         P        R        F1
+  Juliet   95.98     95.16   93.90     94.52    38.20     36.92    94.71  53.13      62.97        0       0      0      63.86     52.68    22.27     31.30
+  Devign   49.01     45.79   65.65     53.95    66.54     65.68    55.43  60.12      54.69      63.16   0.97    1.90    47.04     45.42    81.42     58.31
+  BigVul   27.57      5.76   77.60     10.73    11.43      4.96    81.38   9.34        96        97      86      91     39.33      6.42    72.31     11.79
+  ICVul    44.09     38.77   75.46     51.22    39.16     38.93    99.17  55.91       57.6      32.24   8.18   13.05    44.35     39.01    76.46     51.66
+  Bench-           VulBERTa (Juliet)                    VulBERTa (Devign)                    VulBERTa (BigVul)                  VulBERTa (ICVul)
+  mark       A         P      R       F1          A         P       R      F1          A          P     R       F1        A         P      R      F1
+  Juliet   95.40     89.05 99.84     94.14      56.71     41.80   43.55   42.66      63.03        0     0       0       38.93     37.56  98.34   54.35
+  Devign   45.49     44.91 87.37     59.33      62.55     56.49   77.07   65.19      54.50        0     0       0       46.49     45.69  93.48   61.38
+  BigVul    9.53     5.63  95.94     10.64      37.87      6.37   73.44   11.72      94.39      50.00  0.09    0.19     9.53       5.63  95.94   10.64
+  ICVul    38.64     38.28 94.32     54.46      45.52     39.86   78.80   52.94      61.10        0     0       0       45.13     40.49  87.48   55.36
+
+
+
+tions. Model-specific preprocessing, class distribution, data ori-              tive when evaluated on datasets constructed from different data
+gin, project scope, and labeling procedures may all affect the                  sources and labeling procedures. Similar degradation occurs
+patterns available for learning. The current results do not iso-                for models trained on Juliet, Devign, and ICVul. Juliet pro-
+late the contribution of each factor, but they consistently show                vides a large volume of consistently labeled synthetic samples,
+that strong performance under matched benchmark conditions                      but its controlled code patterns may not transfer effectively to
+does not transfer reliably to independently constructed datasets.               real-world functions. Devign contains manually labeled real-
+                                                                                world functions but covers a limited number of projects, while
+5.2.2. Failure Modes                                                            the smaller size of ICVul may restrict the diversity of training
+   Failures associated with BigVul preprocessing and class                      samples. These differences in data origin, size, project scope,
+imbalance. VulBERTa, Devign, and ReVeal trained on BigVul                       class balance, and labeling strategy affect the patterns learned
+obtain high or moderate within-dataset accuracy but very low                    by the models and help explain why strong performance on one
+recall and F1-scores. VulBERTa (BigVul) achieves an F1-score                    benchmark is not consistently reproduced on another.
+of only 0.19 on BigVul and zero on all external benchmarks,
+while Devign (BigVul) and ReVeal (BigVul) also detect few
+vulnerable samples. For VulBERTa and Devign, the model-
+specific preprocessing pipelines filter out part of BigVul before
+training, reducing the effective training data. This data loss is                  Overall, the failures occur across both graph-based and
+particularly consequential because only 6% of BigVul samples                    transformer-based architectures and cannot be attributed to a
+are vulnerable. Although ReVeal applies SMOTE, resampling                       single model family. Model-specific preprocessing can re-
+cannot improve the quality or diversity of the original vulnera-                duce or alter the effective training data, while class imbalance,
+ble samples or remove possible noise introduced by commit-                      dataset size, data origin, project scope, and labeling strategy
+based labeling. Thus, preprocessing-induced data reduction,                     influence which patterns are learned. Cross-dataset evaluation
+severe class imbalance, and labeling limitations collectively re-               therefore reveals model and dataset dependencies that are not
+strict the vulnerability-related patterns available for learning.               visible from within-dataset results alone.
+   Benchmark-specific learning. LineVul (BigVul) presents                         Answer to RQ2
+a different failure pattern. It achieves an F1-score of 91.00                      Models generally perform best under within-dataset evalua-
+within BigVul, but its F1-score decreases to zero on Juliet, 1.90                  tion but degrade substantially and inconsistently across in-
+on Devign, and 13.05 on ICVul. Its failure therefore cannot                        dependently constructed benchmarks. Thus, strong within-
+be explained solely by insufficient within-dataset learning. In-                   dataset performance does not necessarily indicate transfer-
+stead, the large performance gap suggests that the lexical and                     able vulnerability detection.
+contextual patterns learned from BigVul do not remain predic-
+                                                                           12
+
+=== [PDF page 13] ===
+
+5.3. Deployment Evaluation (RQ3)                                              increases the valid-only F1-score of Qwen2.5-Coder-32B, but
+5.3.1. DL Models                                                              its PACC decreases, showing that improved function-level clas-
+   As shown in Table 7, all trained DL models exhibit lim-                    sification does not necessarily produce stronger sensitivity to
+ited performance on the temporally separated VentiVul bench-                  vulnerability-fixing changes. The effectiveness of prompting
+mark. Their F1-scores range from 3.47 to 8.65, despite substan-               is therefore model- and metric-dependent rather than generally
+tial differences in accuracy and recall. Several configurations               beneficial.
+show strongly biased prediction behavior. ReVeal and LineVul                     The conservative and valid-only policies further expose
+trained on Devign reach recall values close to or equal to 100%,              the practical impact of malformed or unsupported outputs.
+but their precision remains approximately 2%, indicating exten-               Their differences are most visible for Qwen2.5-Coder-32B and
+sive false-positive predictions. In contrast, the BigVul-trained              Qwen3-30B-A3B under CoT, whereas DeepSeek-Coder-V2-
+models obtain higher accuracy but substantially lower recall.                 Lite and Mistral-Small-24B produce nearly identical results un-
+ReVeal (BigVul) achieves the highest DL F1-score of 8.65, but                 der the two policies. Nevertheless, valid formatting alone does
+its precision is only 5.25%. These results show that none of the              not imply effective vulnerability detection: models with more
+trained models provides a practically reliable balance between                consistently parseable responses still obtain low F1 and PACC.
+detecting recent vulnerable functions and avoiding false alarms.              Overall, the evaluated LLMs do not demonstrate reliable detec-
+   The Function-Pair results reveal a further limitation. Several             tion or patch-pair differentiation without task-specific adapta-
+models achieve high CDR because they correctly detect at least                tion.
+one vulnerable function for many CVEs. For example, ReVeal
+(Devign), ReVeal (ICVul), and LineVul (Devign) obtain CDR                     5.3.3. Project-specific Comparison
+values of 99.10%, 94.59%, and 100%, respectively. However,                       Figures 5 and 6 compare CDR and PACC on the Chromium
+their corresponding PACC values are only 0.76%, 0%, and 0%.                   and Linux subsets of VentiVul. For each DL architecture, the
+The large difference between CDR and PACC shows that de-                      training dataset is shown in parentheses. For the LLMs, we re-
+tecting a vulnerable function does not imply that a model can                 port the valid-only results under zero-shot prompting as a rep-
+distinguish it from its patched counterpart. Across all DL con-               resentative configuration. Zero-shot prompting provides a com-
+figurations, PACC remains below 5.5%, with ReVeal (BigVul)                    mon evaluation setting across all LLMs without introducing
+and LineVul (ICVul) obtaining the highest values of 5.34% and                 variation from demonstration selection or prompt-specific ex-
+5.32%, respectively. Therefore, the trained DL models show                    amples. In addition, under zero-shot prompting, the differences
+limited sensitivity to the security-relevant code changes intro-              between the valid-only and conservative PACC results are neg-
+duced by vulnerability patches.                                               ligible. This selection supports a concise project-specific com-
+                                                                              parison without presenting every model–prompt–policy combi-
+Table 7: Performance of ReVeal (RV) and LineVul (LV) on VentiVul under        nation.
+Whole-File and Function-Pair settings.                                           The project-specific CDR results vary substantially across
+                                                                              models. Several DL configurations detect at least one vul-
+                           Whole-File                Function-Pair
+  Model                                                                       nerable function for most CVEs. LineVul (Devign) obtains
+                    A       P      R         F1     CDR PACC
+  RV (Juliet)      46.5    2.05 61.83       3.97    63.06    4.58
+                                                                              100% CDR on both Chromium and Linux. ReVeal (Devign)
+  RV (Devign)     11.61    1.97 99.24       3.86    99.1     0.76             reaches 92.86% on Chromium and 100% on Linux, while Re-
+  RV (BigVul)     90.77    5.25 24.43       8.65    27.03    5.34             Veal (ICVul) reaches 100% and 93.81%, respectively. How-
+  RV (ICVul)       6.51    1.77 93.89       3.47    94.59      0              ever, these configurations also exhibit recall close to or equal
+  LV (Juliet)     30.01    2.25 81.37       4.39      82     1.52             to 100% and precision of approximately 2% in the Whole-File
+  LV (Devign)      3.38      2    100       3.93     100       0              evaluation. Their high CDR therefore reflects broad vulnerabil-
+  LV (BigVul)     81.28    3.81 34.98       6.87      38     2.28             ity coverage but does not indicate precise detection. Other DL
+  LV (ICVul)      42.47    2.21 65.02       4.27      73     5.32             configurations exhibit substantial differences between the two
+                                                                              projects. LineVul (BigVul) obtains 76% CDR on Chromium but
+                                                                              fails to detect any Linux CVE, whereas LineVul (ICVul) obtains
+5.3.2. LLMs                                                                   50% on Chromium and 96% on Linux. ReVeal (Juliet) is more
+   Table 8 reports the performance of the four off-the-shelf                  consistent across the projects, reaching 64.29% on Chromium
+LLMs under zero-shot, few-shot, and CoT prompting. Overall,                   and 62.89% on Linux, but its CDR remains lower than that
+the LLMs also exhibit weak deployment-oriented vulnerabil-                    of the strongly positive-biased configurations. These results
+ity detection. All conservative F1-scores remain below 5.5%,                  show that CVE coverage depends on both the source training
+and all PACC values remain below 6%. Mistral-Small-24B                        dataset and the target project, with no training dataset produc-
+with few-shot prompting achieves the highest conservative F1-                 ing consistently strong behavior across both DL architectures.
+score, CDR, and PACC, reaching 5.36%, 46%, and 5.75%, re-                     Under zero-shot prompting, the LLMs obtain lower CDR than
+spectively. However, even this configuration correctly differ-                most DL configurations. DeepSeek-Coder-V2-Lite achieves
+entiates only a small proportion of vulnerable–patched pairs.                 the highest overall LLM CDR at 34%, comprising 26% on
+Prompting does not provide consistent improvements. Few-                      Chromium and 42% on Linux. Mistral-Small-24B follows with
+shot prompting improves all three reported metrics for Mistral-               20% overall, while Qwen2.5-Coder-32B and Qwen3-30B-A3B
+Small-24B but degrades performance for the other models. CoT                  obtain only 9% and 5%, respectively. All four LLMs achieve
+                                                                         13
+
+=== [PDF page 14] ===
+
+ Table 8: Performance of LLMs on VentiVul under different prompting strategies. Each cell reports Conservative/Valid-only results. All values are percentages.
+
+                                                Zero-shot                              Few-shot                                      CoT
+    Model
+                                       F1         CDR       PACC             F1          CDR      PACC               F1             CDR           PACC
+    Qwen2.5-Coder-32B               3.72/5.51      9/9    3.04/3.05       2.95/3.88     7.5/7.5 2.68/2.68         3.04/8.21      14.5/15.51     1.52/1.66
+    DeepSeek-Coder-V2-Lite          4.29/4.32     34/34    5.7/5.73       3.64/3.66     7.5/7.5 1.53/1.53         4.89/4.89       23.5/23.5     4.56/4.56
+    Qwen3-30B-A3B                   3.09/3.21      5/5    1.14/1.14       0.79/1.45     1/1.03   0.38/0.4         1.39/5.67        7.5/9.15      1.9/2.53
+    Mistral-Small-24B               4.07/4.07     20/20 4.18/4.18         5.36/5.37      46/46  5.75/5.75         4.71/4.71        8.5/8.5      1.52/1.52
+
+
+higher CDR on Linux than on Chromium, although their abso-                          Answer to RQ3
+lute CVE detection rates remain limited.                                            Both trained DL models and off-the-shelf LLMs show lim-
+   The project-specific PACC results provide a substantially                        ited effectiveness on recent, temporally separated vulner-
+stricter view. Despite the high CDR of several DL configura-                        abilities. Although some configurations detect vulnerable
+tions, the best project-specific PACC remains below 8%. Line-                       functions or CVEs, their low PACC demonstrates that they
+Vul (ICVul) achieves the highest DL PACC on Chromium at                             rarely distinguish vulnerable code reliably from its patched
+7.48%, but decreases to 2.59% on Linux. ReVeal (Juliet) ob-                         counterpart.
+tains 5.31% on Linux but fails to differentiate any patch pair on
+Chromium. ReVeal (BigVul) shows more similar results across
+the two projects, reaching 5.56% on Chromium and 5.31% on                         6. Discussion
+Linux. Among the LLMs, DeepSeek-Coder-V2-Lite obtains
+4.11% on Chromium and 7.76% on Linux, while the other                                Our evaluation reveals a consistent gap between performance
+LLMs also remain low and project-dependent. Consequently,                         under controlled benchmark conditions and effectiveness under
+neither high CDR nor relative stability across projects translates                distribution shift and deployment-oriented evaluation. Across
+into reliable patch-pair differentiation.                                         the three RQs, the results suggest that this gap cannot be at-
+                                                                                  tributed to a single architecture, dataset, or evaluation metric.
+                                                                                  Instead, model behavior is jointly shaped by the adopted rep-
+                                                                                  resentations, benchmark construction, model-specific data pro-
+                                                                                  cessing, and the conditions under which performance is mea-
+                                                                                  sured. This section discusses the implications of these findings
+                                                                                  for vulnerability representation, benchmark design, model eval-
+5.3.4. CWE-specific Comparison                                                    uation, and future research.
+
+   Figure 7 compares PACC across the five most frequent CWE
+                                                                                  6.1. Pre-training Feature Representations Provide Limited
+categories in VentiVul. The results vary considerably across
+                                                                                       Separability
+vulnerability types. Among the DL configurations, ReVeal
+(BigVul) obtains relatively higher PACC for CWE-787 and                              RQ1 evaluates the feature spaces produced by the graph-
+CWE-476, reaching 14.29% and 11.11%, respectively. Line-                          based and CodeBERT-based extraction pipelines before down-
+Vul (ICVul) reaches 18.18% for CWE-472 and 10.53% for                             stream classifier training. The analysis therefore concerns the
+CWE-787. However, these improvements are limited to indi-                         effectiveness of the feature representations themselves, rather
+vidual categories, and several DL configurations obtain zero                      than representations learned or reshaped through supervised
+PACC across all five selected CWEs. Differences among con-                        vulnerability classification. Neither feature extraction method
+figurations using the same architecture further indicate that the                 provides consistently separable vulnerable and non-vulnerable
+source training dataset affects which vulnerability types can be                  functions across the four benchmarks. CodeBERT features
+differentiated. The LLMs obtain relatively higher PACC for                        show relatively stronger separation for some datasets, while
+some individual CWE categories despite their low aggregate                        graph-based features show comparable or stronger separation
+performance. DeepSeek-Coder-V2-Lite achieves the strongest                        in other cases. The results therefore do not identify a rep-
+results for several categories, including CWE-787 and CWE-                        resentation method that consistently exposes discriminative
+476, while Qwen2.5-Coder-32B performs best for CWE-125.                           vulnerability-related signals across heterogeneous datasets.
+Nevertheless, no LLM performs consistently well across all se-                       The observed separability also varies across datasets and
+lected categories. Because the CWE categories contain differ-                     CWE categories, indicating that the extracted feature spaces
+ent numbers of CVEs, these percentages should be interpreted                      may reflect dataset-specific code and labeling characteristics
+together with the sample counts shown in the figure. The rel-                     rather than a stable vulnerability-oriented organization. In real-
+atively high values for individual model–CWE combinations                         istic code, vulnerable and non-vulnerable functions may differ
+therefore represent localized successes rather than stable gener-                 through small security-relevant operations or conditions while
+alization across vulnerability types. Overall, patch-pair differ-                 retaining similar syntax and structure, making such distinctions
+entiation remains strongly dependent on the vulnerability cate-                   difficult to expose through general-purpose structural or token-
+gory, model, and training configuration.                                          based representations.
+                                                                             14
+
+=== [PDF page 15] ===
+
+Figure 5: Project-specific CDR of the evaluated DL models and LLMs on the Chromium and Linux subsets of VentiVul. For the LLMs, zero-shot results are
+reported. “All” denotes performance on the complete benchmark.
+
+
+
+
+Figure 6: Project-specific PACC of the evaluated DL models and LLMs on the Chromium and Linux subsets of VentiVul. For the LLMs, zero-shot results are
+reported. “All” denotes performance on the complete benchmark.
+
+
+
+   These observations must nevertheless be interpreted cau-                   formance when the evaluation dataset changes. The mod-
+tiously. The t-SNE plots are low-dimensional projections, and                 els generally perform best under within-dataset evaluation but
+centroid distances provide descriptive measurements of the ex-                degrade substantially and inconsistently under cross-dataset
+tracted feature spaces. They do not establish what a subse-                   testing. This shows that successful classifier training under
+quently trained classifier can or cannot learn, nor do they prove             matched conditions does not ensure robustness across indepen-
+that limited initial separability directly causes poor classifica-            dently constructed benchmarks. The RQ2 results should not
+tion performance. Instead, RQ1 shows that the two input fea-                  be treated as a direct consequence of the feature separability
+ture extraction methods do not provide an immediately clear                   observed in RQ1. Supervised training can reshape or combine
+and consistent vulnerability-oriented structure before classifier             the available features, and the evaluated architectures use differ-
+training. Downstream models must therefore learn their de-                    ent learning mechanisms. Nevertheless, the two RQs provide
+cision boundaries from feature spaces in which vulnerability-                 complementary evidence. RQ1 shows that the initial graph-
+related distinctions are limited, inconsistent, or entangled with             based and token-based features do not consistently expose clear
+other code characteristics.                                                   vulnerability-related distinctions, while RQ2 shows that down-
+                                                                              stream training does not produce models whose performance
+6.2. Benchmark Performance Depends on Model and Dataset                       remains stable across datasets.
+     Factors                                                                    Cross-dataset failures reflect interactions between model and
+ RQ2 addresses a different question: whether supervised DL                    dataset factors. Differences in data origin, project scope, class
+models trained on these benchmark datasets maintain their per-                balance, labeling strategy, and model-specific preprocessing
+                                                                         15
+
+=== [PDF page 16] ===
+
+Figure 7: CWE-specific PACC of the evaluated DL models and LLMs on VentiVul. The upper panel shows the number of CVEs in the complete benchmark and in
+each selected CWE category. For the LLMs, zero-shot results are reported. “All” denotes performance on the complete benchmark.
+
+
+
+jointly affect the effective data available for learning. Conse-              valid output formatting alone does not ensure correct vulnera-
+quently, architecture comparisons should consider not only the                bility detection. RQ3 therefore evaluates a capability not cap-
+original benchmark statistics but also the samples retained after             tured by conventional benchmark testing: whether a detector
+preprocessing. Because these characteristics vary simultane-                  can identify recent vulnerabilities and respond correctly after
+ously, the observed degradation should be interpreted as sensi-               the vulnerable condition has been removed. The results show
+tivity to changing benchmark conditions rather than as evidence               that current trained DL models and off-the-shelf LLMs remain
+that any single dataset characteristic independently determines               unreliable under this stricter setting.
+generalization.
+                                                                              6.4. Implications and Future Directions
+6.3. Deployment Evaluation Reveals a Stricter Capability Gap                     The combined findings suggest three priorities. First, feature
+                                                                              representation and model training should more directly empha-
+   RQ3 evaluates trained DL models and off-the-shelf LLMs on                  size security-relevant code changes. Vulnerable–patched pairs
+recent, temporally separated vulnerabilities. Both model types                may provide useful supervision for distinguishing the small se-
+exhibit limited function-level performance on VentiVul. Some                  mantic differences that alter a function’s security status. Sec-
+configurations achieve high recall or CDR, but these results are              ond, dataset construction should prioritize reliable labels, di-
+often accompanied by low precision, showing that broad vul-                   verse vulnerability patterns, and explicit links between vul-
+nerability coverage may result from excessive positive predic-                nerable code and its corresponding fixes, rather than focus-
+tions. The gap between CDR and PACC provides the clear-                       ing primarily on dataset size. Third, within-dataset evalua-
+est deployment-oriented finding. The consistently low PACC                    tion should be complemented by cross-dataset and temporally
+shows that detecting some vulnerable functions does not imply                 separated testing. Function-level metrics should be reported
+sensitivity to the security-relevant changes introduced by their              together with CVE-level coverage and patch-pair differentia-
+patches.                                                                      tion because these settings evaluate distinct capabilities. Future
+   Project- and CWE-specific results reveal localized dif-                    work may further examine individual dataset factors, represen-
+ferences, but no configuration performs consistently across                   tation semantics, broader software ecosystems, and more ad-
+projects and vulnerability categories. Likewise, zero-shot, few-              vanced LLM adaptation strategies.
+shot, and CoT prompting produce model-dependent effects for                      Overall, the results identify limitations at two related but dis-
+the LLMs, rather than consistent improvements. Invalid re-                    tinct levels. The evaluated pre-training feature extraction meth-
+sponses introduce an additional practical limitation, although                ods do not consistently provide separable vulnerability-related
+                                                                         16
+
+=== [PDF page 17] ===
+
+signals, and the trained detectors do not maintain reliable per-           vulnerable labels in the Whole-File setting may contain resid-
+formance across datasets or under temporally separated deploy-             ual label noise. In addition, unrelated functions are extracted
+ment evaluation. Addressing both limitations is necessary for              using regular-expression-based function matching, which may
+improving the transferability and practical reliability of vulner-         fail to identify some functions with complex C/C++ syntax.
+ability detection systems.                                                 These limitations mainly affect the Whole-File evaluation. The
+                                                                           Function-Pair setting is less exposed to this threat because it
+7. Threats and Limitations                                                 relies on manually verified vulnerable functions and their cor-
+                                                                           responding patched versions.
+   Our study is subject to several limitations concerning model
+coverage, representation analysis, dataset generalizability, and
+VentiVul construction.                                                     8. Conclusion
+   First, our benchmark evaluation covers four representative
+                                                                              This study presents a deployment-oriented framework for
+DL models, while the deployment evaluation focuses on two
+                                                                           evaluating learning-based vulnerability detectors through pre-
+DL model families and four open-weight LLMs. These models
+                                                                           training feature representation analysis, within- and cross-
+represent both graph-based and transformer-based approaches,
+                                                                           dataset testing, and temporally separated evaluation on Ven-
+but they do not cover all recently proposed vulnerability de-
+                                                                           tiVul. Our results show that the evaluated graph-based and
+tectors or proprietary LLMs. The conclusions should there-
+                                                                           CodeBERT-based features provide limited and inconsistent sep-
+fore be interpreted as applying to the evaluated models and
+                                                                           arable signals before classifier training, while trained DL mod-
+settings rather than to all existing vulnerability detection tech-
+                                                                           els perform well mainly under matched benchmark conditions
+niques. The model coverage was constrained by the require-
+                                                                           and degrade substantially across independently constructed
+ments of reproducibility, experimental consistency, and compu-
+                                                                           datasets. On recent Linux and Chromium vulnerabilities, both
+tational feasibility. Moreover, because the complete pretraining
+                                                                           trained DL models and off-the-shelf LLMs exhibit low detec-
+corpora and knowledge cutoffs of the evaluated LLMs are un-
+                                                                           tion effectiveness and limited ability to distinguish vulnera-
+available, temporal separation based on public release and dis-
+                                                                           ble functions from their patched counterparts. By combining
+closure dates cannot fully exclude training-data contamination.
+                                                                           Whole-File classification with Function-Pair evaluation met-
+   Second, RQ1 analyzes the graph-based and CodeBERT fea-
+                                                                           rics, this work demonstrates that benchmark performance and
+ture spaces before downstream classifier training. The t-SNE
+                                                                           vulnerability coverage do not necessarily indicate transferable
+visualizations and centroid distances provide complementary
+                                                                           or patch-sensitive vulnerability detection.
+views of whether the extracted features contain readily sepa-
+rable vulnerability-related signals. However, t-SNE is sensitive
+to dimensionality-reduction parameters, and centroid distance              References
+cannot fully characterize complex or nonlinear class structures.
+These analyses therefore do not determine what a subsequently              Arp, D., Quiring, E., Pendlebury, F., Warnecke, A., Pier-
+trained classifier can learn, nor do they establish a causal re-             azzi, F., Wressnegger, C., Cavallaro, L., Rieck, K., 2022.
+lationship between initial feature separability and the perfor-              Dos and don’ts of machine learning in computer security,
+mance observed in RQ2 and RQ3.                                               in: 31st USENIX Security Symposium (USENIX Secu-
+   Third, the evaluated datasets differ in size, class balance,              rity 22), USENIX Association, Boston, MA. pp. 3971–
+project scope, data origin, and labeling strategy. Because these             3988. URL: https://www.usenix.org/conference/
+characteristics vary simultaneously, the cross-dataset experi-               usenixsecurity22/presentation/arp.
+ments reveal sensitivity to changing benchmark conditions but
+                                                                           Bhandari, G., Naseer, A., Moonen, L., 2021. Cvefixes: au-
+cannot isolate the causal effect of each individual characteristic.
+                                                                             tomated collection of vulnerabilities and their fixes from
+Some model-specific preprocessing pipelines exclude functions
+                                                                             open-source software, in: Proceedings of the 17th Inter-
+that cannot be converted into the required inputs, which may
+                                                                             national Conference on Predictive Models and Data An-
+affect the comparability of individual model–dataset configura-
+                                                                             alytics in Software Engineering, ACM. p. 30–39. URL:
+tions. Moreover, ICVul and VentiVul are derived from open-
+                                                                             https://doi.org/10.1145/3475960.3475985, doi:10.
+source projects and may not fully represent the coding prac-
+                                                                             1145/3475960.3475985.
+tices, architectures, or vulnerability distributions of proprietary
+industrial software.                                                       Binosi, L., Barzasi, G., Carminati, M., Zanero, S., Polino,
+   Finally, VentiVul is limited to C/C++ code from Linux and                 M., 2024. The illusion of randomness: An empirical
+Chromium and does not contain every vulnerability reported for               analysis of address space layout randomization implemen-
+the selected project versions. Its results may therefore not gen-            tations, in: Proceedings of the 2024 on ACM SIGSAC
+eralize to other programming languages, smaller projects, or                 Conference on Computer and Communications Security,
+proprietary software. Under the Whole-File setting, functions                ACM. p. 1360–1374. URL: https://doi.org/10.1145/
+unrelated to the collected CVEs are treated as non-vulnerable.               3658644.3690239, doi:10.1145/3658644.3690239.
+However, an apparently unrelated or patched function may
+be associated with another vulnerability not included in Ven-              Boland, T., Black, P.E., 2012. Juliet 1. 1 c/c++ and java test
+tiVul or discovered later. Consequently, the presumed non-                   suite. Computer 45, 88–90.
+                                                                      17
+
+=== [PDF page 18] ===
+
+Chakraborty, P., Arumugam, K.K., Alfadel, M., Nagappan, M.,               of the 19th International Conference on Mining Soft-
+  McIntosh, S., 2024. Revisiting the performance of deep                  ware Repositories, ACM. p. 608–620. URL: https:
+  learning-based vulnerability detection on realistic datasets.           //doi.org/10.1145/3524842.3528452, doi:10.1145/
+  IEEE Transactions on Software Engineering 50, 2163–2177.                3524842.3528452.
+  doi:10.1109/TSE.2024.3423712.
+                                                                        Guo, D., Ren, S., Lu, S., Feng, Z., Tang, D., Liu, S., Zhou, L.,
+Chakraborty, S., Krishna, R., Ding, Y., Ray, B., 2021. Deep               Duan, N., Svyatkovskiy, A., Fu, S., et al., 2020. Graphcode-
+  learning based vulnerability detection: Are we there yet?               bert: Pre-training code representations with data flow. arXiv
+  IEEE Transactions on Software Engineering 48, 3280–3296.                preprint arXiv:2009.08366 .
+
+Chen, Y., Ding, Z., Alowain, L., Chen, X., Wagner, D., 2023.            Hanif, H., Maffeis, S., 2022. Vulberta: Simplified source code
+  Diversevul: A new vulnerable source code dataset for deep               pre-training for vulnerability detection, in: 2022 Interna-
+  learning based vulnerability detection, in: Proceedings of the          tional Joint Conference on Neural Networks (IJCNN), pp.
+  26th International Symposium on Research in Attacks, Intru-             1–8. doi:10.1109/IJCNN55064.2022.9892280.
+  sions and Defenses, pp. 654–668.
+                                                                        Hin, D., Kan, A., Chen, H., Babar, M.A., 2022. Linevd:
+Cheng, X., Wang, H., Hua, J., Xu, G., Sui, Y., 2021. Deep-                statement-level vulnerability detection using graph neu-
+  wukong: Statically detecting software vulnerabilities us-               ral networks, in: Proceedings of the 19th International
+  ing deep graph neural network. ACM Trans. Softw. Eng.                   Conference on Mining Software Repositories, ACM. p.
+  Methodol. 30. doi:10.1145/3436877.                                      596–607. URL: https://doi.org/10.1145/3524842.
+                                                                          3527949, doi:10.1145/3524842.3527949.
+Croft, R., Babar, M.A., Chen, H., 2022. Noisy label learn-
+  ing for security defects, in: Proceedings of the 19th Interna-        Hui, B., Yang, J., Cui, Z., Yang, J., Liu, D., Zhang, L., Liu,
+  tional Conference on Mining Software Repositories, Associ-              T., Zhang, J., Yu, B., Lu, K., et al., 2024. Qwen2. 5-coder
+  ation for Computing Machinery. pp. 435–447. doi:10.1145/                technical report. arXiv preprint arXiv:2409.12186 .
+  3524842.3528446.
+                                                                        Jimenez, M., Rwemalika, R., Papadakis, M., Sarro, F.,
+Croft, R., Babar, M.A., Kholoosi, M.M., 2023a. Data quality               Le Traon, Y., Harman, M., 2019. The importance of ac-
+  for software vulnerability datasets, in: 2023 IEEE/ACM 45th             counting for real-world labelling when predicting software
+  International Conference on Software Engineering (ICSE),                vulnerabilities, in: Proceedings of the 2019 27th ACM Joint
+  IEEE. pp. 121–133.                                                      Meeting on European Software Engineering Conference and
+                                                                          Symposium on the Foundations of Software Engineering, pp.
+Croft, R., Xie, Y., Babar, M.A., 2023b. Data preparation for              695–705.
+  software vulnerability prediction: A systematic literature re-
+  view. IEEE Transactions on Software Engineering 49, 1044–             Li, Y., Wang, S., Nguyen, T.N., 2021. Vulnerability de-
+  1063. doi:10.1109/TSE.2022.3171202.                                     tection with fine-grained interpretations, in: Proceedings
+                                                                          of the 29th ACM Joint Meeting on European Software
+Ding, Y., Fu, Y., Ibrahim, O., Sitawarin, C., Chen, X., Alomair,          Engineering Conference and Symposium on the Founda-
+  B., Wagner, D., Ray, B., Chen, Y., 2024. Vulnerability de-              tions of Software Engineering, ACM. p. 292–303. URL:
+  tection with code language models: How far are we? arXiv                https://doi.org/10.1145/3468264.3468597, doi:10.
+  preprint arXiv:2403.18624 .                                             1145/3468264.3468597.
+Fan, J., Li, Y., Wang, S., Nguyen, T.N., 2020. A c/c++                  Lin, G., Xiao, W., Zhang, L.Y., Gao, S., Tai, Y., Zhang, J.,
+  code vulnerability dataset with code changes and cve sum-               2021. Deep neural-based vulnerability discovery demysti-
+  maries, in: Proceedings of the 17th International Confer-               fied: data, model and performance. Neural Computing and
+  ence on Mining Software Repositories, ACM. p. 508–512.                  Applications 33, 13287–13300.
+  doi:10.1145/3379597.3387501.
+                                                                        Lomio, F., Iannone, E., De Lucia, A., Palomba, F., Lenarduzzi,
+Feng, Z., Guo, D., Tang, D., Duan, N., Feng, X., Gong, M.,                V., 2022. Just-in-time software vulnerability detection: Are
+  Shou, L., Qin, B., Liu, T., Jiang, D., et al., 2020. Codebert:          we there yet? Journal of Systems and Software 188, 111283.
+  A pre-trained model for programming and natural languages.              doi:10.1016/j.jss.2022.111283.
+  arXiv preprint arXiv:2002.08155 .
+                                                                        Lu, C., Li, T., Dehaene, T., Lagaisse, B., 2025. Icvul: A
+Fu, M., Nguyen, V., Tantithamthavorn, C., Phung, D., Le, T.,              well-labeled c/c++ vulnerability dataset with comprehensive
+  2024. Vision transformer inspired automated vulnerabil-                 metadata and vccs, in: 2025 IEEE/ACM 22nd International
+  ity repair. ACM Transactions on Software Engineering and                Conference on Mining Software Repositories (MSR), pp.
+  Methodology 33, 1–29. doi:10.1145/3632746.                              154–158. doi:10.1109/MSR66628.2025.00034.
+
+Fu, M., Tantithamthavorn, C., 2022. Linevul: a transformer-             Lu, G., Ju, X., Chen, X., Pei, W., Cai, Z., 2024. Grace: Empow-
+  based line-level vulnerability prediction, in: Proceedings              ering llm-based software vulnerability detection with graph
+                                                                   18
+
+=== [PDF page 19] ===
+
+  structure and in-context learning. Journal of Systems and           Shiri Harzevili, N., Boaye Belle, A., Wang, J., Wang, S., Jiang,
+  Software 212, 112031.                                                 Z.M.J., Nagappan, N., 2024. A systematic literature re-
+                                                                        view on automated software vulnerability detection using
+Mazuera-Rozo, A., Mojica-Hanke, A., Linares-Vásquez, M.,                machine learning. ACM Computing Surveys 57. doi:10.
+ Bavota, G., 2021.     Shallow or deep? an empirical                    1145/3699711.
+ study on detecting vulnerabilities using deep learning, in:
+ 2021 IEEE/ACM 29th International Conference on Pro-                  Steenhoek, B., Rahman, M.M., Jiles, R., Le, W., 2023. An
+ gram Comprehension (ICPC), pp. 276–287. doi:10.1109/                   empirical study of deep learning models for vulnerability de-
+ ICPC52881.2021.00034.                                                  tection, in: 2023 IEEE/ACM 45th International Conference
+                                                                        on Software Engineering (ICSE), pp. 2237–2248. doi:10.
+Mikolov, T., Sutskever, I., Chen, K., Corrado, G.S., Dean, J.,          1109/ICSE48619.2023.00188.
+ 2013. Distributed representations of words and phrases and
+                                                                      Sun, Y., Wu, D., Xue, Y., Liu, H., Wang, H., Xu, Z., Xie,
+ their compositionality. Advances in neural information pro-
+                                                                        X., Liu, Y., 2024. Gptscan: Detecting logic vulnerabili-
+ cessing systems 26.
+                                                                        ties in smart contracts by combining gpt with program anal-
+Mistral AI Team, 2025. Mistral small 3. URL: https://                   ysis, in: Proceedings of the IEEE/ACM 46th International
+ mistral.ai/news/mistral-small-3/. accessed: 2026-                      Conference on Software Engineering, ACM, New York,
+ 08-14.                                                                 NY, USA. URL: https://doi.org/10.1145/3597503.
+                                                                        3639117, doi:10.1145/3597503.3639117.
+National Institute of Standards and Technology, 2025. NIST
+                                                                      Tang, G., Meng, L., Wang, H., Ren, S., Wang, Q., Yang, L.,
+  software assurance reference dataset. https://samate.
+                                                                        Cao, W., 2020. A comparative study of neural network
+  nist.gov/SARD. Accessed: 2025-06-16.
+                                                                        techniques for automatic software vulnerability detection,
+Neuhaus, S., Zimmermann, T., 2009. The beauty and the beast:            in: 2020 International Symposium on Theoretical Aspects
+  Vulnerabilities in red hat’s packages, in: Proceedings of             of Software Engineering (TASE), pp. 1–8. doi:10.1109/
+  the 2009 USENIX Annual Technical Conference (USENIX                   TASE49443.2020.00010.
+  ATC), pp. 383–396.                                                  Thapa, C., Jang, S.I., Ahmed, M.E., Camtepe, S., Pieprzyk,
+                                                                        J., Nepal, S., 2022. Transformer-based language models for
+Ni, C., Shen, L., Yang, X., Zhu, Y., Wang, S., 2024.
+                                                                        software vulnerability detection, in: Proceedings of the 38th
+  Megavul: A c/c++ vulnerability dataset with comprehensive
+                                                                        annual computer security applications conference, ACM. p.
+  code representations, in: Proceedings of the 21st Interna-
+                                                                        481–496. URL: https://doi.org/10.1145/3564625.
+  tional Conference on Mining Software Repositories, ACM.
+                                                                        3567985, doi:10.1145/3564625.3567985.
+  p. 738–742. URL: https://doi.org/10.1145/3643991.
+  3644886, doi:10.1145/3643991.3644886.                               Wang, W., Nguyen, T.N., Wang, S., Li, Y., Zhang, J., Ya-
+                                                                       davally, A., 2023. Deepvd: Toward class-separation fea-
+Nikitopoulos, G., Dritsa, K., Louridas, P., Mitropoulos, D.,           tures for neural network vulnerability detection, in: 2023
+  2021. Crossvul: a cross-language vulnerability dataset               IEEE/ACM 45th International Conference on Software Engi-
+  with commit data, in: Proceedings of the 29th ACM Joint              neering (ICSE), pp. 2249–2261. doi:10.1109/ICSE48619.
+  Meeting on European Software Engineering Conference and              2023.00189.
+  Symposium on the Foundations of Software Engineering,
+  ACM. p. 1565–1569. URL: https://doi.org/10.1145/                    Wen, X.C., Chen, Y., Gao, C., Zhang, H., Zhang, J.M., Liao,
+  3468264.3473122, doi:10.1145/3468264.3473122.                        Q., 2023. Vulnerability detection with graph simplifica-
+                                                                       tion and enhanced graph representation learning, in: 2023
+Pennington, J., Socher, R., Manning, C.D., 2014. Glove:                IEEE/ACM 45th International Conference on Software Engi-
+  Global vectors for word representation, in: Proceedings of           neering (ICSE), pp. 2275–2286. doi:10.1109/ICSE48619.
+  the 2014 conference on empirical methods in natural lan-             2023.00191.
+  guage processing (EMNLP), pp. 1532–1543.
+                                                                      Wen, X.C., Gao, C., Luo, F., Wang, H., Li, G., Liao, Q., 2024.
+Qiu, F., Liu, Z., Hu, X., Xia, X., Chen, G., Wang, X., 2024.           Livable: Exploring long-tailed classification of software vul-
+  Vulnerability detection via multiple-graph-based code repre-         nerability types. IEEE Transactions on Software Engineering
+  sentation. IEEE Transactions on Software Engineering 50,             50, 1325–1339. doi:10.1109/TSE.2024.3382361.
+  2178–2199. doi:10.1109/TSE.2024.3427815.                            Yan, H., Sui, Y., Chen, S., Xue, J., 2017. Machine-learning-
+                                                                        guided typestate analysis for static use-after-free detection,
+Sejfia, A., Das, S., Shafiq, S., Medvidović, N., 2024. To-
+                                                                        in: Proceedings of the 33rd Annual Computer Security Ap-
+  ward improved deep learning-based vulnerability detec-
+                                                                        plications Conference, pp. 42–54.
+  tion, in: Proceedings of the IEEE/ACM 46th Interna-
+  tional Conference on Software Engineering, ACM. URL:                Yang, A., Li, A., Yang, B., Zhang, B., Hui, B., Zheng, B., Yu,
+  https://doi.org/10.1145/3597503.3608141, doi:10.                      B., Gao, C., Huang, C., Lv, C., et al., 2025. Qwen3 technical
+  1145/3597503.3608141.                                                 report. arXiv preprint arXiv:2505.09388 .
+                                                                 19
+
+=== [PDF page 20] ===
+
+Yang, X., Wang, S., Li, Y., Wang, S., 2023. Does data sampling          Zhu, Q., Guo, D., Shao, Z., Yang, D., Wang, P., Xu, R., Wu,
+  improve deep learning-based vulnerability detection? yeas!              Y., Li, Y., Gao, H., Ma, S., et al., 2024. Deepseek-coder-v2:
+  and nays!, in: 2023 IEEE/ACM 45th International Confer-                 Breaking the barrier of closed-source models in code intelli-
+  ence on Software Engineering (ICSE), IEEE. pp. 2287–2298.               gence. arXiv preprint arXiv:2406.11931 .
+
+Zhang, C., Liu, H., Zeng, J., Yang, K., Li, Y., Li, H.,
+  2024. Prompt-enhanced software vulnerability detection us-
+  ing chatgpt, in: Proceedings of the 2024 IEEE/ACM 46th
+  International Conference on Software Engineering: Com-
+  panion Proceedings, ACM. p. 276–277. URL: https:
+  //doi.org/10.1145/3639478.3643065, doi:10.1145/
+  3639478.3643065.
+
+Zhang, J., Liu, Z., Hu, X., Xia, X., Li, S., 2023. Vulnerability
+  detection by learning from syntax-based execution paths of
+  code. IEEE Transactions on Software Engineering 49, 4196–
+  4212. doi:10.1109/TSE.2023.3286586.
+
+Zheng, W., Gao, J., Wu, X., Liu, F., Xun, Y., Liu, G., Chen,
+  X., 2020. The impact factors on the performance of machine
+  learning-based vulnerability detection: A comparative study.
+  Journal of Systems and Software 168, 110659.
+
+Zheng, Y., Pujar, S., Lewis, B., Buratti, L., Epstein, E., Yang,
+  B., Laredo, J., Morari, A., Su, Z., 2021. D2a: A dataset
+  built for ai-based vulnerability detection methods using dif-
+  ferential analysis, in: 2021 IEEE/ACM 43rd International
+  Conference on Software Engineering: Software Engineer-
+  ing in Practice (ICSE-SEIP), pp. 111–120. doi:10.1109/
+  ICSE-SEIP52600.2021.00020.
+
+Zhou, L., Xiong, X., Ernstberger, J., Chaliasos, S., Wang, Z.,
+  Wang, Y., Qin, K., Wattenhofer, R., Song, D., Gervais, A.,
+  2023. Sok: Decentralized finance (defi) attacks, in: 2023
+  IEEE Symposium on Security and Privacy (SP), pp. 2444–
+  2461. doi:10.1109/SP46215.2023.10179435.
+
+Zhou, X., Cao, S., Sun, X., Lo, D., 2025. Large language model
+  for vulnerability detection and repair: Literature review and
+  the road ahead. ACM Transactions on Software Engineering
+  and Methodology 34. URL: https://doi.org/10.1145/
+  3708522, doi:10.1145/3708522.
+
+Zhou, X., Zhang, T., Lo, D., 2024. Large language model
+  for vulnerability detection: Emerging results and future
+  directions, in: Proceedings of the 2024 ACM/IEEE 44th
+  International Conference on Software Engineering: New
+  Ideas and Emerging Results, ACM. p. 47–51.        URL:
+  https://doi.org/10.1145/3639476.3639762, doi:10.
+  1145/3639476.3639762.
+
+Zhou, Y., Liu, S., Siow, J., Du, X., Liu, Y., 2019. De-
+  vign: Effective vulnerability identification by learning
+  comprehensive program semantics via graph neural
+  networks, in: Advances in Neural Information Pro-
+  cessing Systems.        URL: https://proceedings.
+  neurips.cc/paper_files/paper/2019/file/
+  49265d2447bc3bbfe9e76306ce40a31f-Paper.pdf.
+                                                                   20

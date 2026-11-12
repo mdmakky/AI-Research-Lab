@@ -1,0 +1,254 @@
+# Methodology comparison — LLM-based vs traditional static analysis and deep learning for source-code vulnerability detection
+
+- Project: `2026-11-12-llm-based-vs-traditional-static-analysis`
+- Date: 2026-11-12
+- Inputs: 20 analyses (`status: complete`, all full text), `evidence-matrix.md`, `literature-matrix.md`, critical reviews A and B of 2026-11-12.
+- Labels: **[V]** verified in the paper's own data, **[A]** author claim, **[I]** our interpretation. Unlabelled numeric statements are [V] from the cited page.
+- Source tiers: three items are recorded by `rlab` as arXiv preprints. IRIS [@li2024iris, p. 1] and RepoAudit [@guo2025repoaudit, p. 1] are the ICLR 2025 and ICML 2025 camera-ready texts. Only zhou2024comparison is a true preprint without a known peer-reviewed version (**not peer-reviewed**) [@zhou2024comparison, p. 1]. Of the other 17 papers, 15 were read from arXiv copies rather than the version of record; only tan2026think and yildiz2025benchmarking were read in publisher form (see §5, W9).
+
+A short glossary for readers new to the area: *SAST* (static application security testing) tools such as CodeQL or Semgrep scan code with hand-written rules. *DL detectors* (e.g. LineVul, Devign) are neural networks trained on labelled vulnerable code. A *balanced* test set has 50% vulnerable samples. *Pairwise correctness (P-C / pAcc)* is the share of vulnerable/patched function pairs where both versions are classified correctly. *SFDR* is the sampled false discovery rate, i.e. the share of a tool's warnings that are false.
+
+## 1. Overview table
+
+| Paper | Tier / text read | Design | Data, N, unit | Metrics | Comparators | Statistics / runs | Data & code |
+|---|---|---|---|---|---|---|---|
+| ahmed2026secvuleval [@ahmed2026secvuleval, p. 6; @ahmed2026secvuleval, p. 8] | AIware 2026; arXiv v1 | Benchmark + 5 LLMs in a multi-agent pipeline | SecVulEval 25,440 C/C++ functions; detection on 300 functions (~120 vulnerable) | P/R/F1 at function and statement level (manual judging) | none outside LLMs | one run; Mann-Whitney only for function length [@ahmed2026secvuleval, p. 13] | dataset + code public [@ahmed2026secvuleval, p. 3] |
+| chakraborty2024revisiting [@chakraborty2024revisiting, p. 4] | TSE; arXiv author copy | Replication of 4 DL detectors + 2 fine-tuned LLMs on new realistic data | Real-Vul: 5,528 vulnerable + ~1.68M "uncertain" functions, 10 C/C++ projects, time split | Acc, P, R, F1, AUC | DeepWukong, LineVul, ReVeal, IVDetect; CodeLlama, Mixtral | no CIs; Mann-Whitney in side analyses only [@chakraborty2024revisiting, p. 10] | Zenodo [@chakraborty2024revisiting, p. 2] |
+| ding2025vulnerability [@ding2025vulnerability, p. 6] | ICSE 2025; arXiv v2 | Label/duplication audit + PrimeVul benchmark + 7 code LMs | 6,968 vulnerable / 228,800 benign C/C++ functions, 755 projects; 564 test pairs for GPT models | Acc, F1, VD-S, P-C | fine-tuned code LMs vs prompted/fine-tuned GPT-3.5/4; random | runs/seeds not reported | public artifact [@ding2025vulnerability, p. 3] |
+| du2026reducing [@du2026reducing, p. 4] | ICSE-SEIP 2026; arXiv v1 | Industrial study: interviews + offline evaluation of alarm triage | 433 alarms (328 FP / 105 TP) from Tencent's BkCheck, mostly C/C++ | Acc, P, R, F1, false-alarm removal; seconds and USD per alarm | prompting LLMs, hybrid LLM4SA/LLM4PFA, 4 DL models | 3 runs, majority vote; no tests [@du2026reducing, p. 6] | data confidential; replication package [@du2026reducing, p. 2] |
+| dubniczky2025castle [@dubniczky2025castle, p. 6] | LNCS chapter; arXiv v2 | Micro-benchmark; 13 SAST + 2 formal tools vs 10 LLMs | CASTLE: 250 hand-written C programs (150 vulnerable / 100 clean), 25 CWEs | TP/FP/FN, P, R, CASTLE score | each other | repeats "<3%" deviation, number not reported [@dubniczky2025castle, p. 14] | public [@dubniczky2025castle, p. 1] |
+| fu2023chatgpt [@fu2023chatgpt, p. 3] | APSEC 2023; arXiv v1 | Prompted ChatGPT vs fine-tuned LMs, 4 tasks | Big-Vul (C/C++), random 80/10/10 split, 1:20 ratio | F1, P, R, top-10 line accuracy | AIBugHunter, CodeBERT, GraphCodeBERT | single point estimates | data, prompts public [@fu2023chatgpt, p. 1] |
+| gnieciak2025large [@gnieciak2025large, p. 6] | IEEE Access; arXiv v1 | Head-to-head, 3 SAST vs 3 LLMs | 10 author-prepared C# projects, 63 seeded vulnerabilities | macro P/R/F1, runtime | SonarQube, CodeQL, Snyk Code | single run; no tests | tool code public [@gnieciak2025large, p. 1] |
+| guo2025repoaudit [@guo2025repoaudit, p. 7] | ICML 2025 (rlab: preprint) | Agent tool paper + ablations | 15 C/C++ projects (avg 251 KLoC), 21 known NPD/MLK/UAF bugs; 9 field projects | TP, FP, precision; reproduction of known bugs; tokens, USD, time | Meta Infer, Amazon CodeGuru, CoT prompting, LLMDFA | one run per setting [@guo2025repoaudit, p. 17] | code public [@guo2025repoaudit, p. 1] |
+| kaniewski2026systematic [@kaniewski2026systematic, p. 8] | TOSEM; arXiv v2 | Systematic literature review (SLR) | 263 studies (78 arXiv preprints), 2020–Nov 2025 | taxonomy counts, dataset statistics | n/a | none | artifacts public [@kaniewski2026systematic, p. 3] |
+| khare2025understanding [@khare2025understanding, p. 3] | ICST 2025; arXiv v3 | 16 LLMs × 3 prompts vs SAST and DL | 5,000 balanced function snippets: OWASP, Juliet Java/C, CVEFixes Java/C | Acc, P, R, F1 | CodeQL (synthetic only), DeepDFA, LineVul [@khare2025understanding, p. 7] | one run, T = 0; no tests | prompts given; code not linked [@khare2025understanding, p. 14] |
+| li2024iris [@li2024iris, p. 7] | ICLR 2025 (rlab: preprint) | Hybrid tool: LLM-inferred taint specs + CodeQL + LLM triage | CWE-Bench-Java: 120 real Java CVEs (avg 300K SLOC); 30 latest-version projects | detections, AvgFDR, AvgF1 | CodeQL, Infer, SpotBugs, Snyk; 7 LLMs | runs not reported (T = 0, fixed seed) [@li2024iris, p. 21] | code + data public [@li2024iris, p. 2] |
+| li2026llm [@li2026llm, p. 5] | TSE; arXiv v2 | Project-scale comparison + FP taxonomy + cost | 265 known vulnerabilities (110 C/C++, 155 Java), 8 CWEs; 24 real-world projects | recall, precision, SFDR, tokens/USD/minutes | 5 specialised LLM detectors, Codex, Claude Code vs CodeQL, Semgrep, CSA, SpotBugs | no tests between tools; CI only for labelling accuracy [@li2026llm, p. 11] | artifacts public [@li2026llm, p. 2] |
+| risse2025top [@risse2025top, p. 6] | PACMSE (FSE 2025); arXiv v2 | 81-paper survey + expert labelling + word-count probe | 300 vulnerable- + 90 secure-labelled functions (BigVul, Devign, DiverseVul), 2 annotators | label accuracy, Cohen's κ, F1 | published SOTA scores | κ only | public [@risse2025top, p. 13] |
+| sheng2025llms [@sheng2025llms, p. 8] | ACM CSUR; arXiv v2 | Narrative survey | 58 studies, 2019–2024 | counts, F1 listing | n/a | none | paper list [@sheng2025llms, p. 1] |
+| shu2026evaluating [@shu2026evaluating, p. 7] | EMSE; arXiv v2 | 8 fine-tuned PLMs vs 5 LLMs (zero/few-shot, instruction tuning), function + line level | REEF, 7 languages, balanced test 2,026 functions; imbalanced and 2024–25 time-split variants | Acc, P, R, F1, MCC, AUC, cost | CodeT5P etc.; dummy classifiers [@shu2026evaluating, p. 11] | none; ~30 configurations on one split | public [@shu2026evaluating, p. 48] |
+| tan2026think [@tan2026think, p. 3] | ASE 2026; publisher PDF | Factorial study, 64 configurations | PrimeVul Pair: 870 functions (435 pairs), 4 open LLMs | Acc, P, R, F1, P-C, FPR; energy, USD | instruct vs thinking; 4 orchestrations; call-matched self-revision | Wilcoxon + Cohen's d; single runs at T = 0 [@tan2026think, p. 6] | Zenodo [@tan2026think, p. 12] |
+| xiong2026sifting [@xiong2026sifting, p. 6] | PACMSE (ISSTA 2026); arXiv v3 | 3 agent frameworks × 3 backbones vs vanilla prompting for SAST false-positive filtering | OWASP v1.2 (2,740 cases); 50 Vul4J alerts; 50 post-cutoff OSS-Fuzz alerts | residual FPR, FP recall/precision/F1, TP miss rate, USD | vanilla LLM; 4 SAST tools | no tests; κ only | Zenodo [@xiong2026sifting, p. 21] |
+| yildiz2025benchmarking [@yildiz2025benchmarking, p. 5] | ACL 2025 | Benchmark + plain / dependency-augmented / ReAct LLMs | JITVul: 879 PrimeVul CVEs → 1,758 paired samples, 91 CWEs | F1, pairwise accuracy | LLM designs only | runs not reported; no tests | public [@yildiz2025benchmarking, p. 2] |
+| zhou2024comparison [@zhou2024comparison, p. 3] | arXiv preprint, **not peer-reviewed** | 15 SAST vs 12 open LLMs at repository level | 270 CVEs in 134 repos (Java, C, Python); ~8–10 test CVEs per language [I] [@zhou2024comparison, p. 6] | detection ratio S1/S2, marked-function ratio (no precision/F1) | each other | single run | "public", no link [@zhou2024comparison, p. 10] |
+| zhou2025large [@zhou2025large, p. 7] | TOSEM; arXiv v3 | SLR with quality scoring | 58 studies, 2018–Mar 2024 | counts | n/a | none | keywords only [@zhou2025large, p. 5] |
+
+[I] Of the 16 primary detection studies (all except the three surveys and risse2025top), only tan2026think applies significance tests to its main comparison [@tan2026think, p. 6]. Only six report monetary cost: du, guo, li2026llm, shu, tan and xiong [@du2026reducing, p. 8; @guo2025repoaudit, p. 7; @li2026llm, p. 16; @shu2026evaluating, p. 42; @tan2026think, p. 10; @xiong2026sifting, p. 17].
+
+## 2. Approach families
+
+| Family | Papers | Typical strengths | Typical weaknesses |
+|---|---|---|---|
+| A. Head-to-head LLM vs SAST | gnieciak2025large, dubniczky2025castle, khare2025understanding, zhou2024comparison, li2026llm | Same targets for both families; directly answers RQ1 | Small or synthetic targets, SAST on default rules, unequal scoring, single runs |
+| B. LLM vs fine-tuned DL / PLM | fu2023chatgpt, ding2025vulnerability, chakraborty2024revisiting, khare2025understanding, shu2026evaluating, zhou2024comparison, du2026reducing | Large N; standard metrics; trivial baselines sometimes reported | Noisy function-level C/C++ datasets; F1 on balanced data; no SAST arm except khare and zhou2024 |
+| C1. Hybrid: LLM inside the analyser (spec inference, dataflow) | li2024iris, guo2025repoaudit; independently re-evaluated in li2026llm | Real projects; builds on mature analysers; new bugs found | Evaluated by tool authors on chosen targets; recall rarely measured |
+| C2. Hybrid: LLM filters SAST alarms | du2026reducing, xiong2026sifting | Large false-alarm reduction; cost per alarm measured | True vulnerabilities also filtered; small real-world samples |
+| D. Agentic / reasoning LLMs | tan2026think, yildiz2025benchmarking, ahmed2026secvuleval, li2026llm (general agents), xiong2026sifting | Repository context and tool use; controlled factorial designs (tan) | Cost; gains often explained by more inference or more flagging |
+| E. Benchmark-realism studies | chakraborty2024revisiting, ding2025vulnerability, risse2025top, ahmed2026secvuleval, yildiz2025benchmarking, dubniczky2025castle, li2024iris | Audit labels and leakage; build better benchmarks | Mostly C/C++; some audits are second-hand |
+| F. Surveys | kaniewski2026systematic, sheng2025llms, zhou2025large | Field-wide view of datasets and methods | No performance meta-analysis; overlap with primary studies |
+
+**A. Head-to-head LLM vs SAST.** Results depend on the unit of analysis. On small, self-contained targets, prompted frontier LLMs score above SAST: macro F1 0.75–0.80 vs 0.26–0.55 on C# projects [@gnieciak2025large, p. 10]; CASTLE score 977 for GPT-o3-mini vs 661 for the best non-LLM tool [@dubniczky2025castle, p. 11]. On function-level synthetic suites, CodeQL has higher accuracy than the best LLM on all three datasets [@khare2025understanding, p. 9]. At repository level, LLMs detect more CVEs but mark up to 77.4% of functions [@zhou2024comparison, p. 7]. General coding agents reach far higher recall than SAST [@li2026llm, p. 7; @li2026llm, p. 9]. [I] The family's main weakness is that each study uses its own targets and scoring, so the papers measure different things (see §3.5).
+
+**B. LLM vs fine-tuned DL/PLM.** On random-split Big-Vul, fine-tuned small models clearly beat prompted ChatGPT (F1 94% vs 29%) [@fu2023chatgpt, p. 4]. Under realistic splits all models collapse [@ding2025vulnerability, p. 7; @chakraborty2024revisiting, p. 7]. The only multilingual comparison finds that the winner depends on class balance [@shu2026evaluating, p. 17; @shu2026evaluating, p. 40]. [I] This family inherits the label noise and leakage of Big-Vul-type data (§5, W2).
+
+**C1. Hybrid detection (LLM inside the analyser).** IRIS doubles CodeQL's detections on CWE-Bench-Java (55 vs 27 of 120), with AvgFDR 84.82% vs 90.03% [@li2024iris, p. 8]. Only GPT-4 lowers FDR below CodeQL; smaller LLMs worsen it [@li2024iris, p. 10]. RepoAudit reports 78.43% precision [@guo2025repoaudit, p. 8]. Both look much weaker in li2026llm's independent re-evaluation (§4, C2 and C6).
+
+**C2. Hybrid false-positive filtering.** The industrial LLM4PFA hybrid removes 94–98% of false alarms while keeping 75–88% of real bugs [@du2026reducing, p. 8]. The best agent configuration cuts OWASP FPR from 98.3% to 6.3% [@xiong2026sifting, p. 12] but drops 22.25% of true vulnerabilities [@xiong2026sifting, p. 18]. [I] This is the most consistent benefit in the corpus, but it is a trade-off, not a free gain (§3.7).
+
+**D. Agentic/reasoning LLMs.** Thinking mode raises F1 mainly through recall (0.31 → 0.41) at 2.7–4.4× the energy [@tan2026think, p. 6; @tan2026think, p. 10]. A four-call self-revision matches the multi-agent pipeline on P-C, so much of the agent gain is extra inference budget [@tan2026think, p. 11] [A]. ReAct agents give the best pairwise accuracy with GPT-4o models, but it stays ≤20.17% [@yildiz2025benchmarking, p. 6].
+
+**E. Benchmark realism.** Manual audits find only 39–65% of vulnerable labels correct in BigVul, Devign and DiverseVul [@risse2025top, p. 8], and 24–36% in CodeXGLUE/Devign and VulnPatchPairs [@ding2025vulnerability, p. 4]. A word-count classifier reaches F1 0.86 on BigVul [@risse2025top, p. 11]. Statement-level scoring halves LLM F1 [@ahmed2026secvuleval, p. 8].
+
+**F. Surveys.** Two SLRs and one narrative survey describe a field dominated by function-level C/C++ classification on noisy datasets [@kaniewski2026systematic, p. 26; @zhou2025large, p. 18; @sheng2025llms, p. 20]. None pools effect sizes. kaniewski2026systematic excludes studies that only post-process tool output [@kaniewski2026systematic, p. 8], so it does not cover family C2.
+
+## 3. Comparable results
+
+Numbers are compared only where dataset, metric and setup match.
+
+| Comparison | Dataset / metric | Verdict |
+|---|---|---|
+| 3.1 CodeQL on OWASP Benchmark (khare vs xiong) | OWASP Java; P/R/F1 | **Comparable** (different sample size) |
+| 3.2 PrimeVul pairs (ding, tan, yildiz) | PrimeVul-derived pairs; P-C / pAcc | **Partly comparable** |
+| 3.3 Big-Vul F1 (fu, ding, chakraborty, risse) | "Big-Vul"; F1 | **Not comparable** |
+| 3.4 CodeQL on CWE-Bench-Java (li2024iris vs li2026llm) | Java CVEs; recall | **Partly comparable** |
+| 3.5 LLM-vs-SAST headline scores | different units and metrics | **Not comparable** |
+| 3.6 LLM filtering of SAST alarms (du vs xiong) | different alarms and metrics | **Not numerically comparable** |
+
+**3.1 CodeQL on OWASP (comparable).** khare reports CodeQL P 0.58, R 0.96, F1 0.72 on a 1,000-snippet balanced OWASP sample [@khare2025understanding, p. 9]. xiong reports P 60.3%, R 97.0%, F1 74.4% on the full 2,740-case OWASP v1.2 [@xiong2026sifting, p. 11]. [I] Two independent groups agree within about 2 points. This is the only cross-paper SAST figure we can treat as replicated. Both describe a high-recall, low-precision tool (FPR 68.2% [@xiong2026sifting, p. 11]) whose F1 is near the always-vulnerable value of 0.667 on balanced data.
+
+**3.2 PrimeVul pairs (partly comparable).** All three studies use pairs of vulnerable and patched functions drawn from PrimeVul:
+- ding: GPT-4 CoT P-C 12.94% on 564 test pairs, below a random reference of 22.70% [@ding2025vulnerability, p. 9].
+- tan: best non-agent P-C 22.5% on 435 pairs with open models [@tan2026think, p. 6]; self-revision 24.7 on 193 pairs [@tan2026think, p. 11].
+- yildiz: GPT-4o/4o-mini pAcc 1.02–20.17% on 879 CVE pairs from JITVul, with repository context [@yildiz2025benchmarking, p. 6].
+
+The pair subsets, models, context and dates differ. [I] The direction agrees: GPT-class and open LLMs stay at or below the ~25% ceiling that independent random labelling can reach. One outlier exists: DeepSeek-Coder-V2 with dependency augmentation reaches pAcc 69.24, reported in an appendix only [@yildiz2025benchmarking, p. 15]. All three use one dataset family, so this is related evidence, not independent replication.
+
+**3.3 Big-Vul F1 (not comparable).** Reported F1 on "Big-Vul" varies widely:
+- CodeBERT: 87% [@fu2023chatgpt, p. 4] vs 62.88% [@ding2025vulnerability, p. 7].
+- Replicated LineVul: 90% [@chakraborty2024revisiting, p. 6].
+- Literature SOTA (DeepDFA): 96.46% [@risse2025top, p. 7].
+- Word-count baseline: 0.86 [@risse2025top, p. 11].
+
+Splits, preprocessing and de-duplication differ. [I] A spread of about 25 points for one model on one named dataset means Big-Vul F1 values should be cited only as a range. Because a word-count baseline reaches 0.86, high Big-Vul F1 is not evidence of vulnerability understanding.
+
+**3.4 CodeQL on CWE-Bench-Java (partly comparable).** CodeQL detects 27 of 120 CVEs (22.5%) in the IRIS paper [@li2024iris, p. 8] and has 14.19% recall on li2026llm's Java set [@li2026llm, p. 9]. That set mixes a Maven-only CWE-Bench-Java subset with 50 JLeaks resource leaks [@li2026llm, p. 5]. [I] Both values are low, and the gap is plausibly due to the different CWE mix and CodeQL versions.
+
+**3.5 LLM-vs-SAST headline numbers (not comparable).** gnieciak counts LLM findings as true positives even when the line or column is wrong, which SAST tools are not allowed [@gnieciak2025large, p. 6]. dubniczky uses a severity-weighted score [@dubniczky2025castle, p. 10]. khare uses function-level accuracy on balanced sets [@khare2025understanding, p. 9]. zhou2024 uses CVE detection ratio and marked-function ratio [@zhou2024comparison, p. 5]. li2026llm uses recall on known CVEs and SFDR on new code [@li2026llm, p. 11]. [I] These five studies cannot be pooled or ranked against each other.
+
+**3.6 False-positive filtering (not numerically comparable).** du measures removal of false alarms on 433 industrial alarms of general bug types [@du2026reducing, p. 8]. xiong measures residual FPR and TP miss rate on OWASP and 100 sampled alerts [@xiong2026sifting, p. 12; @xiong2026sifting, p. 18]. Only the qualitative pattern can be compared (§3.7, G6).
+
+### 3.7 Agreements / converging evidence
+
+- **G1. Realistic evaluation collapses reported performance (strong).** Several studies show it:
+  - DL precision falls to 1–10% on Real-Vul [@chakraborty2024revisiting, p. 7].
+  - Code-LM F1 falls from 62.88–68.26% (BigVul) to 18.05–21.43% within PrimeVul and 1.91–5.82% cross-dataset [@ding2025vulnerability, p. 7].
+  - LLM accuracy is 10.5% lower on real-world than synthetic data [@khare2025understanding, p. 5].
+  - GPT-4o line-level F1 drops from 0.6641 to 0.3450 on 2024–25 code [@shu2026evaluating, p. 39].
+  - Statement-level scoring halves F1 [@ahmed2026secvuleval, p. 8].
+
+  The surveys agree [@kaniewski2026systematic, p. 39; @sheng2025llms, p. 20].
+- **G2. Benchmark labels are noisy (strong).** Two independent audits find 39–65% [@risse2025top, p. 8] and 24–36% [@ding2025vulnerability, p. 4] of vulnerable labels correct. ReVeal has 15% label inconsistency [@chakraborty2024revisiting, p. 3]. The 25% BigVul figure is Chen et al.'s, reproduced by Ding [@ding2025vulnerability, p. 4]; it is not an independent estimate.
+- **G3. Prompted LLMs over-flag and cannot separate vulnerable from patched code (moderate).**
+  - GPT-4 two-shot calls both versions vulnerable in 71.63% of pairs [@ding2025vulnerability, p. 9].
+  - "Both vulnerable" accounts for 40–95% of LLM failures [@yildiz2025benchmarking, p. 8].
+  - The dual-agent design flags 88.2% of functions [@tan2026think, p. 7].
+  - Several of khare's best F1 rows are "always vulnerable" outputs [@khare2025understanding, p. 16].
+  - Frontier models over-flag CWE-476/416/190 [@ahmed2026secvuleval, p. 13] [A].
+
+  [I] ding, yildiz and tan share PrimeVul, so this is partly one dataset family.
+- **G4. SAST recall is low on real code and high only on synthetic suites (moderate).** On real code:
+  - Best single SAST tools detect 30.0–44.4% of CVEs, and many detect 0% [@zhou2024comparison, p. 6].
+  - CodeQL recall is 6.00–34.29% on C/C++ and 14.19% on Java [@li2026llm, p. 7; @li2026llm, p. 9].
+  - CodeQL finds 27/120 on CWE-Bench-Java [@li2024iris, p. 8].
+  - On CASTLE, CodeQL reaches 29% and the SAST average is 23% [@dubniczky2025castle, p. 12].
+
+  On synthetic suites, CodeQL reaches accuracy 0.94 on Juliet Java [@khare2025understanding, p. 9].
+- **G5. Missing context is the shared failure cause (moderate).**
+  - All 151 truly vulnerable audited functions need context beyond the function [@risse2025top, p. 9].
+  - LLMs identify required context in ≤41.33% of cases per context type [@ahmed2026secvuleval, p. 9].
+  - Global context is the main failure cause on real C/C++ [@khare2025understanding, p. 7] [A].
+  - Incomplete API modelling explains 108/108 RepoAudit (GPT-5.4) misses [@li2026llm, p. 7], and 14.60% of all FPs come from truncated inter-procedural context [@li2026llm, p. 15].
+- **G6. LLM false-alarm filtering trades large FP reduction for lost true positives (moderate).** Evidence: du2026reducing reaches 94–98% false-alarm removal with real-bug recall of 0.75–0.88 [@du2026reducing, p. 8]; xiong2026sifting cuts FPR to 6.3% but misses 22.25% of true vulnerabilities [@xiong2026sifting, p. 12; @xiong2026sifting, p. 18]. du covers non-security bug classes, evaluates its authors' own method and has Tencent-affiliated authors [@du2026reducing, p. 1]. Strength is therefore moderate.
+- **G7. Prompt-only LLMs trail adapted models (moderate).**
+  - Prompted ChatGPT lags fine-tuned models on Big-Vul [@fu2023chatgpt, p. 4].
+  - GPT-3.5 prompting detects 3.7–23.2% vs 89.2% for fine-tuned CodeBERT [@zhou2024comparison, p. 10].
+  - Prompt-only LLMs are near chance on REEF, and only fine-tuned GPT-4o with few-shot stands out [@shu2026evaluating, p. 17].
+- **G8. LLM cost far exceeds SAST cost and varies by orders of magnitude (moderate).** SAST runs in minutes with no token cost, while RepoAudit averages $172.77 per project [@li2026llm, p. 16]. Alarm filtering costs cents per alarm [@du2026reducing, p. 8; @xiong2026sifting, p. 17]. Instruction tuning GPT-4o costs about 15× a local PLM training run [@shu2026evaluating, p. 42].
+
+## 4. Contradictions
+
+**C1. Fine-tuned models vs GPT-4: fu2023chatgpt vs ding2025vulnerability.**
+- Claim A: fine-tuned AIBugHunter (F1 94%) and CodeBERT (87%) far outperform prompted gpt-4 (29%) [@fu2023chatgpt, p. 4].
+- Claim B: GPT-4 CoT has a higher P-C (12.94%) than every fine-tuned model (≤3.01%) [@ding2025vulnerability, p. 9].
+- Differences:
+  - metric: F1 vs pairwise correctness;
+  - data: noisy random-split Big-Vul at 1:20 vs de-duplicated, time-split PrimeVul pairs;
+  - time: 2023 vs 2024 GPT versions.
+- Ding's own BigVul rows (F1 62.88–68.26%) agree with Fu's direction [@ding2025vulnerability, p. 7].
+- [I] Explanation: fine-tuned models probably exploit dataset artefacts that random splits reward and paired, de-duplicated tests remove [@risse2025top, p. 11]. On pairs, every model is below the random reference (22.70%), so neither side shows real detection skill there, and the reversal says more about the benchmark than about the model families.
+
+**C2. RepoAudit: guo2025repoaudit vs li2026llm.**
+- Claim A: 40 TP / 11 FP (78.43% precision) on 15 C/C++ projects, all 21 known bugs reproduced, $2.54 and 0.44 h per project [@guo2025repoaudit, p. 7; @guo2025repoaudit, p. 8].
+- Claim B: in li2026llm, RepoAudit (Sonnet 3.5) detects 0 of 110 known C/C++ vulnerabilities [@li2026llm, p. 7]. On real projects it has 92.77% SFDR [@li2026llm, p. 11] and costs $172.77 on average, up to $1,247.66 per project [@li2026llm, p. 16].
+- Differences:
+  - targets: prior tools' bug reports vs ReposVul CVEs;
+  - code version: older commits vs current HEAD (the five overlapping Linux/ImageMagick modules are in li's real-world set only);
+  - metric: precision on own reports vs recall/SFDR;
+  - labeller: authors vs Codex;
+  - scale: avg 251 KLoC vs multi-million-LOC modules.
+- [I] Explanation: RepoAudit depends on source/sink API coverage. li2026llm records zero-token runs and 108/108 misses due to API modelling [@li2026llm, p. 7; @li2026llm, p. 16], so the tool may perform well only on targets matching its built-in specifications. Neither paper alone settles this.
+
+**C3. "LLMs beat SAST" vs "SAST beats LLMs" vs repository level.**
+- Claim A: LLMs win on 10 small C# projects [@gnieciak2025large, p. 10] and on CASTLE C micro-programs [@dubniczky2025castle, p. 11].
+- Claim B: CodeQL beats the best LLM in accuracy on OWASP, Juliet Java and Juliet C/C++ [@khare2025understanding, p. 9].
+- Claim C (repository level): LLMs detect more but mark up to 77.4% of functions [@zhou2024comparison, p. 7]. General agents reach the highest recall, while specialised LLM detectors and SAST both have near-zero recall on some CWEs and 75–100% SFDR [@li2026llm, p. 7; @li2026llm, p. 11].
+- Differences: language (C#, C, Java), unit (project, program, function, repository), scoring (lenient LLM location rule in gnieciak [@gnieciak2025large, p. 6]; the CASTLE prompt reveals the scoring rule to the LLM [@dubniczky2025castle, p. 9]), and synthetic vs real code.
+- [I] Explanation: synthetic suites match SAST rule sets, while small self-contained programs fit inside an LLM's context. Real repositories defeat both families through missing API and context models (G4, G5). The answer depends on setting and metric, so there is no single winner.
+
+**C4. Does reasoning reduce false positives?**
+- Claim A: reasoning models "consistently produced fewer false positives" [@dubniczky2025castle, p. 14]. RepoAudit precision rises to 82.35–88.46% with reasoning backbones [@guo2025repoaudit, p. 16].
+- Claim B:
+  - In CASTLE's own table, DeepSeek R1 has 166 FP vs GPT-4o's 116 [@dubniczky2025castle, p. 11].
+  - Thinking mode raises F1 through recall with unchanged accuracy, and its F1 benefit turns negative under dual- and multi-agent designs [@tan2026think, p. 6; @tan2026think, p. 8].
+  - Reasoning LLMs are near chance on REEF (Acc 0.52–0.53) [@shu2026evaluating, p. 37].
+- Differences: OpenAI o-series vs open reasoning models; micro-benchmark and repository agent vs balanced function pairs; FP count vs F1 and accuracy.
+- [I] Explanation: the claim holds for some proprietary reasoning models in some settings and does not generalise to "reasoning" as such.
+
+**C5. Class balance flips the ranking (shu2026evaluating, internal).**
+- Claim A: on balanced REEF, fine-tuned GPT-4o + few-shot beats CodeT5P (Acc 0.7196 vs 0.6037; MCC 0.4360 vs 0.2860) [@shu2026evaluating, p. 17].
+- Claim B: on the imbalanced (~17% vulnerable) test, PLMs win (UniXcoder F1 0.4626, CodeT5P MCC 0.3627 vs GPT-4o F1 0.4010, MCC 0.2774) [@shu2026evaluating, p. 40; @shu2026evaluating, p. 41].
+- yildiz shows the same sensitivity: F1 falls from ~49–65% on balanced pairs to 5.41–12.21% on non-paired PrimeVul [@yildiz2025benchmarking, p. 7].
+- [I] Explanation: LLMs flag positives more liberally, which balanced sets reward. Rankings from balanced benchmarks should not be carried over to deployment, where vulnerable code is rare.
+
+**C6. Hybrid IRIS: original vs independent evaluation.**
+- Claim A: IRIS+GPT-4 beats CodeQL on 120 Java CVEs (55 vs 27 detected; AvgFDR 84.82% vs 90.03%) [@li2024iris, p. 8].
+- Claim B: on 15 real-world Java projects, IRIS (GPT-4) has 97.80% SFDR vs 77.00% for CodeQL [@li2026llm, p. 12].
+- Differences: known CVEs vs new code, detections vs SFDR, CodeQL-protocol FDR vs Codex-labelled sampling.
+- [I] Explanation: hybrids may raise recall on benchmark CVEs while adding noise on unseen projects. The comparison is not like-for-like, so the tension stays open.
+
+## 5. Methodological weaknesses across the field
+
+- **W1. F1 on balanced data without a trivial baseline.** On a 50/50 set, "flag everything" scores F1 0.667. Examples:
+  - shu's DummyClf_vul scores 0.6693 against a best of 0.7075 [@shu2026evaluating, p. 17].
+  - tan's best F1 is 0.665–0.666 [@tan2026think, p. 7; @tan2026think, p. 11].
+  - All of yildiz's GPT F1 values (48–66) are at or below it [@yildiz2025benchmarking, p. 6].
+  - khare's best-per-dataset F1s include always-vulnerable rows [@khare2025understanding, p. 16].
+
+  [I] Only shu reports the baseline itself.
+- **W2. Label noise and leakage.** Exact-copy test-to-train leakage reaches 12.7% (BigVul) and 18.9% (CVEFixes) [@ding2025vulnerability, p. 4]. Benchmarks probably sit in LLM pre-training data [@kaniewski2026systematic, p. 30] [A]. Only xiong and li2026llm test explicitly on post-cutoff code [@xiong2026sifting, p. 15; @li2026llm, p. 5]. shu adds a time split [@shu2026evaluating, p. 39].
+- **W3. LLM-as-labeller.** li2026llm labels real-world warnings with Codex, a tool it also evaluates (94.36% accurate on 621 validated warnings) [@li2026llm, p. 11]. tan's LLM judge rates explanations higher in ways humans corroborate only for informativeness [@tan2026think, p. 8]. [I] Self-labelling can favour the labelling model.
+- **W4. Unequal scoring between LLMs and SAST.** gnieciak applies a lenient location rule only to LLMs [@gnieciak2025large, p. 6]. CASTLE's LLM prompt states the reward and penalty scheme [@dubniczky2025castle, p. 9]. SAST tools run on default configurations [@gnieciak2025large, p. 8], and khare tests CodeQL only on synthetic data [@khare2025understanding, p. 7]. [I] These choices favour LLMs in two studies and SAST in one.
+- **W5. Single runs, no statistics.** Most studies report one run of non-deterministic models without variance (§1). zhou2024's results rest on about 8–10 test CVEs per language [I] [@zhou2024comparison, p. 6]. xiong's real-world samples are 50 alerts each [@xiong2026sifting, p. 13]. shu chooses the best of ~30 configurations post hoc [@shu2026evaluating, p. 17].
+- **W6. Little cost reporting.** Ten of 16 primary studies report no monetary cost (§1). Where cost is measured it is decisive: up to $1,247.66 per project [@li2026llm, p. 16].
+- **W7. Narrow scope.** Data are C/C++-biased and long-tailed, and 555 mappable CWEs appear in no analysed dataset [@kaniewski2026systematic, p. 34]. 87 studies build custom datasets and only nine datasets are reused in more than ten studies [@kaniewski2026systematic, p. 35]. Only one of 40 detection studies to March 2024 worked at repository level [@zhou2025large, p. 18].
+- **W8. Three-way comparisons are rare.** [I] Only khare evaluates LLMs, SAST and DL in one study, and its SAST arm covers synthetic data only [@khare2025understanding, p. 7]. zhou2024 compares fine-tuned and prompted LLMs with SAST but no classic DL detector [@zhou2024comparison, p. 4].
+- **W9. Preprint text vs version of record.** Fifteen published papers were analysed from arXiv copies (xiong2026sifting's copy is the formatted published article). du2026reducing comes from a v1 with a placeholder header [@du2026reducing, p. 2], so it has the highest risk that numbers changed. zhou2025large's only LLM-vs-SAST study is the authors' own zhou2024comparison [@zhou2025large, p. 22], so it is not independent support.
+- **W10. Independence.** [I] guo and li2026llm share five C/C++ modules. ding, yildiz and tan share PrimeVul. Duplication figures reused elsewhere trace back to ding alone (critical review B).
+
+## 6. What this means for our research questions
+
+**RQ1 — effectiveness head-to-head.** No family wins across settings. Frontier LLMs beat SAST on small, self-contained code [@gnieciak2025large, p. 10; @dubniczky2025castle, p. 11]. CodeQL beats LLMs on synthetic function-level suites [@khare2025understanding, p. 9]. At project scale, general coding agents reach much higher recall than SAST (59.55% vs 0–34.29% on C/C++) [@li2026llm, p. 7], but most LLM detectors and SAST tools produce mostly false warnings [@li2026llm, p. 11]. Against fine-tuned DL, the ranking depends on dataset and class balance [@fu2023chatgpt, p. 4; @shu2026evaluating, p. 40], and all families are near or below chance on PrimeVul pairs [@ding2025vulnerability, p. 9; @tan2026think, p. 6]. **Strength: weak to moderate.** Results come from single-run studies with incompatible metrics and no pooling. The most robust pattern is "LLMs higher recall, lower precision" [I].
+
+**RQ2 — evaluation setups.** Setup explains much of the disagreement. Sources of variation:
+- label noise (39–65% correct) [@risse2025top, p. 8];
+- leakage [@ding2025vulnerability, p. 4];
+- balanced vs realistic class ratios [@shu2026evaluating, p. 40; @yildiz2025benchmarking, p. 7];
+- synthetic vs real code [@khare2025understanding, p. 5];
+- function vs statement granularity [@ahmed2026secvuleval, p. 8];
+- custom datasets with inconsistent splits [@kaniewski2026systematic, p. 35].
+
+**Strength: moderate to strong**, consistent across independent primary studies and two SLRs.
+
+**RQ3 — hybrids.** LLM filtering of SAST alarms removes most false alarms at under $0.20 per alarm but loses 12–25% of real bugs [@du2026reducing, p. 8; @xiong2026sifting, p. 18]; **moderate**. Hybrid detection (IRIS, RepoAudit) beats SAST in the authors' own evaluations [@li2024iris, p. 8; @guo2025repoaudit, p. 8] but not in an independent project-scale study [@li2026llm, p. 7; @li2026llm, p. 12]. The gain depends on a strong LLM [@li2024iris, p. 10]; **weak/contested**. Costs range from cents to $1,247.66 per project, against minutes and no token cost for SAST [@li2026llm, p. 16]. LLMs mislocate findings [@gnieciak2025large, p. 11] [A], and fluent explanations do not signal correctness [@tan2026think, p. 9], which limits explainability.
+
+**RQ4 — CWEs, languages, scale.** LLMs do best on self-contained injection-style CWEs and worst on context-dependent, crypto/policy and memory-safety localisation [@khare2025understanding, p. 7; @xiong2026sifting, p. 18; @shu2026evaluating, p. 30]. CodeQL is better on CWE-190 [@khare2025understanding, p. 8]. LLM performance falls with function or file length [@ahmed2026secvuleval, p. 13; @li2026llm, p. 9]. Evidence is concentrated on C/C++ and Java [@kaniewski2026systematic, p. 28]. **Strength: weak.** Per-CWE cells are small and per-CWE results diverge across studies; for example, khare finds LLMs beat CodeQL on CWE-476 [@khare2025understanding, p. 8], while ahmed reports over-flagging of it [@ahmed2026secvuleval, p. 13].
+
+**RQ5 — open problems.** Recurring problems:
+- verified, realistic, repository-level benchmarks with context [@zhou2025large, p. 19; @sheng2025llms, p. 25];
+- same-benchmark three-way comparisons (W8);
+- independent labelling and statistics (W3, W5);
+- cost reporting (W6);
+- contamination control (W2);
+- true-positive loss in filtering [@xiong2026sifting, p. 19];
+- workflow integration: none of 58 reviewed studies was integrated into developer workflows [@zhou2025large, p. 19].
+
+**Strength: moderate** as a description of recurring limitations. [I] These are candidate gaps only until the novelty checks in `gap-report.md` are run (standards §7).
+193:## Contradictions
+194-<!-- Findings that disagree: which papers, what differs (data, method, population, metric), likely explanation (INTERPRETATION). Full discussion: reports/methodology-comparison.md §4. -->
+195-- **C1 Fine-tuned vs GPT-4.** Fine-tuned AIBugHunter (F1 94%) and CodeBERT (87%) far exceed prompted gpt-4 (29%) on Big-Vul [@fu2023chatgpt, p. 4], but GPT-4 CoT beats every fine-tuned model on pair-wise correctness on 564 PrimeVul pairs (12.94% vs ≤3.01%) [@ding2025vulnerability, p. 9]. Differs in metric (F1 vs P-C), data (noisy random-split Big-Vul 1:20 vs de-duplicated time-split pairs) and model versions; Ding's own BigVul rows (F1 62.88–68.26%) agree with Fu [@ding2025vulnerability, p. 7]. [I] Fine-tuned models exploit dataset artefacts rewarded by random splits [@risse2025top, p. 11]; on pairs all are below the 22.70% random reference, so the reversal reflects the benchmark more than the model family.
+196-- **C2 RepoAudit.** Own paper: 40 TP / 11 FP (78.43% precision), all 21 known bugs reproduced, $2.54 and 0.44 h per project [@guo2025repoaudit, p. 7; @guo2025repoaudit, p. 8]. Independent study: 0/110 known C/C++ vulnerabilities [@li2026llm, p. 7], 92.77% SFDR on real-world projects [@li2026llm, p. 11], average $172.77 per project, max $1,247.66 [@li2026llm, p. 16]. Differs in targets (prior tools' bug reports vs ReposVul CVEs), version (old commits vs current HEAD; the 5 overlapping modules only in li's real-world set), metric (precision vs recall/SFDR), labeller (authors vs Codex), bug types and scale. [I] Dependence on source/sink API coverage (zero-token runs; API modelling explains 108/108 misses [@li2026llm, p. 7; @li2026llm, p. 16]). Unresolved.
+197-- **C3 LLM vs SAST.** LLMs win on 10 small C# projects [@gnieciak2025large, p. 10] and CASTLE C micro-programs [@dubniczky2025castle, p. 11]; CodeQL beats the best LLM's accuracy on OWASP, Juliet Java and Juliet C/C++ [@khare2025understanding, p. 9]; at repository level LLMs detect more but flag up to 77.4% of functions [@zhou2024comparison, p. 7] (preprint), and general agents lead recall while specialised LLM detectors and SAST show near-zero recall on some CWEs and 75–100% SFDR [@li2026llm, p. 7; @li2026llm, p. 11]. Differs in language, unit, synthetic vs real code, and scoring leniency (location rule only for LLMs [@gnieciak2025large, p. 6]; CASTLE prompt reveals scoring [@dubniczky2025castle, p. 9]). [I] Synthetic suites match SAST rules, small programs fit LLM context, real repositories defeat both: no single winner.
+198-- **C4 Does reasoning reduce false positives?** For: reasoning models "consistently produced fewer false positives" [@dubniczky2025castle, p. 14]; RepoAudit precision 82.35–88.46% with reasoning backbones [@guo2025repoaudit, p. 16]. Against: DeepSeek R1 166 FP vs GPT-4o 116 in CASTLE's own table [@dubniczky2025castle, p. 11]; thinking raises F1 via recall with unchanged accuracy and turns negative under DA/MA [@tan2026think, p. 6; @tan2026think, p. 8]; reasoning LLMs near chance on REEF [@shu2026evaluating, p. 37]. [I] Holds for OpenAI o-series in some settings only.
+199-- **C5 Class balance flips rankings.** Balanced REEF: fine-tuned GPT-4o + few-shot beats CodeT5P (Acc 0.7196 vs 0.6037) [@shu2026evaluating, p. 17]; imbalanced test: PLMs win (UniXcoder F1 0.4626 vs GPT-4o 0.4010) [@shu2026evaluating, p. 40; @shu2026evaluating, p. 41]. yildiz F1 drops from ~49–65% on balanced pairs to 5.41–12.21% on non-paired PrimeVul [@yildiz2025benchmarking, p. 7]. [I] Balanced sets reward liberal flagging; balanced rankings do not transfer to deployment.
+200-- **C6 IRIS hybrid.** IRIS+GPT-4 beats CodeQL on 120 Java CVEs (55 vs 27; AvgFDR 84.82% vs 90.03%) [@li2024iris, p. 8], but on real-world Java IRIS SFDR is 97.80% vs CodeQL 77.00% [@li2026llm, p. 12]. Not like-for-like (known CVEs vs new code; detections vs SFDR; labelling). [I] Hybrids may raise recall on benchmark CVEs while adding noise on unseen code. Open.
+201-
+202-## Agreements / converging evidence
+203-- **G1 Realistic evaluation collapses performance (strong).** DL precision falls to 1–10% on Real-Vul [@chakraborty2024revisiting, p. 7]; code-LM F1 62.88–68.26% → 18.05–21.43% within PrimeVul and 1.91–5.82% cross-dataset [@ding2025vulnerability, p. 7]; LLM accuracy 10.5% lower on real-world than synthetic [@khare2025understanding, p. 5]; line-level F1 0.6641 → 0.3450 on 2024–25 code [@shu2026evaluating, p. 39]; statement-level scoring halves F1 [@ahmed2026secvuleval, p. 8]. Surveys concur [@kaniewski2026systematic, p. 39; @sheng2025llms, p. 20].
+204-- **G2 Benchmark labels are noisy (strong).** Independent audits: 39–65% of vulnerable labels correct [@risse2025top, p. 8]; 24–36% [@ding2025vulnerability, p. 4]; ReVeal 15% inconsistency [@chakraborty2024revisiting, p. 3]. (The 25% BigVul figure is Chen et al. via Ding — not independent.)
+205-- **G3 Prompted LLMs over-flag and cannot separate vulnerable from patched code (moderate).** GPT-4 two-shot labels both pair members vulnerable in 71.63% of pairs [@ding2025vulnerability, p. 9]; "both vulnerable" is 40–95% of failures [@yildiz2025benchmarking, p. 8]; dual-agent flags 88.2% [@tan2026think, p. 7]; always-vulnerable rows among khare's best F1 [@khare2025understanding, p. 16]. Partly one dataset family (PrimeVul).
+206-- **G4 SAST recall is low on real code, high only on synthetic suites (moderate).** Best single tools 30.0–44.4%, many 0% [@zhou2024comparison, p. 6]; CodeQL recall 6.00–34.29% C/C++ and 14.19% Java [@li2026llm, p. 7; @li2026llm, p. 9]; CodeQL 27/120 on CWE-Bench-Java [@li2024iris, p. 8]; CASTLE CodeQL 29%, SAST average 23% [@dubniczky2025castle, p. 12]; vs CodeQL accuracy 0.94 on Juliet Java [@khare2025understanding, p. 9].
+207-- **G5 CodeQL on OWASP replicates across groups (moderate).** P 0.58 / R 0.96 / F1 0.72 [@khare2025understanding, p. 9] vs P 60.3% / R 97.0% / F1 74.4% [@xiong2026sifting, p. 11].
+208-- **G6 Missing context is the shared failure cause (moderate).** All 151 truly vulnerable audited functions need external context [@risse2025top, p. 9]; context-type identification ≤41.33% [@ahmed2026secvuleval, p. 9]; API modelling explains 108/108 RepoAudit (GPT-5.4) misses [@li2026llm, p. 7]; 14.60% of FPs from truncated inter-procedural context [@li2026llm, p. 15].
+209-- **G7 LLM filtering of SAST alarms trades large FP reduction for lost true positives (moderate).** du2026reducing removes 94–98% of false alarms with real-bug recall 0.75–0.88 [@du2026reducing, p. 8] (own method, Tencent authors, non-security bugs); xiong2026sifting FPR 6.3% with 22.25% miss rate [@xiong2026sifting, p. 12; @xiong2026sifting, p. 18].
+210-- **G8 Prompt-only LLMs trail adapted models (moderate).** Fine-tuned models beat prompted ChatGPT on Big-Vul [@fu2023chatgpt, p. 4]; GPT-3.5 prompting detects 3.7–23.2% vs 89.2% fine-tuned CodeBERT [@zhou2024comparison, p. 10]; prompt-only LLMs near chance on REEF [@shu2026evaluating, p. 17].
+211-- **G9 LLM cost far exceeds SAST and varies by orders of magnitude (moderate).** RepoAudit averages $172.77 per project [@li2026llm, p. 16]; alarm filtering < $0.20 per alarm [@du2026reducing, p. 8; @xiong2026sifting, p. 17]; GPT-4o instruction tuning ~15× a PLM run [@shu2026evaluating, p. 42].

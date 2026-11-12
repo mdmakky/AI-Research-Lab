@@ -1,0 +1,801 @@
+{
+  "query": "full-stack application reconstruction backend inference from frontend LLM",
+  "sources": [
+    "openalex",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T00:21:52+06:00",
+  "raw_hits": 10,
+  "unique": 10,
+  "errors": {},
+  "results": [
+    {
+      "title": "LMDeploy Accelerates Mixed-Precision LLM Inference with TurboMind",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Li"
+        },
+        {
+          "family": "Jiang",
+          "given": "Youhe"
+        },
+        {
+          "family": "He",
+          "given": "Guoliang"
+        },
+        {
+          "family": "Chen",
+          "given": "Xin"
+        },
+        {
+          "family": "Lv",
+          "given": "Han"
+        },
+        {
+          "family": "Yao",
+          "given": "Qian"
+        },
+        {
+          "family": "Ma",
+          "given": "Ningsheng"
+        },
+        {
+          "family": "Fu",
+          "given": "Fangcheng"
+        },
+        {
+          "family": "Chen",
+          "given": "Kai"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2508.15601",
+      "arxiv_id": "2508.15601",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416051255",
+      "url": "https://arxiv.org/abs/2508.15601",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.15601",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 26,
+      "abstract": "Mixed-precision inference techniques reduce the memory and computational demands of Large Language Models (LLMs) by applying hybrid precision formats to model weights, activations, and KV caches. However, existing systems struggle to (i) automatically generalize across diverse hardware architectures and precision formats, often requiring fragmented, hand-tuned kernels, and (ii) fully exploit available memory and compute resources, often causing performance bottlenecks. To address these problems, we propose TurboMind, a generalizable and efficient mixed-precision LLM inference engine of LMDeploy. TurboMind is built around two hardware-aware mixed-precision pipelines: A General Matrix Multiply (GEMM) pipeline that optimizes matrix operations through offline weight packing and online acceleration, and an attention pipeline that enables efficient attention computation with different Query, Key, and Value precision combinations. These pipelines are enabled by four key techniques: (i) Hardware-aware weight packing and (ii) adaptive head alignment for generalizability, and (iii) instruction-level parallelism and (iv) a KV memory loading pipeline for efficiency. We conduct comprehensive evaluations of LMDeploy powered by TurboMind across sixteen popular LLMs and four representative GPU architectures. Results demonstrate that LMDeploy achieves up to 61% lower serving latency (30% on average) and up to 156% higher throughput (58% on average) in mixed-precision workloads compared to existing mixed-precision frameworks, establishing consistent performance improvements across all tested configurations and hardware types. This work is open-sourced and publicly available at https://github.com/InternLM/lmdeploy.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Optimizing Full-Stack Application Performance through End-to-End Observability and Real-Time Diagnostics",
+      "authors": [
+        {
+          "family": "Shanubhog",
+          "given": "Sudeep Annappa"
+        }
+      ],
+      "year": 2026,
+      "venue": "Journal of Information Systems Engineering & Management",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.52783/jisem.v11i2s.14353",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7129019239",
+      "url": "https://doi.org/10.52783/jisem.v11i2s.14353",
+      "oa_pdf_url": "https://www.jisem-journal.com/index.php/journal/article/download/14353/6889",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "In full-stack applications, performance problems are often not limited to the frontend or backend but can affect the entire stack as distributed architectures become increasingly common. When an issue arises in one component, it may quickly cascade throughout the application stack, leading to performance degradation. Customary application monitoring tools tend to provide visibility into different system layers in isolation. Because distributed systems can involve many interconnected components, end-to-end observability seeks to overcome these shortcomings by providing a single view of the application throughout the entire application stack. Telemetry is typically divided into three groups: logging, metrics, and distributed tracing, which provide different views of system behavior. Standardized telemetry collection allows interoperability between heterogeneous technology stacks, and effective instrumentation is the foundation of observability. Frontend instrumentation provides real user monitoring, whereas backend instrumentation provides server-side metrics, such as request latency distribution and the percentage of requests that experience failures. By relating user-reported latency to the backend processing time, targeted optimizations can be performed. Observability platforms use machine learning algorithms to uncover patterns that are overlooked by threshold-based alerts. Large language models are promising candidates for automating root cause analysis in complex cloud systems.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Reference-Compatible Parallel Execution for Quantized LLM Inference",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Chengzhan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.03228",
+      "arxiv_id": "2610.03228",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7220382827",
+      "url": "https://arxiv.org/abs/2610.03228",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.03228",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Batching can change a quantized language model's logits even when token positions and causal masks are unchanged. We present a method for executing known queries in parallel while retaining the numerical behavior of a scalar deployment fixed before optimization. The method derives physical KV-prefix and backend arithmetic requirements, groups compatible queries, and keeps independent projection work batched. On CUDA, it packs independent four-column reductions into a broadcast batch without widening the reference-sensitive reduction. On Vulkan, it preserves projection activation arithmetic and extends a scalar attention path across query groups. Controlled interventions and frozen-input studies cover Llama, Qwen and SmolLM2. CUDA packing reduces complete resident-service time by 4.00% on four fresh inputs. Vulkan batched attention reduces ordinary-request time by 32.34% versus per-query attention and 52.87% versus scalar execution on twelve fresh inputs. Equally optimized whole-graph boundary cuts match local grouping on aligned natural prefill and outperform it at some wider Vulkan query sizes. At deliberately crossing CUDA appends, local grouping gives a $1.307\\times$ speedup over whole-graph cuts; this conditional result is not a workload-average speedup. These results identify how numerical compatibility constrains parallel execution and how width and alignment determine the benefit of local cuts.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "TELLER: Non-intrusive Cross-Layer Root-Cause Analysis for LLM Inference",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Ruilin"
+        },
+        {
+          "family": "Li",
+          "given": "Junyi"
+        },
+        {
+          "family": "Chen",
+          "given": "Pengfei"
+        },
+        {
+          "family": "Xie",
+          "given": "Zongxuan"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3832783.3837440",
+      "arxiv_id": "2608.01975",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7172522164",
+      "url": "https://doi.org/10.1145/3832783.3837440",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832783.3837440?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language model (LLM) inference has evolved from an offline workload into a continuously operated software service, yet root-cause analysis remains difficult because a single request spans the inference engine, Python/C++ backend, host CUDA APIs, GPU kernels, and distributed communication. Existing profilers expose raw timelines, while log-based diagnosis often misses cross-layer execution semantics and request-level structure. We present TELLER, a non-intrusive trace- and log-aware LLM inference root-cause analysis framework. TELLER first collects NVTX/CUPTI traces and service logs without modifying model binaries, then reconstructs per-request call-chain trees and aligns log lines with the corresponding execution steps. We introduce a dependency-aware causal-context slice that preserves parent-child structure, temporal order, and communication relations, and a Trace Pair Encoding (TPE) tokenizer that compresses such slices into compact structural token sequences with parent, depth, and duration attributes. On top of these representations, TELLER combines numeric candidate localization with a multimodal root-cause model that jointly predicts abnormal steps, localizes suspicious operators, and generates natural-language explanations. Experiments on multi-node GPU inference workloads show a clear compression-accuracy trade-off: a moderate TPE vocabulary reduces per-step trace length by more than 80% while achieving the best overall performance on both horizontal (cross-node communication) and vertical (within-node execution stack) views, whereas more aggressive compression substantially degrades diagnosis quality. Further analyses under low-fault priors, strengthened baselines, modality ablations, explanation-quality checks, and tracing overhead show that TELLER provides a practical triage and evidence-localization substrate for LLM inference RCA.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "LLMs + Security = Trouble",
+      "authors": [
+        {
+          "family": "Livshits",
+          "given": "Benjamin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2602.08422",
+      "arxiv_id": "2602.08422",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7128531546",
+      "url": "http://arxiv.org/abs/2602.08422",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.08422",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "We argue that when it comes to producing secure code with AI, the prevailing \"fighting fire with fire\" approach -- using probabilistic AI-based checkers or attackers to secure probabilistically generated code -- fails to address the long tail of security bugs. As a result, systems may remain exposed to zero-day vulnerabilities that can be discovered by better-resourced or more persistent adversaries. While neurosymbolic approaches that combine LLMs with formal methods are attractive in principle, we argue that they are difficult to reconcile with the \"vibe coding\" workflow common in LLM-assisted development: unless the end-to-end verification pipeline is fully automated, developers are repeatedly asked to validate specifications, resolve ambiguities, and adjudicate failures, making the human-in-the-loop a likely point of weakness, compromising secure-by-construction guarantees. In this paper we argue that stronger security guarantees can be obtained by enforcing security constraints during code generation (e.g., via constrained decoding), rather than relying solely on post-hoc detection and repair. This direction is particularly promising for diffusion-style code models, whose approach provides a natural elegant opportunity for modular, hierarchical security enforcement, allowing us to combine lower-latency generation techniques with generating secure-by-construction code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "From Knowledge to Action: Outcomes of the 2025 Large Language Model (LLM) Hackathon for Applications in Materials Science and Chemistry",
+      "authors": [
+        {
+          "family": "Roy",
+          "given": "Aritra"
+        },
+        {
+          "family": "Shen",
+          "given": "Kevin"
+        },
+        {
+          "family": "MacBride",
+          "given": "Andrew"
+        },
+        {
+          "family": "Oladipupo",
+          "given": "Awwal D."
+        },
+        {
+          "family": "Taskeen",
+          "given": "Mudassra"
+        },
+        {
+          "family": "Treyde",
+          "given": "Wojtek"
+        },
+        {
+          "family": "Abakar",
+          "given": "Ruaa"
+        },
+        {
+          "family": "Abbas",
+          "given": "Ahmad D."
+        },
+        {
+          "family": "Abdelfatah",
+          "given": "Elsayed"
+        },
+        {
+          "family": "Abdullahi",
+          "given": "Abbas A."
+        },
+        {
+          "family": "Abyah",
+          "given": "Seham S."
+        },
+        {
+          "family": "Adjmi",
+          "given": "Chahd Rahyl"
+        },
+        {
+          "family": "Agbere",
+          "given": "Fariha"
+        },
+        {
+          "family": "Aggarwal",
+          "given": "Savyasanchi"
+        },
+        {
+          "family": "Ahmed",
+          "given": "Muhammad"
+        },
+        {
+          "family": "Ahmed",
+          "given": "Tasnim"
+        },
+        {
+          "family": "Ajlouni",
+          "given": "Motasem"
+        },
+        {
+          "family": "Akke",
+          "given": "Mattias"
+        },
+        {
+          "family": "Aladwan",
+          "given": "Hussein"
+        },
+        {
+          "family": "Alazani",
+          "given": "Anwaar S."
+        },
+        {
+          "family": "Alharbi",
+          "given": "Zahra A."
+        },
+        {
+          "family": "Aljulyhi",
+          "given": "Wajd A."
+        },
+        {
+          "family": "AlKubaish",
+          "given": "Mohammed A."
+        },
+        {
+          "family": "Almahri",
+          "given": "Fatima Ali Amer Jid"
+        },
+        {
+          "family": "Almohri",
+          "given": "Sayed Ahmad"
+        },
+        {
+          "family": "Alobo",
+          "given": "David Obeh"
+        },
+        {
+          "family": "Alouni",
+          "given": "Mohammed"
+        },
+        {
+          "family": "Alqahtani",
+          "given": "Azizah S."
+        },
+        {
+          "family": "Alsaigh",
+          "given": "Omar"
+        },
+        {
+          "family": "Althagafi",
+          "given": "Husain"
+        },
+        {
+          "family": "Aman",
+          "given": "Md. Aqib"
+        },
+        {
+          "family": "Ara",
+          "given": "Lena"
+        },
+        {
+          "family": "Arifin",
+          "given": ""
+        },
+        {
+          "family": "Arretche",
+          "given": "Ignacio"
+        },
+        {
+          "family": "Ashy",
+          "given": "Abdulaziz"
+        },
+        {
+          "family": "Asim",
+          "given": "Syeda A."
+        },
+        {
+          "family": "Aswad",
+          "given": "Amro"
+        },
+        {
+          "family": "Atta",
+          "given": "Adeel"
+        },
+        {
+          "family": "Auer",
+          "given": "Sören"
+        },
+        {
+          "family": "Azmi",
+          "given": "Abdullah al"
+        },
+        {
+          "family": "Balogun",
+          "given": "Toheeb Adewale"
+        },
+        {
+          "family": "Banik",
+          "given": "Suvo"
+        },
+        {
+          "family": "Baibakova",
+          "given": "Viktoriia"
+        },
+        {
+          "family": "Baksh",
+          "given": "Shakira A."
+        },
+        {
+          "family": "Bastús",
+          "given": "Neus G."
+        },
+        {
+          "family": "Bayard",
+          "given": "Christina J."
+        },
+        {
+          "family": "Bazgir",
+          "given": "Adib"
+        },
+        {
+          "family": "Beal",
+          "given": "Louis"
+        },
+        {
+          "family": "Biberic",
+          "given": "Lejla S."
+        },
+        {
+          "family": "Billah",
+          "given": "Wahid"
+        },
+        {
+          "family": "Biswas",
+          "given": "Ankita"
+        },
+        {
+          "family": "Bocarsly",
+          "given": "Joshua"
+        },
+        {
+          "family": "Bouzidi",
+          "given": "Montassar T."
+        },
+        {
+          "family": "Boydas",
+          "given": "Esma Birsen"
+        },
+        {
+          "family": "Briki",
+          "given": "Youssef"
+        },
+        {
+          "family": "Buchanan",
+          "given": "Cailin"
+        },
+        {
+          "family": "Cafiero",
+          "given": "Mauricio"
+        },
+        {
+          "family": "Caliste",
+          "given": "Damien"
+        },
+        {
+          "family": "Cao",
+          "given": "Yi"
+        },
+        {
+          "family": "Castañeda",
+          "given": "Rafael Espinosa"
+        },
+        {
+          "family": "Chandy",
+          "given": "Sruthy K."
+        },
+        {
+          "family": "Charmes",
+          "given": "Benjamin"
+        },
+        {
+          "family": "Chaudhuri",
+          "given": "Shayantan"
+        },
+        {
+          "family": "Chen",
+          "given": "Yiming"
+        },
+        {
+          "family": "Chen",
+          "given": "Alexander"
+        },
+        {
+          "family": "Chen",
+          "given": "Jieneng"
+        },
+        {
+          "family": "Chiu",
+          "given": "Min–Hsueh"
+        },
+        {
+          "family": "Çırcı",
+          "given": "Defne"
+        },
+        {
+          "family": "Contreras",
+          "given": "Cinthya H."
+        },
+        {
+          "family": "Curé",
+          "given": "Yoann"
+        },
+        {
+          "family": "Daelman",
+          "given": "Nathan"
+        },
+        {
+          "family": "Dantuluri",
+          "given": "Roshini"
+        },
+        {
+          "family": "Davy",
+          "given": "Thomas"
+        },
+        {
+          "family": "Dawson",
+          "given": "William"
+        },
+        {
+          "family": "Didukh",
+          "given": "Leonid"
+        },
+        {
+          "family": "Ding",
+          "given": "Rui"
+        },
+        {
+          "family": "Doguwa",
+          "given": "Aminu Rabi'u"
+        },
+        {
+          "family": "Draxl",
+          "given": "Claudia"
+        },
+        {
+          "family": "Edamadaka",
+          "given": "Sathya"
+        },
+        {
+          "family": "Elargab",
+          "given": "Oulaya"
+        },
+        {
+          "family": "Ertural",
+          "given": "Christina"
+        },
+        {
+          "family": "Evans",
+          "given": "Matthew L."
+        },
+        {
+          "family": "Fako",
+          "given": "Edvin"
+        },
+        {
+          "family": "Farag",
+          "given": "Hossam"
+        },
+        {
+          "family": "Fathurrahman",
+          "given": "Nur A."
+        },
+        {
+          "family": "Fedai",
+          "given": "Merve"
+        },
+        {
+          "family": "Ferreira",
+          "given": "Rodrigo P."
+        },
+        {
+          "family": "Fisicaro",
+          "given": "Giuseppe"
+        },
+        {
+          "family": "Frank",
+          "given": "Thomas"
+        },
+        {
+          "family": "Gaddipati",
+          "given": "Sasi Kiran"
+        },
+        {
+          "family": "Gangan",
+          "given": "Abhijeet"
+        },
+        {
+          "family": "Garland",
+          "given": "Jennifer"
+        },
+        {
+          "family": "Garrick",
+          "given": "James"
+        },
+        {
+          "family": "Genovese",
+          "given": "Luigi"
+        },
+        {
+          "family": "Ghadrdran",
+          "given": "Maryam"
+        },
+        {
+          "family": "Giri",
+          "given": "Sandip"
+        },
+        {
+          "family": "GOULET",
+          "given": "M. T."
+        },
+        {
+          "family": "Goumaz",
+          "given": "Jeremy"
+        },
+        {
+          "family": "Gracia",
+          "given": "Sara U."
+        },
+        {
+          "family": "Graham",
+          "given": "Jacob"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.03205",
+      "arxiv_id": "2605.03205",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160396947",
+      "url": "https://arxiv.org/abs/2605.03205",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.03205",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Large language models (LLMs) are rapidly changing how researchers in materials science and chemistry discover, organize, and act on scientific knowledge. This paper analyzes a broad set of community-developed LLM applications in an effort to identify emerging patterns in how these systems can be used across the scientific research lifecycle. We organize the projects into two complementary categories: Knowledge Infrastructure, systems that structure, retrieve, synthesize, and validate scientific information; and Action Systems, systems that execute, coordinate, or automate scientific work across computational and experimental environments. The submissions reveal a shift from single-purpose LLM tools toward integrated, multi-agent workflows that combine retrieval, reasoning, tool use, and domain-specific validation. Prominent themes include retrieval-augmented generation as grounding infrastructure, persistent structured knowledge representations, multimodal and multilingual scientific inputs, and early progress toward laboratory-integrated closed-loop systems. Together, these results suggest that LLMs are evolving from general-purpose assistants into composable infrastructure for scientific reasoning and action. This work provides a community snapshot of that transition and a practical taxonomy for understanding emerging LLM-enabled workflows in materials science and chemistry.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Shifting from Injection to Interaction: Rethinking Web Security in the Age of LLMs and Beyond",
+      "authors": [
+        {
+          "family": "Singh",
+          "given": "Nivedita"
+        },
+        {
+          "family": "Abuadbba",
+          "given": "Alsharif"
+        },
+        {
+          "family": "Gao",
+          "given": "Yansong"
+        },
+        {
+          "family": "Nepal",
+          "given": "Surya"
+        },
+        {
+          "family": "Kim",
+          "given": "Hyoungshick"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.03999",
+      "arxiv_id": "2609.03999",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7208771141",
+      "url": "https://arxiv.org/abs/2609.03999",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.03999",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models (LLMs) are becoming integral to web applications and browser agents, transforming online interactions while introducing new attack vectors and reshaping longstanding web vulnerabilities. Classical threats such as cross-site scripting (XSS) can be amplified through LLM-mediated interactions, while LLM-specific vulnerabilities can propagate across web applications, introducing attacks such as prompt injection. Securing modern web systems therefore requires understanding interactions between traditional and LLM-specific threats across the system lifecycle. Unlike prior surveys treating web and LLM security separately, this survey provides a unified analysis of how LLMs amplify web vulnerabilities across client-side, server-side, and pipeline layers while evaluating defenses and their limitations. The analysis examines extending NIST and ISO/IEC AI security frameworks to the security needs of LLM-enabled web environments. Three unresolved challenges are identified: adversarial natural-language instructions, autonomous agent security, and post-deployment security through continuous monitoring and adaptation. An LLM-aware monitoring and control framework is proposed, integrating semantic input validation, prompt integrity protection, output isolation, agent governance, and runtime monitoring. This unified perspective characterizes the evolving threat landscape and outlines future directions for secure AI-enabled web systems.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Forward-Deployed Full-Stack Engineering for Autonomous Cloud MLOps",
+      "authors": [
+        {
+          "family": "Sakhinana",
+          "given": "Sagar Srinivas"
+        },
+        {
+          "family": "Runkana",
+          "given": "Venkataramana"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.29615",
+      "arxiv_id": "2608.29615",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7204946956",
+      "url": "https://arxiv.org/abs/2608.29615",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.29615",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Across industries, machine-learning systems support applications ranging from prediction and anomaly detection to forecasting, optimization, and scheduling, yet operationalizing these systems requires coordinating application development, model pipelines, cloud infrastructure, security, deployment, monitoring, retraining, recovery, and rollback. We present an evidence-gated multi-agent framework for transforming a natural-language MLOps cloud engineering task into a verified repository and operational cloud deployment. The framework combines graph engineering, loop engineering, and agent harness engineering. A stateful Graph Orchestrator coordinates specialized agents for repository generation, review, execution, verification, release, and monitoring while governing workflow dependencies, evidence gates, retry bounds, recovery paths, and termination. Consequential lifecycle transitions proceed only when their required predicates are supported by verifiable execution or runtime evidence. Verification failures activate bounded reflection, repair, and re-verification, while runtime evidence of failure, drift, degradation, or policy violation can trigger bounded adaptation, recovery, or rollback. Agent harness engineering constrains repository generation, review, and repair, artifact execution, and cloud operations through controlled capabilities and isolated execution environments. We realize the framework on Google Cloud Platform and evaluate repository completeness, controlled execution, evidence-gated transitions, cloud promotion, and bounded recovery. Our experimental results show that the framework prevents unsupported lifecycle transitions and drives each run toward either a verified operational deployment or an auditable terminal failure.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Dynamic Context Allocation for Concurrent Multi-Agent LLMs",
+      "authors": [
+        {
+          "family": "Na",
+          "given": "Junho"
+        },
+        {
+          "family": "Matsunaga",
+          "given": "Daiki E."
+        },
+        {
+          "family": "Koh",
+          "given": "Nam Ho"
+        },
+        {
+          "family": "이종민",
+          "given": ""
+        },
+        {
+          "family": "Poupart",
+          "given": "Pascal"
+        },
+        {
+          "family": "Kim",
+          "given": "Kee-Eung"
+        }
+      ],
+      "year": 2026,
+      "venue": "Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.18653/2026.emnlp-main.1785",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7224561424",
+      "url": "https://doi.org/10.18653/2026.emnlp-main.1785",
+      "oa_pdf_url": "https://aclanthology.org/2026.emnlp-main.1785.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Concurrent multi-agent LLM systems increasingly rely on role-specialized Workers that act in parallel, but effective coordination depends not only on what Workers generate, but also on what task state each Worker observes before generating.Existing systems usually fix this observation interface through workflow rules, retrieval heuristics, or full-history sharing, so information flow cannot adapt as task state and feedback evolve.We introduce Dynamic Context Allocation (DCA), which treats per-Worker observation control as a trainable coordination problem for a fixed-role team.An RLtrained Context Allocator maintains a bounded Context Board and decides before each round which evolving task-state entries should be retained, revised, removed, or exposed to each Worker, rather than learning agent selection, execution order, or workflow topology.We evaluate DCA on cooperative code generation, Customer Relationship Management (CRM) lead qualification, and MultiWebGen, a new benchmark for multi-agent full-stack web development.Across these settings, DCA improves over fixed-protocol coordination and fixed-context multi-agent RL baselines, and it outperforms all evaluated frontier single-agent LLMs on CRM lead qualification despite using smaller role-specialized Workers.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "KAP: Bridging the Knowledge Selection-Runtime Consumption Gap in LLM Systems",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Shuo"
+        },
+        {
+          "family": "Xi",
+          "given": "Fang"
+        },
+        {
+          "family": "Huang",
+          "given": "Wenyuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Qing"
+        },
+        {
+          "family": "Su",
+          "given": "Junming"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.24260",
+      "arxiv_id": "2607.24260",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7171541459",
+      "url": "https://arxiv.org/abs/2607.24260",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.24260",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Modern LLM systems increasingly rely on knowledge-selection processes that produce high-value structured priors, such as ranked evidence, graph topology, multimodal alignment, and confidence signals. Yet LLM serving remains fundamentally oblivious to this rich structure: once such signals are serialized into a prompt, the backend observes only a flat token sequence, forcing dense and uniform consumption of the full key-value (KV) state during decoding. We term this architectural mismatch the Knowledge Selection-Runtime Consumption (KSRC) gap: richer contexts enlarge the full-prompt KV footprint and decode-time memory traffic, increasing latency and degrading throughput even when reasoning depends on only a small fraction of the context. To bridge the gap, we propose Knowledge Access Planning (KAP), a paradigm-shifting execution abstraction that elevates structured knowledge priors from passive prompt-construction hints into first-class physical execution artifacts. KAP establishes a universal intermediate representation (IR)-the runtime access plan-which compiles structured knowledge signals to govern physical KV access without altering logical prompt semantics, model weights, or training procedures. Through this IR, KAP shifts LLM serving from token-aware context consumption to plan-driven, knowledge-aware runtime consumption. We instantiate KAP with GraphSpec, a compiler-executor realization connecting structured knowledge selection to an LLM serving backend. We derive a phase-boundary model for the positive-speedup regime of plan-guided execution. Across 4K-128K long-context QA workloads, GraphSpec maintains answer quality comparable to full-context decoding while decoupling physical KV consumption from prompt length, reducing proposal-time KV access to 5.5% of source KV state at 128K, and fundamentally shifting the scaling trajectory of long-context generation.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    }
+  ]
+}

@@ -1,0 +1,464 @@
+######## ehsani2026faster
+---
+key: ehsani2026faster
+status: complete
+evidence_basis: full-text
+design: Multivocal literature review (Garousi MLR guidelines + SEGRESS); qualitative deductive/inductive coding; no meta-analysis
+dataset: 31 peer-reviewed papers (ACM DL, IEEE Xplore, Springer, ScienceDirect + snowballing) and 73 grey sources (Google via SerpAPI, first 10 pages); search Jan 2026
+sample_size: 104 sources (31 formal from 551 retrieved + 1,737 snowballed; 73 grey from 132 quality-scored)
+metrics: Frequency of mentions per debt type, strategy, tool and metric; grey-source quality score (22 criteria); Cohen's kappa for extraction
+main_finding: LLM use is linked mostly to code, design and documentation debt plus new LLM-specific debts; no standard benchmarks or LLM-specific TD metrics exist.
+relevance: high
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# Faster Code, Deeper Debt? A Multivocal Literature Review on Technical Debt and Its Early Signs in LLM-Assisted Software Development
+
+- Authors: Ehsani, Ramtin; Rawal, Shriya; Cai, Yuanfang; Chatterjee, Preetha
+- Year / venue: 2026, ACM Transactions on Software Engineering and Methodology (published)
+- DOI: 10.1145/3820165 · URL: https://doi.org/10.1145/3820165
+- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is the arXiv version (arXiv:2606.14796v1, 11 Jun 2026, 38 pages), and it is the **pre-acceptance manuscript**: every page footer reads "Manuscript submitted to ACM" (p. 1 onward), and the p. 1 citation is a template ("ACM Trans. Softw. Eng. Methodol. 1, 1 (January 2026)"). Page numbers refer to this PDF, not the TOSEM pagination. Counts are pre-review numbers and may have changed in the published TOSEM article (DOI 10.1145/3820165); re-check headline counts if the published version becomes accessible.
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+This is a secondary study. A *multivocal literature review* (MLR) is a literature review that also includes "grey" sources such as blogs, company reports and forums, alongside peer-reviewed papers. In this analysis, "dataset" means the review's source corpus, and "findings" are the review's synthesis of what those sources say, not new measurements.
+
+## 1. Research objective
+- [A] Examine the forms of technical debt (TD) and their early signs introduced by LLM-assisted development, the risks they bring, and the strategies, tools, metrics and benchmarks available or missing to manage them, from both practitioner (grey) and academic (formal) perspectives (p. 3).
+- [A] Motivation: prior work on LLM code correctness and quality covers local, task-specific quality but not how issues accumulate into long-term TD (p. 3).
+
+## 2. Research questions / hypotheses
+- [V] RQ1: What forms of TD are introduced by integrating LLM-generated code into software projects? (p. 7).
+- [V] RQ2: What strategies or guidelines exist to mitigate TD introduced by LLMs? (p. 7).
+- [V] RQ3: What tools or techniques exist to detect or measure TD in LLM-generated code? (p. 7).
+- [V] RQ4: Are there benchmarks or datasets to evaluate the TD of LLM-generated code? (p. 8).
+- [V] RQ5: Do existing TD metrics sufficiently capture LLM-introduced debt, and if not, what new metrics or dimensions are suggested? (p. 8).
+- No hypotheses (descriptive review).
+
+## 3. Methodology
+- Research design: [V] MLR following Garousi et al.'s MLR guidelines for SE and Kitchenham et al.'s SEGRESS reporting guidelines (built on PRISMA). Phases: planning, source selection, classification and data extraction, and synthesis (p. 6).
+- Approach / model / intervention: [V] Deductive coding against the 13-type TD taxonomy of Alves et al. (2014), combined with inductive coding for new LLM-specific categories (p. 7, p. 14). Sources are also classified as "direct TD evidence" or "supporting TD evidence" depending on whether TD framing is explicit in the title and main discussion (p. 13–14).
+- Baselines or comparison conditions: [V] Grey (practitioner) and formal (academic) findings are reported separately and compared for each RQ (p. 14–15). There is no quantitative synthesis or meta-analysis.
+- Justification for grey literature: [V] Garousi's seven questions (Table 1); the authors answer "Yes" to 5 of 7 and "No" to Q2 ("lack of volume or quality of evidence ... in the formal literature") (p. 7).
+
+## 4. Dataset and sample
+- Source corpus and search:
+  - [V] Search conducted in January 2026, covering all sources available up to January 2026 (p. 8).
+  - [V] Final query: any of 13 TD-type terms (technical, code, design, documentation, infrastructure, architecture, test, defect, build, requirement, service, test automation, process debt) AND ("large language models" OR "AI-generated code" OR "LLMs" OR "LLM" OR "ChatGPT" OR "Copilot" OR "AI code" OR "AI assistance") (p. 9).
+  - [V] The query was developed through exploratory refinement rounds; it was widened from "technical debt" only to all 13 Alves et al. types (p. 8–9).
+- Grey literature:
+  - [V] Google via SerpAPI, about 375,000 hits, limited to the first 10 result pages on the basis of relevance saturation (p. 9).
+  - [V] After de-duplication and removal of academic papers: 132 unique sources (p. 9).
+  - [V] Quality assessment with 22 binary criteria in 7 categories (authority, methodology, objectivity, date, significance, impact, outlet type), adapted from Garousi; outlet type could score 0.5 (p. 8–9).
+  - [V] Inclusion threshold: score above 11 of 22, giving 73 grey sources (p. 9). Mean score 14.4 (SD 2.52), 75th percentile 15.5 (p. 10).
+  - [V] By tier (Table 3): tier 1 company blogs 38; tier 2 developer platforms 18 and media outlets 14; tier 3 personal blogs 3 (p. 10).
+- Formal literature:
+  - [V] Google Scholar and DBLP were tried and dropped as too noisy (p. 11).
+  - [V] Searched ACM DL (258), Springer (182), ScienceDirect (94) and IEEE Xplore (17): 551 hits (p. 11).
+  - [V] Two authors screened titles and abstracts (49 kept), then full texts (27 kept, 22 excluded) (p. 11).
+  - [V] Forward and backward snowballing of the 27 retrieved 1,737 papers and added 4, for a total of 31 (p. 12).
+  - [V] Peer-reviewed only (IC1); preprints were excluded because "results in preprints may change substantially over time" (p. 11–12).
+  - [V] Exclusion criteria (Table 5) include EC2: papers on functional quality or correctness of LLM code that do not directly assess or discuss TD (p. 12).
+- Sample size (N) and unit: [V] 104 sources: 31 formal and 73 grey (p. 1, p. 3).
+- Year distribution: [V] Fig. 4 shows mentions rising from 2022–2023 to a peak in 2025 for both literatures (p. 19).
+- Data availability (public? link?): [V] Assessments, annotation sheets and traceability links are in a figshare supplement (p. 4, p. 13).
+
+## 5. Experimental setup
+- Procedure:
+  - [V] Two authors independently applied data-extraction forms to all sources, and a third author resolved conflicts (p. 12).
+  - [V] Extraction fields: TD types; LLM-unique TD concerns; mitigation strategies; tools; benchmarks or datasets; new metrics; notes (p. 12–13).
+  - [V] For formal sources, Cohen's kappa was 0.93 for TD types and 0.90–1.00 for the other fields (p. 13).
+  - [V] For grey-source quality scoring, the reported agreement of 1.0 "reflects consensus after reconciliation, rather than an initial inter-rater reliability statistic"; a third author reviewed all annotations (p. 9).
+  - [V] Synthesis: the first two authors drafted it qualitatively, and all authors reviewed it in meetings (p. 14).
+- Quality assessment of formal sources: [I] The method sections describe no formal-source quality appraisal beyond peer-review status (p. 11–12). The threats section nevertheless states that a "rigorous quality assessment process" was followed for both formal and grey sources (p. 29).
+- Code availability: [V] Supplementary materials on figshare (p. 4). There is no analysis code; the review is qualitative.
+
+## 6. Evaluation metrics
+The review's own measure is the number of sources mentioning each debt type, strategy, tool or metric (Table 8, p. 16). Below are the measurement tools and metrics that the reviewed literature reports.
+- Tools (Table 9, p. 23; text p. 20, p. 22):
+  - [V] Static analysers: SonarQube, ESLint, Pylint.
+  - [V] AI assistants with quality or security features: Amazon CodeWhisperer, Copilot, Tabnine.
+  - [V] Documentation tools: Swimm, HopeAI, Graphite.
+  - [V] Code review tools: CRken, CodeScene.
+  - [V] Quality and security SaaS: Codacy, Snyk, CAST, DeepSource, ArmorCode.
+  - [V] Research prototypes: CodeSmellEval (open source) and QualAI (under development).
+  - [V] SonarQube is the most frequently mentioned grey-literature tool, but in only 4 sources (p. 22).
+- Metrics and measures from the formal literature:
+  - [V] Propensity Smelly Code (PSC) in CodeSmellEval: the likelihood that LLM code contains smells (p. 18, p. 22).
+  - [V] API Usage Plausibility (AUP) and Deprecated Usage Rate (DUR) (Wang et al.) (p. 25).
+  - [V] Data Smell Strength and Data Smell Density (Foidl et al.) (p. 25).
+  - [V] SonarQube rules, used in several studies; one study combined them with human raters and another argued for context-sensitive metrics (p. 24–25).
+  - [V] Arcan architectural-smell detection combined with prompting and RAG (Pandini et al.) (p. 24).
+  - [V] An LLM-vs-SonarQube comparison (Simoes et al.): SonarQube rates by the cost of fixing bad practices, the LLM by ease of reading (p. 24–25).
+- Metrics proposed in the grey literature (speculative, not validated):
+  - [V] Understandability, adaptability, reviewability (p. 24).
+  - [V] Post-fix behaviour (p. 24).
+  - [V] Prompt reliability, token cost sprawl, integration fragility (p. 24).
+- Statistical testing: not applicable. The review reports only counts and kappa; it does not aggregate effect sizes and appraises no primary-study statistics.
+
+## 7. Key findings
+1. [V] Traditional debt types (mentions, formal / grey): code 14 / 56, design 2 / 30, documentation 0 / 17, infrastructure 1 / 12, architecture 1 / 10, test 2 / 6, defect 3 / 1. Build, people, requirement, service, test-automation and process debt: 0 / 0 (Table 8, p. 16).
+2. [V] Six debt types new in this review (formal / grey): governance 0 / 19, prompt 8 / 5, fast-integration 0 / 13, data 9 / 0, ethical 3 / 2, provenance 1 / 1 (Table 8, p. 16). 40 grey sources discuss five of the six new forms (all except data debt, which is formal-only) (p. 16, p. 17).
+3. [A] "Fast-integration debt" means rapidly integrating LLM output without validation; the authors link it explicitly to vibe coding ("developers implement AI suggestions quickly, or vibe code, without understanding their implications") and say it leads to governance debt (p. 17). [V] It rests on grey sources only (0 formal mentions, p. 16).
+4. [A] Quantitative primary evidence cited by the review (we have not checked the primary studies):
+   - He et al. (ref [90], p. 34; this primary study is in our corpus as he2026speed): the review reports that Cursor adoption (difference-in-differences with matched controls) produced "a statistically significant large increase" in velocity and "a substantial and persistent increase in complexity and code debt", with static-analysis warnings +30% and code complexity +41% (p. 18). **Secondary claim reported from [@he2026speed], not ehsani's own evidence; do not count separately.** [I] The review omits the primary study's own caveats: the quality effects turn negative and non-significant under the Callaway–Sant'Anna estimator [@he2026speed, p. 16], and once codebase size is controlled (GMM) Cursor has no significant direct effect on warnings, so the warning rise runs mainly through more code [@he2026speed, p. 8].
+   - Wang et al.: 7 LLMs, 145 API mappings, 28,125 prompts; all models produced deprecated API usages (p. 18).
+   - O'Brien et al.: over 1,000 Copilot function bodies from 380 TODO prompts; the model often replicated self-admitted TD verbatim (p. 19).
+   - Zhang et al.: eight smell types in Copilot Python code; well-structured prompts mitigated up to 87.1% of them (p. 19, p. 21).
+5. [V] Mitigation strategies:
+   - Grey: human-in-the-loop review is recommended in 58 of 73 sources; prompt quality and usage boundaries in 4; 11 discuss no strategy (p. 20).
+   - Formal: data quality and standards alignment in 8 studies, prompt design in 7, tool-chains and reflective workflows (RAG, LLM-as-judge) in 10; 6 of 31 discuss no strategy (p. 21).
+6. [V] Tools: few are LLM-specific. Formal literature names three (QualAI, CodeSmellEval, ReplaceAPI) (p. 22). Apart from research prototypes and open-source static analysers, all cited tools are commercial (p. 23).
+7. [A] No standardised benchmarks or datasets for TD in LLM-generated code exist in either literature. Existing benchmarks focus "almost exclusively on binary correctness" (p. 23–24). Formal studies adapt code-smell benchmarks (CodeXGLUE, CodeSmellData) or pre-LLM TD datasets (p. 24).
+8. [A] Existing TD metrics (e.g. SonarQube rules) are considered inadequate for LLM-specific debt. The grey literature says they "fail to capture semantic accuracy, architectural fit, and adaptability" (p. 24). No new metric is widely adopted (p. 24, p. 29).
+9. [A] Commercial LLM-aware tools "are rarely subject to independent or rigorous external evaluation" (p. 28).
+
+Evidence-strength caveats given by the authors:
+- [A] Sources are classified as direct or supporting TD evidence, and this classification guides interpretation (p. 13).
+- [A] Personal blogs (tier 3) are interpreted "with caution" (p. 11).
+- [A] 52% of grey sources are company blogs or industry reports, which may bias the review toward practitioner perspectives (p. 30).
+- [A] Tools risk "remaining vendor marketing claims rather than evidence-backed solutions" without reproducible benchmarks (p. 28).
+- [A] Even for human-written code, comprehensive TD benchmarks remain scarce (p. 24).
+
+## 8. Limitations stated by the authors
+- [A] Manual source selection is open to human error; mitigated by independent dual review (p. 29).
+- [A] Search-string formulation; mitigated by testing variants (p. 29).
+- [A] Screening judgement may cause selection bias (p. 30).
+- [A] Undocumented ranking algorithms of search engines and digital libraries (p. 30).
+- [A] Grey literature varies in rigour; mitigated by the quality checklist and threshold (p. 30).
+- [A] English-only sources (p. 30).
+- [A] The TD-term search string may miss work framed as maintainability, software evolution or code quality (p. 30).
+- [A] Findings may not generalise across ecosystems or organisations (p. 30).
+- [A] Company blogs make up 52% of the grey corpus, which may bias results (p. 30).
+
+## 9. Limitations we identified
+- [I] Frequency of mentions is not strength of evidence. Table 8 counts how many sources mention a debt type (p. 16), mostly from grey sources, and primary-study quality is not weighted. The headline new categories rest entirely on practitioner commentary: governance debt (19 grey, 0 formal) and fast-integration debt (13 grey, 0 formal) (p. 16). They are hypotheses, not established effects.
+- [I] Fig. 4's y-axis reads "Number of Sources", but grey-source counts for 2025 (84 + 25 = 109) exceed the 73 grey sources (p. 19; values read from the Fig. 4 image, not in the text layer; re-checked 2026-11-12). The figure therefore counts mentions, not sources, which can inflate the visual trend.
+- [I] No formal quality appraisal of the 31 peer-reviewed sources is described (p. 11–12), although the threats section claims one (p. 29). Weak primary studies (e.g. vision or position papers such as Mitchell et al.'s "Position: Vibe Coding Needs Vibe Reasoning", p. 21, p. 36) are counted like empirical studies.
+- [I] Inclusion inconsistency: the review restricts formal sources to peer-reviewed work (p. 11), yet Della Porta et al. [157] is listed under EASE in Table 6 (p. 13) while its reference entry gives only an arXiv preprint (p. 36). PromptDebt also appears twice in the references, as a published version [14] and an arXiv version [15] (p. 31).
+- [I] EC2 excludes papers on correctness or functional quality that do not frame findings as TD (p. 12). Empirical maintainability studies of LLM code that never use the term "debt" (for example SonarQube-based LLM vs human comparisons) may therefore be missing. molison2025llm (ESEM 2025, SonarQube effort-to-fix) does not appear in the reference list; we checked by text search of `fulltext.txt`. The authors partly acknowledge this term-based bias (p. 30).
+- [I] The grey search covers only the first 10 Google result pages (p. 9), so results depend on Google's ranking at search time. The authors note that the ranking is undocumented (p. 30), and replication is likely to give different results.
+- [I] Table 1 answers "No" to whether the formal literature lacks volume or quality of evidence (p. 7). This sits uneasily with the review's own conclusion that formal work is "small but growing" (p. 18) and lacks benchmarks and metrics (p. 24).
+- [I] Grey quality scoring split the 132 sources between two authors with consensus afterwards, and no pre-reconciliation reliability was reported (p. 9). Kappa was computed only for formal-source extraction (p. 13).
+- [I] The scope is LLM-assisted development in general, not application reconstruction or vibe-coded apps specifically. Vibe coding appears as a cause of fast-integration debt (p. 17, p. 26), and one formal source is a vibe-coding position paper (p. 21).
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [A] Selection bias in screening and search-engine opacity are acknowledged (p. 30). [I] The keyword strategy is anchored on "debt"; with EC2 (p. 12) it selects sources that frame issues as debt, which may over-represent sources that already argue LLMs create debt.
+- External (generalisability of sample/context): [A] English only; company blogs dominate (p. 30). [I] The corpus ends in January 2026 (p. 8); the field moves quickly (most sources are from 2025, p. 19).
+- Construct (do metrics measure the concept?): [I] TD is operationalised as mentions of TD categories. Static-analysis indicators (SonarQube) are treated as "early signs" of TD (p. 22), which is itself an assumption. The review notes that TD tools disagree on what counts as real debt (p. 5).
+- Statistical conclusion (power, multiple comparisons, variance): [I] Not applicable (no inferential statistics). Counts are descriptive and come from heterogeneous source types.
+- Reproducibility (data/code/setup reported?): [V] Search string, databases, date, criteria, QA checklist and per-stage counts are reported (p. 8–12), and annotation sheets are on figshare (p. 4, p. 13). [I] The grey search is hard to reproduce (Google ranking, SerpAPI, first 10 pages). Per-source exclusion reasons at full-text stage are summarised but not itemised in the paper (p. 11).
+
+## 11. Future research directions
+- Stated by authors [A]:
+  - Extend TD taxonomies with LLM-specific debts such as prompt and governance debt (p. 25).
+  - Run longitudinal studies of how LLM-related debt accumulates (p. 25–26).
+  - Study socio-technical impacts such as prompt sprawl (p. 26).
+  - Characterise and measure prompt debt (p. 26).
+  - Develop detection of data debt (p. 27–28).
+  - Ground ethical and provenance debt empirically (p. 28).
+  - Build open tooling that tracks prompts, reproducibility and provenance (p. 28).
+  - Evaluate tools reproducibly (p. 28).
+  - Design new metrics for semantic accuracy, maintainability, adaptability, reproducibility across runs, provenance and ethics (p. 29).
+  - Build community-driven benchmarks analogous to CodeXGLUE and SWE-Bench (p. 29).
+- Suggested by us [I]:
+  - Test the grey-only debt categories (fast-integration, governance) empirically, e.g. by controlled vibe-coding sessions with maintenance follow-up tasks.
+  - Include maintainability studies that do not use the term "technical debt" in a follow-up review.
+  - Weight synthesis by primary-study quality.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ3 (primary), RQ4, RQ5; RQ1 (minor, vibe coding as a debt source).
+- How it informs our work [I]:
+  - It is the only secondary study in our set focused on long-term maintainability (TD) of LLM-assisted code (TOSEM, peer-reviewed).
+  - It gives a debt taxonomy (13 Alves types + 6 LLM-specific types) that can structure the maintainability arm of a reconstruction study.
+  - Its RQ4/RQ5 findings support a project gap: no standard benchmarks or LLM-specific maintainability/TD metrics exist, and evaluation is dominated by binary correctness (p. 23–24, p. 29).
+  - Its evidence base is mostly grey literature, so we use it as a map of concerns and measurement options (SonarQube, PSC, DUR, data-smell metrics), not as evidence of effect sizes.
+  - Its exclusion of correctness-only and non-TD-framed studies means it complements, but does not cover, the code-quality comparisons in our corpus (e.g. molison2025llm).
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ3 | Across 104 sources, the debt types most often linked to LLM-assisted code are code (14 formal / 56 grey), design (2 / 30) and documentation (0 / 17) debt | 16 | V | moderate as a map of the discourse; weak as evidence of effect (mention counts, mostly grey) |
+| RQ3 | Six LLM-specific debts are proposed: governance, prompt, fast-integration, data, ethical, provenance. Governance (19) and fast-integration (13) appear only in grey sources | 16–17 | V | weak (practitioner commentary, no formal support for two of six) |
+| RQ1 | Vibe coding is framed as a driver of fast-integration debt, which leads to governance debt | 17, 26 | A | weak (grey only) |
+| RQ3 | DO NOT COUNT SEPARATELY. Secondary claim reported from [@he2026speed] (ref [90]): the review restates its +30% warnings / +41% complexity without the primary study's estimator-sensitivity and codebase-size caveats [@he2026speed, p. 8; @he2026speed, p. 16]. Cite the primary study, not the review, for this effect | 18 | A | n/a (duplicate of he2026speed) |
+| RQ4 | No standardised benchmarks or datasets exist to evaluate TD or maintainability of LLM-generated code; benchmarks focus on binary correctness | 23–24 | A | moderate (consistent across both literatures; review search to Jan 2026) |
+| RQ4 | SonarQube and general linters are the main measurement tools, but they are not designed for LLM-specific debt; candidate LLM-specific metrics (PSC, AUP/DUR, data-smell strength/density) are early and not standardised | 22, 24–25, 28 | A | moderate |
+| RQ4 | Commercial LLM-aware quality tools are rarely independently evaluated | 28 | A | weak |
+| RQ5 | Authors call for longitudinal studies of debt accumulation, LLM-specific metrics (incl. reproducibility across runs) and community benchmarks | 25–26, 29 | A | moderate (review-level gap statement) |
+
+## 14. Key quotes
+> "no standardized benchmarks or LLM-specific metrics yet exist, leaving an important gap." (p. 1)
+
+> "existing benchmarks focus almost exclusively on binary correctness." (p. 23)
+
+> "developers implement AI suggestions quickly, or vibe code, without understanding their implications, leading to unstable software foundations" (p. 17)
+
+> "The reported agreement of 1.0 (100%) therefore reflects consensus after reconciliation, rather than an initial inter-rater reliability statistic." (p. 9)
+
+## Analyst notes
+- Reading coverage:
+  - Pages 1–31 (all body text, tables, threats, conclusion) were read in full. PDF page 19 (Fig. 4) was inspected as an image.
+  - References (pp. 31–38) were consulted selectively to check the venues of specific sources ([14], [15], [90], [144], [145], [157], [171], [200]) and whether molison2025llm is cited.
+  - Figs. 2, 3 and 5 (process diagram, QA-score histogram, debt-to-strategy map) were not inspected as images. Their content is described in the text (p. 6, p. 10, p. 26).
+- Uncertainties:
+  - Primary-study numbers (Wang et al., Zhang et al., O'Brien et al.) are labelled [A] because they are reported second-hand; we have not checked them in the primary papers. He et al. is the exception: it is in our corpus as he2026speed, whose own analysis is the source of record for that effect.
+  - Our PDF is the pre-acceptance manuscript ("Manuscript submitted to ACM", p. 1 onward); counts may have changed in the published TOSEM article (DOI 10.1145/3820165). Re-check headline counts if the published version becomes accessible.
+  - Review fixes applied 2026-11-12 (critical-review-batch-a): finding 2 corrected to "five of the six new forms"; He et al. marked as a secondary claim from he2026speed, with its omitted caveats, and the evidence row marked "do not count separately"; version note strengthened; Fig. 4 values marked as read from the image.
+  - Table 3 lists [179] under both company blogs and developer platforms (p. 10) while the total is still 73; this is a minor bookkeeping issue.
+######## fawzy2026vibe
+---
+key: fawzy2026vibe
+status: complete
+evidence_basis: full-text
+design: systematic grey literature review with thematic analysis (Garousi guidelines)
+dataset: 101 practitioner grey-literature sources (blogs, forums, media) found via Google + snowballing, 2022-2025
+sample_size: 101 sources; 518 coded behavioural units
+metrics: theme frequencies and percentages of behavioural units per RQ (no code measured)
+main_finding: Practitioners vibe code for speed (62% of motivation units) but mostly perceive the code as fast but flawed (68%); QA is often skipped (36%).
+relevance: medium
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# Vibe Coding in Practice: Motivations, Challenges, and a Future Outlook – a Grey Literature Review
+
+- Authors: Fawzy, Ahmed; Tahir, Amjed; Blincoe, Kelly
+- Year / venue: 2026, Proceedings of the IEEE/ACM 48th International Conference on Software Engineering: Software Engineering in Practice (published)
+- DOI: 10.1145/3786583.3786866 · URL: https://doi.org/10.1145/3786583.3786866
+- Source text: `fulltext.txt` (page refs = PDF page index)
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328v1, 30 Sep 2025, stamp on p. 1), a pre-acceptance version with an ACM template placeholder header ("Conference'17", every page); the published ICSE-SEIP 2026 version may differ in wording and pagination. Page refs are to our 12-page PDF.
+
+## 1. Research objective
+- [A] To systematically investigate why users engage in vibe coding, what they experience while doing so, how they perceive the quality of AI-generated code, and which quality assurance (QA) practices they apply, using firsthand accounts in grey literature (p. 1, p. 2).
+- [A] The authors define vibe coding as "using AI code generation tools to produce software primarily by describing goals in natural language and iteratively prompting, while relying on minimal review of the generated code" (p. 1).
+
+## 2. Research questions / hypotheses
+- [V] RQ1: What are the motivations behind vibe coding? (p. 2)
+- [V] RQ2: What is the user experience while vibe coding? (p. 2)
+- [V] RQ3: What is the perception of the AI-generated code quality with vibe coding? (p. 2)
+- [V] RQ4: What quality assurance (QA) practices are applied when vibe coding? (p. 2)
+- No hypotheses; exploratory qualitative design (p. 2).
+
+## 3. Methodology
+- Research design: [V] Systematic grey literature review (GLR) following Garousi et al.'s guidelines, with a quality-assessment step and Braun & Clarke thematic analysis of extracted "behavioural units" (p. 3, p. 4, p. 5). A *grey literature review* is a systematic review of non-peer-reviewed sources such as blogs and forum posts.
+- Approach / model / intervention: [V] Google search with an iteratively developed search string (six stages, including a pivot to practitioner language and a quasi-gold-standard check), plus backward snowballing (p. 3, p. 4). Each source scored 0-3 on five quality criteria (Authority, Evidence, Objectivity, Currency, Purpose; max 15); sources scoring >= 10 retained (p. 4, p. 5). Quotes extracted at the behavioural-unit level and coded into themes per RQ (p. 5).
+- Baselines or comparison conditions: not applicable (descriptive review; no comparison groups). No comparison against non-vibe-coding or human-written code.
+
+## 4. Dataset and sample
+- Data source(s): [V] Grey literature: blog posts, online articles, forums, media articles, technical reports, found via Google (p. 3, p. 5).
+- Sample size (N) and unit: [V] 154 sources retrieved; 101 included; 518 behavioural units (140 motivation, 132 experience, 114 code-quality perception, 132 QA practice) (p. 5).
+- Sampling / selection method: [V] First 100 results of the final string screened, then screening continued until thematic saturation; snowballing applied to the first 100 results (p. 4). Inclusion: English, 2022-2025, identifiable author, public full text, behavioural evidence of vibe coding (p. 4). 53 excluded: 40 below the quality threshold, 13 by inclusion/exclusion criteria (p. 5). Sources showing "Experienced developers applying critical oversight without skipping QA" were an explicit exclusion criterion (p. 4).
+- Data availability (public? link?): [V] Replication package on Zenodo, doi 10.5281/zenodo.17188020 (p. 10, p. 11). We did not open it.
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: [V] Search with Google; the quasi-gold-standard set comprised posts by Karpathy, Willison, Najim and Shields (p. 4). Quality assessment and unit extraction "mainly conducted by the first author", with "a subset" cross-validated by another co-author (p. 4, p. 5). Exact search date: not reported (reference access dates range from 1 May to 11 August 2025, DD/MM format, p. 11–12). Size of the cross-validated subset: not reported. Inter-rater agreement statistic: not reported. Breakdown of included sources by type: not reported in the text.
+- Code availability: not applicable (no software); data and analysis in the replication package (p. 10).
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen: [V] Frequency and percentage of behavioural units per theme within each RQ (Tables 2-5) (p. 6, p. 8). These count coded quotes, not sources or people. No code-level measures (correctness, quality, maintainability) are taken.
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): not reported (descriptive counts only).
+
+## 7. Key findings
+1. [V] Motivation: Speed & Efficiency is the most frequent theme, 87/140 units (62%); Accessibility & Empowerment 20 (14%); Learning & Experimentation 15 (11%) (p. 6).
+2. [V] Experience: Instant Success & Flow 85/132 (64%); Prompt Struggle & Iteration 17 (13%); Code Breakdown or Abandonment 14 (11%) (p. 8).
+3. [V] Perceived code quality: Fast but Flawed 78/114 (68%); Fragile or Error-Prone 22 (19%); Sloppy or Low Maintainability 5 (4%); Prototype-Ready Only 5 (4%); High Quality & Clean 3 (3%) (p. 8).
+4. [V] QA practices: Skipped QA 48/132 (36%); Manual Testing or Edits 38 (29%); Uncritical Trust 24 (18%); Delegated QA to AI 13 (10%); Reprompting Instead of Debugging 6 (5%) (p. 8).
+5. [A] A "speed-quality trade-off paradox": vibe coders knowingly accept flawed code for rapid progress; only experienced users can fix problems when they arise (p. 9).
+6. [A] A "QA crisis": most QA practices depart from code verification; vibe-coded apps "may look fine but hide serious flaws" (p. 9).
+7. [A] A "new class of vulnerable developers" who can build but not debug; practitioners documented vibe-coded apps lacking authentication/authorization or containing hardcoded secrets (p. 9).
+8. [A] Vibe coding "lowers barriers and accelerates prototyping, but at the cost of reliability and maintainability" (p. 1). This conclusion rests on practitioner perceptions, not on measured code.
+
+## 8. Limitations stated by the authors
+- [A] Cannot claim to have captured all relevant grey literature, given its diffuse and evolving nature (p. 10).
+- [A] Residual quality bias despite the 10/15 threshold (p. 10).
+- [A] Thematic coding involves subjective judgement; findings are "patterns drawn from the data rather than precise measurements" (p. 10).
+- [A] Self-selection bias: only practitioners who chose to share stories online; findings not generalisable to all vibe coders (p. 10).
+- [A] Coding mainly by the first author with subset cross-validation; this "reduced, but did not eliminate" subjective bias (p. 10).
+
+## 9. Limitations we identified
+- [I] Percentages are shares of coded quotes, not of sources or people, yet the Discussion reads them as people: "29% reported that they usually make some manual adjustments" and "19% admitting their code is 'fragile or error-prone'" (p. 9), and "About 14% of vibe coders are motivated" (p. 9), which is 20/140 motivation units (p. 6). One source can contribute several units, so prolific sources may dominate. Based on the unit definition (p. 5) vs the Discussion wording (p. 9).
+- [I] Excluding "Experienced developers applying critical oversight without skipping QA" (p. 4) removes careful-practice accounts by design, which likely inflates the share of skipped/uncritical QA themes. Inclusion additionally required behavioural evidence such as "AI-generated code used as-is or with light edits, prompting and reprompting, minimal or no testing, review, or improvement" (p. 4), so low-QA behaviour is partly a selection criterion rather than only a finding. The 36% Skipped QA figure is partly a product of the definition and selection.
+- [I] No code was inspected: all quality and maintainability statements are practitioner perceptions. "Sloppy or Low Maintainability" is only 5 units (4%) (p. 8), so the paper gives little direct evidence on maintainability despite its headline claim (p. 1).
+- [I] No inter-rater reliability statistic and unknown size of the cross-checked subset (p. 4, p. 5) limit confidence in theme assignment.
+- [I] Grey-literature authors (bloggers, journalists, vendor staff) may over-report dramatic successes or failures; the source-type mix is not reported in the text.
+- [I] Inclusion window is 2022-2025 although the term was coined in 2025 (p. 1, p. 4); how pre-2025 "vibe coding" behaviour was identified is not explained.
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): [I] Selection shaped by Google ranking, a single search engine, and an exclusion criterion that removes careful QA behaviour (p. 3, p. 4). Mainly single coder (p. 5).
+- External (generalisability of sample/context): [A] Self-selected online accounts; not representative of all vibe coders (p. 10). [I] English-only, 2025-era tools; tool mix not reported.
+- Construct (do metrics measure the concept?): [I] Unit frequency measures how often a theme is mentioned, not how prevalent a behaviour is among vibe coders, nor actual code quality.
+- Statistical conclusion (power, multiple comparisons, variance): not applicable (no inferential statistics); [I] themes with 1-5 units are too thin to interpret.
+- Reproducibility (data/code/setup reported?): [V] Search string, criteria, quality rubric and a replication package are reported (p. 4, p. 5, p. 10). [I] Google results are not reproducible over time; exact search dates not reported.
+
+## 11. Future research directions
+- Stated by authors [A]: how practices shift with experience (non-developers, novices, professionals) (p. 10); whether vibe coding produces defect and vulnerability patterns different from conventional AI-assisted and human coding (p. 10); which code review practices (run-and-see, automated tests, AI-assisted review) work under vibe-coding conditions (p. 10); integrating vibe coding into training for non-software developers (p. 10).
+- Suggested by us [I]: check the perceived-quality themes against actual code (static analysis, tests) for the same projects; count sources or people, not quotes; for our project, test whether a vibe-coded reconstruction of a known app shows the "fast but flawed" pattern on objective fidelity and maintainability measures. Based on the gap between perception data here and the code-level questions in RQ2/RQ3.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ1 (characterises the vibe-coding workflow: prompt-iterate, run-and-see, delegate QA), RQ3 (practitioner perceptions of quality/maintainability, not measured), RQ5 (authors' call for empirical defect/vulnerability comparisons).
+- How it informs our work [I]: gives a practitioner-grounded definition of vibe coding and a description of typical QA behaviour (run-and-see, reprompting) that a reconstruction study should model or control. It does not measure fidelity or code quality, so it can motivate but not support claims for RQ2/RQ3. Venue is peer-reviewed (ICSE-SEIP), but the underlying evidence is grey literature, so weight it as perception evidence only.
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ1 | Vibe coding defined as natural-language goal prompting plus iterative re-prompting with minimal code review; speed is the dominant motivation (87/140 motivation units, 62%) | p. 1, p. 6 | V | moderate |
+| RQ1 | Common vibe-coding QA behaviours: skipped QA (36%), uncritical trust (18%), delegating QA to the AI (10%), reprompting instead of debugging (5%) of 132 QA units | p. 8 | V | weak |
+| RQ3 | Practitioners mostly perceive vibe-coded output as "fast but flawed" (78/114, 68%) or fragile/error-prone (22/114, 19%); only 3 units (3%) call it high quality | p. 8 | V | weak |
+| RQ3 | Authors conclude vibe coding trades reliability and maintainability for speed; based on perceptions, no code measured | p. 1, p. 9 | A | weak |
+| RQ4 | Evidence is counts of coded quotes from 101 self-selected grey-literature sources, coded mainly by one author, no agreement statistic reported | p. 5, p. 10 | V | moderate |
+| RQ5 | Authors call for empirical evidence on whether vibe coding yields defect/vulnerability patterns distinct from AI-assisted and human coding, and on which review practices work | p. 10 | A | moderate |
+
+## 14. Key quotes
+> "we define vibe coding as the practice of using AI code generation tools to produce software primarily by describing goals in natural language and iteratively prompting, while relying on minimal review of the generated code" (p. 1)
+
+> "Our analysis reveals a speed–quality trade-off paradox" (p. 1)
+
+> "thematic coding inevitably contains subjective judgment, so our findings should be understood as patterns drawn from the data rather than precise measurements" (p. 10)
+
+## Analyst notes
+- Reading coverage: whole paper read (pp. 1-10); reference list (pp. 11-12) skimmed for the replication-package entry. Figures 1-3 are images not rendered in the text; their content is covered by text and tables. Replication package not opened.
+- Uncertainties: the published ICSE-SEIP version may have revised numbers or wording; our PDF is arXiv v1. Strength "weak" for perception rows reflects grey-literature sources, quote-level counting and mainly single-coder design, not a judgement on the venue.
+- Review fixes applied 2026-11-12 (critical-review-batch-a): corrected the access-date range (to 11 Aug 2025); added the third units-read-as-people instance (14%); added that the inclusion criteria themselves require low-QA behaviour.
+######## he2026speed
+---
+key: he2026speed
+status: complete
+evidence_basis: full-text
+design: quasi-experimental causal study; staggered difference-in-differences (Borusyak imputation estimator) with propensity-score-matched controls, plus Arellano-Bond dynamic panel GMM
+dataset: 806 GitHub repos (>=10 stars) that committed Cursor config files, Aug 2024-Mar 2025 adoptions; matched never-adopter controls; monthly panel Jan 2024-Aug 2025
+sample_size: 806 treated repos (801 in final panel) + 1,172-1,380 matched control repos; 21,699 repo-months
+metrics: commits, lines added; SonarQube static-analysis warnings, cognitive complexity, duplicated-line density (all log-transformed, monthly)
+main_finding: Cursor adoption gives a transient velocity spike (+281% lines added month 1) but persistent +30% static-analysis warnings and +41.6% code complexity, which then slow velocity.
+relevance: high
+analysed: 2026-11-11
+---
+<!-- Frontmatter: single-line values; they feed literature-matrix.md via `rlab index`.
+     status: draft (in progress) -> ready (analyst self-check passed) -> complete (critical review passed).
+     evidence_basis: full-text | abstract-only. abstract-only analyses must not fill methodology detail.
+     relevance: high | medium | low. -->
+
+# Speed at the Cost of Quality
+
+- Authors: He, Hao; Miller, Courtney; Agarwal, Shyam; Kästner, Christian; Vasilescu, Bogdan
+- Year / venue: 2026, Proceedings of the 23rd International Conference on Mining Software Repositories (published)
+- DOI: 10.1145/3793302.3793349 · URL: https://doi.org/10.1145/3793302.3793349
+- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is arXiv v3 (arXiv:2511.04427v3, 26 Jan 2026, stamp on p. 1) carrying the MSR '26 header, not the ACM Digital Library copy, so page refs use arXiv pagination. It includes Appendices A–D; the paper says the appendix is only in the arXiv version (p. 11).
+
+Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
+Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
+
+## 1. Research objective
+Estimate the causal effect of adopting an LLM agent assistant (Cursor) on project-level development velocity and software quality in open-source GitHub projects, and test how velocity and quality interact over time [A] (p. 1, p. 2).
+
+## 2. Research questions / hypotheses
+- Single RQ: "How does the adoption of LLM agent assistants impact project-level development velocity and code quality?" [V] (p. 2).
+- No formal hypotheses are stated. The panel-GMM part tests four causal paths: lines added → warnings, lines added → complexity, complexity → next-month lines added, warnings → next-month lines added (Equation 7) [V] (p. 6).
+
+## 3. Methodology
+- Research design: observational, quasi-experimental difference-in-differences (DiD) with staggered adoption. *DiD* compares how an outcome changes over time in adopters versus non-adopters, so that trends affecting both groups cancel out. Cursor adopters are compared with never-adopters matched by propensity score (1:3 nearest neighbour, same primary language) [V] (p. 4, p. 5). Main estimator: Borusyak et al. imputation estimator, chosen because two-way fixed effects (TWFE) can be biased under staggered adoption with heterogeneous effects [V] (p. 6). Pre-trend (placebo) tests use heteroscedasticity- and cluster-robust Wald tests on h = −6..−2; h = −1 is dropped for anticipation [V] (p. 6). Velocity–quality interactions are tested with Arellano-Bond dynamic panel GMM (two-step, first-difference, repository + month fixed effects, lags 2–3 as instruments) [V] (p. 6, p. 8).
+- Approach / model / intervention: "treatment" = first commit touching `.cursorrules` or `.cursor` files, used as a proxy for adopting the modern (Composer/agentic) Cursor client [V] (p. 2, p. 4). Treatment is intent-to-treat: actual usage intensity, LLM backend and Cursor version are unknown [V] (p. 7).
+- Baselines or comparison conditions: matched never-adopter repositories plus not-yet-treated adopters. The comparison is against "state-of-the-practice" (controls may use Copilot or ChatGPT without visible traces), not against no AI use [V] (p. 7). Robustness: TWFE and Callaway & Sant'Anna estimators (Appendix B) and subsets by usage intensity, activity level, other AI tools, language and adoption cohort (Section 4.3, Appendix C) [V] (p. 9, p. 15, p. 16, p. 17).
+
+## 4. Dataset and sample
+- Data source(s): GitHub code search API (Cursor config files), GHArchive monthly event data (matching covariates), GitHub API (primary language), local SonarQube Community server (outcomes and lines of code) [V] (p. 4, p. 5).
+- Sample size (N) and unit: unit = repository-month. 23,308 Cursor files in 3,306 non-fork repos were found; the ≥10-star filter leaves 806 adopting repos [V] (p. 4). The text states 1,380 matched controls [V] (p. 2); Table 7 "Original" setting lists 801 treatment repos, 1,172 control repos, 21,699 observations and 4,481 post-treatment observations [V] (p. 17). GMM models use 14,755 observations [V] (p. 8). Primary languages: TypeScript 366, Python 118, JavaScript 60, Go 36, Rust 24 repos [V] (p. 4).
+- Sampling / selection method: all discoverable repos with Cursor config files and ≥10 stars (threshold cited as 97% precision for engineered projects); adoption dates Jan 2024–Mar 2025; still available Aug 2025 [V] (p. 4). Matching pool: all GitHub repos with ≥10 stars, ~760k–820k candidates per monthly cohort, at most 10,000 sampled per cohort; logistic propensity models with 6 monthly lags plus cumulative history; AUC 0.83–0.91, McFadden pseudo-R² 0.14–0.27 [V] (p. 4, p. 14). Balance: all normalised differences |ND| < 0.25 ("acceptable"), but raw mean gaps remain large (e.g. pull requests 1,075.58 vs 266.03; age 496 vs 681 days, ND −0.207) [V] (p. 14). No power analysis reported.
+- Data availability (public? link?): replication package at https://doi.org/10.5281/zenodo.18368661 [V] (p. 11).
+
+## 5. Experimental setup
+- Procedure, settings, hyper-parameters, tools: monthly outcomes and covariates Jan 2024–Aug 2025, giving ≥6 months pre/post for treated repos; unbalanced panel [V] (p. 5). Time-varying covariates: lines of code, age, contributors, stars, issues opened (issue comments dropped for collinearity, ρ > 0.7) [V] (p. 5). All outcomes log-transformed; ATT read as 100(e^ATT − 1)% [V] (p. 7). SonarQube version and quality profile (rule set): not reported.
+- Code availability: replication package on Zenodo (p. 11); its contents are not described in the paper.
+
+## 6. Evaluation metrics
+- Metric — what it measures — why chosen:
+  - Commits per month; lines added per month — development velocity; common productivity proxies with moderate-to-strong correlation with perceived productivity [V] (p. 5).
+  - Static analysis warnings — total count of SonarQube reliability, maintainability and security issues; framed as an estimate of review effort because static analysis has false positives [V] (p. 5).
+  - Duplicated line density — % duplicated lines (SonarQube; usually ≥10 consecutive statements or 100 tokens) [V] (p. 5).
+  - Code complexity — total SonarQube cognitive complexity of the codebase; chosen as better aligned with understandability than cyclomatic complexity [V] (p. 5).
+  - The three quality metrics were chosen from a technical-debt perspective because they can be computed at scale from version control [A] (p. 5).
+- Statistical testing (tests used, significance, effect sizes, confidence intervals): ATT with standard errors and ± ranges on the % change; significance at 0.05/0.01/0.001; robust Wald pre-trend tests; GMM with Sargan (instrument validity) and AR(1)/AR(2) tests [V] (p. 7, p. 8). No correction for multiple comparisons across 5 outcomes × many subsets is reported.
+
+## 7. Key findings
+1. Main DiD (Borusyak): lines added +28.58% (±13.7%, p < 0.05); commits +2.63% (n.s.); static analysis warnings +30.26% (±6.66%, p < 0.001); duplicated line density +7.03% (n.s.); code complexity +41.64% (±7.62%, p < 0.001) — [V] (p. 7). Significance stars were read from the PDF image; the text extraction attaches *** to every cell.
+2. The velocity gain is transient: only months 1–2 are significant; commits +55.4% / +14.5% and lines added +281.3% / +48.4% in months 1 / 2 — [V] (p. 8, Figure 3).
+3. Quality effects persist to month 6 for warnings and complexity; all outcomes pass the pre-trend tests — [V] (p. 8, Figure 3).
+4. Panel GMM: velocity does not significantly raise warnings or complexity; Cursor has no significant direct effect on warnings (−0.011) once codebase size is controlled; Cursor still raises complexity (0.086, p < 0.01, reported as a "9% baseline increase") — [V] (p. 8, Table 3).
+5. Panel GMM: a 100% increase in complexity or warnings goes with a 64.5% / 50.3% decrease in next-month lines added; Cursor gives a 1.84x baseline increase in lines added; ~3x complexity or ~5x warnings would cancel the gain — [V] (p. 8).
+6. Robustness: quality effects are stronger in high-usage subsets (contributors who touched Cursor files made ≥80% of commits; months with config edits); they persist in very active repos and with/without traces of other AI tools (382 treated repos show other tools, 345 of them Copilot) — [V] (p. 9, p. 10, Figure 4).
+7. Estimator sensitivity: TWFE agrees (warnings +18.48%, complexity +26.04%, both p < 0.001), but Callaway & Sant'Anna gives negative, non-significant quality estimates (warnings −10.49%, complexity −3.80%); the authors conclude the quality findings need caution — [V] (p. 16, Table 6).
+8. Descriptive warning analysis (convenience sample, 195,010 warnings from 933 rules, 20-category taxonomy): 16/20 categories rise post-adoption; largest Naming Conventions +21.32, Code Hygiene +16.15, Code Complexity +15.34, Code Style +14.76 new warnings per repo per month; Logic Error +2.09, Security +1.98; API Usage −4.35 — [V] (p. 18, Table 8).
+9. The authors interpret that much of the warning increase runs through velocity → codebase size → technical debt, so Cursor "may not necessarily introduce more code quality issues than non-adopting projects moving with the same velocity", whereas complexity is inherently higher in Cursor code — [A] (p. 10).
+
+## 8. Limitations stated by the authors
+- [A] Treatment covers only repos that commit Cursor config files; possible selection bias in either direction (p. 7).
+- [A] Usage intensity and persistence unknown; estimates are intent-to-treat (p. 7).
+- [A] Cursor version and LLM backend unknown (argued to raise external validity) (p. 7).
+- [A] Matching is imperfect; unobserved confounders (expertise, team practices, culture) are untestable (p. 7, p. 14).
+- [A] Contamination by other AI tools in both groups; the effect is relative to current practice, not to no AI (p. 7).
+- [A] External validity: other agents, proprietary projects, languages beyond JS/TS/Python; fast-changing tools (p. 7); Java, C/C++, Rust insufficiently covered (p. 16).
+- [A] Quality metrics may not capture the multi-dimensional nature of quality; complexity metrics were designed for human-written code (p. 11).
+- [A] Estimators disagree for quality outcomes; many cohorts have fewer than 100 repos (p. 16).
+- [A] Composer use and agentic use cannot be separated (p. 2, p. 17).
+- [A] The warning-category analysis is a convenience sample and descriptive only (p. 18).
+
+## 9. Limitations we identified
+- [I] Internal inconsistencies in reported numbers: the discussion cites a "25.1%" complexity increase attributed to Table 2 (p. 10) and a "25%" increase attributed to Table 3 (p. 11), while Table 2 reports +41.64% and Table 3 a 0.086 coefficient (~9%) (p. 7, p. 8). Probably left over from an earlier version; use the table values.
+- [I] Sample counts differ between text and tables: 806 treated and 1,380 controls (p. 2, p. 4) versus 801 treated and 1,172 controls in Table 7 (p. 17). The paper does not explain the difference. Also, with 1:3 nearest-neighbour matching (p. 5), 806 treated repos would need up to 2,418 controls, yet only 1,380 distinct controls are reported (p. 2), so controls were shared across treated units or cohorts. The paper hints at matching with replacement ("many adopters matched the same control during 1:1 matching", p. 5) but does not state it, and does not say how reused controls are weighted or how this affects the independence of observations.
+- [I] Warnings and complexity are repository totals, so they scale with codebase size; in the GMM, lines of code absorbs most variance and removes the direct Cursor effect on warnings (p. 8). "+30% warnings" is therefore mainly "more code", not a higher warning density. For RQ3 the per-code quality signal is complexity, not warnings. Based on Table 3 (p. 8).
+- [I] The headline quality result depends on the estimator (Borusyak/TWFE positive; Callaway–Sant'Anna negative and n.s.) (p. 16); the abstract does not mention this.
+- [I] Cursor-generated code is not identified at file or line level; quality changes are attributed to whole repositories, including human-written code.
+- [I] The warning taxonomy was produced by the first author together with Claude Opus 4.5 (p. 18); no inter-rater or validation check is reported.
+- [I] No functional-correctness or test outcome is measured; quality is static analysis only.
+
+## 10. Threats to validity
+- Internal (confounds, leakage, selection): selection into treatment by committing config files; ITT dilution; unobserved confounders despite matching and fixed effects; anticipation handled by dropping h = −1 (p. 6, p. 7). Pre-trend tests pass for the main estimator (p. 8). Balance acceptable but imperfect (p. 14).
+- External (generalisability of sample/context): open-source, ≥10-star GitHub repos, mostly TypeScript/Python/JavaScript; one tool (Cursor); mid-2024 to mid-2025 (p. 4, p. 7, p. 11). [I] No enterprise or reconstruction setting.
+- Construct (do metrics measure the concept?): lines added and commits are rough velocity proxies; SonarQube warnings include false positives and are framed as review effort; cognitive complexity is a whole-codebase sum (p. 5, p. 11). [I] Maintainability is not measured directly (e.g. change effort by later developers).
+- Statistical conclusion (power, multiple comparisons, variance): no power analysis; many outcome × subset comparisons without correction; standard errors and ± ranges reported; estimator sensitivity for quality outcomes (p. 7, p. 16).
+- Reproducibility (data/code/setup reported?): Zenodo replication package (p. 11); estimators and model specifications given as equations (p. 4, p. 6, p. 14, p. 15); SonarQube version/rule set not reported.
+
+## 11. Future research directions
+- Stated by authors [A]: replicate with other and newer LLM coding tools (p. 7); test whether transient gains and proportional debt generalise to enterprise settings (p. 11); study why LLMs produce overly complex code and develop readability-aware fine-tuning or simplification passes (p. 11); study duplication under heavy AI use (p. 10); study other programming languages (p. 16); find the causes of warning-category increases (p. 18); design tools with quality assurance as a first-class feature, e.g. self-throttling (p. 11).
+- Suggested by us [I]: measure quality per line or per file for AI-attributed changes instead of repository totals; pair static-analysis metrics with a downstream maintainability task (as borg2026echoes does) to test whether higher cognitive complexity actually slows later evolution.
+
+## 12. Relevance to our research
+- Research questions addressed (RQ ids): RQ3 (main), RQ4, RQ5.
+- How it informs our work [I]: the strongest real-world causal evidence in our set that agentic, vibe-coding-style development raises code complexity and static-analysis warnings at project level. It does not study reconstruction from UI/behaviour, so it informs RQ3 by analogy only. Methodologically it shows the metric choices (SonarQube warnings, cognitive complexity, duplication) and why size normalisation and estimator robustness matter, which a reconstruction study should copy (RQ4/RQ5).
+
+## 13. Evidence table (for the evidence matrix)
+| RQ | Claim | Page | Label | Strength |
+|---|---|---|---|---|
+| RQ3 | Cursor adoption raises SonarQube static-analysis warnings by +30.26% (p<0.001) relative to matched controls (Borusyak DiD) | 7 | V | moderate |
+| RQ3 | Cursor adoption raises total cognitive complexity by +41.64% (p<0.001), persisting 6 months; still significant (0.086, p<0.01) after controlling for codebase size in GMM | 7, 8 | V | moderate |
+| RQ3 | Duplicated line density shows no significant change after adoption (+7.03%, n.s.) | 7 | V | moderate |
+| RQ3 | With codebase size controlled, Cursor has no significant direct effect on warnings (GMM); the warning rise runs mainly through more code | 8 | V | moderate |
+| RQ3 | Higher complexity and warnings predict lower next-month lines added (−64.5% / −50.3% per 100% increase) | 8 | V | moderate |
+| RQ3 | Velocity gain is transient: lines added +281.3% month 1, +48.4% month 2, then n.s. | 8 | V | moderate |
+| RQ4 | Quality results are estimator-sensitive: Callaway–Sant'Anna gives negative, n.s. estimates for warnings (−10.49%) and complexity (−3.80%) | 16 | V | moderate |
+| RQ4 | Project-level quality measured with SonarQube warnings, cognitive complexity and duplicated-line density; treatment proxied by committed .cursorrules files (intent-to-treat) | 5, 7 | V | moderate |
+| RQ5 | Authors call for enterprise replications, other tools/languages, and research on why LLMs generate overly complex code | 11, 16 | A | moderate |
+
+## 14. Key quotes
+> "our main estimates represent intent-to-treat (ITT) effects" (p. 7)
+
+> "Cursor adoption still leads to significant increases in code complexity, even when models control for project velocity dynamics" (p. 2)
+
+> "the findings around code quality outcomes should be interpreted with appropriate caution" (p. 16)
+
+## Analyst notes
+- Reading coverage: all 19 PDF pages read; references skimmed; Appendices A (matching), B (alternative estimators), C (robustness), D (SonarQube warning taxonomy) read in full. Tables 2, 3 and 6 were checked on the PDF image because pdftotext attaches *** to every cell.
+- Uncertainties: which N is final (806/1,380 vs 801/1,172); the 25%/25.1% complexity figures in the discussion conflict with the tables; SonarQube version and quality profile not reported. Venue MSR 2026 (peer-reviewed); our PDF is arXiv v3 with appendices, so appendix page refs have no counterpart in the proceedings. Funding: NSF, Google research awards, Google Cloud credits, Digital Infrastructure Fund (p. 11); no conflict bearing on Cursor apparent.
+- Review fixes applied 2026-11-12 (critical-review-batch-a): `main_finding` now uses the paper's 41.6% (was rounded to 42%); added the 1:3-matching vs 1,380-controls point (modified: the paper hints at shared controls on p. 5, so we say "not stated" rather than "not explained at all"). Note for synthesis: ehsani2026faster reports this study's +30%/+41% second-hand (its ref [90]); count the effect once, from this paper.

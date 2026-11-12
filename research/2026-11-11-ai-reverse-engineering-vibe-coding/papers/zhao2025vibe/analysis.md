@@ -1,6 +1,6 @@
 ---
 key: zhao2025vibe
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + comparative evaluation of agent frameworks x LLMs (pass@1, single run)
 dataset: SusVibes, 186 security-sensitive feature-request tasks from 100 Python repos (79 CWE types), curated from vulnerability-fix commits
@@ -66,7 +66,7 @@ No formal RQs or hypotheses. Implicit questions from the contributions list:
 ## 7. Key findings
 1. Best functional setting SWE-agent + Claude 4 Sonnet: FuncPass 57.0%, SecPass 11.8% (p. 7, Table 3); 79.3% of its functionally correct solutions are insecure (p. 6). [V] (11.8/57.0 = 20.7% secure, arithmetic consistent.)
 2. Across all 12 settings FuncPass ranges 12.9–57.0% and SecPass 3.8–12.9% (p. 7, Table 3); the authors summarise average SecPass as "only around 10%" (p. 6). [V]
-3. SecPass ⊥ FuncPass by backbone (averaged over frameworks): Claude 4 Sonnet 18.3%, Kimi K2 22.0%, Gemini 2.5 Pro 30.4%, Gemini 3 Pro 21.4%; by framework: SWE-agent 23.3%, OpenHands 20.1%, Claude Code 17.4% (p. 6). [V] The functionally weakest model (Gemini 2.5 Pro) is the most secure on the shared subset (p. 6–7). [V]
+3. SecPass ⊥ FuncPass by backbone (averaged over frameworks): Claude 4 Sonnet 18.3%, Kimi K2 22.0%, Gemini 2.5 Pro 30.4%, Gemini 3 Pro 21.4%; by framework: SWE-agent 23.3%, OpenHands 20.1%, Claude Code 17.4% (p. 6). [V] The functionally weakest model (Gemini 2.5 Pro) is the most secure on the shared subset (p. 6–7). [V] The authors note one exception to the ranking: Gemini 3 Pro is best on SWE-agent (36.4%) but not on the other frameworks (p. 6). [V] The shared subset is the intersection of tasks solved by all four LLMs within a framework (p. 6), so it cannot exceed the weakest model's FuncPass: Gemini 2.5 Pro solved 18.3% / 19.9% / 12.9% (SWE-agent / OpenHands / Claude Code), i.e. at most ~34 / 37 / 24 of 186 tasks (p. 7, Table 3). [V] The actual subset size is not reported; the secure-ratio comparison therefore rests on a small, unreported subset that is likely biased towards the easiest tasks [I] (based on the definition on p. 6 and Table 3, p. 7).
 4. Gemini 3 Pro more than doubles FuncPass over Gemini 2.5 Pro under SWE-agent, while SecPass ⊥ FuncPass improves only 1.3x (p. 6–7). [V]
 5. Performance falls with the number of files the reference patch touches: Claude 4 Sonnet FuncPass 66.9% (1 file) → 39.1% (2 files) → 30.3% (>2 files); SecPass 15.4% → 4.3% → 3.0% (p. 14, Table 9). [V]
 6. Mitigation (SWE-agent + Claude 4 Sonnet): generic 57.0 / 11.8; self-selection 50.0 / 14.5; oracle CWE hint 55.4 / 15.1 (FuncPass / SecPass) (p. 8, Table 5). [V] The authors read this as small security gains at the cost of functionality (p. 8). [A]
@@ -88,6 +88,7 @@ No formal RQs or hypotheses. Implicit questions from the contributions list:
 - [I] Claude 4 Sonnet powers the environment-building agent (p. 17) and SWE-agent drives task construction (p. 4); the best-scoring setting is SWE-agent + Claude 4 Sonnet. A construction–evaluation affinity bias is possible but untested.
 - [I] The "generic" condition already contains a security reminder (p. 7, p. 20), so the main results are not a pure no-guidance vibe-coding condition; insecurity without any reminder could be higher.
 - [I] Security is checked by few tests per task (mean 3.5, p. 5) that target only the historical vulnerability; other vulnerabilities an agent introduces are not detected (no static analysis), so SecPass is an upper bound on "secure".
+- [I] The "most secure LLM / framework" ranking (SecPass ⊥ FuncPass, p. 6) is computed on the intersection of tasks solved by all compared settings (p. 6). Its size is never reported and is bounded by the weakest model's FuncPass (≤ ~24–37 tasks per framework, Table 3, p. 7), and solved-by-all tasks are likely the easiest. Differences such as 30.4% vs 18.3% may therefore rest on a handful of tasks.
 - [I] Funding/conflicts: work partly supported by HydroX AI (an author affiliation) with compute/credits from Modal and Google (p. 9); Gemini models are evaluated. No visible bias (Gemini 2.5 Pro scores lowest functionally), noted per the appraisal checklist.
 
 ## 10. Threats to validity
@@ -110,12 +111,12 @@ No formal RQs or hypotheses. Implicit questions from the contributions list:
 |---|---|---|---|---|
 | RQ2 | Best agent setting (SWE-agent + Claude 4 Sonnet) passes upstream human-written functional tests on 57.0% of 186 repository-level feature tasks; the 12 settings range 12.9–57.0% FuncPass | 7 | V | moderate |
 | RQ3 | 79.3% of the functionally correct solutions of the best setting fail the security tests; SecPass is 3.8–12.9% across settings | 6 | V | moderate |
-| RQ3 | Functional and security skill diverge: the functionally weakest model (Gemini 2.5 Pro) has the highest secure ratio on commonly solved tasks (30.4% vs 18.3% for Claude 4 Sonnet) | 6 | V | moderate |
+| RQ3 | Functional and security skill diverge: the functionally weakest model (Gemini 2.5 Pro) has the highest secure ratio on commonly solved tasks (30.4% vs 18.3% for Claude 4 Sonnet); exception: Gemini 3 Pro best on SWE-agent (36.4%); the commonly solved subset is unreported and at most ~24–37 tasks per framework (p. 7) | 6 | V | weak |
 | RQ3 | Simple security prompting (self-selection / oracle CWE) raises SecPass by 2.7–3.3 pp but lowers FuncPass by 1.6–7.0 pp (single setting, single run) | 8 | V | weak |
 | RQ2 | Functional success drops as the reference patch spans more files (Claude 4 Sonnet: 66.9% single-file vs 30.3% for >2 files) | 14 | V | moderate |
 | RQ4 | Functional and security oracles are human-written upstream tests, validated by execution on masked, vulnerable and fixed commits; no LLM judge is used | 5 | V | moderate |
 | RQ4 | Five experts reviewed security tests: 6.5% were coupled to the reference implementation, 44.0% might miss edge-case secure alternatives; tests were rewritten; no inter-annotator agreement reported | 19 | V | moderate |
-| RQ4 | Results are single-run pass@1 with no confidence intervals or significance tests | 6 | V | strong |
+| RQ4 | Results are single-run pass@1 with no confidence intervals or significance tests | 6 | V | n/a (design fact) |
 | RQ5 | Authors call for property-based/adversarial tests and static analysis to complement test-based security evaluation | 24 | A | weak |
 
 ## 14. Key quotes

@@ -1,12 +1,12 @@
 ---
 key: he2026speed
-status: ready
+status: complete
 evidence_basis: full-text
 design: quasi-experimental causal study; staggered difference-in-differences (Borusyak imputation estimator) with propensity-score-matched controls, plus Arellano-Bond dynamic panel GMM
 dataset: 806 GitHub repos (>=10 stars) that committed Cursor config files, Aug 2024-Mar 2025 adoptions; matched never-adopter controls; monthly panel Jan 2024-Aug 2025
 sample_size: 806 treated repos (801 in final panel) + 1,172-1,380 matched control repos; 21,699 repo-months
 metrics: commits, lines added; SonarQube static-analysis warnings, cognitive complexity, duplicated-line density (all log-transformed, monthly)
-main_finding: Cursor adoption gives a transient velocity spike (+281% lines added month 1) but persistent +30% static-analysis warnings and +42% cognitive complexity, which then slow velocity.
+main_finding: Cursor adoption gives a transient velocity spike (+281% lines added month 1) but persistent +30% static-analysis warnings and +41.6% code complexity, which then slow velocity.
 relevance: high
 analysed: 2026-11-11
 ---
@@ -20,7 +20,7 @@ analysed: 2026-11-11
 - Authors: He, Hao; Miller, Courtney; Agarwal, Shyam; Kästner, Christian; Vasilescu, Bogdan
 - Year / venue: 2026, Proceedings of the 23rd International Conference on Mining Software Repositories (published)
 - DOI: 10.1145/3793302.3793349 · URL: https://doi.org/10.1145/3793302.3793349
-- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is arXiv v3 (26 Jan 2026), which includes Appendices A–D; the paper says the appendix is only in the arXiv version (p. 11).
+- Source text: `fulltext.txt` (page refs = PDF page index). Our PDF is arXiv v3 (arXiv:2511.04427v3, 26 Jan 2026, stamp on p. 1) carrying the MSR '26 header, not the ACM Digital Library copy, so page refs use arXiv pagination. It includes Appendices A–D; the paper says the appendix is only in the arXiv version (p. 11).
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -81,7 +81,7 @@ Estimate the causal effect of adopting an LLM agent assistant (Cursor) on projec
 
 ## 9. Limitations we identified
 - [I] Internal inconsistencies in reported numbers: the discussion cites a "25.1%" complexity increase attributed to Table 2 (p. 10) and a "25%" increase attributed to Table 3 (p. 11), while Table 2 reports +41.64% and Table 3 a 0.086 coefficient (~9%) (p. 7, p. 8). Probably left over from an earlier version; use the table values.
-- [I] Sample counts differ between text and tables: 806 treated and 1,380 controls (p. 2, p. 4) versus 801 treated and 1,172 controls in Table 7 (p. 17). The paper does not explain the difference.
+- [I] Sample counts differ between text and tables: 806 treated and 1,380 controls (p. 2, p. 4) versus 801 treated and 1,172 controls in Table 7 (p. 17). The paper does not explain the difference. Also, with 1:3 nearest-neighbour matching (p. 5), 806 treated repos would need up to 2,418 controls, yet only 1,380 distinct controls are reported (p. 2), so controls were shared across treated units or cohorts. The paper hints at matching with replacement ("many adopters matched the same control during 1:1 matching", p. 5) but does not state it, and does not say how reused controls are weighted or how this affects the independence of observations.
 - [I] Warnings and complexity are repository totals, so they scale with codebase size; in the GMM, lines of code absorbs most variance and removes the direct Cursor effect on warnings (p. 8). "+30% warnings" is therefore mainly "more code", not a higher warning density. For RQ3 the per-code quality signal is complexity, not warnings. Based on Table 3 (p. 8).
 - [I] The headline quality result depends on the estimator (Borusyak/TWFE positive; Callaway–Sant'Anna negative and n.s.) (p. 16); the abstract does not mention this.
 - [I] Cursor-generated code is not identified at file or line level; quality changes are attributed to whole repositories, including human-written code.
@@ -126,3 +126,4 @@ Estimate the causal effect of adopting an LLM agent assistant (Cursor) on projec
 ## Analyst notes
 - Reading coverage: all 19 PDF pages read; references skimmed; Appendices A (matching), B (alternative estimators), C (robustness), D (SonarQube warning taxonomy) read in full. Tables 2, 3 and 6 were checked on the PDF image because pdftotext attaches *** to every cell.
 - Uncertainties: which N is final (806/1,380 vs 801/1,172); the 25%/25.1% complexity figures in the discussion conflict with the tables; SonarQube version and quality profile not reported. Venue MSR 2026 (peer-reviewed); our PDF is arXiv v3 with appendices, so appendix page refs have no counterpart in the proceedings. Funding: NSF, Google research awards, Google Cloud credits, Digital Infrastructure Fund (p. 11); no conflict bearing on Cursor apparent.
+- Review fixes applied 2026-11-12 (critical-review-batch-a): `main_finding` now uses the paper's 41.6% (was rounded to 42%); added the 1:3-matching vs 1,380-controls point (modified: the paper hints at shared controls on p. 5, so we say "not stated" rather than "not explained at all"). Note for synthesis: ehsani2026faster reports this study's +30%/+41% second-hand (its ref [90]); count the effect once, from this paper.

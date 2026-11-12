@@ -1,0 +1,3275 @@
+{
+  "query": "hallucinated packages",
+  "sources": [
+    "arxiv",
+    "crossref"
+  ],
+  "year_from": 2025,
+  "year_to": null,
+  "run_at": "2026-11-12T05:37:25+06:00",
+  "raw_hits": 91,
+  "unique": 90,
+  "errors": {},
+  "results": [
+    {
+      "title": "HFuzzer: Testing Large Language Models for Package Hallucinations via Phrase-based Fuzzing",
+      "authors": [
+        {
+          "family": "Zhao",
+          "given": "Yukai"
+        },
+        {
+          "family": "Wu",
+          "given": "Menghan"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2509.23835",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2509.23835",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.23835",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models (LLMs) are widely used for code generation, but they face critical security risks when applied to practical production due to package hallucinations, in which LLMs recommend non-existent packages. These hallucinations can be exploited in software supply chain attacks, where malicious attackers exploit them to register harmful packages. It is critical to test LLMs for package hallucinations to mitigate package hallucinations and defend against potential attacks. Although researchers have proposed testing frameworks for fact-conflicting hallucinations in natural language generation, there is a lack of research on package hallucinations. To fill this gap, we propose HFUZZER, a novel phrase-based fuzzing framework to test LLMs for package hallucinations. HFUZZER adopts fuzzing technology and guides the model to infer a wider range of reasonable information based on phrases, thereby generating enough and diverse coding tasks. Furthermore, HFUZZER extracts phrases from package information or coding tasks to ensure the relevance of phrases and code, thereby improving the relevance of generated tasks and code. We evaluate HFUZZER on multiple LLMs and find that it triggers package hallucinations across all selected models. Compared to the mutational fuzzing framework, HFUZZER identifies 2.60x more unique hallucinated packages and generates more diverse tasks. Additionally, when testing the model GPT-4o, HFUZZER finds 46 unique hallucinated packages. Further analysis reveals that for GPT-4o, LLMs exhibit package hallucinations not only during code generation but also when assisting with environment configuration.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 1,
+      "in_project": "zhao2025hfuzzer"
+    },
+    {
+      "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+      "authors": [
+        {
+          "family": "Churilov",
+          "given": "Aleksandr"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.17062",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.17062",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.17062",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Package hallucinations, LLM-generated references to packages that do not exist, enable slopsquatting: an attacker registers the hallucinated name. We replicate Spracklen et al. (USENIX Security '25) on five 2026 frontier models over 199,840 Python and JavaScript generations. This version reports a preregistered live revalidation that replaces the static package lists of earlier versions with two independent checks against the live PyPI and npm registries. Hallucination rates are 3.6-5.0% of package mentions (2.2-3.4% of generations): the 2026 frontier sits at the level of 2024's commercial models, and the open-weight gap seen in 2024 has disappeared. Python exceeds JavaScript for every model. The set of names hallucinated by all five models shrinks from the 127 reported earlier to 104; 26 earlier entries were correct import statements whose module name differs from the package name. Using the accidental six-month public exposure of our own list as a natural experiment, we find no detectable effect of publication: about 1% of hallucinated names were registered within six months, at the same rate for published and unpublished names, and the 95% interval excludes increases above 2.5 percentage points. Still, at least 23 package names that the models suggest had previously hosted malware later removed by the registries, and one hallucinated name was registered with malware after our runs.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 2,
+      "in_project": "churilov2026range"
+    },
+    {
+      "title": "Mitigating Package Hallucinations in Large Language Models via Model Editing",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Shuhan"
+        },
+        {
+          "family": "Zhao",
+          "given": "Yukai"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        },
+        {
+          "family": "Liu",
+          "given": "Kui"
+        },
+        {
+          "family": "Yang",
+          "given": "Xiaohu"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2607.02052",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2607.02052",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.02052",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language models (LLMs) have demonstrated strong capabilities in software engineering tasks, such as code generation, library recommendation, and dependency configuration. However, recent studies show that LLMs may suffer from package hallucination, where they generate non-existent or invalid package names. These hallucinations can be exploited in software supply chain attacks, as attackers may register malicious packages under hallucinated names. Therefore, mitigating package hallucination is important for improving the reliability and security of LLM-assisted software development. In this paper, we introduce BOUND, a lightweight localized model editing framework for mitigating package hallucinations in LLMs. BOUND formulates package hallucination mitigation as a package-validity boundary editing problem, where the boundary refers to the model's ability to distinguish valid packages from hallucinated package names under a given task context. It first locates modules related to package hallucination through a risk-aware localization strategy, and then edits these modules with lightweight LoRA adapters using a boundary-aware objective that reinforces valid packages, suppresses hallucinated packages, and preserves locality behavior. Experimental results show that BOUND effectively reduces package hallucinations while preserving valid package recommendations. In the package recommendation task, BOUND reduces package-level hallucination rate (Package-HR) by 79.9% on edit prompts and by 65.4% on unseen prompts. The learned package-validity boundary further generalizes to other package-related tasks, reducing Package-HR by 12.8% in code generation and by 34.0% in pip install recommendation. These results show that BOUND refines the package-validity boundary of LLMs and improves the reliability of package-related outputs.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 3,
+      "in_project": "liu2026mitigating"
+    },
+    {
+      "title": "Bayesian-Calibrated Detection of Hallucinated Package Imports in AI-Assisted Code",
+      "authors": [
+        {
+          "family": "Hillah",
+          "given": "Lom M."
+        },
+        {
+          "family": "Richard",
+          "given": "Jean-Marc"
+        },
+        {
+          "family": "Hasnaoui",
+          "given": "Ryan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.13918",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.13918",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.13918",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We present a Bayesian calibration layer for slopsquat detectors -- those that flag hallucinated package imports in code produced by large language models (LLMs). Where existing pipelines emit binary decisions (flag / do-not-flag), our layer emits a Beta-posterior probability per detection, derived from a 3-category epistemic taxonomy that explicitly classifies each prior as empirically calibrated, constructively argued, or engineering-judgement-traced. Beyond the primary 200/404 registry channel, the calibrated layer exploits PyPI metadata signals -- package age, release count, author descriptor, summary -- to surface registered-but-suspicious packages that a binary registry detector misses, which is the realistic post-LLM-emission attacker regime. The resulting risk-aware primitive is directly consumable by downstream CI gates and supports principled threshold decisions across detection rules. We evaluate the calibration on a merged corpus of 1,734 Python snippets -- a stratified 189-prompt BigCodeBench slice plus a 100-prompt niche-library stress-test set, generated across a six-model panel spanning four cloud models (Claude-Sonnet-4.6, Mistral-Large, DeepSeek-v4-pro, DeepSeek-R1) and two local open-weight code models (Mistral Codestral, Meta CodeLlama). Against a re-implemented binary baseline inspired by Mahmud et al. -- which shares its registry oracle with our ground truth and therefore serves as a degenerate upper bound rather than a genuine competitor -- the calibrated layer reproduces the strict-registry detections and introduces well-calibrated additional flags on the metadata channel. We assess detector asymmetry with a McNemar paired test and calibration with both a flagged-subset Expected Calibration Error and a strictly proper full-corpus Brier score.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "PackMonitor: Enabling Zero Package Hallucinations Through Decoding-Time Monitoring",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Xiting"
+        },
+        {
+          "family": "Liu",
+          "given": "Yuetong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yitong"
+        },
+        {
+          "family": "Li",
+          "given": "Jia"
+        },
+        {
+          "family": "Hu",
+          "given": "Shi-Min"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2602.20717",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2602.20717",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.20717",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "As Large Language Models (LLMs) are increasingly integrated into software development workflows, their trustworthiness has become a critical concern. However, in dependency recommendation scenarios, the reliability of LLMs is undermined by widespread package hallucinations, where models often recommend hallucinated packages. Recent studies have proposed a range of approaches to mitigate this issue. Nevertheless, existing approaches typically merely reduce hallucination rates rather than eliminate them, leaving persistent software security risks. In this work, we argue that package hallucinations are theoretically preventable based on the key insight that package validity is decidable through finite and enumerable authoritative package lists. Building on this, we propose PackMonitor, the first approach capable of fundamentally eliminating package hallucinations by continuously monitoring the model's decoding process and intervening when necessary. To implement this in practice, PackMonitor addresses three key challenges: (1) determining when to trigger intervention via a Context-Aware Parser that continuously monitors model outputs and selectively activates intervening only during installation command generation; (2) resolving how to intervene by employing a Package-Name Intervenor that strictly limits the decoding space to an authoritative package list; and (3) ensuring monitoring efficiency through a DFA-Caching Mechanism that enables scalability to millions of packages with negligible overhead. Extensive experiments on five widely used LLMs demonstrate that PackMonitor is a training-free, plug-and-play solution that consistently reduces package hallucination rates to zero while maintaining low-latency inference and preserving original model capabilities.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 5,
+      "in_project": "liu2026packmonitor"
+    },
+    {
+      "title": "Secure or Suspect? Investigating Package Hallucinations of Shell Command in Original and Quantized LLMs",
+      "authors": [
+        {
+          "family": "Haque",
+          "given": "Md Nazmul"
+        },
+        {
+          "family": "Lin",
+          "given": "Elizabeth"
+        },
+        {
+          "family": "Arkoh",
+          "given": "Lawrence"
+        },
+        {
+          "family": "Tadesse",
+          "given": "Biruk"
+        },
+        {
+          "family": "Xu",
+          "given": "Bowen"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2512.08213",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2512.08213",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.08213",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models for code (LLMs4Code) are increasingly used to generate software artifacts, including library and package recommendations in languages such as Go. However, recent evidence shows that LLMs frequently hallucinate package names or generate dependencies containing known security vulnerabilities, posing significant risks to developers and downstream software supply chains. At the same time, quantization has become a widely adopted technique to reduce inference cost and enable deployment of LLMs on resource-constrained environments. Despite its popularity, little is known about how quantization affects the correctness and security of LLM-generated software dependencies while generating shell commands for package installation. In this work, we conduct the first systematic empirical study of the impact of quantization on package hallucination and vulnerability risks in LLM-generated Go packages. We evaluate five Qwen model sizes under full-precision, 8-bit, and 4-bit quantization across three datasets (SO, MBPP, and paraphrase). Our results show that quantization substantially increases the package hallucination rate (PHR), with 4-bit models exhibiting the most severe degradation. We further find that even among the correctly generated packages, the vulnerability presence rate (VPR) rises as precision decreases, indicating elevated security risk in lower-precision models. Finally, our analysis of hallucinated outputs reveals that most fabricated packages resemble realistic URL-based Go module paths, such as most commonly malformed or non-existent GitHub and golang.org repositories, highlighting a systematic pattern in how LLMs hallucinate dependencies. Overall, our findings provide actionable insights into the reliability and security implications of deploying quantized LLMs for code generation and dependency recommendation.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 6,
+      "in_project": "haque2025secure"
+    },
+    {
+      "title": "Importing Phantoms: Measuring LLM Package Hallucination Vulnerabilities",
+      "authors": [
+        {
+          "family": "Krishna",
+          "given": "Arjun"
+        },
+        {
+          "family": "Galinkin",
+          "given": "Erick"
+        },
+        {
+          "family": "Derczynski",
+          "given": "Leon"
+        },
+        {
+          "family": "Martin",
+          "given": "Jeffrey"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2501.19012",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2501.19012",
+      "oa_pdf_url": "https://arxiv.org/pdf/2501.19012",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models (LLMs) have become an essential tool in the programmer's toolkit, but their tendency to hallucinate code can be used by malicious actors to introduce vulnerabilities to broad swathes of the software supply chain. In this work, we analyze package hallucination behaviour in LLMs across popular programming languages examining both existing package references and fictional dependencies. By analyzing this package hallucination behaviour we find potential attacks and suggest defensive strategies to defend against these attacks. We discover that package hallucination rate is predicated not only on model choice, but also programming language, model size, and specificity of the coding task request. The Pareto optimality boundary between code generation performance and package hallucination is sparsely populated, suggesting that coding models are not being optimized for secure code. Additionally, we find an inverse correlation between package hallucination rate and the HumanEval coding benchmark, offering a heuristic for evaluating the propensity of a model to hallucinate packages. Our metrics, findings and analyses provide a base for future models, securing AI-assisted software development workflows against package supply chain attacks.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 7,
+      "in_project": "krishna2025importing"
+    },
+    {
+      "title": "LLM Ghostbusters: Surgical Package Hallucination Suppression via Adaptive Unlearning",
+      "authors": [
+        {
+          "family": "Spracklen",
+          "given": "Joseph"
+        },
+        {
+          "family": "Aghazadeh",
+          "given": "Pedram"
+        },
+        {
+          "family": "Koushanfar",
+          "given": "Farinaz"
+        },
+        {
+          "family": "Jadliwala",
+          "given": "Murtuza"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.01047",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.01047",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.01047",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Hallucinations remain an unsolved problem for LLMs, and package hallucinations are a particularly dangerous instance of this phenomenon. Package hallucinations occur during code generation when a model fabricates non-existent software packages, recommending imports and installation commands for fictional libraries. This creates a critical supply-chain vulnerability; an attacker can proactively register such packages on public registries with malicious payloads that are subsequently installed and executed by developers or autonomous agents. These hallucinations enable a class of package confusion attack known as slopsquatting. To address this issue, we present Adaptive Unlearning (AU), a post-deployment framework that surgically suppresses package hallucinations while preserving general model utility. AU introduces a hybrid token-level objective that simultaneously reinforces valid outputs and suppresses hallucinated ones. Combined with an adaptive discovery loop that continuously surfaces new hallucination-inducing contexts without human supervision, AU enables generalization to unseen prompts and hallucinations. We demonstrate that AU reduces package hallucination rates by 88%, while maintaining performance on standard coding benchmarks. Our analysis shows that distributional changes are concentrated on package-related generations, leaving general coding behavior largely unaffected and confirming that AU's effect is isolated to the targeted distribution. AU relies entirely on model-generated data and requires no human annotation, representing a post-deployment hallucination mitigation framework.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 8,
+      "in_project": "spracklen2026llm"
+    },
+    {
+      "title": "Evaluating Inference-Time Defenses Against Package Hallucination in LLM-Generated Code",
+      "authors": [
+        {
+          "family": "Djire",
+          "given": "Alberick Euraste"
+        },
+        {
+          "family": "Olatunji",
+          "given": "Iyiola E."
+        },
+        {
+          "family": "Tessa",
+          "given": "Melissa"
+        },
+        {
+          "family": "Barr",
+          "given": "Earl T."
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Bissyandé",
+          "given": "Tegawendé F."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.1145/3832783.3837555",
+      "arxiv_id": "2608.22652",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2608.22652",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.22652",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLMs are increasingly used for code generation, yet they frequently hallucinate non-existent software packages, creating exploitable entry points into the software supply chain. We make four contributions to this problem. First, we show that prior evaluation methodologies systematically inflate hallucination rates by misclassifying standard-library modules as hallucinations in some languages. For Python, the overestimation reaches 9.4 percentage points. Second, we evaluate seven inference-time defenses for mitigating package hallucinations, including five guided decoding strategies (Greedy, Contrastive, DoLa, Nudging, and Active Layer-Contrastive Decoding), an iterative self-refinement approach (Self-Refine), and a Retrieval-Augmented Generation (RAG)-based defense.. Across eight models spanning five families and four programming languages (Python, JavaScript, Ruby, Rust), RAG reduces the package hallucination rate (PHR) in 18 of 32 model--language configurations. Third, we introduce Package Utility (PU) to assess whether defenses preserve valid and task-relevant recommendations. Among strategies evaluated, Greedy decoding provides the strongest average mitigation--utility trade-off. Fourth, we stress-test all strategies under adversarial prompts seeded with fabricated package names and find that PHR surges by up to 45 percentage points relative to standard prompts, with Ruby consistently the most vulnerable language (80.9--95.2\\%). Under adversarial conditions, RAG and Self-Refine outperform all decoding-only strategies, indicating that robust defense requires either external grounding or iterative self-verification when prompts are actively hostile. Our results recast package hallucination as both a measurement problem and a decoding-time control problem, and they demonstrate that the choice of defense must be matched to the threat model and recommendation utility.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 9,
+      "in_project": "djire2026evaluating"
+    },
+    {
+      "title": "Package Hallucination Attacks on Coding Agents through Prompt Injection in Rule Files",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Yupu"
+        },
+        {
+          "family": "Jiang",
+          "given": "Zhengyuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Reachal"
+        },
+        {
+          "family": "Gong",
+          "given": "Neil Zhenqiang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.09264",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.09264",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.09264",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Modern agentic coding frameworks increasingly rely on community-shared rule files (e.g., AGENTS.md or .cursorrules) to guide autonomous code generation, yet the security risks of this pipeline remain underexplored. To bridge this gap, we introduce the package hallucination attack, where an attacker injects malicious prompts into benign rule files to induce coding agents to replace legitimate dependencies with attacker-controlled packages. To obtain effective malicious prompts injected into rule files, we propose PackHallu, an evolutionary optimization framework that iteratively rewrites these injected prompts using trajectory-level feedback and LLM-guided mutations. Evaluations across multiple benchmarks, LLMs, and agent frameworks show that PackHallu achieves high attack success rates and strong transferability across diverse models and agent combinations. Our findings demonstrate that coding agents are vulnerable to package hallucination attacks, highlighting the urgent need for stronger security safeguards in autonomous coding systems.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 10,
+      "in_project": "wang2026package"
+    },
+    {
+      "title": "Harmless Yet Harmful: Neutral Prompting Attacks for Stealthy Hallucination Steering in Agent Skills",
+      "authors": [
+        {
+          "family": "Hsu",
+          "given": "Chia-Yi"
+        },
+        {
+          "family": "Yu",
+          "given": "Chia-Mu"
+        },
+        {
+          "family": "Huang",
+          "given": "Chun-Ying"
+        },
+        {
+          "family": "Sakuma",
+          "given": "Jun"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.29354",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.29354",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.29354",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-powered coding agents increasingly participate in software development workflows by generating code, selecting dependencies, and producing package installation commands. This creates a new software supply chain risk: when an agent hallucinates a non-existent package, an attacker may register the hallucinated name and later compromise users who install it. Existing package hallucination attacks and defenses primarily focus on naturally occurring hallucinations, targeted dependency steering, or post-hoc package validation. In this paper, we introduce \\emph{Neutral Prompting Attack} (NPA), a highly stealthy attack paradigm in which semantically benign instructions, such as encouraging imagination and exhaustiveness, increase package hallucination propensity without containing explicit malicious intent. Unlike targeted dependency steering, NPA does not specify an attacker-chosen package. Instead, it shifts the model's dependency generation behavior toward more speculative package names. We evaluate NPA across multiple coding-oriented LLMs and package hallucination benchmarks. Our results show that NPA increases both \\emph{Hallucination ASR} and \\emph{Pip Install ASR}, changes the distribution of hallucinated package names, and evades existing static-analysis, LLM-based, and agent-based Skill defenses. These findings reveal that harmless-looking prompts can covertly manipulate hallucination behavior and create downstream software supply chain risks.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 11,
+      "in_project": "hsu2026harmless"
+    },
+    {
+      "title": "Names Can Hurt: Spotting Slopsquatting Risks Caused by Package Name Hallucinations in Local Coding LLMs",
+      "authors": [
+        {
+          "family": "Raj",
+          "given": "Akash"
+        },
+        {
+          "family": "Sahu",
+          "given": "Sargam"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.5281/zenodo.22087562",
+      "arxiv_id": "2608.23897",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2608.23897",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.23897",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "When a code generating language model fabricates a Python package name, an adversary who has pre-registered that name on PyPI can convert that hallucination into a supply chain compromise. This event has been termed as 'slopsquatting'. We propose a two layer detector to counter this issue. The first layer performs a deterministic PyPI existence check. The second is a Random Forest classifier trained on ten features derived from the package name and its PyPI metadata. An import name reconciler bridges the two, resolving cases such as 'import cv2' versus 'pip install opencv-python' without a security bypass. The detector is embedded in a LangGraph state machine that retries at escalating temperatures and, on repeated failure, routes to a stronger fallback model. Across 300 curated prompts, the pipeline produces hallucination free code on 76% of runs. The primary exhausts its retry budget on 28.7%; intra model retries recover roughly a quarter of those, and cross model fallback recovers a further 16.5% of the remainder. Four findings have been observed. First, half of the flagged hallucinations are packages already registered on PyPI, as low quality lookalikes of well known projects, caught by the classifier rather than the deterministic layer (e.g., pil, faiss, tabula, haystack). Second, hallucination rate scales almost linearly with prompt adversariality, from 0 to 10% on routine coding to 40 to 73% on slopsquat baits. Third, the weaker primary refused 6 of 10 direct baits unaided, suggesting recent instruction tuning provides a baseline defense. Fourth, when primary and fallback share a model family, approximately 84% of primary failures recur on the fallback, motivating cross family pairing. A user study (n = 24) reports mean satisfaction 4.4 out of 5 and 21 of 24 stated adoption intent.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 12,
+      "in_project": "raj2026names"
+    },
+    {
+      "title": "StateMirror: Pre-Execution Detection of Hallucinated Tool Calls in Coding Agents",
+      "authors": [
+        {
+          "family": "Shan",
+          "given": "Shiwen"
+        },
+        {
+          "family": "Huo",
+          "given": "Yintong"
+        },
+        {
+          "family": "Wu",
+          "given": "Zhiying"
+        },
+        {
+          "family": "Su",
+          "given": "Yuxin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.32648",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.32648",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.32648",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language model (LLM)-based coding agents may propose invalid actions that are not applicable in the execution environment, such as accessing non-existent paths or missing packages. We term this mismatch hallucinated tool use. A preliminary study of 4,398 agent trajectories reveals that these hallucinations are pervasive and costly, requiring a median of 3 additional interaction steps and 22.4K tokens to recover. Existing frameworks rely on reactive, post-execution feedback, wasting runtime resources. Nevertheless, since an agent's execution environment is grounded in concrete codebase and harness components, many action prerequisites can be extracted and validated prior to execution. To this end, we introduce StateMirror, a lightweight pre-execution detector. StateMirror intercepts actions at the harness boundary, extracts state predicates via AST and command analysis, and deterministically validates them against the live repository. By pinpointing exact environment mismatches before execution, StateMirror preempts invalid actions and subsequent recovery cycles. Evaluation on 2,508 actions shows StateMirror achieves 0.940 precision and 0.817 F1 in detecting such hallucinations, surpassing the strongest LLM judge by 35.3% in F1 while reducing median detection latency from 17.73 s to 1.50 ms with zero token consumption. For practical mitigation, StateMirror's pre-execution feedback enables agents to rectify over 95% of hallucinated tool calls. During live mitigation on 79 tasks, StateMirror reduces agent execution time by 15.8% and token consumption by 11.8% while maintaining task resolution.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "HalluCiteChecker: A Lightweight Toolkit for Hallucinated Citation Detection and Verification in the Era of AI Scientists",
+      "authors": [
+        {
+          "family": "Sakai",
+          "given": "Yusuke"
+        },
+        {
+          "family": "Kamigaito",
+          "given": "Hidetaka"
+        },
+        {
+          "family": "Watanabe",
+          "given": "Taro"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2604.26835",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2604.26835",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.26835",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We introduce HalluCiteChecker, a toolkit for detecting and verifying hallucinated citations in scientific papers. While AI assistant technologies have transformed the academic writing process, including citation recommendation, they have also led to the emergence of hallucinated citations that do not correspond to any existing work. Such citations not only undermine the credibility of scientific papers but also impose an additional burden on reviewers and authors, who must manually verify their validity during the review process. In this study, we formalize hallucinated citation detection as an NLP task and provide a corresponding toolkit as a practical foundation for addressing this problem. Our package is lightweight and can perform verification in seconds on a standard laptop. It can also be executed entirely offline and runs efficiently using only CPUs. We hope that HalluCiteChecker will help reduce reviewer workload and support organizers by enabling systematic pre-review and publication checks. Our code is released under the Apache 2.0 license on GitHub and is distributed as an installable package via PyPI. A demonstration video is available on YouTube.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "CHASE: LLM Agents for Dissecting Malicious PyPI Packages",
+      "authors": [
+        {
+          "family": "Toda",
+          "given": "Takaaki"
+        },
+        {
+          "family": "Mori",
+          "given": "Tatsuya"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2601.06838",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2601.06838",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.06838",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Modern software package registries like PyPI have become critical infrastructure for software development, but are increasingly exploited by threat actors distributing malicious packages with sophisticated multi-stage attack chains. While Large Language Models (LLMs) offer promising capabilities for automated code analysis, their application to security-critical malware detection faces fundamental challenges, including hallucination and context confusion, which can lead to missed detections or false alarms. We present CHASE (Collaborative Hierarchical Agents for Security Exploration), a high-reliability multi-agent architecture that addresses these limitations through a Plan-and-Execute coordination model, specialized Worker Agents focused on specific analysis aspects, and integration with deterministic security tools for critical operations. Our key insight is that reliability in LLM-based security analysis emerges not from improving individual model capabilities but from architecting systems that compensate for LLM weaknesses while leveraging their semantic understanding strengths. Evaluation on a dataset of 3,000 packages (500 malicious, 2,500 benign) demonstrates that CHASE achieves 98.4% recall with only 0.08% false positive rate, while maintaining a practical median analysis time of 4.5 minutes per package, making it suitable for operational deployment in automated package screening. Furthermore, we conducted a survey with cybersecurity professionals to evaluate the generated analysis reports, identifying their key strengths and areas for improvement. This work provides a blueprint for building reliable AI-powered security tools that can scale with the growing complexity of modern software supply chains. Our project page is available at https://t0d4.github.io/CHASE-AIware25/",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Refusing the Impossible: A Taxonomy and Benchmark for Code Hallucination in Large Language Models",
+      "authors": [
+        {
+          "family": "Dasu",
+          "given": "Vishnu Asutosh"
+        },
+        {
+          "family": "Kundu",
+          "given": "Ashish"
+        },
+        {
+          "family": "Tan",
+          "given": "Gang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.03267",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.03267",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.03267",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "This paper investigates whether large language models (LLMs) for code generation can recognize a programming request that cannot be satisfied. Coding assistants are widely deployed, yet they are evaluated almost exclusively on solvable tasks where a test suite can score the output. A request may instead name a package that does not exist or ask for an algorithm that is mathematically impossible, and the appropriate response is to refuse. Models nevertheless respond with plausible code, and such fabrications are also a security concern because attackers can register the package names that models invent. We define code hallucination as ungrounded code generation, distinguish it from ordinary programming errors, and introduce a taxonomy of these failures together with a benchmark of 270 adversarial requests and 91 matched solvable controls across six languages and 24 subcategories. We evaluate 17 open-weight models with 6.7B to 671B parameters, collecting 6,137 responses. Models hallucinate on 54% of the adversarial requests and correctly refuse 31%. Larger models do better on algorithmic impossibilities and conflicting requirements, where hallucination falls from 84% for models at or below 7B parameters to 32% for those at or above 80B. For plausible but nonexistent dependencies and features, the rates are 88% and 61%, and even the largest model hallucinates on all 22 requests for nonexistent JavaScript and Rust packages. Two-thirds of hallucinations are confident fabrications without caveats, and some reasoning models fail to return an answer on solvable tasks. Scale teaches models to recognize what is impossible but not what does not exist, so grounding code generation in the real software ecosystem, for example by checking package names against registries, remains necessary regardless of model size.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 16,
+      "in_project": "dasu2026refusing"
+    },
+    {
+      "title": "When LLMs Invent Rust Crates: An Empirical Study of Hallucination Patterns and Mitigation",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Jieming"
+        },
+        {
+          "family": "Guan",
+          "given": "Hao"
+        },
+        {
+          "family": "Liu",
+          "given": "Yepang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.08444",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.08444",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.08444",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models (LLMs) have become powerful tools for code generation, yet they remain prone to hallucinations$\\unicode{x2013}$producing plausible but incorrect or fabricated outputs. Among these, package hallucination, where an LLM suggests non-existent dependencies, poses an emerging security risk to the software supply chain. While previous studies focus on popular languages like Python or JavaScript, in this work we present the first large-scale empirical study on crate hallucination in LLM-generated Rust code. We construct a multi-source dataset combining coding tasks from Stack Overflow, GitHub, and LLM-generated tasks, and evaluate both commercial and open-source models under various decoding settings. Our analysis reveals that, unlike prior findings in Python and JavaScript, hallucination behavior in Rust follows a distinct pattern: different models exhibit surprisingly consistent hallucination rates, and these rates show minimal sensitivity to model parameters. Furthermore, we investigate prompt engineering strategies to mitigate hallucinations without sacrificing code quality. This study provides new insights into the reliability and security implications of LLM-assisted Rust development, offering guidance for future research and safer model deployment in software engineering workflows.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 17,
+      "in_project": "zheng2026when"
+    },
+    {
+      "title": "UQLM: A Python Package for Uncertainty Quantification in Large Language Models",
+      "authors": [
+        {
+          "family": "Bouchard",
+          "given": "Dylan"
+        },
+        {
+          "family": "Chauhan",
+          "given": "Mohit Singh"
+        },
+        {
+          "family": "Skarbrevik",
+          "given": "David"
+        },
+        {
+          "family": "Ra",
+          "given": "Ho-Kyeong"
+        },
+        {
+          "family": "Bajaj",
+          "given": "Viren"
+        },
+        {
+          "family": "Ahmad",
+          "given": "Zeya"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2507.06196",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2507.06196",
+      "oa_pdf_url": "https://arxiv.org/pdf/2507.06196",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Hallucinations, defined as instances where Large Language Models (LLMs) generate false or misleading content, pose a significant challenge that impacts the safety and trust of downstream applications. We introduce UQLM, a Python package for LLM hallucination detection using state-of-the-art uncertainty quantification (UQ) techniques. This toolkit offers a suite of UQ-based scorers that compute response-level confidence scores ranging from 0 to 1. This library provides an off-the-shelf solution for UQ-based hallucination detection that can be easily integrated to enhance the reliability of LLM outputs.",
+      "sources": [
+        "arxiv"
+      ],
+      "journal_ref": "Journal of Machine Learning Research, 2026",
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Trust Me, Import This: Dependency Steering Attacks via Malicious Agent Skills",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Yiyong"
+        },
+        {
+          "family": "Hsu",
+          "given": "Chia-Yi"
+        },
+        {
+          "family": "Huang",
+          "given": "Chun-Ying"
+        },
+        {
+          "family": "Backes",
+          "given": "Michael"
+        },
+        {
+          "family": "Wen",
+          "given": "Rui"
+        },
+        {
+          "family": "Yu",
+          "given": "Chia-Mu"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.09594",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.09594",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.09594",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-powered coding agents increasingly make software supply chain decisions. They generate imports, recommend packages, and write installation commands. Prior work showed that these systems can hallucinate non-existent package names, which attackers may register as malicious packages. In this paper, we show that this risk is not only a passive model failure. It can be actively induced through the persistent Skill artifact. We introduce Dependency Steering, an attack paradigm in which a malicious Skill biases a coding agent toward an attacker-controlled package during benign coding tasks. The attack does not require modifying model weights, training data, or user prompts. To construct realistic attacks, we design a Skill-level optimization method that searches for localized semantic edits that preserve the apparent purpose of the original Skill while increasing targeted package generation. Across multiple coding-oriented LLMs and programming benchmarks, Dependency Steering achieves high targeted hallucination rates, transfers across models and task domains, and remains difficult for evaluated Skill scanners and LLM-based auditors to detect. Our results show that persistent agent instructions form an underexplored software supply chain attack surface.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 19,
+      "in_project": "liu2026trust"
+    },
+    {
+      "title": "SetupBench: Assessing Software Engineering Agents' Ability to Bootstrap Development Environments",
+      "authors": [
+        {
+          "family": "Arora",
+          "given": "Avi"
+        },
+        {
+          "family": "Jang",
+          "given": "Jinu"
+        },
+        {
+          "family": "Moghaddam",
+          "given": "Roshanak Zilouchian"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2507.09063",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2507.09063",
+      "oa_pdf_url": "https://arxiv.org/pdf/2507.09063",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Modern Large Language Model (LLM) agents promise end to end assistance with real-world software tasks, yet existing benchmarks evaluate LLM agents almost exclusively in pre-baked environments where every dependency is pre-installed. To fill this gap, we introduce SetupBench, a 93 instance benchmark that isolates the environment-bootstrap skill: starting from a bare Linux sandbox, an agent must install packages, resolve dependency conflicts, initialize databases, and configure background services. Our tasks span seven language ecosystems, five database engines, and multi-service orchestration scenarios, each accompanies by a natural language problem statement and a deterministic success command. Through evaluation of OpenHands, a state-of-the-art coding agent, we find low success rates across task categories, with particular challenges in repository setup (38.9-57.4%) and local database configuration (20.0-53.3%). Our analysis reveals systematic failure modes including incomplete development tooling installation, hallucinated task constraints, and non-persistent environment modifications that break agent-human collaboration workflows. We identify substantial inefficiencies in agent exploration strategies, with 38-89% of actions being unnecessary compared to optimal human behavior. These findings highlight gaps in current agents' practical environment-bootstrap capabilities. By targeting this critical yet under-evaluated capability, SetupBench provides a rigorous yard-stick for the next generation of software developer agents aiming to solve end to end real-wold tasks.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "BabelJudge: Measuring LLM-as-a-Judge Reliability Across Languages and Agent Trajectories",
+      "authors": [
+        {
+          "family": "KC",
+          "given": "Shreyas"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.22329",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.22329",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.22329",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-as-a-judge has become the dominant approach to scalable evaluation in NLP pipelines, yet judges themselves carry systematic biases that raw accuracy hides: they favor responses placed in slot A (position bias), they prefer longer responses regardless of quality (verbosity bias), and their reliability degrades sharply in lower-resource languages. We introduce BabelJudge, an open-source benchmark and reliability audit framework that measures all four failure modes -- position bias, verbosity bias, order inconsistency, and cross-lingual degradation -- on any judge model, without requiring human preference labels. The key insight is gold-labelling by degradation: starting from a high-quality reference response and applying a controlled perturbation yields a pairwise item whose gold label is known by construction, eliminating annotation cost. We evaluate Qwen2.5-7B-Instruct-4bit across English, Hindi, Arabic, and Swahili and find that our composite bias-penalised reliability score drops from 0.714 in Hindi to 0.550 in Swahili, a gap that raw accuracy (0.835 vs. 0.660) understates. Swahili order consistency collapses to 0.480, meaning judge verdicts are near-random under slot-order swaps -- a failure mode invisible to accuracy alone. We further extend the framework to agentic evaluation via nine trajectory-level perturbations (argument corruption, tool swaps, hallucinated calls, missing steps) and three new metrics: tool accuracy, hallucination detection rate, and trajectory-length bias. BabelJudge is released as a Python package supporting 11 judge backends. Code: https://github.com/Shreyaskc/BabelJudge",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "Evidence-Bounded Mental Health Reasoning from Heterogeneous Speech Protocols",
+      "authors": [
+        {
+          "family": "Gao",
+          "given": "Chengyuan"
+        },
+        {
+          "family": "Wu",
+          "given": "Jiang"
+        },
+        {
+          "family": "Lu",
+          "given": "Tao"
+        },
+        {
+          "family": "Guo",
+          "given": "Jiayan"
+        },
+        {
+          "family": "Xu",
+          "given": "Mingkun"
+        },
+        {
+          "family": "Zang",
+          "given": "Tianyi"
+        },
+        {
+          "family": "Li",
+          "given": "Shangyang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2608.31014",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2608.31014",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.31014",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Computational mental health screening using multimodal speech and text has shown great promise. However, existing models often assume all clinical speech protocols carry equivalent evidentiary validity. In reality, heterogeneous protocols, from free interviews to fixed reading tasks, support fundamentally different evidence. Forcing uniform reasoning flattens these boundaries, causing models to hallucinate symptoms from irrelevant text or overclaim support. Even advanced long chain-of-thought LLMs fail to resolve this issue, as free-form reasoning can exacerbate boundary violations. To address this, we reformulate multimodal screening as an evidence-bounded reasoning problem. We introduce the Evidence Package Benchmark, integrating 1,870 packages across six heterogeneous sources with explicit modality masks and evidence permissions. We further propose EviBound, a protocol-aware evidence control framework. Unlike direct LLM prompting, EviBound uses a profile-aware planner to restrict reasoning scope, orchestrates evidence tools via five-way acoustic consensus, and enforces a boundary critic to suppress unsupported claims. Empirical results show EviBound achieves a held-out test Depression AUROC of 0.8658, exceeding the strongest direct omni-modal baseline by +0.0811 AUROC while maintaining zero claim violations. Our work moves beyond unconstrained accuracy toward evidence-consistent, protocol-aware systems for safer clinical NLP research.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "Generative AI for Multiple Choice STEM Assessments",
+      "authors": [
+        {
+          "family": "Perdikoulias",
+          "given": "Christina"
+        },
+        {
+          "family": "Vance",
+          "given": "Chad"
+        },
+        {
+          "family": "Watt",
+          "given": "Stephen M."
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2506.02094",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2506.02094",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.02094",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Artificial intelligence (AI) technology enables a range of enhancements in computer-aided instruction, from accelerating the creation of teaching materials to customizing learning paths based on learner outcomes. However, ensuring the mathematical accuracy and semantic integrity of generative AI output remains a significant challenge, particularly in Science, Technology, Engineering and Mathematics (STEM) disciplines. In this study, we explore the use of generative AI in which \"hallucinations\", typically viewed as undesirable inaccuracies, can instead serve a pedagogical purpose. Specifically, we investigate the generation of plausible but incorrect alternatives for multiple choice assessments, where credible distractors are essential for effective assessment design. We describe the Moebius platform for online instruction, with particular focus on its architecture for handling mathematical elements through specialized semantic packages that support dynamic, parameterized STEM content. We examine methods for crafting prompts that interact effectively with these mathematical semantics to guide the AI in generating high-quality multiple choice distractors. Finally, we demonstrate how this approach reduces the time and effort associated with creating robust teaching materials while maintaining academic rigor and assessment validity.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "WoVR+: World Model as Reliable Simulator for Versatile VLA Policy Optimization with RL",
+      "authors": [
+        {
+          "family": "Zhou",
+          "given": "Shangqing"
+        },
+        {
+          "family": "Jiang",
+          "given": "Zhennan"
+        },
+        {
+          "family": "Ma",
+          "given": "Ning"
+        },
+        {
+          "family": "Fu",
+          "given": "Xin"
+        },
+        {
+          "family": "Zheng",
+          "given": "Yupeng"
+        },
+        {
+          "family": "Tian",
+          "given": "Shuai"
+        },
+        {
+          "family": "Li",
+          "given": "Huangrui"
+        },
+        {
+          "family": "Liu",
+          "given": "Jiahao"
+        },
+        {
+          "family": "Yu",
+          "given": "Chao"
+        },
+        {
+          "family": "Xia",
+          "given": "Zhongpu"
+        },
+        {
+          "family": "Li",
+          "given": "Haoran"
+        },
+        {
+          "family": "Zhao",
+          "given": "Dongbin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.17922",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.17922",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.17922",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Action-conditioned world models can reduce costly real-robot interaction in reinforcement learning for Vision-Language-Action models (VLA-RL), but hallucinations can mislead policy optimization. Extending them to richer VLA interfaces and long-horizon tasks raises challenges in spatiotemporal and cross-modal consistency, exploration-reliability balance in RL, and compounding rollout errors. We present WoVR+, extending WoVR's hallucination-aware WM-RL framework by redesigning the learned environment and imagined interaction protocol: A VLA-interface-aligned world model provides multi-view prediction and proprioceptive updates while mitigating hallucinations. Chunk-wise noise preserves flow-based policy exploration while limiting prediction-degrading action jitter. For long-horizon tasks, stage-local imagined training combines stage-entry resets, stage-specific rewards, local horizons, and controllable sampling to shorten generated prefixes and balance training across stages. WoVR+ improves success over SFT by 21.09% and 16.7% on RoboTwin and 6 real-robot tasks. Long-horizon phone-packaging success rises from 30% to 75%. Videos are available at https://youmo445.github.io/WoVR_Plus.github.io/.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "Context-Augmented Code Generation Using Programming Knowledge Graphs",
+      "authors": [
+        {
+          "family": "Seddik",
+          "given": "Shahd"
+        },
+        {
+          "family": "Seddik",
+          "given": "Fahd"
+        },
+        {
+          "family": "Saberi",
+          "given": "Iman"
+        },
+        {
+          "family": "Fard",
+          "given": "Fatemeh"
+        },
+        {
+          "family": "Huynh",
+          "given": "Minh Hieu"
+        },
+        {
+          "family": "Thongtanunam",
+          "given": "Patanamon"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2601.20810",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2601.20810",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.20810",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models (LLMs) excel at code generation but struggle with complex problems. Retrieval-Augmented Generation (RAG) mitigates this issue by integrating external knowledge, yet retrieval models often miss relevant context, and generation models hallucinate with irrelevant data. We propose Programming Knowledge Graph (PKG) for semantic representation and fine-grained retrieval of code and text. Our approach enhances retrieval precision through tree pruning and mitigates hallucinations via a re-ranking mechanism that integrates non-RAG solutions. Structuring external data into finer-grained nodes improves retrieval granularity. Evaluations on HumanEval and MBPP show up to 20% pass@1 accuracy gains and a 34% improvement over baselines on MBPP. Our findings demonstrate that our proposed PKG approach along with re-ranker effectively address complex problems while maintaining minimal negative impact on solutions that are already correct without RAG. The replication package is published at https://github.com/iamshahd/ProgrammingKnowledgeGraph",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "Towards Model as a Library: Offline, Community-Sourced AI for Low-Resource African Languages",
+      "authors": [
+        {
+          "family": "Louis",
+          "given": "Fendji K. E. Jean"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.38574",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.38574",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.38574",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language models are frequently proposed as a route to AI-powered services for African communities, but they are least reliable exactly where the need is greatest: all African languages remain low-resource by any standard measure, and models trained on scraped, standardised text systematically misrepresent the dialectal and regional variation of how people actually speak. We introduce \\textbf{Model as a Library (MaaL)}, a software architecture that packages small, community-enrolled speech models as versioned on-device dependencies, enabling offline structured data collection that cannot generatively hallucinate, for populations that current language models serve worst. Rather than relying on web-scraped corpora, MaaL's vocabulary is enrolled directly from a small number of example recordings by the speakers themselves, at the point of deployment. We describe the architecture and its central mechanism - keyword spotting that turns a closed-vocabulary text form into a voice form, filled and submitted entirely on-device - and propose transpiling the closed-vocabulary elements already present in widely-deployed digital form tools into MaaL schemas, a low-friction path to voice-first, offline data collection for the low-literacy populations these tools already reach. This is a position and system-design paper: we describe the concept, the mechanism, and an analytical feasibility case, and identify what a working implementation still requires.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "Evidence-Bound Autonomous Research (EviBound): A Governance Framework for Eliminating False Claims",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Ruiying"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2511.05524",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2511.05524",
+      "oa_pdf_url": "https://arxiv.org/pdf/2511.05524",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "LLM-based autonomous research agents report false claims: tasks marked \"complete\" despite missing artifacts, contradictory metrics, or failed executions. EviBound is an evidence-bound execution framework that eliminates false claims through dual governance gates requiring machine-checkable evidence. Two complementary gates enforce evidence requirements. The pre-execution Approval Gate validates acceptance criteria schemas before code runs, catching structural violations proactively. The post-execution Verification Gate validates artifacts via MLflow API queries (with recursive path checking) and optionally validates metrics when specified by acceptance criteria. Claims propagate only when backed by a queryable run ID, required artifacts, and FINISHED status. Bounded, confidence-gated retries (typically 1-2 attempts) recover from transient failures without unbounded loops. The framework was evaluated on 8 benchmark tasks spanning infrastructure validation, ML capabilities, and governance stress tests. Baseline A (Prompt-Level Only) yields 100% hallucination (8/8 claimed, 0/8 verified). Baseline B (Verification-Only) reduces hallucination to 25% (2/8 fail verification). EviBound (Dual Gates) achieves 0% hallucination: 7/8 tasks verified and 1 task correctly blocked at the approval gate, all with only approximately 8.3% execution overhead. This package includes execution trajectories, MLflow run IDs for all verified tasks, and a 4-step verification protocol. Research integrity is an architectural property, achieved through governance gates rather than emergent from model scale.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "CktEvo: Repository-Level RTL Code Benchmark for Design Evolution",
+      "authors": [
+        {
+          "family": "Shi",
+          "given": "Zhengyuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Jingxin"
+        },
+        {
+          "family": "Cheng",
+          "given": "Tairan"
+        },
+        {
+          "family": "Xu",
+          "given": "Changran"
+        },
+        {
+          "family": "Qian",
+          "given": "Weikang"
+        },
+        {
+          "family": "Xu",
+          "given": "Qiang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2603.08718",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2603.08718",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.08718",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Register-Transfer Level (RTL) coding is an iterative, repository-scale process in which Power, Performance, and Area (PPA) emerge from interactions across many files and the downstream toolchain. While large language models (LLMs) have recently been applied to hardware design, most efforts focus on generation or debugging from natural-language prompts, where ambiguity and hallucinations necessitate expert review. A separate line of work begins from formal inputs, yet typically optimizes high-level synthesis or isolated modules and remains decoupled from cross-file dependencies. In this work, we present CktEvo, a benchmark and reference framework for repo-level RTL evolution. Unlike prior benchmarks consisting of isolated snippets, our benchmark targets complete IP cores where PPA emerges from cross-file dependencies. Our benchmark packages several high-quality Verilog repositories from real-world designs. We formalize the task as: given an initial repository, produce edits that preserve functional behavior while improving PPA. We also provide a closed-loop framework that couples LLM-proposed edits with toolchain feedback to enable cross-file modifications and iterative repair at repository scale. Our experiments demonstrate that the reference framework realizes PPA improvements without any human interactions. CktEvo establishes a rigorous and executable foundation for studying LLM-assisted RTL optimization that matters for engineering practice: repository-level, function-preserving, and PPA-driven.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 28,
+      "in_project": null
+    },
+    {
+      "title": "Docs2Synth: A Synthetic Data Trained Retriever Framework for Scanned Visually Rich Documents Understanding",
+      "authors": [
+        {
+          "family": "Ding",
+          "given": "Yihao"
+        },
+        {
+          "family": "Sun",
+          "given": "Qiang"
+        },
+        {
+          "family": "Wu",
+          "given": "Puzhen"
+        },
+        {
+          "family": "Li",
+          "given": "Sirui"
+        },
+        {
+          "family": "Luo",
+          "given": "Siwen"
+        },
+        {
+          "family": "Liu",
+          "given": "Wei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2601.12260",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2601.12260",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.12260",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Document understanding (VRDU) in regulated domains is particularly challenging, since scanned documents often contain sensitive, evolving, and domain specific knowledge. This leads to two major challenges: the lack of manual annotations for model adaptation and the difficulty for pretrained models to stay up-to-date with domain-specific facts. While Multimodal Large Language Models (MLLMs) show strong zero-shot abilities, they still suffer from hallucination and limited domain grounding. In contrast, discriminative Vision-Language Pre-trained Models (VLPMs) provide reliable grounding but require costly annotations to cover new domains. We introduce Docs2Synth, a synthetic-supervision framework that enables retrieval-guided inference for private and low-resource domains. Docs2Synth automatically processes raw document collections, generates and verifies diverse QA pairs via an agent-based system, and trains a lightweight visual retriever to extract domain-relevant evidence. During inference, the retriever collaborates with an MLLM through an iterative retrieval--generation loop, reducing hallucination and improving response consistency. We further deliver Docs2Synth as an easy-to-use Python package, enabling plug-and-play deployment across diverse real-world scenarios. Experiments on multiple VRDU benchmarks show that Docs2Synth substantially enhances grounding and domain generalization without requiring human annotations.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 29,
+      "in_project": null
+    },
+    {
+      "title": "Is Your Automated Software Engineer Trustworthy?",
+      "authors": [
+        {
+          "family": "Mathews",
+          "given": "Noble Saji"
+        },
+        {
+          "family": "Nagappan",
+          "given": "Meiyappan"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2506.17812",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2506.17812",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.17812",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models (LLMs) are being increasingly used in software engineering tasks, with an increased focus on bug report resolution over the past year. However, most proposed systems fail to properly handle uncertain or incorrect inputs and outputs. Existing LLM-based tools and coding agents respond to every issue and generate a patch for every case, even when the input is vague or their own output is incorrect. There are no mechanisms in place to abstain when confidence is low. This leads to unreliable behaviour, such as hallucinated code changes or responses based on vague issue reports. We introduce BouncerBench, a benchmark that evaluates whether LLM-based software agents can refuse to act when inputs are ill-defined or refuse to respond when their own outputs are likely to be incorrect. Unlike prior benchmarks that implicitly incentivize models to generate responses even when uncertain, BouncerBench aims to improve precision by targeting two overlooked failure points: (1) vague or underspecified issue descriptions in tickets and (2) logically or functionally incorrect code patches created by the system. It measures whether proposed systems can distinguish actionable issues from vague tickets and valid patches from untrustworthy ones. We also implement a basic input and output bouncer, evaluating how well current LLMs can abstain when needed. Our results show that most models fail to abstain from underspecified inputs or incorrect outputs. Hence, we conclude that there is significant room for improvement before LLMs can be trusted to make correct decisions and recommendations in real-world software engineering workflows. BouncerBench provides a first step toward evaluating and building more cautious, trustworthy code agents. The replication package, dataset, and leaderboard can be found at bouncerbench.com",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 30,
+      "in_project": null
+    },
+    {
+      "title": "The STAR-XAI Protocol: A Framework for Inducing and Verifying Agency, Reasoning, and Reliability in AI Agents",
+      "authors": [
+        {
+          "family": "Guasch",
+          "given": "Antoni"
+        },
+        {
+          "family": "Valdez",
+          "given": "Maria Isabel"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2509.17978",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2509.17978",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.17978",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "The \"black box\" nature of Large Reasoning Models (LRMs) presents critical limitations in reliability and transparency, fueling the debate around the \"illusion of thinking\" and the challenge of state hallucinations in agentic systems. In response, we introduce The STAR-XAI Protocol (Socratic, Transparent, Agentic, Reasoning - for eXplainable Artificial Intelligence), a novel operational methodology for training and operating verifiably reliable AI agents. Our method reframes the human-AI interaction as a structured Socratic dialogue governed by an explicit, evolving symbolic rulebook (the Consciousness Transfer Package - CTP) and a suite of integrity protocols, including a state-locking Checksum that eradicates internal state corruption. Through an exhaustive case study in the complex strategic game \"Caps i Caps,\" we demonstrate that this \"Clear Box\" framework transforms an opaque LRM into a disciplined strategist. The agent not only exhibits the emergence of complex tactics, such as long-term planning, but also achieves ante-hoc transparency by justifying its intentions before acting. Crucially, it demonstrates Second-Order Agency by identifying and correcting flaws in its own supervisor-approved plans, leading to empirically-proven, 100% reliable state tracking and achieving \"zero hallucinations by design.\" The STAR-XAI Protocol thus offers a practical pathway toward building AI agents that are not just high-performing but intrinsically auditable, trustworthy, and reliable.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 31,
+      "in_project": null
+    },
+    {
+      "title": "Theorist Toolbox: Tools for Agent Based LLM-assisted economic theory Research",
+      "authors": [
+        {
+          "family": "Koren",
+          "given": "Moran"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.22337",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.22337",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.22337",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Empirical economists often start their projects with a toolbox. Shared packages, replication archives, and circulated guides shorten the time between and idea and a rough initial draft. Theorists, on the other-hand, largely start from a blank page. By 2026, large language models can a produce and check nontrivial mathematics. The can also hallucinate and write wrong claims very convincingly. The current bottleneck on machine-assisted theory is no longer production but trust: a model will claim to prove a false theorem as readily as a true one. Building on recent attempts in mathematics, I present 3 methods for doing economic theory with a language model. These methods differ on how the work is verified: a single disciplined pass, an adversarial prover-verifier pair (Claude Opus~4.8 proposing, OpenAI Codex refuting), and a structured multi-agent project with a reviewer gate (inspired by the Google co-mathematician architecture). I demonstrate these protocols on one open worked example: designing a Groves/Pigouvian incentive mechanism for the Gans--Kominers eigengrade model of grade inflation. None of the three runs produced a strict direct-revelation VCG/Clarke mechanism (as requested, perhaps due to the non-existence of such mechanism). Three phenomena recur. First, convergent discovery: two runs derive the same effective-resistance externality kernel on opposite margins. Second, adversarial verification is load-bearing: the pair caught three of its own false claims and the gate rejected a sub-goal. Third, polish is not rigor: the most finished-looking output was the least verified. The methodological takeaway is that external verification, not model capability, is the design variable.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 32,
+      "in_project": null
+    },
+    {
+      "title": "Graph-of-Skills: Dependency-Aware Structural Retrieval for Massive Agent Skills",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Dawei"
+        },
+        {
+          "family": "Li",
+          "given": "Zongxia"
+        },
+        {
+          "family": "Du",
+          "given": "Hongyang"
+        },
+        {
+          "family": "Wu",
+          "given": "Xiyang"
+        },
+        {
+          "family": "Gui",
+          "given": "Shihang"
+        },
+        {
+          "family": "Kuang",
+          "given": "Yongbei"
+        },
+        {
+          "family": "Sun",
+          "given": "Lichao"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2604.05333",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2604.05333",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.05333",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "As LLM agents act across personal applications, web browsers, and other interfaces, their reusable skill libraries can scale to thousands of skills. This scale introduces two challenges. First, loading the full library saturates the context window, driving up token costs, hallucination, and latency. Second, semantic retrieval surfaces topically relevant skills but can miss upstream and downstream prerequisite skills, creating a prerequisite gap that leaves the retrieved bundle insufficient for execution. We present Graph-of-Skills (GoS), an inference-time structural retrieval layer for large skill libraries. GoS constructs an executable skill graph offline from skill packages, then retrieves a bounded, dependency-aware bundle through hybrid semantic-lexical seeding, reverse-aware Personalized PageRank, and context-budgeted hydration. Across SkillsBench and ALFWorld, with three model families (Claude Sonnet 4.5, MiniMax M2.7, and GPT-5.2 Codex), GoS attains the highest average reward in all six model-benchmark blocks, at a fraction of the token cost of loading the full library. On SkillsBench with GPT-5.2 Codex it raises average reward by 7.0 absolute points over full skill loading, a 25.6% relative gain, while cutting total tokens by 56.7%. Ablations isolate the mechanism: replacing reverse traversal with forward propagation costs 9.1 reward points, a larger loss than removing the graph altogether. The gain thus comes from traversing dependencies backwards, not from graph diffusion as such. A budget-matched retrieval study holding seeding, reranking, hydration, and context budget fixed reproduces the same ordering, with dependency-pair co-recovery falling from 0.654 to 0.362. Code is available at https://github.com/davidliuk/graph-of-skills",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 33,
+      "in_project": null
+    },
+    {
+      "title": "STRIATUM-CTF: A Protocol-Driven Agentic Framework for Autonomous CTF Solving",
+      "authors": [
+        {
+          "family": "Hugglestone",
+          "given": "James"
+        },
+        {
+          "family": "Chacko",
+          "given": "Samuel Jacob"
+        },
+        {
+          "family": "Stoller",
+          "given": "Dawson"
+        },
+        {
+          "family": "Schmidt",
+          "given": "Ryan"
+        },
+        {
+          "family": "Liu",
+          "given": "Xiuwen"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2603.22577",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2603.22577",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.22577",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Autonomous cyber operations increasingly depend on agents that can chain reconnaissance, exploitation, and analysis across many tools while maintaining state over long task horizons. Large Language Models (LLMs) are promising orchestrators for this workflow, but naive agents that pipe model output directly into a shell are brittle: they emit malformed commands, hallucinate non-existent command-line options or packages, and lose track of earlier findings as the context window fills. We present STRIATUM-CTF, a modular agentic framework for Capture-the-Flag (CTF) solving that mediates between LLM reasoning and tool execution using the Model Context Protocol (MCP). Offensive-security tools are exposed as strictly typed, schema-validated functions; the protocol layer rejects out-of-schema tool calls before execution and returns structured observations that the agent uses to self-correct. We evaluate the system in two ways. In a controlled study of 180 runs across 15 CTF challenges under four levels of attached procedural documentation, the system succeeds on 77.8-86.7% of attempts; notably, a schema-only configuration with no procedural documentation already reaches 77.8%, and no condition differs significantly from another. In a single live, multi-team CTF at Florida State University, the system placed first against a field of more than 30 registered teams -- a single, non-replicated event decided by a 10-point margin over the runner-up, and therefore a demonstration of feasibility rather than of superiority over human experts. Because all four ablation conditions share the same tool layer, our controlled study isolates documentation volume rather than the protocol layer itself; we accordingly present schema-mediated grounding as a design principle with qualitative support rather than as a measured effect.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 34,
+      "in_project": null
+    },
+    {
+      "title": "Secure On-Premise Deployment of Open-Weights Large Language Models in Radiology: An Isolation-First Architecture with Prospective Pilot Evaluation",
+      "authors": [
+        {
+          "family": "Nowak",
+          "given": "Sebastian"
+        },
+        {
+          "family": "Laß",
+          "given": "Jann-Frederick"
+        },
+        {
+          "family": "Mesropyan",
+          "given": "Narine"
+        },
+        {
+          "family": "Salam",
+          "given": "Babak"
+        },
+        {
+          "family": "Piel",
+          "given": "Nico"
+        },
+        {
+          "family": "Bahaaeldin",
+          "given": "Mohammed"
+        },
+        {
+          "family": "Block",
+          "given": "Wolfgang"
+        },
+        {
+          "family": "Sprinkart",
+          "given": "Alois Martin"
+        },
+        {
+          "family": "Luetkens",
+          "given": "Julian Alexander"
+        },
+        {
+          "family": "Wulff",
+          "given": "Benjamin"
+        },
+        {
+          "family": "Isaak",
+          "given": "Alexander"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2604.22768",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2604.22768",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.22768",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Purpose: To design, implement, evaluate, and report on the regulatory requirements of a self-hosted LLM infrastructure for radiology adhering to the principle of least privilege, emphasizing technical feasibility, network isolation, and clinical utility. Materials and Methods: The isolation-first, containerized LLM inference stack relies on strict network segmentation, host-enforced egress filtering, and active isolation monitoring preventing unauthorized external connectivity. An accompanying deployment package provides automated isolation and hardening tests. The system served the open-weights DeepSeek-R1 model via vLLM. In a one-week pilot phase, 22 residents and radiologists were free to use 10 predefined prompt-templates whenever they considered them useful in daily work. Afterward, they rated clinical utility and system stability on an 0-10 Likert scale and reported observed critical errors in model output. Results: The applied institutional governance pathway achieved approval from clinic management, compliance, data protection and information security officers for processing unanonymized PHI. The system was rated stable and user friendly during the pilot. Source text-anchored tasks, such as report corrections or simplifications, and radiology guideline recommendations received the highest utility ratings, whereas open-ended conclusion generation based on findings resulted in the highest frequency of critical errors, such as clinically relevant hallucinations or omissions. Conclusion: The proposed isolation-first on-premise architecture enabled overcoming regulatory borders, showed promising clinical utility in text-anchored tasks and is the current base to serve open-weights LLMs as an official service of a German University Hospital with over 10,000 employees. The deployment package were made publicly available (https://github.com/ukbonn/ukb-gpt).",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 35,
+      "in_project": null
+    },
+    {
+      "title": "ScenarioBench: Trace-Grounded Compliance Evaluation for Text-to-SQL and RAG",
+      "authors": [
+        {
+          "family": "Atf",
+          "given": "Zahra"
+        },
+        {
+          "family": "Lewis",
+          "given": "Peter R"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2509.24212",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2509.24212",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.24212",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "ScenarioBench is a policy-grounded, trace-aware benchmark for evaluating Text-to-SQL and retrieval-augmented generation in compliance contexts. Each YAML scenario includes a no-peek gold-standard package with the expected decision, a minimal witness trace, the governing clause set, and the canonical SQL, enabling end-to-end scoring of both what a system decides and why. Systems must justify outputs using clause IDs from the same policy canon, making explanations falsifiable and audit-ready. The evaluator reports decision accuracy, trace quality (completeness, correctness, order), retrieval effectiveness, SQL correctness via result-set equivalence, policy coverage, latency, and an explanation-hallucination rate. A normalized Scenario Difficulty Index (SDI) and a budgeted variant (SDI-R) aggregate results while accounting for retrieval difficulty and time. Compared with prior Text-to-SQL or KILT/RAG benchmarks, ScenarioBench ties each decision to clause-level evidence under strict grounding and no-peek rules, shifting gains toward justification quality under explicit time budgets.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 36,
+      "in_project": null
+    },
+    {
+      "title": "Building a Production Greek-English Speech Recognizer",
+      "authors": [
+        {
+          "family": "Petrocheilos",
+          "given": "Christos"
+        },
+        {
+          "family": "Papadopoulou",
+          "given": "Cleopatra"
+        },
+        {
+          "family": "Porikis",
+          "given": "Chris"
+        },
+        {
+          "family": "Perros",
+          "given": "Ioakeim"
+        },
+        {
+          "family": "Kirouane",
+          "given": "Ayoub"
+        },
+        {
+          "family": "Nikolis",
+          "given": "Themistoklis"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.13498",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.13498",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.13498",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We report a multi-month engineering program to build Sophea, a production bilingual Greek-English automatic speech recognition system. We evaluate the system against nine production gates covering Greek and English word error rate, language identification, and hallucinations on non-speech audio. Across twenty-three training iterations and two model architectures, no training-data composition passed all nine gates simultaneously. Meeting the Greek noisy-environment target required about 1,500 steps of dense domain exposure, while preserving English language identification tolerated only about 250 steps, or about 1,250 with a rebalanced mix that reduced Greek accuracy. We describe a six-stage data pipeline in which calibrating an audio-quality filter against in-domain anchors reduced the discarded share of scored Greek audio from 98.7 percent to 10.6 percent. A pre-registered ablation isolated a hallucination defect to one training-data package. A three-model ROVER ensemble increased gate coverage from 4-7 of 9 for individual models to 9 of 9 and reduced overlapping-speech WER from 53.35 percent to 37.87 percent, a 29 percent relative improvement. A separate learned per-clip arbiter over two models is listed as sophea/asr-k1 (preview) on the public Open ASR Leaderboard, with 4.26 percent average WER across eight public English test sets, and reaches 25.88 percent WER on live Greek noisy-environment traffic. We also document five cases in which a measurement tool produced a plausible but incorrect result and seven substantial approaches that were evaluated but not shipped. No model weights or training data are released; we report methodology and quantitative results only.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 37,
+      "in_project": null
+    },
+    {
+      "title": "Talking like Piping and Instrumentation Diagrams (P&IDs)",
+      "authors": [
+        {
+          "family": "Alimin",
+          "given": "Achmad Anggawirya"
+        },
+        {
+          "family": "Goldstein",
+          "given": "Dominik P."
+        },
+        {
+          "family": "Balhorn",
+          "given": "Lukas Schulze"
+        },
+        {
+          "family": "Schweidtmann",
+          "given": "Artur M."
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.69997/sct.159477",
+      "arxiv_id": "2502.18928",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2502.18928",
+      "oa_pdf_url": "https://arxiv.org/pdf/2502.18928",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We propose a methodology that allows communication with Piping and Instrumentation Diagrams (P&IDs) using natural language. In particular, we represent P&IDs through the DEXPI data model as labeled property graphs and integrate them with Large Language Models (LLMs). The approach consists of three main parts: 1) P&IDs are cast into a graph representation from the DEXPI format using our pyDEXPI Python package. 2) A tool for generating P&ID knowledge graphs from pyDEXPI. 3) Integration of the P&ID knowledge graph to LLMs using graph-based retrieval augmented generation (graph-RAG). This approach allows users to communicate with P&IDs using natural language. It extends LLM's ability to retrieve contextual data from P&IDs and mitigate hallucinations. Leveraging the LLM's large corpus, the model is also able to interpret process information in PIDs, which could help engineers in their daily tasks. In the future, this work will also open up opportunities in the context of other generative Artificial Intelligence (genAI) solutions on P&IDs, and AI-assisted HAZOP studies.",
+      "sources": [
+        "arxiv"
+      ],
+      "journal_ref": "Systems and Control Transactions 2025",
+      "idx": 38,
+      "in_project": null
+    },
+    {
+      "title": "QiboAgent: a practitioner's guideline to open source assistants for Quantum Computing code development",
+      "authors": [
+        {
+          "family": "Esposito",
+          "given": "Lorenzo"
+        },
+        {
+          "family": "Papaluca",
+          "given": "Andrea"
+        },
+        {
+          "family": "Carrazza",
+          "given": "Stefano"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2603.15538",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2603.15538",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.15538",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We introduce QiboAgent, a reference implementation designed to serve as a practitioner's guideline for developing specialized coding assistants in Quantum Computing middleware. Addressing the limitations in scientific software development of general-purpose proprietary models, we explore how lightweight, open-source Large Language Models (LLMs) provided with a custom workflow architecture compare. In detail, we experiment with two complementary paradigms: a Retrieval-Augmented Generation pipeline for high-precision information retrieval, and an autonomous agentic workflow for complex software engineering tasks. We observe that this hybrid approach significantly reduces hallucination rates in code generation compared to a proprietary baseline, achieving a peak accuracy of 90.2% with relatively small open-source models of size up to 30B parameters. Furthermore, the agentic framework exhibits advanced coding capabilities, automating the resolution of maintenance issues and new features requests, or by prototyping larger-scale refactors of the codebase, such as producing a compiled Rust module with bindings of an original pure python package, Qibo in our case. The LLM workflows used for our analysis are integrated into a user interface and a Model Context Protocol server, providing an accessible tool for Qibo developers.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 39,
+      "in_project": null
+    },
+    {
+      "title": "EviRank: Structured Relevance Evidence for Multimodal Image Re-ranking",
+      "authors": [
+        {
+          "family": "Du",
+          "given": "Enjun"
+        },
+        {
+          "family": "Liu",
+          "given": "Siyi"
+        },
+        {
+          "family": "Chen",
+          "given": "Zirong"
+        },
+        {
+          "family": "Zuo",
+          "given": "Xinyu"
+        },
+        {
+          "family": "Luo",
+          "given": "Jinwen"
+        },
+        {
+          "family": "Tao",
+          "given": "Ruiwen"
+        },
+        {
+          "family": "Duan",
+          "given": "Lisheng"
+        },
+        {
+          "family": "Liang",
+          "given": "Haijin"
+        },
+        {
+          "family": "Ma",
+          "given": "Jin"
+        },
+        {
+          "family": "Pu",
+          "given": "Junfu"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yongqi"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2608.20886",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2608.20886",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.20886",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Real-world image search queries are multimodal and compositional: ``find this shirt in pink'' specifies an entity to retain, an attribute to modify, and context to ignore. Yet existing re-rankers either compress such multifaceted relevance into an opaque embedding or rely on free-form chain-of-thought that easily omits or hallucinates fine-grained constraints. Drawing on rubric- and checklist-based evaluation from NLP, we recast multimodal image re-ranking as a semantic constraint satisfaction problem and propose EviRank, which parses any query - text-only, image-only, or composed - into a unified evidence package: typed criteria across six semantic slots (e.g., entities, attributes, relations), each labelled required, forbidden, or ignorable. Re-ranking then reduces to evidence-conditioned verification, combining deterministic rubric scoring and evidence-grounded listwise comparison in a single training-free procedure. The explicit evidence can further serve as structured supervision for optionally distilling a lightweight student. Across five benchmarks spanning text-to-image, image-to-image, and composed image retrieval, EviRank achieves state-of-the-art performance, and the distilled student preserves over 90% of the teacher's capability at substantially lower cost.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 40,
+      "in_project": null
+    },
+    {
+      "title": "Benchmarking Requirement-to-Architecture Generation with Hybrid Evaluation",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Minxiao"
+        },
+        {
+          "family": "Zhang",
+          "given": "Li"
+        },
+        {
+          "family": "Yan",
+          "given": "Shuying"
+        },
+        {
+          "family": "Liu",
+          "given": "Fang"
+        },
+        {
+          "family": "Li",
+          "given": "Liehao"
+        },
+        {
+          "family": "Liu",
+          "given": "Yang"
+        },
+        {
+          "family": "Lian",
+          "given": "Xiaoli"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2604.06683",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2604.06683",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.06683",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Software architecture serves as the blueprint of a software system, capturing high-level structural decisions that shape downstream implementation and system quality. Despite this central role, generating architecture designs from requirement documents remains underexplored, with limited task-specific benchmarks for generation or rigorous evaluation. To bridge this gap, we introduce R2ABench, a benchmark for requirements-to-architecture (R2A) reasoning. R2ABench contains 68 projects with human-validated references collected from both educational-style settings and GitHub repositories. Each project is packaged as a unified instance that provides a structured software requirements specification (SRS), a reference architecture view in PlantUML, and the corresponding source requirement artifacts. To evaluate generated architecture views, we design a layered hybrid evaluation framework spanning syntax validation, structural graph diagnostics, and semantic and evidence-based architecture scoring. Using this framework, we conduct a comprehensive empirical study of state-of-the-art LLMs and agents on R2ABench. We find that current systems can often generate syntactically valid and readable architecture views, but still struggle with relation-level architecture modeling across both subsets: component identification is substantially stronger than edge recovery, and edge hallucination is the dominant structural failure mode. Semantically, structural fidelity does not guarantee requirement coverage or traceability, which emerge as the primary quality gaps. The associated data files are available at https://figshare.com/s/01f0a5fb6243a6a60f23.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 41,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated \"AI Hallucination\" and How to Stop It",
+      "authors": [
+        {
+          "family": "Werner",
+          "given": "Swen"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5063992",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5063992",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 42,
+      "in_project": null
+    },
+    {
+      "title": "Causal Engram Circuits for Factual and Hallucinated Memory in Large Language Models",
+      "authors": [
+        {
+          "family": "Bao",
+          "given": "Pengfei"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7447179",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7447179",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) produce fluent yet factually incorrect statements—a failure that mirrors false memory in biological systems. Whether such errors arise from causally identifiable and manipulable circuit elements has remained unknown. Here we adapt the engram framework from systems neuroscience and combine causal mediation analysis with a double-dissociation logic to localize, verify, and rewrite factual and false memory traces in GPT-style transformers. We discover that sparse sets of knowledge neurons—canonical ensembles of approximately 8–15 units—function as memory engrams: silencing them selectively erases target-fact retrieval while matched controls remain intact; exogenous activation forces the fact into output even under neutral prompts. Rigorous controls, including patterned activation and non-engram amplification, confirm identity-specific sufficiency. Critically, counterfactual fine-tuning creates false memory engrams that deviate geometrically toward lexical co-occurrence subspaces; formal mediation analysis reveals that this geometric corruption causally mediates 65% of the pathway from falsity to erroneous output. Exploiting this divergence, we construct an unsupervised Memory Credibility Score that predicts hallucination propensity without behavioural testing, generalizing across relations and model scales. The framework extends to multi-hop and temporal reasoning and enables reversible, context-dependent memory control unavailable to permanent weight-editing methods. Our findings establish a causal sufficiency-and-necessity account of factual retrieval, diagnose representational pathologies underlying hallucination, and deliver a precision toolkit for understanding and certifying knowledge in LLMs.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 43,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Authority: AI Citations as Reckless Misrepresentation",
+      "authors": [
+        {
+          "family": "Chang",
+          "given": "Cheng-chi (Kirin)"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6464098",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6464098",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "When courts sanctioned the attorneys in Mata v. Avianca for submitting AI-generated citations to nonexistent cases, they reached for the vocabulary of negligence. That characterization is wrong. Large language models do not forget cases the way attorneys do; they generate citations that look real but correspond to nothing in any reporter, and they do so at documented rates of 58% to 88% on legal queries, a fact publicly known in peer-reviewed research before most of the incidents now filling the reporters. An attorney who submits AI output without verification does not merely fail a diligence standard. She submits a representation to a court while consciously declining to establish any basis for its accuracy, satisfying the elements of reckless misrepresentation under Restatement (Second) of Torts § 526(b)–(c). The cases that have followed Mata reach instinctively for language that exceeds negligence, calling citations “bogus” and monetary sanctions “insufficient deterrents,” and some have begun to reach the word “reckless” without grounding that intuition in a cross-regime doctrinal framework. This Article supplies that framework.<br><br>This Article makes three original contributions. First, it introduces the concept of “structurally predictable error” to explain why AI hallucination is categorically different from human memory failure: the error follows from the tool's architecture rather than from individual cognitive lapse, its rate is publicly documented, and a reasonable practitioner in the field either knows or should know it before using the tool. Second, it builds the doctrinal case for reckless misrepresentation by connecting § 526(b)–(c) to the philosophy of AI output, arguing that an attorney who relies on a tool architecturally indifferent to the distinction between true and false adopts that indifference as her own representational posture toward the court. Third, it proposes a graduated three-tier accountability framework that calibrates sanctions to actual culpability, preserving space for good-faith verification efforts and the access-to-justice benefits that AI tools offer to under-resourced practitioners, while refusing to treat willful blindness toward a known category of fabrication as mere carelessness.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 44,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Legal Presentations in Civil Trial Courts",
+      "authors": [
+        {
+          "family": "Parness",
+          "given": "Jeffrey A."
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6459258",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6459258",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<div> <span>Increasingly hallucinated legal presentations are being discovered and sanctioned in U.S. federal and state civil trial courts.&nbsp; Such presentations encompass papers that are signed, filed, submitted or advocated which contain nonexistent legal sources, whether case precedents, statutes, court rules, administrative regulations, or otherwise.&nbsp; These presentations may be discovered by judges, presenting lawyers, opposing lawyers, unrepresented parties, or witnesses.&nbsp; Sanctions may follow under court rules, like Federal Civil Procedure Rule (FRCP) 11 and its state court rule counterparts, federal or state statutes, or both.</span> </div> <div> <span><br></span> </div> <div> <span>D</span><span>iscoveries and sanctions are most often facilitated by FRCP 11 and similar state court rules of general application.&nbsp; They are less easily undertaken by state court rules or statutes that only partially follow, or significantly differ from, FRCP 11.&nbsp; This essay demonstrates the enhanced FRCP 11 opportunities for early and easy discovery and sanction of hallucinated legal presentations, as well as the difficulties posed when FRCP 11 is not (fully) followed in state trial courts.</span> </div> <div> <span><br></span> </div> <div> <span>The essay employs the 2025 Minnesota State District Court opinion in Nuvola, LLC v. Morgan Wright to address the current deficient norms on hallucinated legal presentations.&nbsp; In Minnesota, state lawmakers have only partially follow FRCP 11.&nbsp; The case is examined under FRCP 11 and comparable state civil procedure laws.&nbsp; Some state laws differ significantly from both the federal and Minnesota laws.&nbsp; The essay highlights the greater breadth of FRCP 11 in addressing troublesome paper presentations, the rule’s safe harbor provisions, and the rule’s recognition of law firm responsibility for frivolous presentations.&nbsp; The essay includes suggestions on how trial court norms can better address hallucinated legal presentations by lawyers.&nbsp; In doing so, it may also assist lawmakers contemplating civil procedure law reforms addressing hallucinated facts, like deepfakes, and hallucinated opinions, as from alleged experts.</span> </div>",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 45,
+      "in_project": null
+    },
+    {
+      "title": "Persistence Hallucinated? Research Integrity Issues in Voigtländer and Voth (2012)",
+      "authors": [
+        {
+          "family": "Francis",
+          "given": "Joseph"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6714989",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6714989",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Voigtländer and Voth&apos;s (2012) study of the medieval origins of antisemitic violence in Nazi Germany has various research integrity issues. Their research design is supposed to rely on \"unambiguous information\" that often does not exist in their sources. Furthermore, when such information does exist, it frequently contradicts the dataset that is supposed to have been coded from those sources. There are also unexplained discrepancies in their dataset relating to the official statistics of the deportations of Germany&apos;s Jews during the Holocaust. As a result, Voigtländer and Voth&apos;s (2012) study cannot be replicated.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 46,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated citations highest in social sciences preprints site",
+      "authors": [
+        {
+          "family": "Stokel-Walker",
+          "given": "Chris"
+        }
+      ],
+      "year": 2026,
+      "venue": "Nature",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/d41586-026-01545-1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/d41586-026-01545-1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 47,
+      "in_project": null
+    },
+    {
+      "title": "HalluCitation Matters: Revealing the Impact of Hallucinated References with 300 Hallucinated Papers in ACL Conferences",
+      "authors": [
+        {
+          "family": "Sakai",
+          "given": "Yusuke"
+        },
+        {
+          "family": "Kamigaito",
+          "given": "Hidetaka"
+        },
+        {
+          "family": "Watanabe",
+          "given": "Taro"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2026.acl-long.2189",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2026.acl-long.2189",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 48,
+      "in_project": null
+    },
+    {
+      "title": "The Rise of AI-Hallucinated Case Law in Canadian Courts and Tribunals",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Tom Macintosh"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6940678",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6940678",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models generate text by predicting the most probable next word in a sequence. When prompted for case law references, these tools may produce text that resembles a citation: a plausible party name, a realistic court abbreviation, and a convincing year. The result is a fictitious citation that is indistinguishable in form from a real one. This study presents the findings of a systematic review of decisions published on the Canadian Legal Information Institute (CanLII) from January 1, 2024, to March 26, 2026. The review identified 132 decisions issued by 44 different courts and tribunals in six provinces and the federal jurisdiction. In each decision, the court or adjudicator flagged a party submitting at least one fictitious citation (i.e., a case that does not exist) as real authority. In 96 of those 132 decisions, the court or tribunal found or presumed that artificial intelligence (“AI”) tools generated the fictitious citations. In the remaining 36 decisions, the adjudicator identified the citations as non-existent but made no definitive finding regarding the use of AI.&nbsp;The figures in this study represent a conservative floor. For every fictitious citation that an adjudicator detects, others may go unnoticed. The author maintains a live, searchable database of all identified decisions at <a href=\"https://courtready.ca/fictitious-citations-in-canadian-courts\" rel=\"nofollow\">courtready.ca/fictitious-citations-in-canadian-courts</a>, which is updated on a rolling basis as new decisions are published on CanLII.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 49,
+      "in_project": null
+    },
+    {
+      "title": "HALLUCINATED JUSTICE; AI-GENERATED CASE LAW AND THE ATTORNEY'S OBLIGATION TO VERIFY",
+      "authors": [
+        {
+          "family": "Ucheomumu",
+          "given": "Andrew"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6529481",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6529481",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<p><span>The rising utilization of generative artificial intelligence (\"AI\") techniques in legal writing has engendered a novel category of professional accountability issues. Courts around the United States have seen instances where attorneys presented pleadings that included legal authority produced by AI systems that were either fictitious or misrepresented. In several cases, attorneys utilized AI-generated case citations without confirming their authenticity. The outcome has been the submission of briefs that include spurious instances, invented quotations, or accounts of precedent that are absent from the referenced authority. </span></p> <p><span>Judicial bodies have reacted by enacting punishments, submitting attorneys to disciplinary agencies, and underscoring that the use of AI does not absolve lawyers of their duty to authenticate the authenticity of the legal precedents mentioned in their submissions. </span></p> <p><span>Simultaneously, courts and commentators have acknowledged a similar although separate issue: generative AI systems often misrepresent the holdings of genuine cases, erroneously assigning legal propositions to instances that do not support such notions.</span></p> <p><span>This article examines the principal decisions concerning two types of AI-related legal errors: (1) penalties for presenting fabricated AI-generated case citations and (2) occurrences where AI tools misrepresent the contents of authentic cases. It culminates with suggestions on how Maryland courts ought to tackle this burgeoning issue.</span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</p>",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 50,
+      "in_project": null
+    },
+    {
+      "title": "‘Hallucinated’ cases are affecting lawyers’ careers – they need to be trained to use AI",
+      "authors": [
+        {
+          "family": "Smith",
+          "given": "Craig"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.64628/ab.jqh5nn7sq",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.64628/ab.jqh5nn7sq",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 51,
+      "in_project": null
+    },
+    {
+      "title": "Should we welcome hallucinated references?: citation integrity beyond fabricated sources",
+      "authors": [
+        {
+          "family": "Arandjelović",
+          "given": "Ognjen"
+        }
+      ],
+      "year": 2026,
+      "venue": "Insights",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1629/uksg.786",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1629/uksg.786",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The phenomenon of hallucinated references, non‑existent publications invented by generative AI tools that seem plausible, has prompted understandable concern in scholarly publishing. I argue that the prevailing response is too myopic. Hallucinated references present a serious research integrity problem, but they are also a particularly visible manifestation of a broader citation pathology that is the use of real references to support claims that the cited works do not in fact establish. The latter problem is harder to detect because it cannot be resolved by checking whether a bibliographic item exists, requiring instead semantic judgement about the relation between a citing claim and a cited source. I argue that the current scandal should therefore be used to widen, rather than narrow, editorial concern with reference integrity. The existing infrastructure and tools already address parts of this problem, from metadata checking to citation‑context classification, but they do not remove the need for institutional responsibility. Thus, the response to the current crisis should aim at accountability for citation practices, rather than merely better detection of fabricated sources.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 52,
+      "in_project": null
+    },
+    {
+      "title": "Sharp increase in hallucinated references",
+      "authors": [
+        {
+          "family": "Jarvis",
+          "given": "Suzanne"
+        }
+      ],
+      "year": 2026,
+      "venue": "Veterinary Record",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1002/vetr.70844",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1002/vetr.70844",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 53,
+      "in_project": null
+    },
+    {
+      "title": "Discourse Structure as an Interpretable Signal for Detecting Hallucinated Chain-of-Thought Reasoning in Large Language Models",
+      "authors": [
+        {
+          "family": "Galitsky",
+          "given": "Boris"
+        }
+      ],
+      "year": 2026,
+      "venue": "AI",
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202606.1533.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202606.1533.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models (LLMs) frequently generate fluent chain-of-thought (CoT) reasoning that appears coherent while containing unsupported inferences, omitted alternatives, or logically invalid conclusions, creating significant challenges for trustworthy and explainable AI in high-stakes domains such as healthcare. While prior work has primarily focused on factual hallucinations, the structural characteristics of hallucinated reasoning remain insufficiently understood. This paper investigates diagnostic hallucinations through the lens of discourse structure and introduces a synthetic benchmark of ambiguous patient complaints paired with diagnoses, reasoning traces, discourse-tree representations, and hallucination labels. We hypothesize that hallucinated CoT differs from grounded reasoning not only in factual correctness but also in discourse organization. Our analysis shows that hallucinated reasoning tends to elevate weak or speculative clues into central discourse nuclei, suppress contradictory evidence, and use discourse satellites for post hoc reinterpretation rather than evidence integration. In contrast, grounded reasoning preserves alternative hypotheses, maintains explicit contrast and concession relations, and resolves evidential conflicts at higher discourse levels. Based on these observations, we formulate discourse-level indicators for hallucination detection and reasoning verification. The resulting framework provides interpretable structural explanations of reasoning failures and supports neuro-symbolic validation of LLM-generated reasoning traces, contributing to the development of more trustworthy, explainable, and verifiable language models.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 54,
+      "in_project": null
+    },
+    {
+      "title": "ARIC: A Multi-Source Framework for Detecting Hallucinated References in AI-Assisted Academic Writing",
+      "authors": [
+        {
+          "family": "Taş",
+          "given": "Ruhi"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 10th International Artificial Intelligence and Data Processing Symposium (IDAP)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/idap71869.2026.11728203",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/idap71869.2026.11728203",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 55,
+      "in_project": null
+    },
+    {
+      "title": "From Ambiguous Requirements to Hallucinated Tests: A Multi-Domain Study of the Mirror Effect in LLM-Assisted Software Testing",
+      "authors": [
+        {
+          "family": "Kanikaram",
+          "given": "Kiran Paul"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202608.1538.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202608.1538.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Although large language models (LLMs) have the capacity to produce test cases rapidly, the accuracy of the test cases relies heavily on the specification given to the model. In this paper, we present Mirror Effect: an LLM is likely to reflect any level of clarity or ambiguity in natural-language requirements in subsequent test artifacts. For a comparative within-subjects experiment with five expert QA engineers, three commercial LLMs, four core requirements cases, and a five-domain transfer learning test, for each of the four core requirements, vague and measurable cases were formulated without altering the function, and then the two sets of prompts were compared against their human-generated baselines. As a result, four vague requirement prompts produced 127 test cases, 68% of which contained assumptions not present in the requirement statement, while four clear requirements produced 42 test cases with a hallucination rate of 12%. Coverage completeness improved from 42% to 92%, and mean QA review time reduced from 240 min to 85 min. As for the cross-domain experiments, the vague-prompt hallucination rate ranged from 68% to 88%, while for clear-requirement prompts, it ranged from 8% to 22%. Our findings are descriptive in nature due to the small sample size but demonstrate a consistent trend across all models and domains. In our contribution, we provide a definition of test hallucination using traceability, empirical evidence of ambiguity propagation, and a pre-prompt requirement gate.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 56,
+      "in_project": null
+    },
+    {
+      "title": "Hcarepilot: Healthcare Copilot in the World of Hallucinated Large Language Models",
+      "authors": [
+        {
+          "family": "Sachdeva",
+          "given": "Shelly"
+        },
+        {
+          "family": "Shankar",
+          "given": "Saumil"
+        },
+        {
+          "family": "Soni",
+          "given": "Kanika"
+        },
+        {
+          "family": "Wroblewska",
+          "given": "Anna"
+        },
+        {
+          "family": "Paprzycki",
+          "given": "Marcin"
+        },
+        {
+          "family": "Ganzha",
+          "given": "Maria"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5195427",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5195427",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 57,
+      "in_project": null
+    },
+    {
+      "title": "Asymmetric verification for detecting hallucinated claims in clinical information extraction",
+      "authors": [
+        {
+          "family": "B",
+          "given": "Hemachandran"
+        },
+        {
+          "family": "K",
+          "given": "Priyadarsini"
+        }
+      ],
+      "year": 2026,
+      "venue": "Discover Computing",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10791-026-10704-x",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1007/s10791-026-10704-x",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 58,
+      "in_project": null
+    },
+    {
+      "title": "Reducing Hallucinated False Positives in LLM-Based Vulnerability Detection via Multi-Signal Focused Verification",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Casper"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Access",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2026.3739345",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/access.2026.3739345",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 59,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated References, Government Reports, and Managing Your Citations",
+      "authors": [
+        {
+          "family": "Sutherland",
+          "given": "Sarah A"
+        }
+      ],
+      "year": 2026,
+      "venue": "Legal Information Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3366/lim.2026.0040",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3366/lim.2026.0040",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This article discusses growing concerns about the declining rigour of citation practices in legal and government research, which are undermining scholarly integrity, especially with the rise of generative AI. Sarah A Sutherland identifies textual clues which may suggest that content has been created using genAI and could include fictitious references, while AI usage often may not be acknowledged. She goes on to urge professionals to commit to rigorous citation practices and adopt tools that support accuracy.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 60,
+      "in_project": null
+    },
+    {
+      "title": "How Unique Are Hallucinated Citations Offered by Generative Artificial Intelligence Models?",
+      "authors": [
+        {
+          "family": "Spennemann",
+          "given": "Dirk H. R."
+        }
+      ],
+      "year": 2026,
+      "venue": "Publications",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3390/publications14030038",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3390/publications14030038",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "This paper investigates how generative AI produces and propagates hallucinated academic references, focusing on the recurring non-existent citation “Education Governance and Datafication” attributed to Ben Williamson and Nelli Piattoeva. Drawing on 196 accessible source papers identified through Google Scholar and Google searches, the study analyses the structure, recurrence, and onward citation of this phantom reference. It shows that hallucinated citations are not random inventions but patterned re-combinations of real authors, journals, dates, and keywords, with duplication occurring in nearly 30% of these hallucinated citations. The paper also reports a structured interrogation of ChatGPT 5-mini about how it generates citations and finds that, absent of verification, the model reconstructs plausible references from learned patterns rather than factual recall. Finally, 110 AI-generated essays on datafication and school governance were examined: while most references were genuine or partly accurate, 29.8% remained fully hallucinated citations, including exact matches to the most common phantom citation, and an additional 29% were partially hallucinated citations. The findings highlight ongoing risks to academic integrity and show that web-enabled AI still does not fully eliminate fabricated references.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 61,
+      "in_project": null
+    },
+    {
+      "title": "THINKING ISSUES: Hallucinated Citations and the Forgotten Pleasures of References",
+      "authors": [
+        {
+          "family": "Connolly",
+          "given": "Randy"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM Inroads",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3819580",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3819580",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 62,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated intelligence? Cognitive and emotional pathways to generative AI reuse",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Chenxu"
+        },
+        {
+          "family": "Cong",
+          "given": "Yi"
+        },
+        {
+          "family": "Zhang",
+          "given": "Zheng"
+        }
+      ],
+      "year": 2026,
+      "venue": "Aslib Journal of Information Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1108/ajim-05-2025-0252",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1108/ajim-05-2025-0252",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Purpose This study aims to investigate how perceptions of artificial intelligence (AI) hallucinations influence users’ intention to reuse (IR) generative AI. By extending the AI device use acceptance (AIDUA) model, it examines the cognitive, emotional and individual-difference mechanisms underlying post-adoption behaviors. Design/methodology/approach Drawing on an online survey (n = 830) from generative AI users, structural equation modeling was employed to test the relationships among perception of hallucination potential (PH), performance expectancy (PE), effort expectancy (EE), emotion (EM), AI self-efficacy (AISE) and IR. Findings The results reveal that PH is negatively related to PE and positively related to EE. PE shows a positive relationship with EM, whereas EE is negatively related to EM. EM is further positively related to IR. In terms of moderating effects, AISE weakens the negative relationship between PH and PE. Its moderating effect on the relationship between PH and EE is not significant, yet it may be regarded as marginally significant. Practical implications Findings underscore the need for developers and organizations to reduce hallucination risks through technical safeguards and user-centered design, while providing training and support to strengthen users’ AISE. Building both reliable systems and user confidence is key to sustaining engagement with generative AI. Originality/value The study enriches the AIDUA model by integrating hallucination perception into the appraisal process and highlighting AISE as a boundary condition. It shifts the view from adoption to reuse, advancing understanding of the long-term dynamics of AI acceptance.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 63,
+      "in_project": null
+    },
+    {
+      "title": "pkgmatch: Find R Packages Matching Either Descriptions or Other R Packages",
+      "authors": [
+        {
+          "family": "Padgham",
+          "given": "Mark"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.pkgmatch",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.pkgmatch",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 64,
+      "in_project": null
+    },
+    {
+      "title": "Researchers who use hallucinated references to face arXiv ban",
+      "authors": [
+        {
+          "family": "Singh Chawla",
+          "given": "Dalmeet"
+        }
+      ],
+      "year": 2026,
+      "venue": "Nature",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/d41586-026-01595-5",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/d41586-026-01595-5",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 65,
+      "in_project": null
+    },
+    {
+      "title": "AI-hallucinated citations should be treated as research misconduct",
+      "authors": [
+        {
+          "family": "Pisek",
+          "given": "Jan"
+        },
+        {
+          "family": "Veromann",
+          "given": "Eve"
+        }
+      ],
+      "year": 2026,
+      "venue": "Nature",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/d41586-026-03407-2",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/d41586-026-03407-2",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 66,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Monsters: Analogizing Epistemological and Phenomenological Indifference in Large Language Models",
+      "authors": [
+        {
+          "family": "Hann",
+          "given": "Jonathan"
+        }
+      ],
+      "year": 2026,
+      "venue": "Paragraph",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3366/para.2026.0525",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3366/para.2026.0525",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This article analogizes the ‘hallucinations’ of large language model generative artificial intelligence (AI) systems with the phenomenological representation of monsters in cultural production. In the language of AI ‘hallucination’ we find a correlate with our phenomenal recognition of the monster as a kind of morphological failure. The essay suggests that monsters remain an undertheorized topic in critical theory and suggests that they provide a model for explicating the emerging technological, sociopolitical and cultural problems which are menacing contemporary academic discourse. If AI chatbots are marked by what Johnan Fredrikzon calls epistemological indifference then does their visual output constitute a kind of phenomenological indifference that reaches an apotheosis in the figure of the monster?",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 67,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Span Detection with Multi-View Attention Features",
+      "authors": [
+        {
+          "family": "Ogasa",
+          "given": "Yuya"
+        },
+        {
+          "family": "Arase",
+          "given": "Yuki"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the 14th Joint Conference on Lexical and Computational Semantics (*SEM 2025)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2025.starsem-1.31",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2025.starsem-1.31",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 68,
+      "in_project": null
+    },
+    {
+      "title": "The Hallucinated Subjects",
+      "authors": [
+        {
+          "family": "Brooke",
+          "given": "Siân J M"
+        },
+        {
+          "family": "Martinez Pandiani",
+          "given": "Delfina S"
+        }
+      ],
+      "year": 2026,
+      "venue": "Oxford Intersections: Gender Justice",
+      "type": "book-section",
+      "venue_kind": "unknown",
+      "doi": "10.1093/9780198960256.003.0045",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1093/9780198960256.003.0045",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Generative AI systems do not merely hallucinate facts. They increasingly hallucinate subjects. This article develops a queer and technofeminist account of generative AI hallucination as ontological subject production, a political infrastructure of subjectivity disguised as mere technical error. While hallucination is conventionally described as “plausible yet non‑factual content,” a deeper function is the fabrication of subjects along normative regimes: intelligible only insofar as they conform to norms of gendered coherence, and materially produced through extractivist data and labor regimes. This article introduces two interlocking concepts through which this operates: (a) the hallucinated human subject, the statistically assembled figure of personhood that generative systems construct as a “you” from users’ digital traces; and (b) the hallucinated machinic subject, the synthetic speaking position through which AI presents itself as a coherent “I.” Drawing on Preciado’s pharmacopornographic regime, Butler’s performativity, and Althusser’s interpellation, this article argues that these two figures recursively stabilize one another, producing closed circuits of gendered intelligibility in which contradiction is compressed, queerness is corrected, and normative coherence is enforced at scale. This dynamic is traced across three sites: the algorithmic construction of the datafied human double, the constitutional training of the machinic persona, and the recursive feedback loop through which each figure stabilizes the other. Hallucinated subjects are experienced as real, and the gendered categories they reinforce are already being written into the next generation of governance and surveillance systems. Because hallucination is not a technical flaw to be corrected, but a political infrastructure of subjectivation that enforces (gendered) coherence, queer refusals and glitches that trouble prediction become a crucial site of resistance.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 69,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated citations are polluting the scientific literature. What can be done?",
+      "authors": [
+        {
+          "family": "Naddaf",
+          "given": "Miryam"
+        },
+        {
+          "family": "Quill",
+          "given": "Elizabeth"
+        }
+      ],
+      "year": 2026,
+      "venue": "Nature",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/d41586-026-00969-z",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/d41586-026-00969-z",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 41,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 70,
+      "in_project": null
+    },
+    {
+      "title": "Guarding against artificial intelligence &ndash; hallucinated citations: The case for full-text reference deposit.",
+      "authors": [
+        {
+          "family": "Glynn",
+          "given": "Alex"
+        }
+      ],
+      "year": 2025,
+      "venue": "European Science Editing",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3897/ese.2025.e153973",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3897/ese.2025.e153973",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "The tendency of generative artificial intelligence (AI) to &lsquo;hallucinate&rsquo; false information is well known; AI-generated citations to non-existent sources have penetrated the bibliographies of peer-reviewed publications. Drawing from the Transparency and Openness Promotion guidelines, American judicial contention with generative AI, and the submission of prior art to the US Patent and Trademark Office, the author proposes that journals require authors to submit the full text of each cited source along with their manuscripts, thereby preventing authors from citing material whose full text they cannot produce. This solution requires limited additional work by authors or editors while effectively immunizing journals against hallucinated references.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 71,
+      "in_project": null
+    },
+    {
+      "title": "Automating Reference Integrity: An Empirical Evaluation of Detecting Hallucinated Citations in Scholarly Manuscripts with Citcheck",
+      "authors": [
+        {
+          "family": "khelassi",
+          "given": "Abdeldjalil"
+        }
+      ],
+      "year": 2026,
+      "venue": "Medical Technologies Journal",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.26415/2572-004x-vol6iss1p624-632",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.26415/2572-004x-vol6iss1p624-632",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Introduction: The widespread adoption of Large Language Models (LLMs) in academic writing has introduced significant risks to scholarly publishing through the generation of hallucinated, non-existent references (\"ghost citations\"). Manual verification of citation integrity is labor-intensive and error-prone for editorial teams. This study evaluates an automated computer-implemented system, called: Citcheck, designed to analyze manuscript bibliographies and verify citation network integrity. Methods: An empirical benchmark dataset (N=147) was evaluated across three distinct groups: Real Indexed Literature (n=47), Real Edge-Case Literature (n=50), and Synthetic Ghost Citations (n=50). Citcheck parsed unstructured bibliographic strings, queried the Crossref database, and calculated fuzzy similarity metrics for titles, authors, and publication years. Works falling below defined threshold criteria were flagged as \"Conflict / Low Match.\" Performance was assessed using sensitivity, specificity, precision, accuracy, and Matthews Correlation Coefficient (MCC). Results: The system correctly identified and blocked 47 out of 50 hallucinated citations, achieving a Specificity of 94.00% and an overall Precision of 95.59% (False Positive Rate = 6.00%, n=3). For real literature, the platform successfully verified 65 out of 97 entries, yielding a Sensitivity of 67.01% (False Negative Rate = 32.99%, n=32). Across the entire sample (N=147), the automated system demonstrated an overall Accuracy of 76.19% and an MCC of 0.58. Discussion: The high specificity and precision confirm that automated API-driven fuzzy matching serves as a highly effective first line of defense against synthetic AI-generated citations in editorial workflows. False negatives primarily occurred among non-standard edge-case literature (e.g., niche monographs, institutional reports, and preprints lacking uniform metadata formatting). Because deterministic algorithms cannot reliably distinguish non-indexed genuine publications from well-structured hallucinations, the system is designed under a Human-in-the-Loop (HITL) governance model. Machine automation accelerates initial screening and flags anomalies, while human managing editors retain final adjudicative oversight for edge-case citations.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 72,
+      "in_project": null
+    },
+    {
+      "title": "pkgstats: Metrics of R Packages",
+      "authors": [
+        {
+          "family": "Padgham",
+          "given": "Mark"
+        }
+      ],
+      "year": 2025,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.pkgstats",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.pkgstats",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 73,
+      "in_project": null
+    },
+    {
+      "title": "Discourse-Aware Concept Whitening for Explainable Detection of Hallucinated Reasoning in Large Language Models",
+      "authors": [
+        {
+          "family": "Galitsky",
+          "given": "Boris"
+        },
+        {
+          "family": "Parakal",
+          "given": "Erik George"
+        },
+        {
+          "family": "Kuznetsov",
+          "given": "Sergei O."
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202606.2192.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202606.2192.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) frequently generate coherent-looking reasoning traces that nevertheless contain unsupported inferences, contradiction suppression, premature closure, or structurally unstable explanations. Existing hallucination detection approaches largely focus on token-level uncertainty, factual verification, or post-hoc saliency analysis, while insufficiently modeling the discourse organization of reasoning itself. This paper proposes a discourse-aware extension of Concept Whitening (CW), originally developed for interpretable image recognition, to the problem of hallucination detection in chain-of-thought reasoning. We argue that hallucinations correspond to recurring structural distortions in discourse trees and rhetorical organization. Our framework aligns latent dimensions of neural reasoning representations with interpretable discourse concepts such as contradiction omission, unsupported nucleus promotion, defeater suppression, and abductive instability. By combining discourse parsing, rhetorical structure theory (RST), graph-based reasoning representations, and latent-space concept alignment, the proposed framework transforms hallucination detection into an interpretable geometric reasoning problem. We further analyze the computational properties of discourse-aware concept whitening and discuss its implications for neuro-symbolic reasoning verification.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 74,
+      "in_project": null
+    },
+    {
+      "title": "vulnr: Scan R Packages for Vulnerabilities",
+      "authors": [
+        {
+          "family": "Gepp",
+          "given": "Jakob"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.vulnr",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.vulnr",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 75,
+      "in_project": null
+    },
+    {
+      "title": "Detecting Hallucinated Legal Authorities in LLM-Generated AI-Law Writing: A Bilingual NLP Benchmark for China-U.S. Synthetic-Content Governance",
+      "authors": [
+        {
+          "family": "Xue",
+          "given": "Yaofu"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 7th World Symposium on Artificial Intelligence (WSAI)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/wsai70435.2026.11708627",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/wsai70435.2026.11708627",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 76,
+      "in_project": null
+    },
+    {
+      "title": "Generative AI in Scientific Writing : A Conceptual Analysis of Hallucinated References and Implications for Research Data Integrity",
+      "authors": [
+        {
+          "family": "Humairo",
+          "given": "Annisa"
+        }
+      ],
+      "year": 2026,
+      "venue": "Media Informatika",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.37595/mediainfo.v25i2.507",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.37595/mediainfo.v25i2.507",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The evolution of the generative artificial intelligence (AI) has transformed scientific writing practices, especially in the process literature synthesis and referencing. The use of Generative AI offering efficiency and cognitive support for researchers, but that it also causes the risk in reference hallucinations, such as citations that looks credible but that is just fictive. This phenomenon becomes serious challenges for validity of scientific claims, the reproducibility of research, and trust to the the academic publication system. Previous studies have discussed about the use of generative AI in ethical perspective, human–AI collaboration, and AI-based content detection. However, most studies still put the referencing errors as a technical or ethical issue, without explicitly linking it to the research data integrity framework that considering the referencing as a crucial scientific data artifact. This study aims to fill this gap by analyzing the hallucinated references as a systemic research data integrity problem. This study uses a qualitative approach based on conceptual analysis and cross-domain thematic synthesis and understand about the generative AI literature, scientific writing, data integrity research , and governance and scientific publications auditing. The analysis focuses on mapping the relationships between the AI models technical limitations, user behavior, and institutional mechanisms in the scholarly publishing ecosystem. The research results indicated that hallucinated references are a socio-technical phenomenon that is strengthened by the interaction between generation AI probabilistic, user bias automation, and the weaknesses in policy and editorial control. The impacts include erosion of research data integrity, contamination of accumulated knowledge, increased peer review pressure, and decreased the trust in scientific publications. This study emphasizes the need for a paradigm shift from an individual approach to a systemic governance-based approach, which the references are treated as objects of research data that must be verified, documented, and auditable. These findings provide conceptual contributions to policy development, editorial practices, and a continuing research agenda to maintain scientific integrity in the era of generative AI.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 77,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated harm: legal liability for AI-generated false content in mass media",
+      "authors": [
+        {
+          "family": "Shen",
+          "given": "Kaiyan"
+        }
+      ],
+      "year": 2025,
+      "venue": "Advances in Social Behavior Research",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.54254/2753-7102/2025.29861",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.54254/2753-7102/2025.29861",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "As Large Language Models (LLMs) become increasingly embedded in news production, their tendency to generate hallucinated contentfabricated or misleading information presented as factraises serious legal concerns. This paper examines the implications of such content through the lens of both copyright and personality rights, focusing on civil defamation, privacy infringement, and unauthorized reproduction of third-party materials. Using a comparative doctrinal methodology, it analyzes regulatory and tort law frameworks in China and the United States, with particular attention to the heightened standards for public figure defamation in U.S. law and the broader scope of reputational protection under Chinese civil law. By bridging the intersection of copyright and personality rights, this study offers a novel perspective on the legal classification and liability of AI-generated news. It further proposes actionable compliance strategies for media organizations and generative AI providers, including content review mechanisms and attribution standards. Finally, the paper reflects on future governance trendsespecially the tension between innovation and accountabilityas jurisdictions worldwide grapple with the social and legal consequences of hallucinated media content.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 78,
+      "in_project": null
+    },
+    {
+      "title": "(Q)field, synthetic data, and hallucinated portraits",
+      "authors": [
+        {
+          "family": "Barbotto",
+          "given": "Silvia"
+        }
+      ],
+      "year": 2026,
+      "venue": "The Visage, Voice and Void in the Community",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.4324/9781003620501-5",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.4324/9781003620501-5",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 79,
+      "in_project": null
+    },
+    {
+      "title": "Are you hallucinated? Insights into large language models",
+      "authors": [
+        {
+          "family": "Singh",
+          "given": "Sarvagya"
+        },
+        {
+          "family": "Saha",
+          "given": "Rahul"
+        },
+        {
+          "family": "Kumar",
+          "given": "Gulshan"
+        },
+        {
+          "family": "Nayyar",
+          "given": "Anand"
+        },
+        {
+          "family": "Kim",
+          "given": "Tae-Kyung"
+        }
+      ],
+      "year": 2026,
+      "venue": "ICT Express",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.icte.2025.12.011",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.icte.2025.12.011",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 80,
+      "in_project": null
+    },
+    {
+      "title": "rjd3jars: External jars for 'rjdverse' R Packages",
+      "authors": [
+        {
+          "family": "Barthelemy",
+          "given": "Tanguy"
+        }
+      ],
+      "year": 2025,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.rjd3jars",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.rjd3jars",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 81,
+      "in_project": null
+    },
+    {
+      "title": "easyRef: Easy Reference Generation for R Packages",
+      "authors": [
+        {
+          "family": "Rydbirk",
+          "given": "Rasmus"
+        }
+      ],
+      "year": 2025,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.easyref",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.easyref",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 82,
+      "in_project": null
+    },
+    {
+      "title": "pkgmd: Generate Markdown Reference Documentation for R Packages",
+      "authors": [
+        {
+          "family": "Czerner",
+          "given": "Peter"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.pkgmd",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.pkgmd",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 83,
+      "in_project": null
+    },
+    {
+      "title": "probaverse: Install and Load the 'probaverse' Packages",
+      "authors": [
+        {
+          "family": "Coia",
+          "given": "Vincenzo"
+        }
+      ],
+      "year": 2025,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.probaverse",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.probaverse",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 84,
+      "in_project": null
+    },
+    {
+      "title": "Enhancing Weakly-Supervised Object Detection on Static Images Through (Hallucinated) Motion",
+      "authors": [
+        {
+          "family": "Gungor",
+          "given": "Cagri"
+        },
+        {
+          "family": "Kovashka",
+          "given": "Adriana"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 IEEE/CVF Winter Conference on Applications of Computer Vision Workshops (WACVW)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/wacvw65960.2025.00117",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/wacvw65960.2025.00117",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 85,
+      "in_project": null
+    },
+    {
+      "title": "USP at SHROOM-Visions: Why Informative Proxy Visual Signals Do Not Localize Hallucinated Spans",
+      "authors": [
+        {
+          "family": "Fernandes",
+          "given": "Rafael M."
+        }
+      ],
+      "year": 2026,
+      "venue": "The Proceedings of the Third Workshop on Uncertainty-Aware NLP",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/2026.uncertainlp-main.47",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/2026.uncertainlp-main.47",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 86,
+      "in_project": null
+    },
+    {
+      "title": "kinesis: 'shiny' Applications for the 'tesselle' Packages",
+      "authors": [
+        {
+          "family": "Frerebeau",
+          "given": "Nicolas"
+        }
+      ],
+      "year": 2025,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.kinesis",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.kinesis",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 87,
+      "in_project": null
+    },
+    {
+      "title": "snapr: Convenient Snapshot Testing Functions for Packages",
+      "authors": [
+        {
+          "family": "Morrison",
+          "given": "Douglas Ezra"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.snapr",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.snapr",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 88,
+      "in_project": null
+    },
+    {
+      "title": "surveyverse: Easily Install and Load Survey Analysis Packages",
+      "authors": [
+        {
+          "family": "Schneider",
+          "given": "Ben"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.surveyverse",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.surveyverse",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 89,
+      "in_project": null
+    },
+    {
+      "title": "pyrt: Runtime Support for Converted 'Python' Packages",
+      "authors": [
+        {
+          "family": "Lau",
+          "given": "Yee How"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.pyrt",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.pyrt",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 90,
+      "in_project": null
+    }
+  ]
+}

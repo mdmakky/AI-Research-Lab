@@ -1,0 +1,61 @@
+{
+  "title": "Refusing the Impossible: A Taxonomy and Benchmark for Code Hallucination in Large Language Models",
+  "authors": [
+    {
+      "family": "Dasu",
+      "given": "Vishnu Asutosh"
+    },
+    {
+      "family": "Kundu",
+      "given": "Ashish"
+    },
+    {
+      "family": "Tan",
+      "given": "Gang"
+    }
+  ],
+  "year": 2026,
+  "venue": "arXiv",
+  "type": "preprint",
+  "venue_kind": "preprint",
+  "doi": "10.48550/arxiv.2609.03267",
+  "arxiv_id": "2609.03267",
+  "pmid": null,
+  "pmcid": null,
+  "openalex_id": "W7208744263",
+  "url": "https://arxiv.org/abs/2609.03267",
+  "oa_pdf_url": "https://arxiv.org/pdf/2609.03267",
+  "is_oa": true,
+  "is_retracted": false,
+  "cited_by": 0,
+  "abstract": "This paper investigates whether large language models (LLMs) for code generation can recognize a programming request that cannot be satisfied. Coding assistants are widely deployed, yet they are evaluated almost exclusively on solvable tasks where a test suite can score the output. A request may instead name a package that does not exist or ask for an algorithm that is mathematically impossible, and the appropriate response is to refuse. Models nevertheless respond with plausible code, and such fabrications are also a security concern because attackers can register the package names that models invent. We define code hallucination as ungrounded code generation, distinguish it from ordinary programming errors, and introduce a taxonomy of these failures together with a benchmark of 270 adversarial requests and 91 matched solvable controls across six languages and 24 subcategories. We evaluate 17 open-weight models with 6.7B to 671B parameters, collecting 6,137 responses. Models hallucinate on 54% of the adversarial requests and correctly refuse 31%. Larger models do better on algorithmic impossibilities and conflicting requirements, where hallucination falls from 84% for models at or below 7B parameters to 32% for those at or above 80B. For plausible but nonexistent dependencies and features, the rates are 88% and 61%, and even the largest model hallucinates on all 22 requests for nonexistent JavaScript and Rust packages. Two-thirds of hallucinations are confident fabrications without caveats, and some reasoning models fail to return an answer on solvable tasks. Scale teaches models to recognize what is impossible but not what does not exist, so grounding code generation in the real software ecosystem, for example by checking package names against registries, remains necessary regardless of model size.",
+  "sources": [
+    "arxiv",
+    "openalex"
+  ],
+  "key": "dasu2026refusing",
+  "added": "2026-11-12T04:55:19+06:00",
+  "added_reason": "F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)",
+  "found_via": "package hallucination large language model code generation; LLM hallucinated dependencies nonexistent library import",
+  "verification": {
+    "status": "verified",
+    "checked": "2026-11-12T17:53:55+06:00",
+    "cross_checks": {
+      "arxiv": {
+        "title_similarity": 1.0,
+        "year_match": true,
+        "first_author_match": true,
+        "ok": true
+      }
+    }
+  },
+  "fulltext": {
+    "status": "downloaded",
+    "source": "https://arxiv.org/pdf/2609.03267",
+    "retrieved": "2026-11-12T04:56:18+06:00",
+    "sha256": "45fbfc957ba1bc736aa02576828e171989e9a33f74dfa760c64a45e35d0b4e87",
+    "pages": 12,
+    "text_layer": "ok",
+    "identity": "match (arXiv id printed in PDF)"
+  }
+}

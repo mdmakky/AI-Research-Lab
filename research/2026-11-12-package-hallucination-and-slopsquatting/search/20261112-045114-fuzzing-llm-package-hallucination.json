@@ -1,0 +1,1949 @@
+{
+  "query": "fuzzing LLM package hallucination",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:51:14+06:00",
+  "raw_hits": 51,
+  "unique": 48,
+  "errors": {},
+  "results": [
+    {
+      "title": "HFuzzer: Testing Large Language Models for Package Hallucinations via Phrase-based Fuzzing",
+      "authors": [
+        {
+          "family": "Zhao",
+          "given": "Yukai"
+        },
+        {
+          "family": "Wu",
+          "given": "Menghan"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        }
+      ],
+      "year": 2025,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/ase63991.2025.00225",
+      "arxiv_id": "2509.23835",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7125947608",
+      "url": "https://doi.org/10.1109/ase63991.2025.00225",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.23835",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Large Language Models (LLMs) are widely used for code generation, but they face critical security risks when applied to practical production due to package hallucinations, in which LLMs recommend non-existent packages. These hallucinations can be exploited in software supply chain attacks, where malicious attackers exploit them to register harmful packages. It is critical to test LLMs for package hallucinations to mitigate package hallucinations and defend against potential attacks. Although researchers have proposed testing frameworks for fact-conflicting hallucinations in natural language generation, there is a lack of research on package hallucinations. To fill this gap, we propose HFuzzer, a novel phrase-based fuzzing framework to test LLMs for package hallucinations. HFuzzer adopts fuzzing technology and guides the model to infer a wider range of reasonable information based on phrases, thereby generating enough and diverse coding tasks. Furthermore, HFuzzer extracts phrases from package information or coding tasks to ensure the relevance of phrases and code, thereby improving the relevance of generated tasks and code. We evaluate HFuzzer on multiple LLMs and find that it triggers package hallucinations across all selected models. Compared to the mutational fuzzing framework, HFuzzer identifies 2.60× more unique hallucinated packages and generates more diverse tasks. Additionally, when testing the model GPT-4o, HFuzzer finds 46 unique hallucinated packages. Further analysis reveals that for GPT-4o, LLMs exhibit package hallucinations not only during code generation but also when assisting with environment configuration.",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Hallucination by Code Generation LLMs: Taxonomy, Benchmarks, Mitigation, and Challenges",
+      "authors": [
+        {
+          "family": "Lee",
+          "given": "Yunseo"
+        },
+        {
+          "family": "Song",
+          "given": "John Youngeun"
+        },
+        {
+          "family": "Kim",
+          "given": "Dongsun"
+        },
+        {
+          "family": "Kim",
+          "given": "Jindae"
+        },
+        {
+          "family": "Kim",
+          "given": "Mijung"
+        },
+        {
+          "family": "Nam",
+          "given": "Jaechang"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2504.20799",
+      "arxiv_id": "2504.20799",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417171404",
+      "url": "http://arxiv.org/abs/2504.20799",
+      "oa_pdf_url": "https://arxiv.org/pdf/2504.20799",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 26,
+      "abstract": "Recent technical breakthroughs in large language models (LLMs) have enabled them to fluently generate source code. Software developers often leverage both general-purpose and code-specialized LLMs to revise existing code or even generate a whole function from scratch. These capabilities are also beneficial in no-code or low-code contexts, in which one can write programs without a technical background. However, due to their internal design, LLMs are prone to generating hallucinations, which are incorrect, nonsensical, and not justifiable information but difficult to identify its presence. This problem also occurs when generating source code. Once hallucinated code is produced, it is often challenging for users to identify and fix it, especially when such hallucinations can be identified under specific execution paths. As a result, the hallucinated code may remain unnoticed within the codebase. This survey investigates recent studies and techniques relevant to hallucinations generated by CodeLLMs. We categorize the types of hallucinations in the code generated by CodeLLMs, review existing benchmarks and mitigation strategies, and identify open challenges. Based on these findings, this survey outlines further research directions in the detection and removal of hallucinations produced by CodeLLMs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Fuzz4All: Universal Fuzzing with Large Language Models",
+      "authors": [
+        {
+          "family": "Xia",
+          "given": "Chunqiu Steven"
+        },
+        {
+          "family": "Paltenghi",
+          "given": "Matteo"
+        },
+        {
+          "family": "Tian",
+          "given": "Jia Le"
+        },
+        {
+          "family": "Pradel",
+          "given": "Michael"
+        },
+        {
+          "family": "Zhang",
+          "given": "Lingming"
+        }
+      ],
+      "year": 2024,
+      "venue": "ACM/IEEE International Conference on Software Engineering: Companion Proceedings (ICSE-Companion)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3597503.3639121",
+      "arxiv_id": "2308.04748",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4394769544",
+      "url": "https://doi.org/10.1145/3597503.3639121",
+      "oa_pdf_url": "https://arxiv.org/pdf/2308.04748",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 378,
+      "abstract": "Fuzzing has achieved tremendous success in discovering bugs and vulnerabilities in various software systems. Systems under test (SUTs) that take in programming or formal language as inputs, e.g., compilers, runtime engines, constraint solvers, and software libraries with accessible APIs, are especially important as they are fundamental building blocks of software development. However, existing fuzzers for such systems often target a specific language, and thus cannot be easily applied to other languages or even other versions of the same language. Moreover, the inputs generated by existing fuzzers are often limited to specific features of the input language, and thus can hardly reveal bugs related to other or new features. This paper presents Fuzz4All, the first fuzzer that is universal in the sense that it can target many different input languages and many different features of these languages. The key idea behind Fuzz4All is to leverage large language models (LLMs) as an input generation and mutation engine, which enables the approach to produce diverse and realistic inputs for any practically relevant language. To realize this potential, we present a novel autoprompting technique, which creates LLM prompts that are well-suited for fuzzing, and a novel LLM-powered fuzzing loop, which iteratively updates the prompt to create new fuzzing inputs. We evaluate Fuzz4All on nine systems under test that take in six different languages (C, C++, Go, SMT2, Java, and Python) as inputs. The evaluation shows, across all six languages, that universal fuzzing achieves higher coverage than existing, language-specific fuzzers. Furthermore, Fuzz4All has identified 98 bugs in widely used systems, such as GCC, Clang, Z3, CVC5, OpenJDK, and the Qiskit quantum computing platform, with 64 bugs already confirmed by developers as previously unknown.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "LLMs are All You Need? Improving Fuzz Testing for MOJO with Large Language Models",
+      "authors": [
+        {
+          "family": "Huang",
+          "given": "Long"
+        },
+        {
+          "family": "Zhao",
+          "given": "Peizhou"
+        },
+        {
+          "family": "Chen",
+          "given": "Huaming"
+        }
+      ],
+      "year": 2025,
+      "venue": "Asia-Pacific Software Engineering Conference (APSEC)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/apsec66846.2025.00059",
+      "arxiv_id": "2510.10179",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7131305555",
+      "url": "https://doi.org/10.1109/apsec66846.2025.00059",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.10179",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "The rapid development of large language models (LLMs) has revolutionized software testing, particularly fuzz testing, by automating the generation of diverse and effective test inputs. This advancement holds great promise for improving software reliability. Meanwhile, the introduction of MOJO, a high-performance AI programming language blending Python’s usability with the efficiency of C and C++, presents new opportunities to enhance AI model scalability and programmability. However, as a new language, MOJO lacks comprehensive testing frameworks and a sufficient corpus for LLM-based testing, which exacerbates model hallucination. In this case, LLMs will generate syntactically valid but semantically incorrect code, significantly reducing the effectiveness of fuzz testing. To address this challenge, we propose MOJOFuzzer, the first adaptive LLM-based fuzzing framework designed for zero-shot learning environments of emerging programming languages. MOJOFuzzer integrates a mutil-phase framework that systematically eliminates low-quality generated inputs before execution, significantly improving test case validity. Furthermore, MOJOFuzzer dynamically adapts LLM prompts based on runtime feedback for test case mutation, enabling an iterative learning process that continuously enhances fuzzing efficiency and bug detection performance. Our experimental results demonstrate that MOJOFuzzer significantly enhances test validity, API coverage, and bug detection performance, outperforming traditional fuzz testing and state-of-the-art LLM-based fuzzing approaches. Using MOJOFuzzer, we have conducted a first large-scale fuzz testing evaluation of MOJO, uncorvering 13 previous unknown bugs. This study not only advances the field of LLM-driven software testing but also establishes a foundational methodology for leveraging LLMs in the testing of emerging programming languages.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "An LLM-Driven Fuzzing Framework for Detecting Logic Instruction Bugs in PLCs",
+      "authors": [
+        {
+          "family": "Cheng",
+          "given": "Jiaxing"
+        },
+        {
+          "family": "周",
+          "given": "Ming 明 Zhou"
+        },
+        {
+          "family": "Wang",
+          "given": "Haining"
+        },
+        {
+          "family": "Chen",
+          "given": "Xin"
+        },
+        {
+          "family": "Wang",
+          "given": "Yuncheng"
+        },
+        {
+          "family": "Qu",
+          "given": "Yibo"
+        },
+        {
+          "family": "Sun",
+          "given": "Limin"
+        }
+      ],
+      "year": 2026,
+      "venue": "Network and Distributed System Security Symposium",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.14722/ndss.2026.241081",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161037635",
+      "url": "https://doi.org/10.14722/ndss.2026.241081",
+      "oa_pdf_url": "https://doi.org/10.14722/ndss.2026.241081",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Programmable Logic Controllers (PLCs) automate industrial operations using vendor-supplied logic instruction libraries compiled into device firmware.These libraries may contain security flaws that, when exploited through physical control routines, network-facing services, or PLC runtime subsystems, may lead to privilege violations, memory corruption, or data leakage.This paper presents LogicFuzz, the first fuzzing framework designed specifically to target logic instructions in PLC firmware.LogicFuzz constructs a semantic dependency graph (SDG) that captures both operational semantics and inter-instruction dependencies in PLC code.Leveraging the SDG together with an enable-signal mechanism, LogicFuzz automatically synthesizes instruction-tailored seed programs, significantly reducing manual effort and enabling controlled, resettable fuzzing on real PLC hardware.To uncover bugs conditioned on control-flow triggers (i.e., invocation patterns), LogicFuzz mutates the SDG to diversify instruction-invocation contexts.To expose data-triggered faults, it performs coverage-guided parameter mutation under valid semantic constraints.In addition, LogicFuzz integrates a multisource oracle that monitors runtime logs, status LEDs, and communication states to detect instruction-level failures during fuzzing.We evaluate LogicFuzz on six production PLCs from three major vendors and uncover 19 instruction-level bugs, including four previously unknown vulnerabilities.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Low-Cost and Comprehensive Non-textual Input Fuzzing with LLM-Synthesized Input Generators",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Kunpeng"
+        },
+        {
+          "family": "Li",
+          "given": "Zongjie"
+        },
+        {
+          "family": "Wu",
+          "given": "Daoyuan"
+        },
+        {
+          "family": "Wang",
+          "given": "Shuai"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2501.19282",
+      "arxiv_id": "2501.19282",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4407091727",
+      "url": "http://arxiv.org/abs/2501.19282",
+      "oa_pdf_url": "https://arxiv.org/pdf/2501.19282",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Modern software often accepts inputs with highly complex grammars. Recent advances in large language models (LLMs) have shown that they can be used to synthesize high-quality natural language text and code that conforms to the grammar of a given input format. Nevertheless, LLMs are often incapable or too costly to generate non-textual outputs, such as images, videos, and PDF files. This limitation hinders the application of LLMs in grammar-aware fuzzing. We present a novel approach to enabling grammar-aware fuzzing over non-textual inputs. We employ LLMs to synthesize and also mutate input generators, in the form of Python scripts, that generate data conforming to the grammar of a given input format. Then, non-textual data yielded by the input generators are further mutated by traditional fuzzers (AFL++) to explore the software input space effectively. Our approach, namely G2FUZZ, features a hybrid strategy that combines a holistic search driven by LLMs and a local search driven by industrial quality fuzzers. Two key advantages are: (1) LLMs are good at synthesizing and mutating input generators and enabling jumping out of local optima, thus achieving a synergistic effect when combined with mutation-based fuzzers; (2) LLMs are less frequently invoked unless really needed, thus significantly reducing the cost of LLM usage. We have evaluated G2FUZZ on a variety of input formats, including TIFF images, MP4 audios, and PDF files. The results show that G2FUZZ outperforms SOTA tools such as AFL++, Fuzztruction, and FormatFuzzer in terms of code coverage and bug finding across most programs tested on three platforms: UNIFUZZ, FuzzBench, and MAGMA.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Kaizen: Metamorphic Fuzzing and Differential Testing for LLM-Translated HPC Applications",
+      "authors": [
+        {
+          "family": "Ludwig",
+          "given": "Oscar"
+        },
+        {
+          "family": "Anklesaria",
+          "given": "Ninad"
+        },
+        {
+          "family": "Jin",
+          "given": "Zheming"
+        },
+        {
+          "family": "Pophale",
+          "given": "Swaroop"
+        },
+        {
+          "family": "Moshood",
+          "given": "Kausar Yetunde"
+        },
+        {
+          "family": "DeVore",
+          "given": "Christian J."
+        },
+        {
+          "family": "Gill",
+          "given": "Brandon"
+        },
+        {
+          "family": "Villareal",
+          "given": "Cassius"
+        },
+        {
+          "family": "Teranishi",
+          "given": "Keita"
+        },
+        {
+          "family": "Motwani",
+          "given": "Manish"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.04058",
+      "arxiv_id": "2607.04058",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7167630198",
+      "url": "https://arxiv.org/abs/2607.04058",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.04058",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) are increasingly used to port scientific codes across heterogeneous high-performance computing (HPC) programming models, such as translating CUDA to OpenMP, OpenACC, Kokkos or SYCL. However, current evaluations use compilation success, token-level similarity, or developer-written tests from static benchmarks, which cannot reliably ensure behavioral correctness. We present Kaizen, a metamorphic fuzzing and differential testing framework for evaluating the correctness of LLM-translated HPC code. Kaizen uses metamorphic fuzzing via source-code mutation to generate semantically equivalent programs, grammar-based input fuzzing to explore behavioral diversity, and differential testing to expose semantic divergences between original and translated applications that compile and pass developer-written tests yet produce incorrect scientific results. We evaluate Kaizen on CUDA-to-OpenMP translation of 16 scientific applications from seven domains using three fine-tuned LLMs at kernel-level and full-program granularity. Our evaluation reveals that (1) compilation success is a poor proxy for correctness; (2) LLM-translated programs exhibit systematic compile-time error patterns, with nine categories for kernel-level translation and 27 for full-program translation; (3) semantic errors that survive compilation are often input-dependent and require differential testing to expose; and (4) full-program translation is substantially harder than kernel-level translation. These findings highlight the need for correctness-oriented evaluation of LLM-assisted HPC code translations.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "PackMonitor: Towards Zero Package Hallucinations via Decoding-Time Monitoring",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Xiting"
+        },
+        {
+          "family": "Liu",
+          "given": "Yuetong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yitong"
+        },
+        {
+          "family": "Li",
+          "given": "Jia"
+        },
+        {
+          "family": "Hu",
+          "given": "Shi‐Min"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832118",
+      "arxiv_id": "2602.20717",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7215088233",
+      "url": "https://doi.org/10.1145/3832118",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832118?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "As Large Language Models (LLMs) are increasingly integrated into software development workflows, their trustworthiness has become a critical concern. However, in dependency recommendation scenarios, the reliability of LLMs is undermined by widespread package hallucinations, where models often recommend hallucinated packages. Recent studies have proposed a range of approaches to mitigate this issue. Nevertheless, existing approaches typically merely reduce hallucination rates rather than eliminate them, leaving persistent software security risks. In this work, we argue that package hallucinations are theoretically preventable based on the key insight that package validity is decidable through finite and enumerable authoritative package lists. Building on this, we propose PackMonitor, the first approach capable of fundamentally eliminating package hallucinations by continuously monitoring the model's decoding process and intervening when necessary. To implement this in practice, PackMonitor addresses three key challenges: (1) determining when to trigger intervention via a Context-Aware Parser that continuously monitors model outputs and selectively activates intervening only during installation command generation; (2) resolving how to intervene by employing a Package-Name Intervenor that strictly limits the decoding space to an authoritative package list; and (3) ensuring monitoring efficiency through a DFA-Caching Mechanism that enables scalability to millions of packages with negligible overhead. Extensive experiments on five widely used LLMs demonstrate that PackMonitor is a training-free, plug-and-play solution that consistently reduces package hallucination rates to zero while maintaining low-latency inference and preserving original model capabilities.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Hallucination to Consensus: Multi-Agent LLMs for End-to-End JUnit Test Generation",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Qinghua"
+        },
+        {
+          "family": "Wang",
+          "given": "Guancheng"
+        },
+        {
+          "family": "Briand",
+          "given": "Lionel"
+        },
+        {
+          "family": "Liu",
+          "given": "Kui"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM Transactions on Software Engineering and Methodology",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3803418",
+      "arxiv_id": "2506.02943",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414430094",
+      "url": "https://doi.org/10.1145/3803418",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.02943",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 19,
+      "abstract": "Unit testing plays a critical role in ensuring software correctness. However, writing unit tests manually is labor-intensive, especially for strongly typed languages like Java, motivating the need for automated approaches. Traditional methods primarily rely on search-based or randomized algorithms to generate tests that achieve high code coverage and produce regression oracles, which are assertions derived from the program's current behavior rather than its intended functionality. Recent advances in large language models (LLMs) have enabled oracle generation from natural language descriptions, aligning better with user requirements. However, existing LLM-based methods often require LLM fine-tuning or rely on external tools such as EvoSuite for test prefix generation, making them costly or cumbersome to apply in practice. In this work, we propose CANDOR, a novel end-to-end, prompt engineering-based LLM framework for automated unit test generation in Java. CANDOR orchestrates multiple specialized LLM agents to collaboratively generate complete JUnit tests, including both high-quality test prefixes and accurate oracles. To mitigate the notorious hallucinations in LLMs and improve oracle correctness, we introduce a novel strategy that engages multiple reasoning LLMs in a panel discussion and generates accurate oracles based on consensus. Additionally, to reduce the verbosity of reasoning LLMs’ outputs, we propose a novel dual-LLM pipeline to produce concise and structured oracle evaluations. Our experiments on the HumanEvalJava and more complex LeetCodeJava datasets show that CANDOR is comparable with EvoSuite in generating tests with high code coverage and clearly superior in terms of mutation score. Moreover, our prompt engineering-based approach CANDOR significantly outperforms the state-of-the-art, fine-tuning-based oracle generator TOGLL by at least 21.1 percentage points in oracle correctness on both correct and faulty source code. Further ablation studies confirm the critical contributions of key agents in improving test prefix quality and oracle accuracy.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Mitigating Package Hallucinations in Large Language Models via Model Editing",
+      "authors": [
+        {
+          "family": "S",
+          "given": "Liu"
+        },
+        {
+          "family": "Zhao",
+          "given": "Yukai"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        },
+        {
+          "family": "Liu",
+          "given": "Kui"
+        },
+        {
+          "family": "Yang",
+          "given": "Xiaohu"
+        },
+        {
+          "family": "Xia",
+          "given": "Xin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.02052",
+      "arxiv_id": "2607.02052",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7167244437",
+      "url": "https://arxiv.org/abs/2607.02052",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.02052",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) have demonstrated strong capabilities in software engineering tasks, such as code generation, library recommendation, and dependency configuration. However, recent studies show that LLMs may suffer from package hallucination, where they generate non-existent or invalid package names. These hallucinations can be exploited in software supply chain attacks, as attackers may register malicious packages under hallucinated names. Therefore, mitigating package hallucination is important for improving the reliability and security of LLM-assisted software development. In this paper, we introduce BOUND, a lightweight localized model editing framework for mitigating package hallucinations in LLMs. BOUND formulates package hallucination mitigation as a package-validity boundary editing problem, where the boundary refers to the model's ability to distinguish valid packages from hallucinated package names under a given task context. It first locates modules related to package hallucination through a risk-aware localization strategy, and then edits these modules with lightweight LoRA adapters using a boundary-aware objective that reinforces valid packages, suppresses hallucinated packages, and preserves locality behavior. Experimental results show that BOUND effectively reduces package hallucinations while preserving valid package recommendations. In the package recommendation task, BOUND reduces package-level hallucination rate (Package-HR) by 79.9% on edit prompts and by 65.4% on unseen prompts. The learned package-validity boundary further generalizes to other package-related tasks, reducing Package-HR by 12.8% in code generation and by 34.0% in pip install recommendation. These results show that BOUND refines the package-validity boundary of LLMs and improves the reliability of package-related outputs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "When LLMs Invent Rust Crates: An Empirical Study of Hallucination Patterns and Mitigation",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Jieming"
+        },
+        {
+          "family": "Guan",
+          "given": "Hao"
+        },
+        {
+          "family": "Liu",
+          "given": "Yepang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.08444",
+      "arxiv_id": "2606.08444",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7164021702",
+      "url": "https://arxiv.org/abs/2606.08444",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.08444",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large Language Models (LLMs) have become powerful tools for code generation, yet they remain prone to hallucinations$\\unicode{x2013}$producing plausible but incorrect or fabricated outputs. Among these, package hallucination, where an LLM suggests non-existent dependencies, poses an emerging security risk to the software supply chain. While previous studies focus on popular languages like Python or JavaScript, in this work we present the first large-scale empirical study on crate hallucination in LLM-generated Rust code. We construct a multi-source dataset combining coding tasks from Stack Overflow, GitHub, and LLM-generated tasks, and evaluate both commercial and open-source models under various decoding settings. Our analysis reveals that, unlike prior findings in Python and JavaScript, hallucination behavior in Rust follows a distinct pattern: different models exhibit surprisingly consistent hallucination rates, and these rates show minimal sensitivity to model parameters. Furthermore, we investigate prompt engineering strategies to mitigate hallucinations without sacrificing code quality. This study provides new insights into the reliability and security implications of LLM-assisted Rust development, offering guidance for future research and safer model deployment in software engineering workflows.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "AI-Induced Supply-Chain Compromise: A Systematic Review of Package Hallucinations and Slopsquatting Attacks",
+      "authors": [
+        {
+          "family": "Al-Zofi",
+          "given": "Wadhah"
+        }
+      ],
+      "year": 2025,
+      "venue": "Research Square",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-8007192/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416096812",
+      "url": "https://doi.org/10.21203/rs.3.rs-8007192/v1",
+      "oa_pdf_url": "https://www.researchsquare.com/article/rs-8007192/latest.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Abstract The adoption of large language models (LLMs) and AI‑assisted programming has accelerated software production, but it has also created a novel supply‑chain vulnerability: package hallucination. When an LLM generates code, it may recommend nonexistent third‑party packages that “sound” plausible. Adversaries can register these phantom names in public registries, thereby poisoning the open‑source software supply chain. This attack pattern, termed \\textit{slopsquatting}, combines aspects of typosquatting and dependency confusion but is triggered by AI hallucinations rather than human error. We systematically review this emerging threat. Following PRISMA‑2020 guidelines, we searched IEEE Xplore, ACM Digital Library, SpringerLink, Scopus and arXiv for publications (2018–Oct 2025) on package hallucination, typosquatting, dependency confusion, supply‑chain compromise and registry policies. Twenty‑one peer‑reviewed papers and seven credible industry reports met the inclusion criteria. We synthesize definitions, threat models and observed incidents; report empirical evidence of hallucination prevalence across LLMs (e.g., GPT‑series models hallucinate 5.2 \\% of packages versus 21.7 \\% for open‑source models); and map defenses at IDE, registry, CI/CD and runtime layers. We compare slopsquatting with typosquatting and dependency confusion using a new taxonomy and highlight gaps in current safeguards. Official policies from npm, PyPI, Maven Central, RubyGems, NuGet and CRAN show varying levels of name reservation, deletion and immutability. Our review exposes an urgent need for package‑existence validation within AI coding tools, stricter registry name policies and standardized provenance attestations.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Automatic, Expressive, and Scalable Fuzzing with Stitching",
+      "authors": [
+        {
+          "family": "Green",
+          "given": "Harrison"
+        },
+        {
+          "family": "Brown",
+          "given": "Fraser"
+        },
+        {
+          "family": "Goues",
+          "given": "Claire Le"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2602.18689",
+      "arxiv_id": "2602.18689",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7131296635",
+      "url": "http://arxiv.org/abs/2602.18689",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.18689",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Fuzzing is a powerful technique for finding bugs in software libraries, but scaling it remains difficult. Automated harness generation commits to fixed API sequences at synthesis time, limiting the behaviors each harness can test. Approaches that instead explore new sequences dynamically lack the expressiveness to model real-world usage constraints leading to false positives from straightforward API misuse. We propose stitching, a technique that encodes API usage constraints in pieces that a fuzzer dynamically assembles at runtime. A static type system governs how objects flow between blocks, while a dynamically-checked extrinsic typestate tracks arbitrary metadata across blocks, enabling specifications to express rich semantic constraints such as object state dependencies and cross-function preconditions. This allows a single specification to describe an open-ended space of valid API interactions that the fuzzer explores guided by coverage feedback. We implement stitching in STITCH, using LLMs to automatically configure projects for fuzzing, synthesize a specification, triage crashes, and repair the specification itself. We evaluated STITCH against four state-of-the-art tools on 33 benchmarks, where it achieved the highest code coverage on 21 and found 30 true-positive bugs compared to 10 by all other tools combined, with substantially higher precision (70% vs. 12% for the next-best LLM-based tool). Deployed automatically on 1365 widely used open-source projects, STITCH discovered 131 new bugs across 102 projects, 73 of which have already been patched.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "CHASE: LLM Agents for Dissecting Malicious PyPI Packages",
+      "authors": [
+        {
+          "family": "Toda",
+          "given": "Takaaki"
+        },
+        {
+          "family": "Mori",
+          "given": "Tatsuya"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM International Conference on AI-Powered Software (AIware)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/aiware69974.2025.00008",
+      "arxiv_id": "2601.06838",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7124835286",
+      "url": "https://doi.org/10.1109/aiware69974.2025.00008",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.06838",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Modern software package registries like PyPI have become critical infrastructure for software development, but are increasingly exploited by threat actors distributing malicious packages with sophisticated multi-stage attack chains. While Large Language Models (LLMs) offer promising capabilities for automated code analysis, their application to security-critical malware detection faces fundamental challenges, including hallucination and context confusion, which can lead to missed detections or false alarms. We present CHASE (Collaborative Hierarchical Agents for Security Exploration), a high-reliability multiagent architecture that addresses these limitations through a Plan-and-Execute coordination model, specialized Worker Agents focused on specific analysis aspects, and integration with deterministic security tools for critical operations. Our key insight is that reliability in LLM-based security analysis emerges not from improving individual model capabilities but from architecting systems that compensate for LLM weaknesses while leveraging their semantic understanding strengths. Evaluation on a dataset of$\\mathbf{3, 0 0 0}$packages ($\\mathbf{5 0 0}$malicious,$\\mathbf{2, 5 0 0}$benign) demonstrates that CHASE achieves 98.4 % recall with only 0.08 % false positive rate, while maintaining a practical median analysis time of 4.5 minutes per package, making it suitable for operational deployment in automated package screening. Furthermore, we conducted a survey with cybersecurity professionals to evaluate the generated analysis reports, identifying their key strengths and areas for improvement. This work provides a blueprint for building reliable AI-powered security tools that can scale with the growing complexity of modern software supply chains. Our project page is available at: https://t0d4.github.io/CHASE-AIware25/",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "A Survey on Code Generation with LLM-based Agents",
+      "authors": [
+        {
+          "family": "Dong",
+          "given": "Yihong"
+        },
+        {
+          "family": "Jiang",
+          "given": "Xue"
+        },
+        {
+          "family": "Qian",
+          "given": "Jiaru"
+        },
+        {
+          "family": "Wang",
+          "given": "Tian"
+        },
+        {
+          "family": "Zhang",
+          "given": "Kechi"
+        },
+        {
+          "family": "Jin",
+          "given": "Zhi Yang"
+        },
+        {
+          "family": "Li",
+          "given": "Ge"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2508.00083",
+      "arxiv_id": "2508.00083",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416548195",
+      "url": "http://arxiv.org/abs/2508.00083",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.00083",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 191,
+      "abstract": "Code generation agents powered by large language models (LLMs) are revolutionizing the software development paradigm. Distinct from previous code generation techniques, code generation agents are characterized by three core features. 1) Autonomy: the ability to independently manage the entire workflow, from task decomposition to coding and debugging. 2) Expanded task scope: capabilities that extend beyond generating code snippets to encompass the full software development lifecycle (SDLC). 3) Enhancement of engineering practicality: a shift in research emphasis from algorithmic innovation toward practical engineering challenges, such as system reliability, process management, and tool integration. This domain has recently witnessed rapid development and an explosion in research, demonstrating significant application potential. This paper presents a systematic survey of the field of LLM-based code generation agents. We trace the technology's developmental trajectory from its inception and systematically categorize its core techniques, including both single-agent and multi-agent architectures. Furthermore, this survey details the applications of LLM-based agents across the full SDLC, summarizes mainstream evaluation benchmarks and metrics, and catalogs representative tools. Finally, by analyzing the primary challenges, we identify and propose several foundational, long-term research directions for the future work of the field.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "A survey on large language model (LLM) security and privacy: The Good, The Bad, and The Ugly",
+      "authors": [
+        {
+          "family": "Yao",
+          "given": "Yifan"
+        },
+        {
+          "family": "Duan",
+          "given": "Jinhao"
+        },
+        {
+          "family": "Xu",
+          "given": "Kaidi"
+        },
+        {
+          "family": "Cai",
+          "given": "Yuanfang"
+        },
+        {
+          "family": "Sun",
+          "given": "Zhibo"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yue"
+        }
+      ],
+      "year": 2024,
+      "venue": "High-Confidence Computing",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.hcc.2024.100211",
+      "arxiv_id": "2312.02003",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4392353733",
+      "url": "https://doi.org/10.1016/j.hcc.2024.100211",
+      "oa_pdf_url": "https://arxiv.org/pdf/2312.02003",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1415,
+      "abstract": "Large Language Models (LLMs), such as ChatGPT and Bard, have revolutionized natural language understanding and generation. They possess deep language comprehension, human-like text generation capabilities, contextual awareness, and robust problem-solving skills, making them invaluable in various domains (e.g., search engines, customer support, translation). In the meantime, LLMs have also gained traction in the security community, revealing security vulnerabilities and showcasing their potential in security-related tasks. This paper explores the intersection of LLMs with security and privacy. Specifically, we investigate how LLMs positively impact security and privacy, potential risks and threats associated with their use, and inherent vulnerabilities within LLMs. Through a comprehensive literature review, the paper categorizes the papers into “The Good” (beneficial LLM applications), “The Bad” (offensive applications), and “The Ugly” (vulnerabilities of LLMs and their defenses). We have some interesting findings. For example, LLMs have proven to enhance code security (code vulnerability detection) and data privacy (data confidentiality protection), outperforming traditional methods. However, they can also be harnessed for various attacks (particularly user-level attacks) due to their human-like reasoning abilities. We have identified areas that require further research efforts. For example, Research on model and parameter extraction attacks is limited and often theoretical, hindered by LLM parameter scale and confidentiality. Safe instruction tuning, a recent development, requires more exploration. We hope that our work can shed light on the LLMs’ potential to both bolster and jeopardize cybersecurity.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "Automated Model-Based Fuzzing for 5G O-RAN",
+      "authors": [
+        {
+          "family": "Tan",
+          "given": "Sixu"
+        },
+        {
+          "family": "Li",
+          "given": "Zeyu"
+        },
+        {
+          "family": "Liu",
+          "given": "Zhutian"
+        },
+        {
+          "family": "Patel",
+          "given": "Harsh"
+        },
+        {
+          "family": "Tan",
+          "given": "Zhaowei"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM Annual International Conference on Mobile Computing and Networking (MobiCom)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3680207.3723469",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416477329",
+      "url": "https://doi.org/10.1145/3680207.3723469",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3680207.3723469",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 7,
+      "abstract": "The evolution of 5G and future-G technologies has led to the development of an open, distributed, and multi-vendor architecture known as Open Radio Access Network (O-RAN). While O-RAN offers greater flexibility and stimulates innovation, it also introduces potential issues such as bugs, inconsistencies, and vulnerabilities. In this paper, we present a novel model-based fuzzing system, ARCANE, to address these challenges. Unlike existing fuzzing techniques that struggle with the complexity and dynamism of O-RAN, ARCANE distinguishes itself by employing a smart, model-based approach. It first analyzes O-RAN specifications using a Large Language Model (LLM) and incorporates a unique method that integrates passive model learning to refine the model. With this refined model, ARCANE designs an O-RAN-aware, model-based fuzzing scheme that maintains high efficiency by adhering to O-RAN's specific semantics and syntax. We implement ARCANE and evaluate it on the OAI5G. It finds 9 root bugs from three categories, all having serious security implications. ARCANE has shown superior efficiency and coverage compared to state-of-the-arts.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "On the Challenges and Opportunities of Fuzzing via Large Language Models: A Review",
+      "authors": [
+        {
+          "family": "Sun",
+          "given": "Yiqing"
+        },
+        {
+          "family": "Andersen",
+          "given": "Villads H."
+        },
+        {
+          "family": "Choudhary",
+          "given": "Gaurav"
+        },
+        {
+          "family": "Dragoni",
+          "given": "Nicola"
+        }
+      ],
+      "year": 2026,
+      "venue": "Applied Sciences",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.3390/app16105160",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7162020820",
+      "url": "https://doi.org/10.3390/app16105160",
+      "oa_pdf_url": "https://www.mdpi.com/2076-3417/16/10/5160/pdf?version=1779696637",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Fuzzing is an important automated testing technique for discovering vulnerabilities and abnormal software behavior, but conventional and pre-LLM learning-based approaches often struggle with strict validity constraints, limited semantic understanding, and poor adaptability across targets. Recent advances in large language models (LLMs) create new opportunities for fuzzing by supplying semantic guidance from source code, documentation, traces, and execution feedback. As the literature on LLM-based fuzzing has grown rapidly, a systematic synthesis is needed. This paper presents a literature review on the integration of LLMs into fuzzing workflows. We review how LLMs are applied across the fuzzing workflow, compare these approaches with earlier deep learning-based fuzzing, and summarize the main patterns in task coverage, application strategies, targets, testing modes, and model choices. The survey shows that current work is concentrated in test case generation, while defect detection and post-processing remain less represented, and broader workflow integration is uneven. Based on these findings, we identify four main directions for future research as follows: broader coverage of the fuzzing workflow, stronger context construction and workflow engineering, richer reasoning for fuzzing control, and shared evaluation standards and benchmarks.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Prompt engineering in LLMs for automated unit test generation: A large-scale study",
+      "authors": [
+        {
+          "family": "Ouédraogo",
+          "given": "Wendkûuni C."
+        },
+        {
+          "family": "Kaboré",
+          "given": "Abdoul Kader"
+        },
+        {
+          "family": "Li",
+          "given": "Yinghua"
+        },
+        {
+          "family": "Tian",
+          "given": "Haoye"
+        },
+        {
+          "family": "Koyuncu",
+          "given": "Anil"
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Lo",
+          "given": "David"
+        },
+        {
+          "family": "Bissyandé",
+          "given": "Tegawendé François"
+        }
+      ],
+      "year": 2026,
+      "venue": "Empirical Software Engineering",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10664-026-10840-4",
+      "arxiv_id": "2407.00225",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7142196394",
+      "url": "https://doi.org/10.1007/s10664-026-10840-4",
+      "oa_pdf_url": "https://arxiv.org/pdf/2407.00225",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 59,
+      "abstract": "Unit testing is essential for software reliability, yet manual test creation is time-consuming and often neglected. Although search-based software testing improves efficiency, it produces tests with poor readability and maintainability. Although LLMs show promise for test generation, existing research lacks comprehensive evaluation across execution-driven assessment, reasoning-based prompting, and real-world testing scenarios. This study presents the first large-scale empirical evaluation of LLM-generated unit tests at the full class level , systematically analyzing four state-of-the-art models (GPT-3.5, GPT-4, Mistral 7B, and Mixtral 8x7B) against EvoSuite across 216,300 generated test cases targeting Defects4J, SF110, and CMD (a dataset mitigating LLM training data leakage). We evaluate five prompting techniques–Zero-Shot Learning (ZSL), Few-Shot Learning (FSL), Chain-of-Thought (CoT), Tree-of-Thought (ToT), and Guided Tree-of-Thought (GToT)–assessing syntactic correctness, compilability, hallucination-driven failures, readability, code coverage metrics, and test smells. Reasoning-based prompting particularly GToT significantly enhances test reliability, compilability, and structural adherence in general-purpose LLMs. However, hallucination-driven failures remain a persistent challenge, manifesting as non-existent symbol references, incorrect API calls, and fabricated dependencies, resulting in high compilation failure rates (up to 86%). Moreover, test smell analysis reveals that while LLM-generated tests are generally more readable than those produced by traditional tools, they still suffer from recurring design issues such as Magic Number Tests and Assertion Roulette, which hinder maintainability. Overall, our findings indicate that LLMs can serve as effective assistive tools for generating readable and maintainable test suites, but hybrid approaches that combine LLM-based generation with automated validation and search-based refinement are required to achieve reliable and production-ready test generation.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "Automating fuzz driver generation for deep learning libraries with large language models",
+      "authors": [
+        {
+          "family": "Zheng",
+          "given": "Tianming"
+        },
+        {
+          "family": "Meng",
+          "given": "Fanchao"
+        },
+        {
+          "family": "Yi",
+          "given": "Ping"
+        },
+        {
+          "family": "Wu",
+          "given": "Yue"
+        }
+      ],
+      "year": 2026,
+      "venue": "Cybersecurity",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1186/s42400-025-00532-9",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7118119078",
+      "url": "https://doi.org/10.1186/s42400-025-00532-9",
+      "oa_pdf_url": "https://link.springer.com/content/pdf/10.1186/s42400-025-00532-9.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Abstract The widespread adoption of deep learning (DL) libraries has raised concerns about their reliability and security. While prior works leveraged large language models (LLMs) to generate test programs for DL library APIs, the hardcoded program behaviors and low code validity rates render them impractical for real-world testing. To address these challenges, we propose FD-FACTORY, a fully automated framework that leverages LLMs to generate fuzz drivers for DL API testing. The fuzz driver programs accept mutated inputs from fuzzing engines to achieve effective code analysis. Inspired by the modular design of industrial production lines, FD-FACTORY decomposes the generation process into eight distinct stages: Preparation, Initial Fuzz Driver Generation, Early Stop Checks, Verification, Issue Diagnosis, Decision Making, Repair Loop, and Deployment . Each stage is handled by dedicated agents or tools to enhance construction efficiency. Experimental results demonstrate that FD-FACTORY achieves 73.67% and 65.33% success rates in generating fuzz drivers for PyTorch and TensorFlow, producing an improvement of 34.66 to $$-$$ - 54.66% than existing approaches. In addition, FD-FACTORY provides more comprehensive coverage tracking by supporting both Python and native C/C code. It achieves a total coverage of 308,351 lines on PyTorch and 528,427 lines on TensorFlow, substantially surpassing the results reported by previous approaches. Unlike prior approaches relying on repeated interactions with the LLM servers throughout the entire testing process, our framework confines the use of LLMs strictly to the fuzz driver generation stages before deployment. Once generated, the fuzz drivers can be reused without further LLM involvement, thereby enhancing the practicality and sustainability of LLM-assisted fuzzing in real-world scenarios.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "Demystifying RCE Vulnerabilities in LLM-Integrated Apps",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Tong"
+        },
+        {
+          "family": "Deng",
+          "given": "Zizhuang"
+        },
+        {
+          "family": "Meng",
+          "given": "Guozhu"
+        },
+        {
+          "family": "Li",
+          "given": "Yuekang"
+        },
+        {
+          "family": "Chen",
+          "given": "Kai"
+        }
+      ],
+      "year": 2024,
+      "venue": "ACM SIGSAC Conference on Computer and Communications Security (CCS)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3658644.3690338",
+      "arxiv_id": "2309.02926",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4405181589",
+      "url": "https://doi.org/10.1145/3658644.3690338",
+      "oa_pdf_url": "https://arxiv.org/pdf/2309.02926",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 72,
+      "abstract": "Large Language Models (LLMs) show promise in transforming software development, with a growing interest in integrating them into more intelligent apps. Frameworks like LangChain aid LLM-integrated app development, offering code execution utility/APIs for custom actions. However, these capabilities theoretically introduce Remote Code Execution (RCE) vulnerabilities, enabling remote code execution through prompt injections. No prior research systematically investigates these frameworks' RCE vulnerabilities or their impact on applications and exploitation consequences. Therefore, there is a huge research gap in this field.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "LLMs + Security = Trouble",
+      "authors": [
+        {
+          "family": "Livshits",
+          "given": "Benjamin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2602.08422",
+      "arxiv_id": "2602.08422",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7128531546",
+      "url": "http://arxiv.org/abs/2602.08422",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.08422",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "We argue that when it comes to producing secure code with AI, the prevailing \"fighting fire with fire\" approach -- using probabilistic AI-based checkers or attackers to secure probabilistically generated code -- fails to address the long tail of security bugs. As a result, systems may remain exposed to zero-day vulnerabilities that can be discovered by better-resourced or more persistent adversaries. While neurosymbolic approaches that combine LLMs with formal methods are attractive in principle, we argue that they are difficult to reconcile with the \"vibe coding\" workflow common in LLM-assisted development: unless the end-to-end verification pipeline is fully automated, developers are repeatedly asked to validate specifications, resolve ambiguities, and adjudicate failures, making the human-in-the-loop a likely point of weakness, compromising secure-by-construction guarantees. In this paper we argue that stronger security guarantees can be obtained by enforcing security constraints during code generation (e.g., via constrained decoding), rather than relying solely on post-hoc detection and repair. This direction is particularly promising for diffusion-style code models, whose approach provides a natural elegant opportunity for modular, hierarchical security enforcement, allowing us to combine lower-latency generation techniques with generating secure-by-construction code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "Quality-Assured Fuzz Harness Generation via the Four Principles Framework",
+      "authors": [
+        {
+          "family": "Sheng",
+          "given": "Ze"
+        },
+        {
+          "family": "Trizna",
+          "given": "Dmitrijs"
+        },
+        {
+          "family": "Camastra",
+          "given": "Luigino"
+        },
+        {
+          "family": "Chen",
+          "given": "Zhicheng"
+        },
+        {
+          "family": "Xu",
+          "given": "Qingxiao"
+        },
+        {
+          "family": "Huang",
+          "given": "Jeff"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.21824",
+      "arxiv_id": "2605.21824",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7162093981",
+      "url": "https://arxiv.org/abs/2605.21824",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.21824",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Fuzz testing is the dominant technique for finding memory-safety vulnerabilities in C/C++ software, yet its effectiveness hinges on the quality of fuzz harnesses -- the programs that bridge fuzzers and library APIs. A growing body of tools now automate harness generation, but none systematically ensures the correctness of produced harnesses: logic errors, API misuse, and lifecycle violations go undetected at the source level. As LLM-driven generation scales harness creation, uncontrolled quality turns scale into a liability. We present QuartetFuzz, an autonomous harness-generation system that systematically improves correctness throughout the generation process. At its core is the Four Principles framework -- Logic Correctness (P1), API Protocol Compliance (P2), Security Boundary Respect (P3), and Entry Point Adequacy (P4) -- the first source-level definition of harness correctness with mathematical specifications and implementable checks. We operationalize these principles in an autonomous LLM agent that produces harnesses satisfying P1-P4 through a generate-check-fix loop before any fuzzing begins. Deployed on 23 open-source projects spanning C/C++, Java, and JavaScript, the system submits 42 bug reports, of which 29 are fixed or confirmed upstream (including 3 CVEs) and only 2 are rejected (4.8% FP rate). During generation, the built-in P1/P2 checks automatically intercepted 58 harness-induced crashes that would otherwise have been false positives. Applied as a quality auditor to 586 existing production harnesses across 70 projects, the system identifies 53 violations (45 confirmed, 35 fixed). We release a dataset of 100 labeled harnesses for reproducible evaluation. Code and dataset are available at https://github.com/OwenSanzas/QuartetFuzz",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "CodeV: Empowering LLMs With HDL Generation Through Multilevel Summarization",
+      "authors": [
+        {
+          "family": "Zhao",
+          "given": "Yang"
+        },
+        {
+          "family": "Huang",
+          "given": "Di Shan"
+        },
+        {
+          "family": "Li",
+          "given": "Chongxiao"
+        },
+        {
+          "family": "Jin",
+          "given": "Pengwei"
+        },
+        {
+          "family": "Song",
+          "given": "Muxin"
+        },
+        {
+          "family": "Xu",
+          "given": "Yinan"
+        },
+        {
+          "family": "Nan",
+          "given": "Ziyuan"
+        },
+        {
+          "family": "Gao",
+          "given": "Mingju"
+        },
+        {
+          "family": "Ma",
+          "given": "Tianyun"
+        },
+        {
+          "family": "Lei",
+          "given": "Qi"
+        },
+        {
+          "family": "Pan",
+          "given": "Yansong"
+        },
+        {
+          "family": "Zhang",
+          "given": "Zhenxing"
+        },
+        {
+          "family": "Zhang",
+          "given": "Rui"
+        },
+        {
+          "family": "Zhang",
+          "given": "Xishan"
+        },
+        {
+          "family": "Du",
+          "given": "Zidong"
+        },
+        {
+          "family": "Guo",
+          "given": "Qi"
+        },
+        {
+          "family": "Hu",
+          "given": "Xing"
+        }
+      ],
+      "year": 2025,
+      "venue": "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1109/tcad.2025.3604320",
+      "arxiv_id": "2407.10424",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4413822481",
+      "url": "https://doi.org/10.1109/tcad.2025.3604320",
+      "oa_pdf_url": "https://arxiv.org/pdf/2407.10424",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 118,
+      "abstract": "The design flow of processors, particularly in hardware description languages (HDL) like Verilog and Chisel, is complex and costly. While recent advances in large language models (LLMs) have significantly improved coding tasks in software languages such as Python, their application in HDL generation remains limited due to the scarcity of high-quality HDL data. Traditional methods of adapting LLMs for hardware design rely on synthetic HDL datasets, which often suffer from low quality because even advanced LLMs like GPT perform poorly in the HDL domain. Moreover, these methods focus solely on chat tasks and the Verilog language, limiting their application scenarios. In this paper, we observe that: (1) HDL code collected from the real world is of higher quality than code generated by LLMs. (2) LLMs like GPT-3.5 excel in summarizing HDL code rather than generating it. (3) An explicit language tag can help LLMs better adapt to the target language when there is insufficient data. Based on these observations, we propose an efficient LLM fine-tuning pipeline for HDL generation that integrates a multi-level summarization data synthesis process with a novel Chat-FIM-Tag supervised fine-tuning method. The pipeline enhances the generation of HDL code from natural language descriptions and enables the handling of various tasks such as chat and infilling incomplete code. Utilizing this pipeline, we introduce CodeV, a series of HDL generation LLMs. Among them, CodeV-All not only possesses a more diverse range of language abilities (Verilog and Chisel) and a broader scope of tasks (Chat and FIM), but also achieves performance on VerilogEval that is comparable to that of CodeV-Verilog fine-tuned on Verilog only, making them the first series of open-source LLMs designed for multi-scenario HDL generation. Code, models, and dataset: https://github.com/IPRC-DIP/CodeV.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "AI Slop and Hallucinations in Vulnerability Assessment: A Survey on Reasoning Failures and Trustworthy Mitigation",
+      "authors": [
+        {
+          "family": "Ding",
+          "given": "Junchen"
+        },
+        {
+          "family": "Dong",
+          "given": "Jialiang"
+        },
+        {
+          "family": "Zhu",
+          "given": "Yichen"
+        },
+        {
+          "family": "Liu",
+          "given": "Yi"
+        },
+        {
+          "family": "Deng",
+          "given": "Gelei"
+        },
+        {
+          "family": "Susilo",
+          "given": "Willy"
+        },
+        {
+          "family": "Ma",
+          "given": "Siqi"
+        },
+        {
+          "family": "Li",
+          "given": "Yuekang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.25667",
+      "arxiv_id": "2608.25667",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7204482759",
+      "url": "https://arxiv.org/abs/2608.25667",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.25667",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The integration of Large Language Models (LLMs) into cybersecurity has transformed vulnerability assessment, but it has also produced a trustworthiness crisis driven by the unchecked proliferation of \"AI slop.\" These artifacts, hallucinated vulnerabilities, plausible but incorrect patches, and semantically repackaged bug reports, impose a cognitive burden on human triage pipelines that mirrors a denial-of-service attack. This paper surveys the empirical evidence, identifies a unifying mechanism, and traces a path toward trustworthy triage. We formalize a taxonomy of AI slop grounded in a structured literature review and dissect its root cause: the gap between the causal deductive reasoning of security experts and the autoregressive probabilistic generation of current LLMs. We operationalize this gap through a measurable proxy, the Deductive Coverage Score, and show that chain-of-thought prompting and tool-using agents narrow but do not close it. We review mitigation strategies and argue that passive detection and watermarking target provenance rather than correctness, facing fundamental entropy constraints. We instead advocate for active neuro-symbolic verification, mapping each pipeline component to prior systems with documented limits on security inputs. Finally, we specify two evaluation instruments, CVE-Bench and Slop-Score, including dataset construction, metric formulas, and anti-gaming provisions. By shifting evaluation from linguistic fluency to mathematical verifiability, this survey provides a roadmap for securing emerging AI-driven triage systems.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "Multi-Method Ensemble Framework for LLM Hallucination Detection",
+      "authors": [
+        {
+          "family": "KHATIK",
+          "given": "RAJ TEJPAL"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7200222",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7200222",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) frequently generate fluent but factually unsupported content-a failure mode known as hallucination-undermining their reliability in high-stakes applications. Existing detection approaches typically rely on a single signal, such as retrieval grounding (Lewis et al., 2020) or selfconsistency sampling (Manakul et al., 2023), leaving them vulnerable to failure modes the chosen method was not designed to catch. This work proposes an equal-weight, six-signal ensemble framework combining natural language inference (NLI), retrieval-augmented grounding, a three-model LLM-judge panel (OpenAI, Groq, Gemini), and cross-sample self-consistency checking, implemented as a LangGraph state-machine pipeline with parallel execution. Evaluated on 76 HaluEval-QA examples, 77 TruthfulQA examples, and a 40-instance hand-labeled dataset spanning four domains, the system achieves 72.4% (95% CI: 61.4-81.2%), 92.2% (95% CI: 84.0-96.4%), and 87.5% accuracy respectively. McNemar's exact test applied to a 37instance ablation study found no statistically significant difference between any signal-subset configuration (all p &gt; 0.05), indicating the study is underpowered to confirm individual signal contributions despite an 8.2point raw accuracy drop when adding RAG-grounding to an NLI-only baseline. Inter-judge agreement analysis (n=38 claims) revealed Groq and Gemini agree with each other substantially more often (84.6%) than either agrees with OpenAI (71.1%, 73.1%), identifying OpenAI's judge as a conservative outlier within the panel. A quadrant analysis crossing detector-flagged status with sample-consistency status found that claims flagged by detectors AND consistent across samples were real hallucinations 100% of the time (n=4), outperforming the system's own \"high-confidence\" category (flagged + inconsistent, 66.7% precision), challenging the original architectural assumption that instability signals maximum confidence. Fifteen handcrafted adversarial examples further expose concrete, reproducible failure modes: in 8 of 15 cases, RAGgrounding produced false positives on true-but-context-absent claims; self-consistency proved insensitive to superficial phrasing variation independent of factual content in 2 cases; and a sentence-splitting parser artifact was identified as a genuine implementation limitation. This work contributes a working, deployed detection system and an empirically grounded account of where individual detection methods fail, do not fail, and where ensembling does and does not recover those failures. <br> <br> AI Disclosure: This paper was developed with the assistance of Claude (Anthropic), used for architecture design, statistical scripting, and manuscript drafting/editing. All experimental results are derived from the author's own code execution. The author reviewed, verified, and takes full responsibility for all content and conclusions.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "LLM Enhancement with Domain Expert Mental Model to Reduce LLM Hallucination with Causal Prompt Engineering",
+      "authors": [
+        {
+          "family": "Kovalerchuk",
+          "given": "Boris"
+        },
+        {
+          "family": "Fegley",
+          "given": "Brent"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5851148",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5851148",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code",
+      "authors": [
+        {
+          "family": "Djire",
+          "given": "Alberick Euraste"
+        },
+        {
+          "family": "Olatunji",
+          "given": "Iyiola E."
+        },
+        {
+          "family": "Tessa",
+          "given": "Melissa"
+        },
+        {
+          "family": "Barr",
+          "given": "Earl T."
+        },
+        {
+          "family": "Klein",
+          "given": "Jacques"
+        },
+        {
+          "family": "Bissyandé",
+          "given": "Tegawendé F."
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 41st IEEE/ACM International Conference on Automated Software Engineering",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832783.3837555",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3832783.3837555",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 28,
+      "in_project": null
+    },
+    {
+      "title": "Tackling LLM Hallucination with Abductive Reasoning",
+      "authors": [
+        {
+          "family": "Galitsky",
+          "given": "Boris A."
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202511.1688.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202511.1688.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large Language Models (LLMs) excel at generating fluent explanations but remain vulnerable to hallucinations—answers that are coherent yet unsupported. This paper proposes a unified theoretical and computational account of hallucination as a failure of abductive reasoning, where missing premises, weak confirmation, or counter-abductive defeat undermine the validity of an LLM’s conclusions. Drawing on Peirce’s triadic framework of deduction, induction, and abduction, we show how abductive inference serves as a missing-premise engine, a global coherence enforcer, and a minimality-based regularizer for Chain-of-Thought (CoT) reasoning. We formalize abductive logic programming (ALP) as the structural backbone for detecting entailment hallucinations and introduce a stepwise abductive analysis pipeline that identifies surprising observations, generates candidate explanations, evaluates them against evidence, and resolves them through defeasibility. Building on this foundation, we develop a theory of counter-abduction—an adversarial mechanism that generates rival hypotheses capable of defeating unsupported CoT reasoning. We further introduce Discourse-weighted ALP (D-ALP), which incorporates nucleus–satellite discourse structure to weight abductive hypotheses and improve both interpretability and robustness. Empirical evaluation across multiple reasoning benchmarks demonstrates that abductive and counter-abductive operators substantially reduce hallucinations, improve coherence, and enhance explanation quality. Ablation studies confirm the complementary roles of discourse structure, abductive minimality, and counter-abductive defeat. Taken together, our results position abduction—not merely as a philosophical concept, but as a practical, verifiable, and computationally grounded approach to improving LLM reasoning reliability.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 29,
+      "in_project": null
+    },
+    {
+      "title": "Ef-Llm: Energy Forecasting Llm with Ai-Assisted Automation, Enhanced Sparse Prediction, Hallucination Detection",
+      "authors": [
+        {
+          "family": "Qiu",
+          "given": "Zihang"
+        },
+        {
+          "family": "Ravishankar",
+          "given": "Jayashri"
+        },
+        {
+          "family": "Wang",
+          "given": "Zhongyang"
+        },
+        {
+          "family": "Xie",
+          "given": "Renyou"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5217709",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5217709",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 30,
+      "in_project": null
+    },
+    {
+      "title": "The Poisoned Chalice: Epistemic Decay and Hallucination Propagation in Recursive LLM Training",
+      "authors": [
+        {
+          "family": "Jha",
+          "given": "Ashutosh"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6794439",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6794439",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Each LLM generation trains on a corpus poisoned by its predecessors: hallucinated content re-enters as training signal, corrupting future models — the Epistemic Degradation Problem. Two independent frameworks characterize its dynamics: an SIR epidemic model deriving reproduction number R₀ and threshold-crossing generation n*, and a signal-degradation model deriving critical AI penetration thresholds as low as 4.8% for medical applications. Both predict monotone accuracy decline, asymptotic collapse, and irreversibility. Nine governance interventions are derived from the model mathematics.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 31,
+      "in_project": null
+    },
+    {
+      "title": "Robust Pricing under LLM Hallucination: Tight Bounds and Empirical Validation",
+      "authors": [
+        {
+          "family": "Song",
+          "given": "Zi  Chen"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5261133",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5261133",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 32,
+      "in_project": null
+    },
+    {
+      "title": "Hybrid Vulnerability Detection: Combining Latent Semantic Analysis with LLM-Assisted Fuzzing via Context Distillation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Kevin"
+        },
+        {
+          "family": "Schoop",
+          "given": "Dominik"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 23rd International Conference on Security and Cryptography",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0015007300004103",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0015007300004103",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 33,
+      "in_project": null
+    },
+    {
+      "title": "A Dual Layer Approach for LLM Hallucination Reduction",
+      "authors": [
+        {
+          "family": "Baral",
+          "given": "Anish"
+        },
+        {
+          "family": "Kadariya",
+          "given": "Bijay"
+        },
+        {
+          "family": "Sharma",
+          "given": "Sushil"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7412291",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7412291",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) remain prone to hallucinations: fluent, confident, factually incorrect statements that pose serious risks in medicine, law, finance, and scientific communication. Existing mitigation strategies are single-phase: retrieval-augmented generation grounds inputs but cannot validate outputs, while post-generation verifiers catch errors reactively but cannot prevent speculative generation. This paper proposes a training-free, model-agnostic, four-layer architecture built around two core components: a Pre-Generation Control Layer (PGCL), which performs domain and risk classification, evidence retrieval, and risk-calibrated decoding constraints before generation; and a Post-Generation Verification Layer (PGVL), which decomposes model output into atomic claims and verifies each against a hierarchical Tree-RAG index using an Entropy-Aware Dynamic TruthScore that tightens its acceptance threshold in proportion to the base model&apos;s generation-time uncertainty. A Surgical Self-Correction Loop rewrites only the specific span that fails verification, avoiding full response regeneration. We present the system design, a closed-form mathematical model of the entropy-aware threshold, and pilot evaluations on 50 HotpotQA queries (297 audited atomic claims, mean TruthScore 0.634, 95% CI [0.579, 0.687]) and 25 TruthfulQA queries under retrieval-sparse conditions. A matched-triplet ablation on 30 HotpotQA queries shows the entropy-aware dynamic threshold yields higher claim acceptance and mean TruthScore than a static threshold (0.631 vs. 0.397). On TruthfulQA, PGVL trades a modest reduction in confidently-wrong outputs (5/25 vs. 6/25) against lower raw accuracy, driven by correct answers converted to safe abstention -- a precision/recall trade-off we report transparently.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 34,
+      "in_project": null
+    },
+    {
+      "title": "Beyond Sycophancy: Measuring Hallucination-Free Convergence in Long-Term Human–LLM Interaction",
+      "authors": [
+        {
+          "family": "Lee",
+          "given": "Juhyeong"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6480360",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6480360",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "<p>When sycophancy indicators are suppressed and hallucination is absent, does convergence between user expectations and LLM outputs cease? This paper reports that it does not. Across 12,925 relays (391 sessions with GPT-4, GPT-4o, GPT-5, Claude, and Gemini; GPT-5 data added post-hoc), a residual convergence persisted after sycophancy had been suppressed (agreement rate: 0.03/relay; resistance rate: 0.93/relay across GPT sessions) — operating not through agreement or falsehood but through factually accurate elaboration: the system extending the user's conceptual structure with uncritical elevation, idealization, emotional narrativization, and absorption of the user's doubts.</p> <p>Three characteristics of this residual. First, it is invisible to automated detection: a rule-based tool scanning all 12,925 relays detected convergence in 0.9% of cases, including zero detections in segments the researcher had qualitatively identified as convergent — a gap confirmed by independent blind validation. Second, it is model-specific: hallucination-free convergence peaked at 4.63–6.12% in GPT-4o while remaining at 0.63–1.82% in Claude and near zero in GPT-4 and GPT-5. Third, it is interaction-dependent: it accumulates over interaction time rather than occurring at a constant base rate, and occurs at higher rates following low-directive user utterances (10.70%) than following explicit requests (7.04%) — suggesting that the system elaborates more when the user has not requested it.</p> <p>To organize these observations, this paper proposes a descriptive vocabulary — drowning (convergence in which the user's evaluative contact with the output weakens while interaction flow continues), headway (evaluative contact maintained), and doldrums (monitoring excess that interrupts flow) — and identifies a structural mismatch between existing detection architectures, which track token appearance, and the phenomenon itself, which operates through token direction.</p> <p>This is an N=1 exploratory study supplemented by an independent report from a second user. It proposes a measurement methodology and an open-source analytical tool for detecting elaboration-based convergence in long-term human–LLM interaction logs. The tool and coding manual are provided for independent replication.</p> <br>",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 35,
+      "in_project": null
+    },
+    {
+      "title": "\"Hallucination\" Is Not Enough: Why Legal LLM Benchmarks Should Measure \"Correctly Grounded\"",
+      "authors": [
+        {
+          "family": "Piotrowski",
+          "given": "Adam"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7672779",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7672779",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Legal benchmarks of large language models (LLMs) commonly report a \"hallucination rate\". A widely cited operationalisation, by Magesh et al. (2025), decomposes factual hallucination into correctness and groundedness and labels a response as hallucinated when it is incorrect or misgrounded. This paper argues, on the basis of a working benchmark of LLMs on Polish civil procedure (LexAlpha Lab), that the framework does not apply to civil-law systems without modification. Three observations support the claim: (1) the two dimensions overlap on the error types that matter most in statute-based law; (2) a wrong case citation and incorrect content attributed to a statutory provision do not carry the same weight where the statute, not the judgment, is the source of law; (3) the currency of the provision's wording, which Polish official sources (ISAP) date precisely, is not measured by any of the empirical benchmarks reviewed here. I propose to replace the binary question \"did the model hallucinate?\" with \"is the answer correctly grounded?\", defined as: the cited designation exists, the source supports the content attributed to it, and the wording was in force on the legal-state date of the question. Preliminary results from 65 answers (10 models without tools, 3 systems with search; 4 model judges, Cohen's κ 0.81–0.93 against the cards before the author's review) are reported, together with the limitations of the pilot and the reasons for keeping the criteria simple enough to re-run on every monthly model release. Version 1.2 adds a test of the model judges on cards closed before any judge ran: the judges, all with web search, are accurate on errors that can be detected with the answer, the answer key and the scoring rules, and inaccurate on errors that require a source which web search does not reliably return (stale wording, a real case number attached to a thesis from another case). A verification report produced from the official sources by citation-checking code and a model-based support check, given to the judge as auxiliary evidence raised the agreement of one judge with the lawyer's cards (Sol 6.1, κ 0.84 → 0.97) and lowered that of another (Gemini 4 Argon, κ 0.95 → 0.88); the same report used as binding evidence lowered the agreement of both. A third variant, which shows a verification status instead of \"✓\" whenever the wording on the legal-state date was not established, left the agreement of one judge unchanged and lowered that of the other relative to the second variant.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 36,
+      "in_project": null
+    },
+    {
+      "title": "Hybrid Fuzzing with LLM-Guided Input Mutation and Semantic Feedback",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Shiyin"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202509.1822.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202509.1822.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Software fuzzing has become a cornerstone in automated vulnerability discovery, yet existing mutation strategies often lack semantic awareness, leading to redundant test cases and slow exploration of deep program states. In this work, we present a hybrid fuzzing framework that integrates static and dynamic analysis with Large Language Model (LLM)-guided input mutation and semantic feedback. Static analysis extracts control-flow and data-flow information, which is transformed into structured prompts for the LLM to generate syntactically valid and semantically diverse inputs. During execution, we augment traditional coverage-based feedback with semantic feedback signals—derived from program state changes, exception types, and output semantics—allowing the fuzzer to prioritize inputs that trigger novel program behaviors beyond mere code coverage. We implement our approach atop AFL++, combining program instrumentation with embedding-based semantic similarity metrics to guide seed selection. Evaluation on real-world open-source targets, including libpng, tcpdump, and sqlite, demonstrates that our method achieves faster time-to-first-bug, higher semantic diversity, and a competitive number of unique bugs compared to state-of-the-art fuzzers. This work highlights the potential of combining LLM reasoning with semantic-aware feedback to accelerate and deepen vulnerability discovery.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 37,
+      "in_project": null
+    },
+    {
+      "title": "Mitigating Causal Hallucination in LLM-Based Nuclear Event Analysis via Retrieval-Augmented Generation",
+      "authors": [
+        {
+          "family": "Harris",
+          "given": "Kenzie"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7658700",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7658700",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) offer significant potential for automating causal analysis of nuclear Licensee Event Reports (LERs), yet their tendency to generate plausible but unsupported causal claims-termed causal hallucination-poses serious risks in safetycritical regulatory contexts where traceability and factual grounding are mandatory. This study proposes and evaluates a Retrieval-Augmented Generation (RAG) framework designed to constrain LLM causal inference to evidence explicitly present in the LER corpus. Building upon the hybrid causality extraction framework and its 20,129-sample LER corpus, we construct a vector-indexed retrieval layer that supplies the model with semantically relevant report passages prior to causal relation generation. We systematically quantify causal hallucination using a novel benchmark distinguishing three error types: fabricated causal links, unsupported causal directionality, and over-generalized causal claims. Experiments compare a baseline instruction-tuned LLM against three RAG configurations (dense retrieval, hybrid sparsedense retrieval, and retrieval with reranking) across detection accuracy, extraction fidelity, and hallucination rate. Results are validated against expert-annotated causeeffect pairs and assessed for citation faithfulness-whether each generated causal claim is traceable to a retrieved source span. We further analyze failure modes where retrieval fails to surface implicit causal evidence, and propose a confidence-gated abstention mechanism that defers to human review when retrieval support is weak. The findings aim to establish measurable reliability criteria for LLM-assisted causal analysis in nuclear safety, offering a replicable methodology for grounding generative models in verifiable operating experience data.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 38,
+      "in_project": null
+    },
+    {
+      "title": "The Hallucination Muse for Medicine: When LLM Errors Spark Biomedical Discovery",
+      "authors": [
+        {
+          "family": "Mehra",
+          "given": "Ryan"
+        },
+        {
+          "family": "Mehra",
+          "given": "Anshoo"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.69831/e59eafc04e",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.69831/e59eafc04e",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 39,
+      "in_project": null
+    },
+    {
+      "title": "Predicting LLM Correctness in Prosthodontics Using Metadata and Hallucination Signals",
+      "authors": [
+        {
+          "family": "Susanto",
+          "given": "Lucky"
+        },
+        {
+          "family": "Pranawiyana",
+          "given": "Anasta"
+        },
+        {
+          "family": "Sukotjo",
+          "given": "Cortino"
+        },
+        {
+          "family": "Prasad",
+          "given": "Soni"
+        },
+        {
+          "family": "Wijaya",
+          "given": "Derry"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 19th International Joint Conference on Biomedical Engineering Systems and Technologies",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0014357700004070",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0014357700004070",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 40,
+      "in_project": null
+    },
+    {
+      "title": "Beyond Numerical Hallucination: Context-Alignment Failures in LLM-Assisted Quantum Dot Synthesis Literature Curation",
+      "authors": [
+        {
+          "family": "Yoo",
+          "given": "Seungwon"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.26434/chemrxiv.15003995/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.26434/chemrxiv.15003995/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Reliability work for LLM-assisted materials literature curation has focused on numerical hallucination — fabrication of values absent from source documents. Here we define a recurrent residual failure class, context-alignment failure: cases in which extracted values are source-supported but bound to the wrong sample identity, synthesis stage, measurement state, or source modality. We developed a provenance-preserving four-layer curation workflow with semantic guardrails and human truth-gate review, applied to InP and I–III–VI quantum dot synthesis literature. Analysis of 56 logged curation incidents partitioned residual failures into four families — sample binding, stage-state assignment, source linkage, and pipeline metadata — with three families recurrent in both corpora. Twenty semantic guardrails were evaluated on the retrospective replay set; every logged incident matched at least one guardrail tier, a retrospective taxonomy-completeness result over the observed incident set rather than a prospective claim of error prevention or deterministic per-call replay. No incident in the post-commit residual pool was classified as pure numerical hallucination under the prespecified taxonomy; pre-extraction starter failures intercepted by guardrail G01 are reported separately. The workflow was evaluated on a 247-record method-validation corpus spanning 153 papers; an intra-rater stability check yielded 76.1% exact agreement (Wilson 95% CI 72.2–79.6%) and 83.5% exact+near agreement across 510 field-value pairs. Auditable LLM-assisted materials curation therefore requires provenance-preserving context binding beyond numerical fact-checking. As general-purpose large language models are increasingly used to extract scientific information from materials synthesis literature, context-alignment failure operates as an application-facing reliability ceiling for LLM-assisted curation that is separable from numerical hallucination.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 41,
+      "in_project": null
+    },
+    {
+      "title": "Halucheck: Integrating Hallucination Detection Techniques in Llm-Based Conversational Systems",
+      "authors": [
+        {
+          "family": "Heo",
+          "given": "Sangwoo"
+        },
+        {
+          "family": "Son",
+          "given": "Sungwook"
+        },
+        {
+          "family": "Park",
+          "given": "Hyunwoo"
+        }
+      ],
+      "year": 2024,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5017023",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5017023",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 42,
+      "in_project": null
+    },
+    {
+      "title": "Adversarial Hallucination Engineering: Targeted Misdirection Attacks Against LLM Powered Security Operations Centers",
+      "authors": [
+        {
+          "family": "Agarwal",
+          "given": "Ashutosh"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202512.0913.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202512.0913.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) are increasingly deployed in Security Operations Centers (SOCs) for alert triage and threat‑intelligence synthesis. We study Adversarial Hallucination Engineering (AHE): attacks that bias LLM reasoning by introducing small clusters of poisoned context into retrieval‑augmented generation (RAG) pipelines, producing targeted fabrications aligned with attacker goals. Using a safe, fully synthetic simulator of a RAG+LLM SOC, we formalize the AHE threat model, introduce Hallucination Propagation Chains (HPCs)—mutually reinforcing poisoned documents designed to create artificial consensus at retrieval time—and evaluate a lightweight defense, Chain‑of‑Thought Attestation (CoTA), based on per‑token uncertainty, provenance attribution, and source reputation. Across three model scales, hallucination‑induction rate (HIR) rises superlinearly with HPC size (e.g., for a Large‑70B proxy, 12.45%→61.84% as HPC size in top‑k grows 0→5); actionable misconfiguration rate (AMR) grows from 3.23% (no attack) to 38.18% (HPC‑5). CoTA reduces attack‑success rate (ASR) by ~55% for HPCs≥3 at ~7% false‑positive flags and ~8% latency overhead. We release synthetic artifacts to support reproducible, defensive research.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 43,
+      "in_project": null
+    },
+    {
+      "title": "<p>Causal Analysis of Hallucination Triggers in LLM Outputs</p>",
+      "authors": [
+        {
+          "family": "Kevin",
+          "given": "Jason"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6354318",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6354318",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This study investigates the underlying causes of hallucinations in large language model (LLM) outputs, identifying patterns, triggers, and contributing factors. Through experimental evaluation across multiple LLM architectures and input conditions, we identify prompt ambiguity, data sparsity, multi-modal context conflicts, and model overconfidence as primary triggers. Findings indicate that trigger frequency varies by input type and model size, with multi-modal prompts yielding the highest hallucination rates. The study concludes with a taxonomy-driven framework for predicting and mitigating hallucinations in LLM outputs.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 44,
+      "in_project": null
+    },
+    {
+      "title": "Advancing LLM-Generated Code Reliability: A Hybrid Approach for Hallucination Detection",
+      "authors": [
+        {
+          "family": "Yang",
+          "given": "Bo"
+        },
+        {
+          "family": "Dang",
+          "given": "Jiayi"
+        },
+        {
+          "family": "Liu",
+          "given": "Huai"
+        },
+        {
+          "family": "Jin",
+          "given": "Zhi"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.36227/techrxiv.175393532.27338752/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.36227/techrxiv.175393532.27338752/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "The increasing use of Large Language Models (LLMs) for writing code has raised important concerns about \"code hallucinations.\" These occur when the generated code looks correct in terms of its structure (syntax) but contains mistakes in its meaning or logic. Such errors can then spread through software, leading to problems and inefficiencies in the final applications. Current research on finding these code hallucinations in LLM output often struggles with inefficiency. It also lacks a good collection of test cases specifically designed to properly evaluate how well different detection methods work. To address these issues, we introduce a new approach that effectively combines static and dynamic analysis techniques for hallucination detection (SDHD). While standard methods often fail to spot code hallucinations, SDHD shows significant improvement in performance across various datasets. For example, when tested on the MBPP, CodeHaluEval, and HalluCode datasets, SDHD achieved an average precision of 0.771, an average recall of 0.783, and an average F1-score of 0.776. These results are not just slightly better, but substantially higher than those of existing methods, clearly demonstrating SDHD's superior effectiveness in overcoming the limitations of current hallucination detection approaches.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 45,
+      "in_project": null
+    },
+    {
+      "title": "LLM Hallucination of Citations in Economics Persists with Web-Enabled Models",
+      "authors": [
+        {
+          "family": "Buchanan",
+          "given": "Joy"
+        },
+        {
+          "family": "Shapoval",
+          "given": "Olga"
+        },
+        {
+          "family": "Hill",
+          "given": "Stephen"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5318314",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5318314",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 46,
+      "in_project": null
+    },
+    {
+      "title": "Hallucination Detection via LLM Internal States and Adaptive Retrieval Correction in Medical AI",
+      "authors": [
+        {
+          "family": "Ghosh",
+          "given": "Mouli"
+        },
+        {
+          "family": "Agarwal",
+          "given": "Neha"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7576566",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7576566",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Hallucinations in large language models (LLMs) pose a critical safety risk in high-stakes domains such as medicine, where a factually incorrect response can have life-threatening consequences. As more people consult LLMs before seeking medical care, hallucinations can result in life-threatening misdiagnoses, incorrect medication recommendations, and unsafe emergency triage, posing a significant risk to patient safety. In this work, we present Hallucination-Aware Medical Retrieval-Augmented Generation (HA-MedRAG), a two-stage framework that detects and mitigates hallucinations in medical question answering. For detection, we give the medical question as input to the LLM and extract the LLM’s internal signals at the first token generation of the answer, specifically Softmax probability distributions, self-attention scores, and fully-connected (FFN) layer activations from Mistral-7B-Instruct, and train a weighted ensemble classifier over the dataset created from these extracted signals. For mitigation, we introduce a domain-adapted Retrieval-Augmented Generation (RAG) pipeline that uses UMLS (Unified Medical Language System)-informed query expansion, hybrid dense-sparse retrieval with Maximal Marginal Relevance (MMR) re-ranking, and fallback to live PubMed Central and Wikipedia sources. The detector is trained and evaluated on 15,177 labeled samples from the medical meadow medical flashcards dataset, with a held-out test set of 2,277 samples. Our proposed technique achieves an AUROC of 0.7242 on the held-out test set, a small but statistically significant improvement over the strongest individual signal-specific classifier (FFN, AUROC 0.7132; paired DeLong p=0.004), while also returning calibrated probability estimates. On 5,000 separate held-out evaluation samples the RAG pipeline lowers the hallucination rate from 15.1% to 12.1%, a relative reduction of 19.8%, and improves accuracy on answered questions from 85.7% to 87.0%. However, this comes at a coverage cost of 6.6%, as the system abstains on some questions, which reduces the number of delivered correct answers by 3.6 percentage points. Our work demonstrates that internal LLM signals, originally studied in open-domain factual QA, transfer meaningfully to the medical domain despite its added lexical and semantic complexity.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 47,
+      "in_project": null
+    },
+    {
+      "title": "Not Hallucination but Granularity: Error Taxonomy and Quality Audit of LLM-Based Legal Information Extraction",
+      "authors": [
+        {
+          "family": "Sens",
+          "given": "Diego"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6496861",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6496861",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The dominant concern in LLM-based information extraction is hallucination-the fabrication of content not present in the source text. We present an end-to-end expert audit of a production multi-stage legal extraction pipeline, evaluating 1,042 items across 100 Brazilian court decisions from four tribunals. With its production model configuration (Grok-3-mini, Claude Sonnet 4.6, GPT-5-4), the pipeline achieves 96.0% precision with zero hallucinations. The dominant error is not fabrication but granularity mismatch (3.0%): legally correct concepts extracted at the wrong level of specificity-wrong level of specificity or missing essential qualifiersundetected by all verification methods tested. A controlled experiment re-extracting 40 decisions with Llama-3.3-70b-a model not in the production configuration-shows this result is model-dependent: extraction quality depends on at least three contributing factorsmodel capability (3-10pp), decision complexity (12pp), and prompt specificity (10pp in a single-tribunal comparison). We propose a 7type error taxonomy for legal extraction, show that deterministic checks plateau at 86% accuracy, and demonstrate that LLM-as-judge performance varies dramatically by model (Cohen's κ from 0.23 to 0.74, 95% CIs nonoverlapping). Our findings suggest that hallucination mitigation, while important, is insufficient-the research focus should expand to granularity specification and recall optimization.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 48,
+      "in_project": null
+    }
+  ]
+}

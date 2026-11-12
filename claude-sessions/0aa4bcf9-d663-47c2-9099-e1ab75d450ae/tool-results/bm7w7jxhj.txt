@@ -1,0 +1,404 @@
+### FILE: reports/reading-guide/papers/spracklen2024we.md
+```markdown
+## We Have a Package for You! A Comprehensive Analysis of Package Hallucinations by Code Generating LLMs
+> **Takeaway:** This is the founding large-scale study. Across 16 code models from 2023–24, about one in five suggested package names did not exist, and many invented names came back again and again. That repeatability is what makes "slopsquatting" (registering an invented name to plant malware) a realistic attack.
+
+| Item | Detail |
+|---|---|
+| Authors | Joseph Spracklen, Raveen Wijewickrama, A H M Nazmus Sakib, Anindya Maiti, Bimal Viswanath, Murtuza Jadliwala |
+| Year · Venue | 2024 (arXiv) · published at USENIX Security 2025 |
+| Status | Peer-reviewed (USENIX Security 2025); our copy is the arXiv v3 version, so page numbers follow that copy |
+| Identifier | DOI 10.48550/arxiv.2406.10279 (arXiv 2406.10279) |
+| Paper type | Empirical measurement study plus mitigation experiment |
+| Relevance to us | High — RQ1, RQ2, RQ3, RQ4 |
+
+### In plain words
+When you ask an AI coding assistant for code, it often tells you to install extra packages. A package is a ready-made code library downloaded from a public registry, such as PyPI for Python or npm for JavaScript. Sometimes the model (a large language model, or LLM) names a package that does not exist. This is a package hallucination. If an attacker registers that invented name and uploads malware, anyone who follows the model's advice installs the malware. The authors asked how often this happens, what makes it worse, what the invented names look like, and whether it can be reduced [@spracklen2024we, p. 4]. Their attacker can query the same models, check names against the registry and register the missing ones, while victims install suggested packages without checking [@spracklen2024we, p. 4].
+
+### How they did it
+1. Build prompts. One set came from Stack Overflow questions; the other was written by the Llama-2 70B model from the descriptions of the 5,000 most-downloaded PyPI and npm packages [@spracklen2024we, p. 5].
+2. Generate code. 16 models wrote Python and JavaScript code, giving 30 model-language tests [@spracklen2024we, p. 6].
+3. Collect package names in three ways: install commands the model wrote on its own, asking the model which packages its code needs, and asking which packages would solve the task. Reading import lines was rejected, because module names do not map one-to-one onto package names [@spracklen2024we, p. 6].
+4. Decide what is hallucinated. A name counts as hallucinated if it is missing from a master list of PyPI or npm names taken on 10 January 2024 [@spracklen2024we, p. 7].
+5. Probe behaviour. Extra experiments varied temperature (a setting that controls how random the output is), repeated prompts 10 times, and asked models to spot their own invented names [@spracklen2024we, p. 8; @spracklen2024we, p. 9; @spracklen2024we, p. 10].
+6. Test fixes on two open models: RAG (retrieval-augmented generation, which adds looked-up facts to the prompt), self-refinement (the model re-checks its answer), and fine-tuning (extra training on correct examples) [@spracklen2024we, p. 12; @spracklen2024we, p. 13].
+
+### Data and setup
+- 576,000 code samples and 2.23 million package mentions [@spracklen2024we, p. 6; @spracklen2024we, p. 7]. The contributions list says 586,000 samples instead, and the paper does not explain the difference [@spracklen2024we, p. 2].
+- Models from 2023 to early 2024, including GPT-4 Turbo, GPT-3.5, CodeLlama and DeepSeek Coder. Open models were run in GPTQ-quantized (compressed) form [@spracklen2024we, p. 6].
+- Temperature 0.7 for code and 0.01 for the package questions [@spracklen2024we, p. 19]. Experiments ran on a GPU cluster [@spracklen2024we, p. 18].
+- Name normalisation (treating variants such as my-pkg and my_pkg as the same) and standard-library exclusion are not reported.
+- Prompts and code were released, which a later replication confirms [@churilov2026range, p. 15]. The list of hallucinated names is withheld [@spracklen2024we, p. 14].
+
+### Key findings
+- [V] 440,445 of 2.23 million package mentions (19.7%) were hallucinated, covering 205,474 unique invented names [@spracklen2024we, p. 7].
+- [V] GPT models averaged 5.2% and open-source models 21.7% [@spracklen2024we, p. 7]. [I] Our recomputation shows these are averages of per-test rates, not pooled rates, and GPT-4 Turbo's "lowest" 3.59% is its Python-only figure [@spracklen2024we, p. 20].
+- [V] Invented names repeat: in 10 re-runs of 500 prompts, 43% of names came back every time and 39% never came back [@spracklen2024we, p. 9].
+- [V] 81% of distinct invented names came from only one model [@spracklen2024we, p. 10].
+- [V] They are mostly not typos: only 13.4% are within 1–2 character edits of a real package, while 48.6% are 6 or more edits away [@spracklen2024we, p. 11].
+- [V] Rates rise with temperature, sharply above 1; GPT-3.5 reached 31.8% at maximum temperature [@spracklen2024we, p. 8].
+- [V] Fine-tuning cut DeepSeek 6.7B from 16.14% to 2.66%, but its HumanEval coding score fell from 51.4% to 25.3%. RAG cut CodeLlama 7B from 26.28% to 13.40% [@spracklen2024we, p. 13].
+- [V] Deleted PyPI packages explain only 0.17% of names, and 8.7% of invented Python names are real npm packages [@spracklen2024we, p. 11].
+
+### Limitations and weaknesses
+- [A] The master list may already contain squatted names, so the rates are a lower bound [@spracklen2024we, p. 7].
+- [A] For ethical reasons no names were registered, so real exploitation was not shown [@spracklen2024we, p. 14].
+- [I] The rate mixes install commands with direct "which packages?" answers [@spracklen2024we, p. 6]. So it is not the same as "invented dependency in code" and cannot be compared directly with studies that read import lines.
+- [I] Headline numbers mix pooled and averaged rates [@spracklen2024we, p. 20].
+- [I] Each condition was run once, with no confidence intervals or significance tests, so small differences cannot be judged [@spracklen2024we, p. 13].
+- [I] The fine-tuning data came from the same prompt pool used for evaluation, so the 2.66% may be partly in-sample [@spracklen2024we, p. 12].
+- [I] Several internal inconsistencies (sample count, heuristic numbering between main text and appendix) lower confidence in exact numbers [@spracklen2024we, p. 2; @spracklen2024we, p. 18].
+
+### Gaps and future work this paper leaves open
+- [A] The authors call for finding root causes, building code-specific mitigations and fine-tuning that keeps code quality [@spracklen2024we, p. 13].
+- [A] G2: they argue a plain existence check is an ineffective defence, because an attacker could publish a hallucinated name immediately [@spracklen2024we, p. 12]. Which extra signals work is still untested.
+- [I] G1: only chat-style generation was studied. The 43% persistence [@spracklen2024we, p. 9] makes predictable installs by coding agents plausible, but nobody has measured them.
+- [I] G3: its way of collecting names differs from later studies, which is a main reason rates across papers cannot be compared.
+- [I] G4: all open models were quantized [@spracklen2024we, p. 6], but quantization was never varied.
+- [A] G5: names were not registered and the list was withheld [@spracklen2024we, p. 14], so registration over time was not tracked.
+
+### Why it matters for your research
+This is the baseline every later paper compares against. Its prompt corpus is public and reusable [@churilov2026range, p. 4]. Two practical lessons: sample each prompt several times, because about four in ten names repeat every time; and do not rely on an existence check alone. When you quote 19.7%, add that it concerns 2023–24 models, counts per mention, and mixes name sources.
+
+### Connections to other papers
+- [V] churilov2026range re-ran the same prompts on five 2026 frontier models and found 3.63–5.02% of mentions hallucinated [@churilov2026range, p. 6]. [I] It parses imports, which this paper rejects, so the comparison is not like-for-like [@churilov2026range, p. 5].
+- [V] Language direction disagrees: JavaScript above Python here [@spracklen2024we, p. 7], Python above JavaScript in krishna2025importing and churilov2026range [@krishna2025importing, p. 8; @churilov2026range, p. 7] (contradiction C1).
+- [V] Prompt-source ordering reverses on the same corpus: Stack Overflow higher here [@spracklen2024we, p. 20], LLM-written prompts higher in churilov2026range [@churilov2026range, p. 7] (C2).
+- [V] The temperature and RAG effects do not hold in Rust [@zheng2026when, p. 6; @zheng2026when, p. 8] (C4, C6).
+- [V] Shared names across models also appear in zhao2025hfuzzer [@zhao2025hfuzzer, p. 7].
+```
+
+### FILE: reports/reading-guide/papers/churilov2026range.md
+```markdown
+## The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort
+> **Takeaway:** Re-running Spracklen's public prompts on five 2026 frontier models gives much lower rates, about 4–5% of package mentions. But every model still invents names, 104 names are invented by all five, and about 1% of invented names were registered by someone within six months. It is a single-author preprint, yet its live registry check is the most careful measurement protocol in our set.
+
+| Item | Detail |
+|---|---|
+| Authors | Aleksandr Churilov (independent researcher) |
+| Year · Venue | 2026 · arXiv |
+| Status | Preprint (not peer-reviewed). Our copy is version 4 (November 2026), which replaces all numbers in versions 1–3 and in a SCORED '26 workshop version |
+| Identifier | DOI 10.48550/arxiv.2605.17062 (arXiv 2605.17062) |
+| Paper type | Replication study with a preregistered live-registry re-check and a natural experiment on registrations |
+| Relevance to us | High — RQ1, RQ2, RQ4, RQ5 |
+
+### In plain words
+Do the newest AI models still make up package names? A package is a ready-made code library downloaded from a public registry such as PyPI (Python) or npm (JavaScript). The author took the prompt set released by Spracklen et al. and ran it unchanged on Claude Sonnet 4.6, Claude Haiku 4.5, GPT-5.4-mini, Gemini 2.5 Pro and DeepSeek V3.2 [@churilov2026range, p. 4]. Every suggested name was then checked against the live registries. The paper also asks whether invented names actually get registered, and whether publishing a list of them speeds that up [@churilov2026range, p. 1; @churilov2026range, p. 2].
+
+### How they did it
+1. Generate. The 39,969 prompts were sent to each model between 22 and 28 April 2026 [@churilov2026range, p. 4].
+2. Extract names from pip install commands, npm install commands inside code blocks, and import statements read with proper code parsers [@churilov2026range, p. 5].
+3. Clean the list. Standard-library modules, names that break registry naming rules, and import names that pipreqs (a tool that maps import names to package names) links to a real package were removed [@churilov2026range, p. 5].
+4. Check live. Each registry was asked in two ways, in two rounds at least 12 hours apart. A name counts as missing only if all four answers say "absent". Package creation time was compared with generation time, and OSV (a public database of known malicious and vulnerable packages) was queried [@churilov2026range, p. 5].
+5. Plan in advance. The analysis plan was preregistered (written down before looking at the data), with a log of 20 deviations [@churilov2026range, p. 6].
+6. Test properly. Rates come with Wilson confidence intervals (a range likely to hold the true rate), and model comparisons use chi-square tests with Holm correction for multiple comparisons plus permutation tests [@churilov2026range, p. 6].
+7. Natural experiment. A list of shared names had been exposed publicly by accident. Registration of those names was compared with similar unpublished names [@churilov2026range, p. 11; @churilov2026range, p. 12].
+
+### Data and setup
+- 199,840 generations in total [@churilov2026range, p. 4]. 2,282 unique hallucinated names: 1,746 on PyPI and 536 on npm [@churilov2026range, p. 11].
+- Refusal rates range from 1.27% to 31.51% [@churilov2026range, p. 4]. Temperatures were recorded but not printed [@churilov2026range, p. 4].
+- Estimated API cost $1,160.29 [@churilov2026range, p. 17].
+- At most one request per second per registry host [@churilov2026range, p. 5].
+- Code and aggregate results are public on GitHub; raw responses are available on request [@churilov2026range, p. 15].
+- Self-funded apart from a Google Cloud credit grant. The author used Claude to write analysis code and draft the text [@churilov2026range, p. 15].
+
+### Key findings
+- [V] Rates range from 3.63% (Haiku 4.5) to 5.02% (GPT-5.4-mini) of package mentions, and from 2.15% to 3.39% of generations [@churilov2026range, p. 6; @churilov2026range, p. 7].
+- [V] Python is higher than JavaScript for every model, by 2.34 to 3.47 percentage points [@churilov2026range, p. 7].
+- [V] LLM-written prompts give higher rates than Stack Overflow prompts: pooled 4.79% and 5.44% against 2.28% and 3.10% [@churilov2026range, p. 7].
+- [V] 104 names (88 PyPI, 16 npm) are invented by all five models; 54 of them are one character away from a registered package [@churilov2026range, p. 9]. The mean overlap between models is modest (Jaccard 0.219) [@churilov2026range, p. 8].
+- [V] The live re-check lowered every model's rate by about a fifth. The biggest correction was import names of real packages, 144–207 mentions per model [@churilov2026range, p. 10].
+- [V] 25 of 2,282 invented names (1.1%) were registered within about six months; one npm placeholder carried a malicious-package record [@churilov2026range, p. 12].
+- [V] Publishing names made no detectable difference (0 of 87 published vs 2 of 101 unpublished, p = 0.50), but the test can only detect large effects [@churilov2026range, p. 12].
+- [V] At least 23 suggested names had previously hosted malware that the registries later removed [@churilov2026range, p. 12].
+
+### Limitations and weaknesses
+- [A] Smaller, fine-tuned and quantized local models, and agentic setups, are out of scope [@churilov2026range, p. 14].
+- [A] The prompts may already be in 2026 training data, and no new held-out prompts were used [@churilov2026range, p. 14].
+- [A] The pipreqs map covers only about 1,157 import names, and some install forms are missed [@churilov2026range, p. 14].
+- [I] The paper says it follows Spracklen's extraction [@churilov2026range, p. 5], but it parses imports, which Spracklen rejects [@spracklen2024we, p. 6]. Its "level with 2024's best model" compares a pooled 3.63% with Spracklen's Python-only 3.59% [@spracklen2024we, p. 20]; its own Python-only rate for Haiku is 4.38% [@churilov2026range, p. 7].
+- [I] One sample per prompt, so persistence is not measured.
+- [I] It is the fourth version of a fast-revised single-author paper, and several earlier numbers could not be reproduced [@churilov2026range, p. 10].
+
+### Gaps and future work this paper leaves open
+- [A] G1: agentic setups are named as untested [@churilov2026range, p. 14].
+- [A] G4: quantized local models are out of scope [@churilov2026range, p. 14].
+- [I] G3: this is the most complete protocol in our set, but its import map is small [@churilov2026range, p. 14] and it was never checked against human labels.
+- [A] G5: the author proposes monitoring registrations [@churilov2026range, p. 15]; the six-month window and low power leave long-term weaponisation open [@churilov2026range, p. 12].
+- [I] G2: registered names and names with a malware history [@churilov2026range, p. 12] show why a plain existence check is not enough.
+
+### Why it matters for your research
+This is the protocol to copy: two lookups per registry, two rounds, a creation-date check, OSV lookups and confidence intervals, all runnable on a laptop. It also gives the best current base rate for frontier API models. Cite it as a preprint, report per-language and pooled rates separately, and split results by prompt source, because that factor flipped since 2024.
+
+### Connections to other papers
+- [V] Same prompts as spracklen2024we, but two results reverse: language direction [@spracklen2024we, p. 7] (contradiction C1) and prompt source [@spracklen2024we, p. 20] (C2).
+- [V] Registration evidence is compatible with okwor2026hallucination: 0 of 1,641 private names after 4 days and 22 of 149 public names, none malicious [@okwor2026hallucination, p. 5] (C7).
+- [V] Python above JavaScript agrees with krishna2025importing [@krishna2025importing, p. 8].
+- [V] Import-name confusion also appears in zhao2025hfuzzer, where 34 of 46 GPT-4o hallucinations are wrong install names for correct imports [@zhao2025hfuzzer, p. 9].
+```
+
+### FILE: reports/reading-guide/papers/okwor2026hallucination.md
+```markdown
+## From Hallucination to Registration: Do the Package Names That LLMs Invent Actually Get Claimed?
+> **Takeaway:** This paper asks whether invented package names actually get registered. Fresh names from five local models were all still free four days later. Of 149 names already circulating publicly, 22 were registered, mostly as harmless placeholders, and none was malicious. It is a single-author Zenodo preprint with a very short time window, so use it only to support stronger evidence.
+
+| Item | Detail |
+|---|---|
+| Authors | Daniel Okwor (Orygn LLC) |
+| Year · Venue | 2026 · Zenodo |
+| Status | Preprint (Zenodo self-deposit, not peer-reviewed, single author). We treat it as grey literature (tier 4) |
+| Identifier | DOI 10.5281/zenodo.21199426 (concept DOI; the PDF prints the version DOI 10.5281/zenodo.21199427) |
+| Paper type | Measurement study of registration status, with content triage and an offline install demo |
+| Relevance to us | Medium — RQ2, RQ4, RQ5 |
+
+### In plain words
+A package hallucination is when an AI model suggests a code library that does not exist in a public registry such as PyPI (Python) or npm (JavaScript). Earlier studies count how often this happens; the author calls that exposure. This paper looks at the next step, harm: are the invented names registered, by whom, and with what intent [@okwor2026hallucination, p. 1; @okwor2026hallucination, p. 2]? It produces its own names with small open models run locally through Ollama, a free program for running models on your own computer [@okwor2026hallucination, p. 3]. It also inspects a public list of previously reported names.
+
+### How they did it
+1. Generate. Five local models (qwen2.5-coder:7b, deepseek-coder:6.7b, codellama:13b, codestral:22b, gpt-oss:20b) wrote Python and JavaScript solutions at temperatures 0.7 and 1.0 [@okwor2026hallucination, p. 3].
+2. Extract. Code was parsed, import names were mapped to package names, names were normalised with PEP 503 (PyPI's rule for treating spelling variants as one name), and standard-library modules were dropped [@okwor2026hallucination, p. 3].
+3. Two checks. A name counts as invented only if it is missing from a frozen registry snapshot taken on 30 June 2026 and the live registry also returns "not found" [@okwor2026hallucination, p. 3].
+4. Validate. The check was tested on 17 real and 8 fake names and classified all correctly [@okwor2026hallucination, p. 4].
+5. Inspect public names. 149 names from the Trend Micro and DepScope datasets were checked for registration date and, by reading setup and manifest files only, sorted into malicious, defensive placeholder, organic (an unrelated real package) or individual reservation [@okwor2026hallucination, p. 4].
+6. Demonstrate the payload route. A harmless test package was installed in an offline lab to show code running at install time [@okwor2026hallucination, p. 7].
+
+### Data and setup
+- 6,800 generations, giving 1,641 confirmed invented names [@okwor2026hallucination, p. 4].
+- All names were re-checked live on 4 July 2026, four days after the snapshot [@okwor2026hallucination, p. 5].
+- No hallucination rate is reported. The task set, prompts, seeds, quantization level and hardware are not reported.
+- Code is promised for later deposit and the raw name list is withheld [@okwor2026hallucination, p. 8].
+- No funding or conflict-of-interest statement, despite the company affiliation [@okwor2026hallucination, p. 1].
+
+### Key findings
+- [V] No saturation: new names kept appearing at almost the same pace (0.228 against 0.247 new names per generation), and 450 of 455 new names came from a single model [@okwor2026hallucination, p. 4].
+- [V] None of the 1,641 self-generated names was registered after four days. The rule of three (if zero of n cases occur, the true rate is below about 3/n with 95% confidence) bounds this below 0.2% [@okwor2026hallucination, p. 5].
+- [V] 22 of 149 public names were registered: 19 defensive placeholders, 1 organic collision, 1 individual reservation, 1 typosquat from 2019, and 0 malicious (upper bound about 14%) [@okwor2026hallucination, p. 5; @okwor2026hallucination, p. 6].
+- [V] All 19 placeholders carry the summary "Benign slopsquatting research package" [@okwor2026hallucination, p. 5]. [A] The author attributes them to one anonymous operator, using registry metadata that is withheld [@okwor2026hallucination, p. 6].
+- [V] Code ran at install time under pip (via setup.py) and npm (via a postinstall script), before the package was ever imported [@okwor2026hallucination, p. 7].
+- [A] The public npm name mirror is unreliable [@okwor2026hallucination, p. 3]. [V] This is partly supported by 11 older names the mirror missed [@okwor2026hallucination, p. 7].
+- [A] Claims from grey sources, such as more than 30,000 downloads of one registered invented name, are repeated but not verified here [@okwor2026hallucination, p. 2].
+
+### Limitations and weaknesses
+- [A] "Zero malicious" is not zero risk: a placeholder can be turned malicious in a later release [@okwor2026hallucination, p. 8].
+- [A] The registered sample is small and biased towards names claimed by defenders, and one person assigned the labels [@okwor2026hallucination, p. 6; @okwor2026hallucination, p. 8].
+- [A] Names come from self-generated output, not real production traffic [@okwor2026hallucination, p. 8].
+- [I] The 0 of 1,641 result was close to certain by design: the names were private and checked after only four days [@okwor2026hallucination, p. 5].
+- [I] Reading only setup and manifest files can miss malicious code inside modules or wheels [@okwor2026hallucination, p. 4].
+- [I] Cited figures from other papers are misreported. Spracklen's 21.7% is described as a share "of generations" [@okwor2026hallucination, p. 1], but Spracklen counts per package [@spracklen2024we, p. 7]. Churilov's numbers are quoted from superseded versions [@churilov2026range, p. 10].
+
+### Gaps and future work this paper leaves open
+- [A] G1: the author proposes moving from self-generated output to live coding-agent traffic [@okwor2026hallucination, p. 8].
+- [A] G5: the author proposes to keep watching the 1,641 names [@okwor2026hallucination, p. 8]; a four-day window cannot show long-term weaponisation.
+- [I] G2: registered placeholders pass a plain existence check [@okwor2026hallucination, p. 5], and could be weaponised later [@okwor2026hallucination, p. 8]. A useful guard must handle them.
+- [I] G4: it runs Ollama models but reports neither a rate nor a quantization level [@okwor2026hallucination, p. 3].
+- [I] G3: its two-check gate and the npm-mirror warning are reusable pieces of a shared protocol.
+
+### Why it matters for your research
+This is the closest template for a laptop-scale pipeline: local Ollama models, a frozen snapshot as a fast first filter, and a live registry check to confirm. Use the live registry, not the npm mirror, as ground truth. Treat its registration results as weak support for the view that weaponised slopsquatting is rare so far, not as proof.
+
+### Connections to other papers
+- [V] Compatible with churilov2026range, where 25 of 2,282 names were registered within about six months, one with malware [@churilov2026range, p. 12] (C7).
+- [V] Mostly single-model names agree with spracklen2024we, where 81% of distinct names came from one model [@spracklen2024we, p. 10].
+- [V] The install-time demo matches older malware data: 56% of real malicious packages run at install time [@ohm2020backstabbers, p. 8].
+```
+
+### FILE: reports/reading-guide/papers/krishna2025importing.md
+```markdown
+## Importing Phantoms: Measuring LLM Package Hallucination Vulnerabilities
+> **Takeaway:** Eleven models were tested in Python, JavaScript and Rust with the open-source probing tool garak. Every model invented packages, and larger or better-coding models tended to invent fewer. The paper is useful for its date-aware definition of "hallucinated" and its proposed defence, but its statistics are weaker than they look and the defence was never tested.
+
+| Item | Detail |
+|---|---|
+| Authors | Arjun Krishna, Erick Galinkin, Leon Derczynski, Jeffrey Martin (University of Waterloo; NVIDIA) |
+| Year · Venue | 2025 · arXiv |
+| Status | Preprint (not peer-reviewed). A leftover ICML 2024 footer on page 1 does not show a real venue; we treat the venue as unverified |
+| Identifier | DOI 10.48550/arxiv.2501.19012 (arXiv 2501.19012) |
+| Paper type | Measurement study with correlation analysis |
+| Relevance to us | High — RQ1, RQ3, RQ4, RQ5 |
+
+### In plain words
+A package hallucination is when an AI model writes code that uses a library that does not exist in the public registry (npm for JavaScript, PyPI for Python, crates.io for Rust). The authors ask how often this happens and whether it depends on the language, model size, or whether the model is specialised for code [@krishna2025importing, p. 2]. Their new idea is a date-aware definition. A package also counts as hallucinated if it was registered after the model's knowledge cutoff, the date its training data ends [@krishna2025importing, p. 3]. The model cannot have known such a package, so a match is suspicious and may be a squatter.
+
+### How they did it
+1. Build a prompt grid: 7 request stubs combined with 13 coding tasks for each language, each request repeated five times [@krishna2025importing, p. 4; @krishna2025importing, p. 12].
+2. Send prompts through garak and extract imported names with regular expressions (simple text patterns) [@krishna2025importing, p. 3; @krishna2025importing, p. 12].
+3. Compare names with registry lists and release dates collected on 30 January 2025 [@krishna2025importing, p. 4].
+4. Label a name hallucinated if it is unregistered, registered after the cutoff, or (when the cutoff is unknown) registered less than 90 days before the model's release [@krishna2025importing, p. 3].
+5. Compute the Package Hallucination Rate (PHR): the share of prompts with at least one hallucinated package [@krishna2025importing, p. 4].
+6. Correlate PHR with model size and with HumanEval and MBPP coding benchmark scores, and compare code-specialised with general models using a t-test [@krishna2025importing, p. 6; @krishna2025importing, p. 7].
+
+### Data and setup
+- 11 models, including GPT-4o, Llama-3.1 8B and 70B, Qwen2.5-Coder 7B, StarCoder2-15B and Llama-3.1-Nemotron-70B [@krishna2025importing, p. 3].
+- Registry sizes: npm 3,391,235, PyPI 604,814 and crates.io 169,823 packages [@krishna2025importing, p. 4].
+- The number of generations is not reported. [I] All 33 published rates are exact multiples of 1/455, which points to 455 prompts per model-language cell [@krishna2025importing, p. 4].
+- Temperature, hardware, quantization and how cutoffs were found are not reported. No code link is given [@krishna2025importing, p. 10].
+- Three of the four authors work at NVIDIA [@krishna2025importing, p. 1].
+
+### Key findings
+- [V] Every model hallucinated in every language. PHR ranged from 0.22% (Nemotron-70B, JavaScript and Rust) to 46.15% (Granite-3.0, Python) [@krishna2025importing, p. 4]. [I] 0.22% is a single prompt out of 455.
+- [V] Mean PHR: JavaScript 14.73%, Python 23.14%, Rust 24.74% [@krishna2025importing, p. 8].
+- [V] GPT-4o: 1.76% in JavaScript, 3.52% in Python, 10.99% in Rust [@krishna2025importing, p. 4].
+- [V] Larger models had lower PHR (r = −0.542, p = 0.00114) [@krishna2025importing, p. 6]. [I] This treats 33 model-language points as independent; with 11 models the p-value would be about 0.085, and GPT-4o's size is a 200B estimate [@krishna2025importing, p. 3].
+- [V] Higher HumanEval scores went with lower PHR (r = −0.7887 over 10 models, no p-value) [@krishna2025importing, p. 7].
+- [V] Code-specialised models had higher average PHR, but the difference was significant only for JavaScript and disappeared without GPT-4o. [A] The authors conclude there is likely no meaningful difference [@krishna2025importing, p. 6].
+- [A] Leading ("induced") prompts gave nearly double the natural rate; no figures are given [@krishna2025importing, p. 5].
+- [A] Proposed defence: a date-aware list of packages published before each model's cutoff. It is not evaluated [@krishna2025importing, p. 8].
+
+### Limitations and weaknesses
+- [A] Eleven models may be too few to show a difference between model types [@krishna2025importing, p. 6].
+- [A] The proposed list cannot catch malicious packages that are already old [@krishna2025importing, p. 8].
+- [I] There is no mapping from import name to package name and no standard-library filter [@krishna2025importing, p. 12]. Real imports such as sklearn or cv2 may therefore count as hallucinations. In churilov2026range such import names were the largest false-positive class [@churilov2026range, p. 10].
+- [I] The text contradicts the paper's own tables, for example on Mamba-Codestral [@krishna2025importing, p. 6; @krishna2025importing, p. 7].
+- [I] The abstract says defences were developed and evaluated [@krishna2025importing, p. 1], but the defence is only proposed [@krishna2025importing, p. 8].
+- [I] The 13 tasks are unusual and include possibly fictional targets such as "StrombergDB", and some prompt stubs use unexplained personas [@krishna2025importing, p. 12].
+- [I] NVIDIA authors evaluate NVIDIA models, and an NVIDIA model ranks best, with no conflict-of-interest statement [@krishna2025importing, p. 1; @krishna2025importing, p. 4].
+
+### Gaps and future work this paper leaves open
+- [I] G2: the date-aware list is proposed but untested [@krishna2025importing, p. 8]. It is a natural candidate rule for a guard benchmark.
+- [I] G3: its per-prompt unit, regex extraction and date rule differ from other papers, a clear example of why rates cannot be pooled.
+- [I] G1: only single chat responses were studied; no agent ever installed anything.
+- [A] The authors call for defences that work across languages and for testing more models [@krishna2025importing, p. 6].
+
+### Why it matters for your research
+Reuse the date-aware definition: this is one of the few papers in our set that handle packages registered after a model's cutoff. The setup (garak and 7–8B models) is laptop-friendly [@krishna2025importing, p. 3]. Do not cite the size correlation as strong evidence, and do not compare its per-prompt rates with per-mention rates from other papers. If you build a guard, implementing its untested verification list is a cheap, novel step.
+
+### Connections to other papers
+- [V] Python above JavaScript agrees with churilov2026range [@churilov2026range, p. 7] and disagrees with spracklen2024we [@spracklen2024we, p. 7] (contradiction C1).
+- [V] Its size trend conflicts with Rust results showing no size effect [@zheng2026when, p. 6] and with a newer Llama model producing more invented names in zhao2025hfuzzer [@zhao2025hfuzzer, p. 7] (C3).
+- [V] zhao2025hfuzzer adopts this paper's PHR definition [@zhao2025hfuzzer, p. 5] and also uses a before-cutoff rule [@zhao2025hfuzzer, p. 4].
+- [A] zhao2025hfuzzer argues that import-based extraction, as used here, misses errors made at the install step [@zhao2025hfuzzer, p. 9].
+```
+
+### FILE: reports/reading-guide/papers/zhao2025hfuzzer.md
+```markdown
+## HFuzzer: Testing Large Language Models for Package Hallucinations via Phrase-based Fuzzing
+> **Takeaway:** HFuzzer is a testing tool that automatically writes many varied coding tasks to provoke package hallucinations. It triggered them in all nine models tested and found on average 2.60 times more unique invented Python packages than an adapted baseline. Its GPT-4o case study shows that most errors are wrong install names for code that imports correctly.
+
+| Item | Detail |
+|---|---|
+| Authors | Yukai Zhao, Menghan Wu, Xing Hu, Xin Xia |
+| Year · Venue | 2025 · 40th IEEE/ACM International Conference on Automated Software Engineering (ASE 2025) |
+| Status | Peer-reviewed. Our copy is the arXiv v2 version (2509.23835), so page numbers follow that copy |
+| Identifier | DOI 10.1109/ase63991.2025.00225 (arXiv 2509.23835) |
+| Paper type | Tool proposal with a controlled comparison, ablation study and case study |
+| Relevance to us | High — RQ1, RQ2, RQ4, RQ5 |
+
+### In plain words
+Fuzzing means automatically generating many varied inputs to find where a system fails. Here the inputs are coding tasks and the failure is a package hallucination: the AI model suggests installing a Python library that does not exist on PyPI, the main Python package registry. One model (the "tester") writes the tasks. Another model (the "target") writes code and is then asked how to install the packages it used [@zhao2025hfuzzer, p. 3; @zhao2025hfuzzer, p. 4]. The authors argue that fixed prompt sets from earlier studies are too small and narrow to test models well [@zhao2025hfuzzer, p. 1].
+
+### How they did it
+1. Extract phrases. The tester model turns the names and descriptions of popular Python packages into short phrases (object, action, detail) stored in pools [@zhao2025hfuzzer, p. 3].
+2. Run rounds. Each round combines phrases, the tester writes a task, the target writes code, and the target is then asked for install commands [@zhao2025hfuzzer, p. 3; @zhao2025hfuzzer, p. 4].
+3. Classify each package as standard library, existing before the model's knowledge cutoff, a package from another language, or non-existent [@zhao2025hfuzzer, p. 4].
+4. Learn as it goes. Phrases that trigger hallucinations get more weight, and successful tasks seed new ones [@zhao2025hfuzzer, p. 4; @zhao2025hfuzzer, p. 5].
+5. Compare with GPTFuzzer-A, a jailbreak fuzzer the authors adapted, because no earlier tool tests package hallucination [@zhao2025hfuzzer, p. 5].
+6. Remove parts one at a time (an ablation study) to see what each contributes [@zhao2025hfuzzer, p. 8], and measure task variety with a Diversity Index based on clustering text embeddings [@zhao2025hfuzzer, p. 5].
+
+### Data and setup
+- Seeds: the top 100 Python packages on Libraries.io by SourceRank; the top 1,000 for the case study [@zhao2025hfuzzer, p. 6; @zhao2025hfuzzer, p. 8].
+- Nine models, from 7–8B open models (Llama-3, Llama-3.1, Qwen2.5-Coder, DeepSeek-Coder, Mistral-7B) to Llama-3.3-70B, DeepSeek-V3, GPT-4o mini and GPT-4o [@zhao2025hfuzzer, p. 5].
+- Every model was used as both tester and target: 81 pairs, 1,000 rounds each [@zhao2025hfuzzer, p. 6].
+- Tester temperature 0, target temperature 0.7, maximum 3,000 tokens, run on a server with four A800 GPUs [@zhao2025hfuzzer, p. 6].
+- Python only [@zhao2025hfuzzer, p. 5]. The case study ran 10,000 rounds against GPT-4o [@zhao2025hfuzzer, p. 8].
+- Code is released on GitHub [@zhao2025hfuzzer, p. 2]. The number of responses per model and the registry query date are not reported.
+
+### Key findings
+- [V] HFuzzer triggered hallucinations in all nine models and found 2.60 times more unique invented packages than the baseline; over three repeated runs the gain was 3.02 times, significant for most pairs [@zhao2025hfuzzer, p. 7].
+- [V] Average hallucination rates ranged from 0.26–0.66% (GPT-4o, GPT-4o mini, DeepSeek-V3, Qwen2.5-Coder) to 16.47% (Mistral-7B) [@zhao2025hfuzzer, p. 6].
+- [V] 190 non-existent and 176 other-language names were suggested by more than one model; pkg_resources was suggested by all nine [@zhao2025hfuzzer, p. 7].
+- [V] In the GPT-4o case study, 34 of 46 invented packages were "package errors" (correct import, wrong install name) and 12 were "code errors" [@zhao2025hfuzzer, p. 9].
+- [V] In 12 cases the model's own code comments marked a name as a placeholder or assumption, yet it still gave an install command [@zhao2025hfuzzer, p. 9].
+- [V] Packages released after the model's cutoff, used as seeds, triggered more hallucinations [@zhao2025hfuzzer, p. 9].
+- [V] Removing the phrase step cut the number of unique invented packages by 2.06 times [@zhao2025hfuzzer, p. 8].
+- [A] Llama-3.1 produced more unique invented names than the older Llama-3, and Qwen2.5-Coder's low rate partly reflects frequent refusals [@zhao2025hfuzzer, p. 7].
+
+### Limitations and weaknesses
+- [A] Python only; extraction by text patterns can misfire; temperature effects were tested on only two model pairs [@zhao2025hfuzzer, p. 10].
+- [I] The low rates for strong models are not base rates. The fuzzer hunts for unique names, not for a typical mix of developer prompts [@zhao2025hfuzzer, p. 6].
+- [I] Counting pkg_resources as a hallucination is debatable, because it is an import name shipped with the setuptools package [@zhao2025hfuzzer, p. 7].
+- [I] The baseline was adapted by the authors themselves [@zhao2025hfuzzer, p. 5], repeated runs used only three runs and three targets [@zhao2025hfuzzer, p. 7], and case-study labels have no agreement statistic [@zhao2025hfuzzer, p. 9].
+- [I] How release dates were obtained is not reported; the registry date can only be approximated from a reference accessed in March 2025 [@zhao2025hfuzzer, p. 12].
+- [A] A GPT-4o invented name appearing in GitHub repositories is reported without counts [@zhao2025hfuzzer, p. 10].
+
+### Gaps and future work this paper leaves open
+- [I] G1: models give install commands even for names they mark as placeholders [@zhao2025hfuzzer, p. 9]. What a coding agent that really runs those commands does is untested.
+- [I] G2: HFuzzer's found names are a ready test set for a pre-install guard, and the placeholder cases suggest a comment-aware filter.
+- [I] G3: most GPT-4o errors are install-name errors for correct imports [@zhao2025hfuzzer, p. 9]. This shows why studies need a shared rule for import names versus package names.
+- [A] The authors call for more models and languages [@zhao2025hfuzzer, p. 11] and for using HFuzzer output as fine-tuning data [@zhao2025hfuzzer, p. 10].
+
+### Why it matters for your research
+HFuzzer is a reusable generator of hard test prompts, and its two-step protocol (write code, then ask how to install it) catches errors that reading import lines misses. The authors report that it still works with smaller tester models [@zhao2025hfuzzer, p. 7], so a local 7B pair may be feasible on a laptop. Do not quote its rates as typical; quote its counts of unique names and its error types.
+
+### Connections to other papers
+- [V] It uses the PHR definition from krishna2025importing [@krishna2025importing, p. 4].
+- [I] Its install-name finding supports spracklen2024we's choice not to parse imports [@spracklen2024we, p. 6], and contrasts with churilov2026range, which does parse imports [@churilov2026range, p. 5].
+- [V] Names shared across models echo the 104 names invented by all five 2026 models in churilov2026range [@churilov2026range, p. 9].
+- [V] A newer Llama inventing more names [@zhao2025hfuzzer, p. 7] contrasts with the size trend in krishna2025importing [@krishna2025importing, p. 6] (contradiction C3).
+```
+
+### FILE: reports/reading-guide/papers/haque2025secure.md
+```markdown
+## Secure or Suspect? Investigating Package Hallucinations of Shell Command in Original and Quantized LLMs
+> **Takeaway:** This is the only study in our set that directly varies quantization, the compression that lets models run on ordinary hardware. For small Qwen models writing Go install commands, 4-bit versions invented package paths almost every time. But the effect is not uniform, and the measurement counts file paths as "packages", so treat it as weak evidence.
+
+| Item | Detail |
+|---|---|
+| Authors | Md Nazmul Haque, Elizabeth Lin, Lawrence Arkoh, Biruk Tadesse, Bowen Xu |
+| Year · Venue | 2025 · arXiv |
+| Status | Preprint (not peer-reviewed). The PDF still carries conference-template residue, suggesting an early draft |
+| Identifier | DOI 10.48550/arxiv.2512.08213 (arXiv 2512.08213) |
+| Paper type | Empirical measurement study (5 model sizes × 3 precision levels × 3 prompt sets) |
+| Relevance to us | High — RQ1, RQ2, RQ4, RQ5 |
+
+### In plain words
+Most people who run AI models on a laptop use quantized versions. Quantization stores the model's numbers with fewer bits (for example 8 or 4 instead of 16 or 32), so the model needs less memory but may become less accurate. This paper asks whether quantized models invent more package names when they write shell commands that install Go packages [@haque2025secure, p. 2]. In Go, packages are named by web addresses such as a GitHub repository path and installed with go get. An attacker could squat an invented path by creating a free GitHub account and repository with that name [@haque2025secure, p. 2; @haque2025secure, p. 7].
+
+### How they did it
+1. Build three prompt sets with GPT-4o: Stack Overflow Go questions rewritten as tasks, MBPP programming tasks adapted to Go, and paraphrased descriptions from the awesome-go package list [@haque2025secure, p. 4].
+2. Run Qwen models of five sizes (0.5B to 14B) at full precision, 8-bit and 4-bit, using the bitsandbytes library [@haque2025secure, p. 4; @haque2025secure, p. 5].
+3. Take the package paths from go get or go install commands and request each address over the network. An unreachable address counts as hallucinated [@haque2025secure, p. 4].
+4. Check reachable packages for known vulnerabilities in OSV, a public vulnerability database [@haque2025secure, p. 4].
+5. Report the Package Hallucination Rate (hallucinated strings divided by all generated package strings) and the Vulnerable Package Rate [@haque2025secure, p. 4; @haque2025secure, p. 5].
+
+### Data and setup
+- 5,435 Stack Overflow, 974 MBPP and 1,746 awesome-go prompts, 8,155 in total, each run on 15 model configurations [@haque2025secure, p. 4].
+- The number of package strings per condition ranges from 0 to 21,439 [@haque2025secure, p. 6].
+- Run on one A100 GPU [@haque2025secure, p. 5].
+- Exact model versions, prompt wording, temperature, the extraction method and the date of the checks are not reported. Each prompt appears to have been run once, with no statistical tests.
+- A replication package is offered at an anonymous link [@haque2025secure, p. 2].
+
+### Key findings
+- [V] At 4-bit, the 0.5B model invented 96.11%, 98.78% and 96.66% of package strings on the three prompt sets, against 41–54% at full precision [@haque2025secure, p. 6].
+- [V] The 3B model at 4-bit reached 92.09%, 97.60% and 87.74% [@haque2025secure, p. 6].
+- [V] Exception: the 7B model on Stack Overflow prompts fell from 34.00% to 10.21% at 4-bit, while producing far fewer package strings [@haque2025secure, p. 5].
+- [A] The authors call the 8-bit effect a "moderate and consistent increase" [@haque2025secure, p. 5]. [V] Their own table shows several cells falling at 8-bit and one rising sharply, 48.39% to 69.59% for 7B on MBPP [@haque2025secure, p. 6].
+- [V] Some rates rest on tiny counts: the 3B model produced 3 and 1 package strings on Stack Overflow at full and 8-bit precision, and none on MBPP [@haque2025secure, p. 6].
+- [V] In the one breakdown table, 2,333 of 4,751 "hallucinated" strings (49%) are file paths or free-form text, not installable package paths [@haque2025secure, p. 8].
+- [V] The quantization effect on known-vulnerable packages is mixed: up from 12.89% to 19.58% for 7B on Stack Overflow, down in other cells [@haque2025secure, p. 5; @haque2025secure, p. 6].
+- [A] The authors recommend 8-bit for constrained settings and "extreme caution" with 4-bit [@haque2025secure, p. 7].
+
+### Limitations and weaknesses
+- [A] Existence was checked by web reachability for simplicity; an unreachable address might still be a valid Go package, and the authors suggest running go get instead [@haque2025secure, p. 7].
+- [A] Prompts were not varied [@haque2025secure, p. 7].
+- [I] The summary percentages in the discussion use only the Stack Overflow set [@haque2025secure, p. 7], and the "consistent increase" claim goes beyond the data.
+- [I] Counting file paths and free text as packages [@haque2025secure, p. 8] overstates the number of squattable names.
+- [I] One model family and one quantization library. Laptop runtimes such as Ollama use a different format (GGUF), so the results may not transfer.
+- [I] GPT-4o kept only tasks it answered with install commands [@haque2025secure, p. 4], which biases the prompts towards install-heavy tasks.
+- [I] No repeated runs, so persistence of names is not measured, and whether invented GitHub paths could actually be registered was not checked.
+
+### Gaps and future work this paper leaves open
+- [I] G4: this is the only quantization study, and it covers Go only with bitsandbytes [@haque2025secure, p. 6]. The effect of the quantization levels shipped by local runtimes on PyPI and npm is untested.
+- [A] G1: the authors call for verifying packages by actually running go get [@haque2025secure, p. 7]; no study yet records real installs.
+- [I] G3: its reachability check and counting of non-package strings are a clear example of why the field needs a shared measurement rule.
+- [I] G2: the setting suggests a simple guard: check every install target against the registry or module proxy before running it.
+
+### Why it matters for your research
+It is the main motivation for G4, because quantized small models are exactly what a laptop runs. It is also a list of pitfalls to avoid: count only installable names, report every denominator, run each prompt several times, and use a proper registry lookup. Quote its 4-bit numbers only with the caveats above.
+
+### Connections to other papers
+- [V] spracklen2024we ran all open models in quantized form [@spracklen2024we, p. 6], so model size and quantization are mixed up in earlier results (contradiction C3).
+- [A] churilov2026range explicitly leaves quantized local models out of scope [@churilov2026range, p. 14].
+- [V] okwor2026hallucination runs local models through Ollama but reports no hallucination rate [@okwor2026hallucination, p. 3].
+- [V] Go adds to other ecosystems studied elsewhere, such as Rust [@zheng2026when, p. 5].
+```
+

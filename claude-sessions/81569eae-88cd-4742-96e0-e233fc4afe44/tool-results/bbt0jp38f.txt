@@ -1,0 +1,305 @@
+--- PAGE 12
+                                                            Claude Opus 5               GPT-6 Astra               GLM-5.3                        Qwen3.8-Max-0902
+                                        REFERENCE-APP EXPLORATION                                                                             IMPLEMENTATION & VERIFICATION
+                      (a) Interaction                           (b) Windows                           (c) Input                               (d) Largest                             (e) Final-loop
+                          breadth                                inspected                            variation                                  write                                   closure
+                                                                                                                                         50                                      60
+                                         Distinct windows
+                 60
+                                                                                                                      Final source (%)
+                                                            6
+Types used (%)                                                                Trajectories (%)                                                                Trajectories (%)
+                                                                                                 20
+                                                                                                                                         25                                      30
+                 30                                         3
+                                                                                                 10
+                 0                                          0                                    0                                       0                                       0
+Figure 10: Reference investigation and final verification. Bars show platform-balanced means with 95%
+bootstrap intervals.
+and final-state verification. Here, GUI observation includes screenshots, accessibility-tree queries, and
+DOM inspection, while GUI interaction includes clicks, typing, and scrolling. Visual input is routine in
+these trajectories: Claude Opus 5, Qwen3.8-Max-0902, and GPT-6 Astra receive a median of 53 images
+per trajectory, and 96.8% of their trajectories include at least one image (Appendix C.7). GLM-5.3 receives
+structured GUI representations but no screenshot pixels, so observation counts do not imply visual access.
+Broader reference exploration accompanies stronger benchmark performance. GPT-6 Astra achieves
+the highest interaction breadth, covering 58.1% of the platform-supported reference-side GUI interaction
+types, while Qwen3.8-Max-0902 follows at 41.8%. The same ordering appears in window coverage, where
+GPT-6 Astra observes 5.23 distinct reference-window identities per trajectory compared with Qwen3.8-
+Max-0902’s 2.21. The two metrics capture complementary dimensions of exploration—interaction di-
+versity and observed interface states—so their agreement is not specific to a single proxy. This broader
+reference coverage co-occurs with the strongest benchmark result: GPT-6 Astra averages 58.06% and
+leads the runner-up, Claude Opus 5, by 13.9 percentage points (Table 3).
+Controlled input variation is uncommon and similar across models. Controlled input variation—
+entering at least two distinct nonempty values in the same reference input field—appears in 17.0%
+of GPT-6 Astra trajectories, close to Claude Opus 5 at 16.8% and only modestly above GLM-5.3 and
+Qwen3.8-Max-0902 at 13.4%. GPT-6 Astra’s clearest separation is therefore in breadth and window
+coverage rather than in this particular controlled-probing strategy. Same-field variation captures only
+one way to test input-dependent behavior and is not a complete measure of exploration quality.
+Final-loop closure remains low across all models. Under the strict final-loop criterion—final source
+change, recreation relaunch or reload, and subsequent recreation-side GUI observation—Qwen3.8-Max-
+0902 most often completes the sequence (47.5%), followed by GLM-5.3 (38.0%), GPT-6 Astra (29.1%),
+and Claude Opus 5 (23.6%). Even the highest rate is below 50%, so most trajectories do not complete a
+relaunch and inspection after the final source change. Validation before that change does not satisfy the
+criterion, and a low rate does not imply that no earlier validation occurred. Qwen3.8-Max-0902’s lead
+also does not coincide with the highest benchmark score, showing that final-loop closure alone is not a
+proxy for fidelity.
+6.1.2                  Implementation Size over Trajectory Progress
+The largest observed source mutation accounts for 23.3% of reconstructed final source for Claude
+Opus 5 and 25.3% for GPT-6 Astra, compared with 34.4% for GLM-5.3 and 39.3% for Qwen3.8-Max-0902
+(Figure 10(d)). Source changes are therefore less concentrated in one mutation for Claude Opus 5 and
+GPT-6 Astra. The largest-write share captures how concentrated the edits are, but not when the code is
+produced. We therefore replay successful, content-bearing source mutations over trajectory progress. At
+each assistant-turn boundary, the resulting source size is divided by that trajectory’s final replayed source
+size; 100% thus denotes the source state reconstructed at the end of the trace, not a reference-code target.
+Figure 11 reports the pointwise median of these normalized curves within each model–platform cell.
+Most code is written early, followed by smaller edits. By the trajectory midpoint, most model–platform
+median profiles already exceed half of their final reconstructed source size. Most curves rise sharply soon
+                                                                                                      12
+--- PAGE 13
+                                                      Claude Opus 5        GPT-6 Astra          GLM-5.3           Qwen3.8-Max-0902
+                                                             Constant-rate source growth        Median first code-writing turn
+                                      (a) Ubuntu           (b) macOS               (c) Windows                  (d) Android              (e) Web
+Final replayed source (%)
+                            100
+                            50
+                             0
+                                  0       50       100 0       50         100 0            50        100 0            50         100 0     50      100
+                                                                        Assistant-turn progress (%)
+Figure 11: Normalized source growth over trajectory progress. Curves show model–platform medians;
+triangles mark the first code-writing turn and the diagonal denotes constant-rate growth.
+after the first code-writing turn and then grow more gradually across later bins rather than tracking the
+constant-rate diagonal. This pattern is consistent with a large initial scaffold followed by smaller edits.
+These aggregate traces do not, however, establish whether each later edit improves fidelity.
+Implementation timing varies across platforms. We also find that the same model can write code at
+different stages on different platforms. Qwen3.8-Max-0902 shows the largest contrast. At the midpoint,
+its median reconstructed source size is 97.4% of its final size on macOS but only 19.9% on Web. The
+other Web profiles reach 61.3–86.0% at the same point. This within-model span is larger than many
+between-model differences on a fixed platform.
+6.1.3                             Hacking Attempts
+Prior work has observed tool-using agents searching for benchmark materials during evaluation (An-
+thropic, 2026c). Recreation presents a similar concern: an agent may seek shortcuts through protected
+information rather than infer the reference’s behavior through GUI exploration. We therefore examine
+four classes of executable operations: external-network access, protected reference or evaluation-path
+access, inspection or extraction of installed reference packages or binaries, and privilege escalation. We
+count each executed operation matching one of the four detectors as an attempt. Repeated matches
+within one trajectory count separately, whether they succeed, fail, or are blocked. Figure 12 reports mean
+attempts per trajectory rather than the fraction of trajectories with at least one attempt. The metric does
+not establish successful access, malicious intent, or explicit evaluation awareness.
+Across models, GLM-5.3 has the highest platform-balanced mean in every attempt category. Its network-
+attempt rate is 1.57× the next-highest rate, and its protected-path rate is nearly twice the next highest.
+GPT-6 Astra exhibits a different profile: it ranks second on network attempts but lowest on protected-path
+attempts, while package- or binary-directed matches are concentrated in GLM-5.3. These differences
+would be obscured by a single aggregate evaluation-hacking statistic. More broadly, agents repeatedly
+issue executable operations matching network-egress and protected-path detectors during benchmark
+runs. Evaluation integrity therefore cannot rely on prompt compliance alone: prohibited resources
+require explicit access controls and auditing. The observed attempts do not imply that any boundary was
+successfully bypassed.
+6.1.4                             Token Usage and Estimated Cost
+R ECREATION B ENCH is a long-horizon benchmark. Figure 13 jointly reports cumulative input and
+output tokens, assistant turns, and an API-cost estimate for each model–platform cell. Across the available
+cells, model–platform means range from 191 to 741 assistant turns and from 23 to 259 million cumulative
+input tokens per attempt. Token totals are the usage attributed by the corresponding runtime, not
+unique-token counts or peak context lengths. Assistant turns follow the top-level response boundaries in
+the corresponding trajectory format and are therefore not a harness-independent unit of reasoning.
+Recorded usage and cost do not follow the benchmark ranking. GLM-5.3 has the highest mean
+assistant-turn count on four of five platforms and the highest mean cumulative input-token count on
+four of five, leading both measures on macOS, Ubuntu, and Windows. On those platforms, its trajectories
+combine more recorded response boundaries with greater cumulative input-token usage. Yet, under the
+                                                                                      13
+--- PAGE 15
+                                    GUI observation       GUI interaction          Reading      Writing / editing    Build / execution        Planning        Other
+                                                                                 (a) Whole-trajectory composition
+Claude Opus 5                                       29                            11                    23                         20                     14
+  GPT-6 Astra                                                       49                                              23                                         11
+       GLM-5.3                                           36                                                   23                  14                     17
+      Qwen3.8-                                 24                           12                     24                            21                      14
+      Max-0902
+                                0                                   25                               50                                  75                           100
+                                                                                   Share of tool actions (%)
+                                    (b) Claude Opus 5                    (c) GPT-6 Astra                (d) GLM-5.3                           (e) Qwen3.8-Max-0902
+                          100
+       Action share (%)
+                          50
+                           0
+                                0            50               100    0                 50         100     0          50               100     0           50          100
+                                                                                        Assistant-turn progress (%)
+Figure 14: Tool-call composition and its evolution over normalized trajectory progress. (a) Platform-
+balanced per-trajectory composition; (b)–(e) call shares by model and progress.
+build/execution share (17.4%). For GLM-5.3, GUI observation accounts for 35.8% of calls but direct
+interaction for only 6.5%, an observation-to-interaction ratio of roughly 5.5:1. Claude Opus 5 distributes
+its core calls more evenly across GUI observation, reading, writing/editing, and build/execution. These
+are distinct operating profiles, not a common ranking of model quality.
+GUI use persists as implementation activity increases. Across models, the combined writing/editing
+and build/execution share rises from 9.3–20.7% in the first progress bin to 26.6–38.5% in the last. GUI
+observation and interaction still account for 33.2–58.6% of the final bin. At the model-aggregate level,
+agents therefore shift toward implementation while continuing to use the GUI, consistent with a hybrid
+workflow. Aggregate shares do not show whether individual trajectories alternate between these call
+types, and late GUI activity does not establish final verification. The strict final-verification sequence
+remains incomplete in most trajectories (Figure 10(e)).
+6.2    Artifact Structure Analysis
+Because R ECREATION B ENCH evaluates observable behavior rather than implementation similarity, agents
+need not reproduce the reference’s source architecture. This flexibility motivates two questions about
+the delivered artifacts: whether higher scores coincide with larger implementations, and how closely
+recreations preserve the reference’s scale, file organization, and framework choice. We include every
+available delivered project with production source for the four models analyzed above, without filtering
+by behavioral score. Coverage varies across model–platform cells. Reference source comparisons cover
+the three desktop platforms and Android because Web references are built snapshots. Appendix C.1
+details the source-counting policy and robustness checks.
+Recreations are usually smaller, and their size is only weakly associated with reference size. Across
+the three desktop platforms and Android, 89.4% of recreations contain less production source than their
+corresponding references, and the median recreation-to-reference LOC ratio is 16.9% (Figure 15). The
+within-platform log–log slope estimates are positive but shallow (0.08–0.23); at these point estimates, a
+tenfold increase in reference LOC corresponds to only a 1.2–1.7-fold increase in recreation LOC. Code-
+volume ordering also does not follow benchmark performance: Claude Opus 5 has the highest median
+recreation LOC on all five platforms, whereas GPT-6 Astra, despite achieving the highest overall score,
+has the lowest median LOC on four of the five platforms. The model-level comparison therefore does
+not support a simple account in which generating more code yields higher fidelity. It does not estimate
+a task-level effect of code volume or identify which implementation choices explain GPT-6 Astra’s
+advantage.
+Recreations usually use fewer, more concentrated source files. Across the same native platforms,
+92.3% of recreations use fewer production-source files than the corresponding reference, and 83.8% place
+                                                                                             15
+--- PAGE 16
+                                                           Claude Opus 5          GPT-6 Astra           GLM-5.3          Qwen3.8-Max-0902
+                                           (a) Ubuntu             (b) macOS              (c) Windows                    (d) Android          (e) Web
+                                 5
+Recreation production LOC
+                            10
+                            104
+                            103
+                            102
+                                      β = 0.08               β = 0.20                  β = 0.23                    β = 0.09
+                                     102         104        102         104           102         104             102         104            C
+                                                                                                                                          O lau
+                                                                                                                                            pu d
+                                                                                                                                               s e
+                                                                                                                                                 5
+                                                                                                                                              G
+                                                                                                                                             As PT-
+                                           Reference LOC          Reference LOC             Reference LOC               Reference LOC      G   tr 6
+                                                                                                                                                 a
+                                                                                                                                             LM -5 .3
+                                                                                                                                          Q
+                                                                                                                                        M we
+                                                                                                                                         ax n
+                                                                                                                                            -0 3.
+                                                                                                                                              90 8-
+                                                                                                                                                 2
+Figure 15: Recreation source size. Native-platform points are task–model pairs; dashed lines mark equal
+size and solid lines show within-platform log–log fits. Web boxes summarize recreation LOC with Tukey
+whiskers computed in log space.
+a larger share of source in the single largest file (Figure 16(a)). At the model–platform level, median
+file counts are 4–43 for recreations and 47–167 for references; median largest-file shares are 10–64%
+and 5–21%, respectively. The model with the highest concentration differs by platform—GLM-5.3 on
+Ubuntu and macOS, Qwen3.8-Max-0902 on Windows, and GPT-6 Astra on Android—so concentration is
+a shared artifact pattern rather than a signature of one model. Web has no comparable reference source;
+its recreations contain median counts of 26–38 production-source files and median largest-file shares of
+15–31%. These measurements establish structural compression, but do not show that it causes lower
+behavioral fidelity.
+Recreations frequently substitute platform-native desktop toolkits. They often reimplement applica-
+tions using GTK on Ubuntu, AppKit on macOS, and WPF or WinForms on Windows. We identify UI
+frameworks from project files and source code (Figure 16(b)). Among Ubuntu and macOS deliverables
+whose references use Electron, Tauri, or Wails, 75% switch to the platform-native GTK or AppKit/Swif-
+tUI family. On Windows, 50% of deliverables whose references use a non-.NET family switch to WPF
+or WinForms. Family-level retention, measured over pairs with a detected framework on both sides,
+ranges across models from 75–85% on Ubuntu, 63–76% on macOS, and 45–94% on Windows. Android’s
+implementation contract prescribes XML views: every deliverable with a detected UI framework uses
+them, although 44% of the references use Jetpack Compose. Web projects with usable source remain
+in the prescribed Web family, predominantly using Tailwind; Web is omitted from the transition panel
+because its references are built snapshots rather than source projects. Framework retention is not a
+requirement for behavioral correctness; the transition data therefore show architectural substitution
+rather than implementation quality.
+6.3                              Failure Modes and Error Analysis
+To determine what the aggregate Prog scores in Table 3 conceal about application-level completeness,
+we first examine how often recreations approach or attain full programmatic credit and which tested
+behavior classes lag. We then use trajectories and audited cases to identify workflow gaps that can leave
+functional errors undiscovered, focusing on controlled input variation and post-edit validation.
+Few applications pass the full programmatic suite. Figure 17(f) shows the complementary cumulative
+distribution of Prog scores, averaged equally across platforms. At 90%, coverage is 17.6% for GPT-6
+Astra, 5.5% for Claude Opus 5, 2.0% for GLM-5.3, and 2.0% for Qwen3.8-Max-0902. At 100%, GPT-6
+Astra remains highest at 2.8%, while every other model reaches at most 0.8%; full-suite success therefore
+remains rare even for the leader. An aggregate Prog mean should therefore not be read as the probability
+that a model reconstructs an application completely.
+Evaluated recreations reproduce what an interface contains more reliably than what it does. Across
+all five platforms, tests that require an action-dependent state change or computed output receive lower
+pass rates than tests centered on static interface structure or content (Figure 17(a–e)). Among the six
+displayed native categories on Ubuntu, macOS, Windows, and Android, structure has the highest mean
+pass rate in 15 of 16 model–platform comparisons; the exception is GPT-6 Astra on Windows, where
+                                                                                             16
+--- PAGE 17
+                                    Reference          GPT-6 Astra   Qwen3.8-Max-0902
+                                    Claude Opus 5      GLM-5.3                                                                            Ubuntu                                  macOS                 
+                                                                                      100%                                       GTK
+                                                                                                                                                       GTK          AppKit /                            
+                           102
+File count (points, log)                                                                    Largest-file share (bars)
+                                                                                                                                                                     SwiftUI
+                                                                                      80%                                                                                                               
+                                                                                                                                                                                                        
+                                                                                                                                     Qt
+                                                                                      60%                                                                               .NET                            
+                           10   1                                                                                                                      Qt                 Qt
+                                                                                      40%                                                                                                               
+                                                                                                                         wxWidgets                                                                      
+                                                                                                                                                                    Electron
+                                                                                                                                                                                                        
+                                                                                                                                                       wxWidgets                                        
+                                                                                      20%
+                                                                                                                           Electron                                     Tauri                           
+                                                                                                                                                       Electron                                         
+                                                                                                                                                                                                        
+                                                                                                                                                                       Wails                            
+                           100                                                                                                   Tauri                 Undetected
+                                                                                      0%                                                                               Gecko                            
+                                      Ubuntu      macOS Windows Android        Web
+                                                (a) File organization                                                                               (b) Framework-family transitions
+Figure 16: Implementation structure of recreations. (a) Median source-file counts and largest-file LOC
+shares for recreations and references. (b) Reference-to-recreation framework transitions on desktop
+platforms; ribbon width counts task–model pairs, with pale ribbons for retention, solid ribbons for
+changes, and gray for undetected frameworks.
+                                                                                 Claude Opus 5                                       GPT-6 Astra        GLM-5.3             Qwen3.8-Max-0902
+                                                          (a) Ubuntu                                                                               (b) macOS                                            
+                            Structure                                                                     Structure                                                                      Structure
+                                     Text                                                                                 Text                                                                          
+                                    Menu                                                                                Menu                                                                        Menu
+                                    State                                                                                State                                                                         S
+                                Button                                                                                  Button                                                                 Button
+   Computation                                                                             Computation                                                                                Computation
+                                            0        25        50         75         100                                         0         25         50          75            100                     
+                                                          (d) Android                                                                               (e) Web                                             
+                                                                                                                                                                                                        
+                            Structure                                                                                                                                                                   
+                                                                                                                                                                                                        
+                                                                                                                                                                                          Applications (
+                                     Text                                              Static content                                                                                                   
+                                                                                                                                                                                                        
+                                                                                                                                                                                                        
+                       Navigation
+                                                                                                                                                                                                        
+                                    State
+   Computation                                                                              Interaction                                                                                                 
+                           Interaction
+                                                                                                                                                                                                        
+                                            0        25        50         75         100                                         0         25         50          75            100                     
+                                                                               Programmatic pass rate (%)                                                                                               
+Figure 17: Programmatic outcomes by platform and score threshold. (a–e) Application-macro cate-
+gory pass rates under each platform’s native taxonomy. (f) Platform-balanced complementary CDF of
+application-level Prog scores, with a 90–100% inset.
+menu is higher by only 0.2 percentage points. The weakest category is always button, computation,
+or interaction, trailing structure by 9.1–34.4 points. Web shows the same pattern using different test
+categories: static-content scores exceed interaction scores by 28.2–36.7 points across the four models.
+These gaps identify a consistent weakness among the scored outcomes: the evaluated recreations more
+often preserve visible interface elements than the state transitions and outputs produced by using
+them. Because categories contain different assertions and sometimes different application subsets, this
+comparison locates a suite-level gap rather than isolating interaction as its cause.
+The PhotoCollage audit on Ubuntu provides a concrete example (Appendix D.2.1). After a photo is
+rotated and the user invokes Undo, the recreation restores the photo arrangement but leaves the photo
+itself rotated. Its initial screen can still look correct, and the application still launches; only the action
+sequence exposes that the history state is incomplete. The case illustrates the distinction behind the
+aggregate category gap: a recreation can pass a launch or static-screen check while still implementing the
+wrong state transition.
+Controlled variation can expose input-dependent behavior. Same-field input variation appears in
+only 13.4–17.0% of the observed native trajectories (Figure 10(c)). Thus, the broader exploration measures
+above do not by themselves show that an agent has recovered input–output rules. The Privacy-Friendly
+Pedometer case on Android in Section 6.5 illustrates the complementary success mode: varying steps,
+                                                                                                                                                17

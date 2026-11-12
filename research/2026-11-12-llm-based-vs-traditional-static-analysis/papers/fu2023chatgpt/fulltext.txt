@@ -1,0 +1,414 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                         ChatGPT for Vulnerability Detection, Classification,
+                                                  and Repair: How Far Are We?
+                                                 Michael Fu             Chakkrit (Kla) Tantithamthavorn                     Van Nguyen                      Trung Le
+                                              Monash University                   Monash University                      Monash University              Monash University
+                                             Clayton, Australia                   Clayton, Australia                     Clayton, Australia            Clayton, Australia
+                                             yeh.fu@monash.edu                  chakkrit@monash.edu                  Van.Nguyen1@monash.edu          trunglm@monash.edu
+
+
+
+                                            Abstract—Large language models (LLMs) like ChatGPT (i.e.,             Leveraging ChatGPT’s considerable scale, with 175 billion
+
+
+
+
+arXiv:2310.09810v1 [cs.SE] 15 Oct 2023
+                                         gpt-3.5-turbo and gpt-4) exhibited remarkable advancement in             parameters for gpt-3.5-turbo [2] and 1.7 trillion parameters
+                                         a range of software engineering tasks associated with source             for gpt-4 [16], offers the potential for its application in
+                                         code such as code review and code generation. In this paper, we
+                                         undertake a comprehensive study by instructing ChatGPT for               vulnerability-related tasks. However, to the best of our knowl-
+                                         four prevalent vulnerability tasks: function and line-level vulner-      edge, no comprehensive studies have been conducted to evalu-
+                                         ability prediction, vulnerability classification, severity estimation,   ate the entire vulnerability workflow, spanning from detecting
+                                         and vulnerability repair. We compare ChatGPT with state-                 vulnerabilities and explaining their types to estimating their
+                                         of-the-art language models designed for software vulnerability           severity and repair suggestions.
+                                         purposes. Through an empirical assessment employing extensive
+                                         real-world datasets featuring over 190,000 C/C++ functions,                 In this paper, we conduct a thorough analysis to assess
+                                         we found that ChatGPT achieves limited performance, trailing             ChatGPT’s ability for the four vulnerability prediction tasks
+                                         behind other language models in vulnerability contexts by a              mentioned above. Noteworthy is the fact that ChatGPT’s 1.7
+                                         significant margin. The experimental outcomes highlight the              trillion parameters surpass the count of parameters in source
+                                         challenging nature of vulnerability prediction tasks, requiring          code-oriented pre-trained language models like CodeBERT
+                                         domain-specific expertise. Despite ChatGPT’s substantial model
+                                         scale, exceeding that of source code-pre-trained language mod-           and GraphCodeBERT by nearly 14,000 times. Therefore, the
+                                         els (e.g., CodeBERT) by a factor of 14,000, the process of               prevalent approach to utilizing ChatGPT involves furnishing
+                                         fine-tuning remains imperative for ChatGPT to generalize for             it with appropriate prompts and task examples, rather than
+                                         vulnerability prediction tasks. We publish the studied dataset,          engaging in fine-tuning for these specific downstream tasks.
+                                         experimental prompts for ChatGPT, and experimental results at            It is important to note that the model parameters of ChatGPT
+                                         https://github.com/awsm-research/ChatGPT4Vul.
+                                            Index Terms—ChatGPT, Large Language Models, Cybersecu-
+                                                                                                                  remain proprietary by OpenAI, thereby precluding the possi-
+                                         rity, Software Vulnerability, Software Security                          bility of fine-tuning its parameters for vulnerability tasks.
+                                                                                                                     Thus, we compare prompting ChatGPT with other fine-
+                                                                 I. I NTRODUCTION                                 tuned language models specifically designed for source code
+                                                                                                                  purposes. We conduct experiments to compare two versions of
+                                            Software vulnerabilities are weaknesses or flaws in software          ChatGPT (i.e., gpt-3.5-turbo and gpt-4) with four competitive
+                                         code that can be exploited by attackers to compromise the                baseline approaches (i.e., AIBugHunter [10], CodeBERT [7],
+                                         security of a system, gain unauthorized access, or cause un-             GraphCodeBERT [12], and VulExplainer [8]) designed for
+                                         intended behavior. Recently, there have been advancements in             software vulnerability on four different vulnerability tasks.
+                                         employing language models for source code (e.g., CodeBERT,               Through an extensive evaluation of ChatGPT on two vulnera-
+                                         GraphCodeBERT, and CodeT5) to automatically achieve the                  bility datasets (i.e., Big-Vul [6] and CVEFixes [1]) encompass-
+                                         following tasks: (1) pinpoint vulnerable functions and state-            ing over 190,000 C/C++ functions, we answer the following
+                                         ments [9] within source code; (2) recognize vulnerability                four research questions:
+                                         types to explain detected vulnerabilities [10]; (3) estimate             (RQ1) How accurate is ChatGPT for function and line-level
+                                         the severity of vulnerabilities [10]; and (4) suggest repair             vulnerability predictions?
+                                         patches [3], [11]. In particular, a deep learning-based software         Results. ChatGPT achieves F1-measure of 10% and 29%
+                                         security tool named AIBugHunter was proposed in VSCode                   and top-10 accuracy of 25% and 65%, which are the lowest
+                                         that achieves promising results for the aforementioned four              compared with other baseline methods.
+                                         vulnerability tasks using multiple fine-tuned language models            (RQ2) How accurate is ChatGPT for vulnerability types
+                                         for source code [10].                                                    classification?
+                                            On the contrary, large language models (LLMs) like Chat-              Results. ChatGPT achieves the lowest multiclass accuracy of
+                                         GPT have effectively demonstrated their competence in tasks              13% and 20%, which is 45%-52% lower than the best baseline.
+                                         related to code, such as the simulation of system behavior from          (RQ3) How accurate is ChatGPT for vulnerability severity
+                                         provided requirements, the formulation of API specifications,            estimation?
+                                         and the discernment of implicit assumptions within code [19].            Results. ChatGPT gave the most inaccurate severity estima-
+
+=== [PDF page 2] ===
+
+tion with the highest mean squared error (MSE) of 5.4 and 5.85       We provide a return template, anticipating that ChatGPT will
+while other baseline methods achieve MSE of 1.8 to 1.86.             generate an output consisting of a line number accompanied
+(RQ4) How accurate is ChatGPT for automated vulnerability            by its corresponding code statement as predictions.
+repair?
+Results. ChatGPT failed to generate any correct repair
+patches while other baselines correctly repaired 7%-30% of
+vulnerable functions.
+   Novelty & Contributions. This paper represents one of
+the pioneering pilot studies that comprehensively assess Chat-
+GPT’s (gpt-3.5-turbo and gpt-4) performance in vulnerability
+detection, vulnerability type identification, severity estimation,
+and patch recommendation. In addition, we conduct com-
+parative analyses with other state-of-the-art language models,
+specifically fine-tuned for software vulnerability-related tasks.
+                     II. R ELATED W ORK
+   Recently, researchers have been investigating the applicabil-
+ity of ChatGPT for software vulnerability tasks. Cheshkov et
+al. [4] investigated the base ChatGPT (gpt-3.5-turbo) per-
+formance for vulnerability prediction and classification us-
+                                                                     Fig. 1. An example prompt for function and line-level vulnerability prediction.
+ing 120 samples across five different CWE-IDs. Zhang et
+al. [21] designed suitable prompts for ChatGPT to enhance            B. Prompt ChatGPT for Software Vulnerability Classification
+its performance for vulnerability prediction. On the other
+hand, Napoli et al. [14] investigated ChatGPT’s performance          Problem. We formulate vulnerability classification as a multi-
+for the smart contracts vulnerability correction task. Some          class classification task where the model identifies a CWE-ID
+previous studies have evaluated ChatGPT’s performance for            for an input vulnerable function. Common Weakness Enumer-
+the automated program repair (APR) task where the model              ation Identifier (CWE-ID) is a community-developed list of
+was asked to fix general bugs [17], [18], [20]. In particular,       common software weaknesses and vulnerabilities [5], which
+Pearce et al. [17] assessed large language models’ performance       allows security professionals to categorize and communicate
+for the program repair, however, the most advanced two               about security issues in a standardized manner.
+versions of ChatGPT were not included in their experiments.          Prompt. We present example prompts for CWE-ID classi-
+                                                                     fication in Fig 2. In particular, we inform ChatGPT that the
+      III. P ROBLEM S TATEMENT & P ROMPT D ESIGN                     input function is vulnerable and request it to identify its cor-
+   In this section, we introduce the problem statements of the       responding CWE-ID. Additionally, we limit the classification
+four vulnerability tasks, i.e., (1) function and line-level soft-    scope by providing a list of potential CWE-IDs to ensure a
+ware vulnerability prediction (SVP), (2) software vulnerability      fair comparison with other fine-tuned models.
+classification (SVC), (3) severity estimation, and (4) automated
+vulnerability repair (APR). After each problem statement, we
+illustrate how we design the prompts for ChatGPT to perform
+the prediction task.
+A. Prompt ChatGPT for Software Vulnerability Prediction
+                                                                               Fig. 2. An example prompt for CWE-ID classification.
+Problem. We formulate vulnerability prediction as a binary
+classification task where the model predicts whether the input
+source code function is vulnerable. For vulnerable functions,        C. Prompt ChatGPT for Vulnerability Severity Estimation
+we formulate the line-level vulnerability localization task as a     Problem. We formulate vulnerability severity estimation as a
+ranking problem, where the model ranks vulnerable statements         regression task where the model predicts a continuous value
+on the top to reduce the manual analysis workload for security       based on input vulnerable functions to estimate their severity.
+analysts.                                                            CVSS (Common Vulnerability Scoring System) severity score
+Prompt. We present example prompts for function and line-            is a standardized numerical system used to assess the serious-
+level vulnerability prediction in Fig 1. In the initial prompt,      ness of security vulnerabilities in software and systems. We
+we provide ChatGPT with a task description focusing on               use CVSS version 3.1 ranging from 0 to 10.
+function-level predictions, along with a clear instruction for       Prompt. We present example prompts for severity estimation
+return. In the subsequent prompt, we inform ChatGPT that             in Fig 3. We inform ChatGPT that the input function is
+the given function is vulnerable and request it to rank the top      vulnerable and specify the CVSS version and the output range
+10 most vulnerable-prone statements from the given function.         to make it generate a severity estimation for the given function.
+
+=== [PDF page 3] ===
+
+                                                                        For the automated vulnerability repair (RQ4), we leverage
+                                                                     the Big-Vul and CVEFixes [1] datasets pre-processed by
+                                                                     Chen et al. [3]. The dataset has been adopted to evaluate
+                                                                     vulnerability repair approaches [3], [11], which contains 5.5k
+                                                                     pairs of vulnerable functions and their repair patches. Similar
+          Fig. 3. An example prompt for severity estimation.
+                                                                     to previous studies [3], [11], we split the data into 70% for
+                                                                     training, 10% for validation, and 20% for testing.
+D. Prompt ChatGPT for Automated Vulnerability Repair                 B. Parameter Settings and Execution Environment
+Problem. We formulate vulnerability repair as a sequence-              We replicate the baseline methods using the original au-
+to-sequence generation task where the model generates corre-         thors’ specified parameter settings, running experiments on
+sponding repair patches for input vulnerable functions.              a Linux machine equipped with an AMD Ryzen 9 5950X
+Prompt. We present example prompts for vulnerability repair          processor, 64 GB RAM, and an NVIDIA RTX 3090 GPU.
+in Fig 4. Given that model outputs are repair patches designed       The ChatGPT prompting was completed via paid API access
+by Chen et al. [3] instead of the complete repaired program,         provided by OpenAI [15].
+we provide three repair examples in each prompt to make
+ChatGPT comprehend our repair task. We then request Chat-            C. Experimental Results
+GPT to create repair patches for vulnerable functions using          (RQ1) How accurate is ChatGPT for function and line-level
+the templates provided in those examples.                            vulnerability predictions?
+                                                                     Approach. To answer this RQ, we focus on the function and
+                                                                     line-level vulnerability predictions and compare ChatGPT (i.e.,
+                                                                     gpt-3.5-turbo and gpt-4) with three other fine-tuned baseline
+                                                                     language models as follows:
+                                                                       1) AIBugHunter: A recently proposed deep learning-based
+                                                                           software security tool that utilizes fine-tuned language
+                                                                           models [9], [11] to perform vulnerability prediction,
+                                                                           classification, severity estimation, and repair [10].
+                                                                       2) CodeBERT: A language model originally pre-trained for
+                                                                           tasks related to source code, CodeBERT underwent pre-
+                                                                           training using the Codesearchnet dataset [13], encom-
+                                                                           passing various programming languages. CodeBERT has
+                                                                           demonstrated its capability to effectively perform tasks
+                                                                           associated with source code [7].
+                                                                       3) GraphCodeBERT: A language model that was also pre-
+     Fig. 4. An example prompt for automated vulnerability repair.
+                                                                           trained on the Codesearchnet dataset to perform source
+                                                                           code-related tasks. Notably, when forming the input for
+        IV. E XPERIMENTAL D ESIGN AND R ESULTS                             the model, GraphCodeBERT considers the data flow
+   In this section, we introduce our experimental datasets                 graph in addition to source code tokens [12].
+selected for each vulnerability task followed by the parameter       Similar to the previous study [9], we report F1-measure,
+settings and hardware environment used to reproduce the              precision, and recall to evaluate function-level performance.
+baseline language models fine-tuned for vulnerability tasks.         For line-level performance, we report top-10 accuracy that
+Finally, we present our experimental approach along with the         measures the percentage of vulnerable functions where at
+results for each research question.                                  least one actual vulnerable line appears in the model’s top-
+                                                                     10 ranking. This metric has been previously used to evaluate
+A. Experimental Datasets                                             the prediction of line-level vulnerability prediction [9].
+   We use the Big-Vul dataset constructed by Fan et al. [6] to       Result. Fig 5 presents the experimental results of function
+evaluate vulnerability prediction (RQ1), classification (RQ2),       and line-level vulnerability prediction. ChatGPT failed to
+and severity estimation (RQ3). Big-Vul has been widely               accurately predict at the function level with an F1-measure
+adopted for software vulnerability tasks [9], [10], which            of 10% and top-10 accuracy of 25% at the statement level.
+comprises 188k C/C++ functions gathered from 348 Github              The leading-edge gpt-4 with 1.7 trillion parameters achieves an
+projects, encompassing 3,754 code vulnerabilities across 91          F1-measure of 29% along with a top-10 accuracy of 65%. In
+types. Each vulnerable function is labeled with a CWE-ID             contrast, the fine-tuned AIBugHunter achieves an F1-measure
+and a CVSS severity score. Its data distribution mirrors real-       of 94% along with a top-10 accuracy of 99% with only
+world conditions, with a vulnerable-to-benign function ratio         120 million parameters. Despite gpt-4’s extensive model size
+of 1:20. Similar to previous studies [9], [10], we split the data    and pre-training data, it faced challenges in generalizing the
+into 80% for training, 10% for validation, and 10% for testing.      vulnerability prediction task without undergoing fine-tuning.
+
+=== [PDF page 4] ===
+
+                                               F1                                                                   Precision                                                     Recall                                                             Top−10 Accuracy
+                                                                                                    98%                                                                                                                                    99%       99%
+               1.00      94%                                                           1.00                   92%
+                                                                                                                                                 1.00                                                                           1.00
+                                   87%                                                                                                                     90%                                                                                                   87%
+                                                                                                                                                                         83%
+               0.75                                                                    0.75                                                      0.75                                                                           0.75
+                                                                                                                                                                                                                                                                               65%
+
+                                                                                                                        50%
+               0.50                                                                    0.50                                                      0.50                                                                           0.50
+                                               35%                                                                                                                                  33%
+                                                           29%                                                                                                                                 27%
+                                                                                                                                25%                                                                                                                                                       25%
+               0.25                                                                    0.25                                                      0.25                                                                           0.25
+                                                                       10%                                                                 11%                                                               9%
+
+               0.00                                                                    0.00                                                      0.00                                                                           0.00
+                         te r    ER         ER           t− 4           o
+                                                                       rb                           te r    ER         ER      t−  4        o
+                                                                                                                                           rb              te r    ER             t− 4       ER            rbo                             te r    ER         ER           t−  4        rb o
+                      un           T          T        gp         tu                            un            T          T    gp       tu               un           T         gp              T        tu                               un          T          T         gp          tu
+                    gH       eB         eB                      .5                             gH       eB         eB               .5                gH       eB                        eB         .5                                gH       eB         eB                     .5
+                Bu         od          od                          −                      Bu         od           od                   −          Bu         od                         od             −                         Bu           od         od                         −
+                         C         hC                      t− 3                                     C        hC                t− 3                        C                      hC           t− 3                                        C        hC                         t− 3
+               AI                                      gp                              AI                                     gp                 AI                                          gp                                 AI                                        gp
+                                ra p                                                                       ra p                                                               ra p                                                                ra p
+                           G                                                                          G                                                                      G                                                                G
+
+
+           Fig. 5. (RQ1) The experimental results of function-level and line-level vulnerability prediction. (↗) For all metrics, higher = better.
+
+
+                                                       Multiclass Accuracy                                                                                                                   Mean Squared Error                                                           Mean Absolute Error
+                                                                                                                                                                         6                                                       5.85              2.0
+                                       65%         65%                                                                                                                                                                    5.4                                                                     1.84    1.86
+                                                            63%         62%
+                             0.6
+                                                                                                                                                                                                                                                   1.5
+                                                                                                                                                                         4
+                             0.4                                                                                                                                                                                                                   1.0        0.83        0.88        0.93
+
+                                                                                                                                                                         2        1.8        1.85          1.86
+                                                                                20%                                                                                                                                                                0.5
+                             0.2                                                          13%
+                                                                                                                                                                         0                                                                         0.0
+                             0.0
+                                                                                                                                                                              ER             ter        ER             rb o      t−  4                    ER               r
+                                                                                                                                                                                                                                                                          te        ER            rb o    t−  4
+                                        r
+                                       te      ne  r       ER          ER      t−         bo                                                                                    T         un              T          tu         gp                          T         un              T         tu       gp
+                                                             T           T        4   tu                                                                                     eB         gH            eB          5−                                     eB          gH          eB          5−
+                                   un         ai                              gp         r                                                                               od                        od           3.                                   od                        od          3.
+                                 gH           pl       eB         eB               3.                                                                                                Bu           C          t−                                     C           Bu                      t−
+                                         Ex         od          od                   5−                                                                             hC            AI                                                                          AI           hC
+                             Bu                                                                                                                                   ra                                       gp                                                         ra              gp
+                           AI          Vu l        C        hC                  t−                                                                                   p                                                                                                   p
+                                                         ra                   gp                                                                               G                                                                                                      G
+                                                            p
+                                                       G
+
+                                                                                                                                                 Fig. 7. (RQ3) The experimental results of vulnerability severity estimation.
+Fig. 6. (RQ2) The experimental results of vulnerability type (i.e., CWE-ID)                                                                      (↘) Lower MSE, MAE = better.
+classification. (↗) Higher Multiclass Accuracy = better.
+
+
+                                                                                                                                                 (RQ3) How accurate is ChatGPT for vulnerability severity
+These results highlight that the vulnerability prediction task                                                                                   estimation?
+requires models to learn domain-specific knowledge (e.g.,                                                                                        Approach. To answer this RQ, we focus on predicting the
+vulnerability patterns) and fine-tuning is still required for large                                                                              CVSS score of vulnerable functions. We compare ChatGPT
+language models despite their significant model size.                                                                                            (gpt-3.5-turbo and gpt-4) with the three baselines introduced
+                                                                                                                                                 in RQ1, where CodeBERT has been shown to be effective for
+                                                                                                                                                 severity estimation [10]. Similar to the previous study [10],
+(RQ2) How accurate is ChatGPT for vulnerability types                                                                                            we use Mean Squared Error (MSE) and Mean Absolute Error
+classification?                                                                                                                                  (MAE) to assess the performance of each method.
+                                                                                                                                                 Result. Fig 7 presents the experimental results of the severity
+Approach. To answer this RQ, we focus on the vulnerability                                                                                       score estimation. ChatGPT failed to accurately estimate
+classification task where we aim to identify CWE-IDs for vul-                                                                                    the CVSS severity score, resulting in an MSE of 5.4
+nerable functions. We compare ChatGPT (i.e., gpt-3.5-turbo                                                                                       and an MAE of 1.84. The gpt-3.5-turbo and gpt-4 have
+and gpt-4) with three fine-tuned baseline language models                                                                                        MSE of 5.4 and 5.85 while the fine-tuned language model
+introduced in RQ1. Additionally, we include VulExplainer [8]                                                                                     baselines achieve 1.8-1.86. Similar to vulnerability prediction
+which leverages language models with a distillation framework                                                                                    and classification tasks, accurately estimating severity scores
+to mitigate the data imbalances in the CWE-ID classification                                                                                     also demands software security expertise that ChatGPT has
+task. Similar to previous studies [8], [10], we use the multiclass                                                                               not acquired during its extensive pre-training phase, hindering
+accuracy measure to evaluate the performance of each method.                                                                                     its ability to provide accurate predictions in this context.
+Result. Fig 6 presents the experimental results of CWE-
+ID classification. The accuracy of ChatGPT in correctly                                                                                          (RQ4) How accurate is ChatGPT for automated vulnerability
+identifying CWE-IDs for vulnerable functions is limited,                                                                                         repair?
+standing at a mere 13%. The gpt-3.5-turbo and gpt-4                                                                                              Approach. To answer this RQ, we focus on generating vul-
+achieve 13%-20% accuracy while the fine-tuned language                                                                                           nerability repair patches for vulnerable functions. We compare
+model baselines achieve 62%-65%. These findings suggest                                                                                          ChatGPT (i.e., gpt-3.5-turbo and gpt-4) with the three baseline
+that the accurate identification of CWE-ID for a vulnerable                                                                                      methods introduced in RQ1. Notably, AIBugHunter leverages
+function requires the model to learn to map specific patterns                                                                                    the VulRepair [11] model for repair patches generation, which
+(e.g., buffer overflow) in vulnerable functions to a CWE-                                                                                        achieves state-of-the-art results in the vulnerability repair
+ID. However, ChatGPT has not adequately acquired such                                                                                            problem. Similar to previous studies [3], [11], we use the per-
+knowledge during the pre-training phase of ChatGPT so a fine-                                                                                    centage of perfect prediction (%PP) measure to assess the per-
+tuning stage is still required to boost its performance.                                                                                         formance of each method. Only if the generated repair patches
+
+=== [PDF page 5] ===
+
+                  %PP                             BLEU                        METEOR                                            R EFERENCES
+ 100                             100                              100
+                                                                                                   [1] G. Bhandari, A. Naseer, and L. Moonen, “Cvefixes: automated collec-
+  75                             75                               75
+                                        59
+                                                                         68
+                                                                              64
+                                                                                   59
+                                                                                                       tion of vulnerabilities and their fixes from open-source software,” in
+  50                             50          49
+                                                   44             50                                   Proceedings of the 17th International Conference on Predictive Models
+                                                                                        35
+         30                                                                                            and Data Analytics in Software Engineering, 2021, pp. 30–39.
+  25                             25                               25                         19
+              9    7
+                                                                                                   [2] T. Brown, B. Mann, N. Ryder, M. Subbiah, J. D. Kaplan, P. Dhariwal,
+                                                         5   3
+     0
+                        0   0
+                                    0                                0                                 A. Neelakantan, P. Shyam, G. Sastry, A. Askell et al., “Language mod-
+   AI
+ra ug
+  ph HB                            AI
+                                ra ug
+                                  ph HB                             AI
+                                                                 ra ug
+                                                                   ph HB                               els are few-shot learners,” Advances in neural information processing
+    C un                             C un                             C un
+       od te
+    C BER
+       o
+         e
+  gp deB T
+                 r                     od te
+                                     C BER
+                                       od
+                                          e
+                                          eB T
+                                                  r                     od te
+                                                                      C BER
+                                                                        od
+                                                                           e
+                                                                           eB T
+                                                                                   r                   systems, vol. 33, pp. 1877–1901, 2020.
+    t−      E                                ER                               ER
+       3. RT
+         5−tu
+           gp
+              rb o
+                                  gp t− gpt
+                                       3. 5− 4  −
+                                                 T                 gp t− gpt
+                                                                        3. 5− 4  −
+                                                                                  T                [3] Z. Chen, S. Kommrusch, and M. Monperrus, “Neural transfer
+                                            tu                               tu
+ G
+              t− 4
+                                G
+                                               rb o
+                                                                 G
+                                                                                rb o                   learning for repairing security vulnerabilities in c code,” IEEE
+                                                                                                       Transactions on Software Engineering (TSE), 2022. [Online]. Available:
+Fig. 8. (RQ4) The experimental results of automated vulnerability repair. (↗)                          https://arxiv.org/pdf/2104.08308
+Higher %PP, BLEU, METEOR = better.                                                                 [4] A. Cheshkov, P. Zadorozhny, and R. Levichev, “Evaluation of chatgpt
+                                                                                                       model for vulnerability detection,” arXiv preprint arXiv:2304.07232,
+                                                                                                       2023.
+                                                                                                   [5] M. Corporation, “Common weakness enumeration (cwe),” https://cwe.
+are identical to the ground-truth patches, we count it as a                                            mitre.org/index.html, 2006.
+                                                                                                   [6] J. Fan, Y. Li, S. Wang, and T. N. Nguyen, “A c/c++ code vulnerability
+correct prediction. The %PP is computed as total    correct predictions
+                                                total testing samples .                                dataset with code changes and cve summaries,” in Proceedings of the
+We use greedy decoding to return one repair candidate for                                              17th International Conference on Mining Software Repositories (MSR),
+fine-tuned language models and ensure a fair comparison with                                           2020, pp. 508–512.
+                                                                                                   [7] Z. Feng, D. Guo, D. Tang, N. Duan, X. Feng, M. Gong, L. Shou, B. Qin,
+ChatGPT. Furthermore, we incorporate BLEU and METEOR                                                   T. Liu, D. Jiang et al., “Codebert: A pre-trained model for programming
+scores to evaluate the degree of similarity between the patches                                        and natural languages,” in Findings of the Association for Computational
+produced by the model and the actual patches.                                                          Linguistics: EMNLP 2020, 2020, pp. 1536–1547.
+                                                                                                   [8] M. Fu, V. Nguyen, C. K. Tantithamthavorn, T. Le, and D. Phung,
+Result. Fig 8 presents the experimental results of the vulner-                                         “Vulexplainer: A transformer-based hierarchical distillation for explain-
+ability repair. ChatGPT failed to generate correct repair                                              ing vulnerability types,” IEEE Transactions on Software Engineering,
+patches for all of the vulnerable functions in our testing                                             pp. 1–17, 2023.
+                                                                                                   [9] M. Fu and C. Tantithamthavorn, “Linevul: A transformer-based line-
+data. In contrast, the fine-tuned language model baselines can                                         level vulnerability prediction,” in 2022 IEEE/ACM 19th International
+correctly repair 7%-30% of the testing function. The BLEU                                              Conference on Mining Software Repositories (MSR). IEEE, 2022.
+and METEOR scores further demonstrate that repair patches                                         [10] M. Fu, C. Tantithamthavorn, T. Le, Y. Kume, V. Nguyen, D. Phung, and
+                                                                                                       J. Grundy, “Aibughunter: A practical tool for predicting, classifying and
+generated using baseline methods exhibit greater proximity to                                          repairing software vulnerabilities,” arXiv preprint arXiv:2305.16615,
+the true patches compared to those generated through Chat-                                             2023.
+GPT methods. These results indicate that vulnerability repair                                     [11] M. Fu, C. Tantithamthavorn, T. Le, V. Nguyen, and D. Phung, “Vulre-
+                                                                                                       pair: a t5-based automated software vulnerability repair,” in Proceedings
+is a more challenging task compared with other vulnerability                                           of the 30th ACM Joint European Software Engineering Conference and
+prediction tasks, where ChatGPT struggle to generate correct                                           Symposium on the Foundations of Software Engineering (ESEC/FSE),
+repairs for vulnerable functions. Thus, a fine-tuning step using                                       2022, pp. 935–947.
+                                                                                                  [12] D. Guo, S. Ren, S. Lu, Z. Feng, D. Tang, L. Shujie, L. Zhou,
+domain-specific data is crucial for ChatGPT to generalize its                                          N. Duan, A. Svyatkovskiy, S. Fu et al., “Graphcodebert: Pre-training
+ability for the vulnerability repair task.                                                             code representations with data flow,” in International Conference on
+                                                                                                       Learning Representations, 2021.
+                                                                                                  [13] H. Husain, H.-H. Wu, T. Gazit, M. Allamanis, and M. Brockschmidt,
+                                 V. C ONCLUSION                                                        “Codesearchnet challenge: Evaluating the state of semantic code search,”
+                                                                                                       arXiv preprint arXiv:1909.09436, 2019.
+                                                                                                  [14] E. A. Napoli and V. Gatteschi, “Evaluating chatgpt for smart contracts
+   In this paper, we empirically evaluate the performance of                                           vulnerability correction,” in 2023 IEEE 47th Annual Computers, Soft-
+prompting two versions of ChatGPT (gpt-3.5-turbo and gpt-4)                                            ware, and Applications Conference (COMPSAC). IEEE, 2023, pp.
+                                                                                                       1828–1833.
+for four common vulnerability tasks: locating vulnerabilities,                                    [15] OpenAI, “Chatgpt,” https://openai.com/blog/chatgpt, 2022.
+identifying vulnerability types, estimating severity scores, and                                  [16] ——, “Gpt-4 technical report,” 2023.
+suggesting repair patches. We compare the performance of                                          [17] H. Pearce, B. Tan, B. Ahmad, R. Karri, and B. Dolan-Gavitt, “Examining
+                                                                                                       zero-shot vulnerability repair with large language models,” in 2023 IEEE
+ChatGPT with other pre-trained language models that have                                               Symposium on Security and Privacy (SP). IEEE, 2023, pp. 2339–2356.
+significantly smaller model sizes than ChatGPT but have been                                      [18] D. Sobania, M. Briesch, C. Hanna, and J. Petke, “An analysis of
+fine-tuned to perform software vulnerability prediction tasks.                                         the automatic bug fixing performance of chatgpt,” arXiv preprint
+                                                                                                       arXiv:2301.08653, 2023.
+Through an assessment encompassing over 190,000 real-world                                        [19] J. White, S. Hays, Q. Fu, J. Spencer-Smith, and D. C. Schmidt, “Chatgpt
+C/C++ functions, ChatGPT yielded the least favorable out-                                              prompt patterns for improving code quality, refactoring, requirements
+comes across all vulnerability-related tasks, notably struggling                                       elicitation, and software design,” arXiv preprint arXiv:2303.07839,
+                                                                                                       2023.
+to generate accurate patches for the vulnerability repair task.                                   [20] C. S. Xia and L. Zhang, “Keep the conversation going: Fixing
+These findings highlight the imperative of possessing security                                         162 out of 337 bugs for $0.42 each using chatgpt,” arXiv preprint
+expertise in addressing software vulnerability prediction tasks,                                       arXiv:2304.00385, 2023.
+                                                                                                  [21] C. Zhang, H. Liu, J. Zeng, K. Yang, Y. Li, and H. Li, “Prompt-
+a facet not assimilated by ChatGPT during its extensive pre-                                           enhanced software vulnerability detection using chatgpt,” arXiv preprint
+training phase. Thus, an additional round of fine-tuning stands                                        arXiv:2308.12697, 2023.
+as a pivotal requirement for ChatGPT to effectively generalize
+and undertake software vulnerability tasks.

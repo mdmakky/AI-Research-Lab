@@ -1,0 +1,1004 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                           LLM Hallucinations in Practical Code Generation:
+                                              Phenomena, Mechanism, and Mitigation
+                                                                     Ziyao Zhang1 , Yanlin Wang1∗ , Chong Wang2 , Jiachi Chen1 , Zibin Zheng1
+                                                                                           1
+                                                                                            Sun Yat-sen University, Zhuhai, China
+                                                                                     2
+                                                                                         Nanyang Technological University, Singapore
+
+
+
+                                            Abstract—Code generation aims to automatically generate code         development scenarios. Evaluations based on these benchmarks
+                                         from input requirements, significantly enhancing development            have revealed that LLMs face challenges in generating non-
+                                         efficiency. Recent large language models (LLMs) based approaches
+
+
+
+
+arXiv:2409.20550v2 [cs.SE] 17 Jan 2025
+                                                                                                                 standalone functions with contextual dependencies, such as
+                                         have shown promising results and revolutionized code generation
+                                         task. Despite the promising performance, LLMs often generate            calls to user-defined functions and project-defined data protocol.
+                                         contents with hallucinations, especially for the code generation        While these benchmarks provide valuable insights into the
+                                         scenario requiring the handling of complex contextual dependen-         effectiveness of LLMs in practical code generation, they pri-
+                                         cies in practical development process. Although previous study          marily focus on functional correctness as measured by test case
+                                         has analyzed hallucinations in LLM-powered code generation, the         pass rates and lack a thorough analysis of underlying failure
+                                         study is limited to standalone function generation. In this paper, we
+                                         conduct an empirical study to study the phenomena, mechanism,           causes. To bridge this gap, this work aims to systematically
+                                         and mitigation of LLM hallucinations within more practical              investigate issues in practical LLM-based code generation from
+                                         and complex development contexts in repository-level generation         the perspective of hallucinations.
+                                         scenario. First, we manually examine the code generation results           Hallucination is a significant issue for state-of-the-art gener-
+                                         from six mainstream LLMs to establish a hallucination taxonomy          ative LLMs [7]. For general natural language tasks, LLM
+                                         of LLM-generated code. Next, we elaborate on the phenomenon of
+                                         hallucinations, analyze their distribution across different models.     hallucinations have been explored to a certain extent [5],
+                                         We then analyze causes of hallucinations and identify four              [7], [8], [69] and are typically categorized into three types:
+                                         potential factors contributing to hallucinations. Finally, we propose   Input-Conflicting Hallucination, Fact-Conflicting Hallucination,
+                                         an RAG-based mitigation method, which demonstrates consistent           and Context-Conflicting Hallucination [69]. In the domain of
+                                         effectiveness in all studied LLMs. The replication package              code generation, Liu et al. [75] conducted a study to analyze
+                                         including code, data, and experimental results is available at https:
+                                         //github.com/DeepSoftwareAnalytics/LLMCodingHallucination.              hallucinations in LLM-powered code generation and established
+                                                                                                                 a taxonomy that aligns with these three categories. While
+                                                                 I. I NTRODUCTION                                Liu et al.’s study provided insightful findings, it is based on
+                                            Code generation is an automation technology aimed at effi-           benchmarks (i.e., HumanEval [15] and DS-1000 [76]) for stan-
+                                         ciently producing code from specifications described in natural         dalone function/script generation instead. Our work, however,
+                                         language. This process significantly reduces the manual coding          focuses on hallucinations within more practical and complex
+                                         workload for developers [6], [9], [10], allowing them to focus          development contexts in repository-level generation scenarios.
+                                         more on solving advanced technical challenges and engaging in           Additionally, their study primarily categorized hallucinations
+                                         innovative tasks. Recent developments have introduced a variety         from a problem-presentation perspective to uncover fine-grained
+                                         of large language models (LLMs) [14]–[16], [18]–[25], [37],             code-semantic issues, resulting in categories such as Dead Code
+                                         [44], [51] built upon the Transformer architecture [1]. These           and Repetition. In this work, we investigate hallucinations from
+                                         models, trained on extensive code corpora, can automatically            a holistic perspective in terms of phenomena, mechanism, and
+                                         generate code from natural language inputs and have shown               mitigation. We believe that our study can complement the
+                                         high efficacy in code generation. For example, GPT-4 has                findings by Liu et al., providing a broader understanding of
+                                         achieved state-of-the-art results on evaluation benchmarks              hallucinations in LLM-based code generation.
+                                         such as HumanEval [15] and MBPP [17], demonstrating high                   In this work, we conduct an empirical study to uncover the
+                                         functional correctness, particularly in generating standalone           status quo and root causes of hallucinations in LLM-based
+                                         functions based on detailed specifications.                             code generation within real-world projects. The study aims at
+                                            However, in practical development scenarios, the require-            answering the following research questions (RQs):
+                                                                                                                   • RQ1 (Hallucination Taxonomy): What are the specific
+                                         ments for code generation are more complex than sim-
+                                         ply generating standalone functions from detailed specifica-                manifestations of hallucinations in practical code generation,
+                                         tions [59]. To address this complexity, new benchmarks, such                and how are they distributed?
+                                                                                                                   • RQ2 (LLM Comparison): How do different LLMs
+                                         as CoderEval [59], ClassEval [60], and EvoCodeBench [61],
+                                         have been proposed to better reflect real-world repository-level            compare in terms of hallucination occurrences and patterns?
+                                                                                                                   • RQ3 (Root Causes): What are the root causes of halluci-
+                                           ∗ Corresponding author.                                                   nations in practical LLM-based code generation?
+
+=== [PDF page 2] ===
+
+   To answer the questions, we experiment on six main-                         II. BACKGROUND & R ELATED W ORK
+stream LLMs (ChatGPT [55], CodeGen [16], PanGu-α [44],
+                                                                   A. LLM-based Code Generation
+StarCoder2 [3], DeepSeekCoder [51], and CodeLlama [14])
+with the CoderEval dataset [59]. To obtain the hallucina-             For developers, a realistic scenario is to use a code repository
+tion taxonomy of practical LLM-based code generation, we to write code, which is very common in practice [66]. For
+manually perform open coding [65] on the LLM-generated example, due to security and functionality considerations,
+code. Specifically, we first extract 10% of the coding tasks companies often only build code warehouses internally. The
+from the CoderEval dataset in the initial stage. Then, from code repository provides many private APIs that are not seen
+the initial annotation and discussion, we obtain preliminary by the language model and are not public on any code hosting
+taxonomy. Finally, we obtain the fully hallucination taxonomy platform. Therefore, it is worth exploring whether pre-trained
+with iterative labelling the remaining 90% coding tasks and language models can adapt to real development needs and
+continuously refining the taxonomy in the process. After generate correct and efficient code. In real-world development
+obtaining the taxonomy, we conduct extensive analysis based scenarios, the development of a function not only relies on
+on the research questions aforementioned.                          the text description and function signature of the function,
+   Findings. Our study reveals the following findings. ⃝ but also requires calling a custom API in the code repository.
+                                                                1
+LLM hallucinations in code generation can be divided into Such non-independent functions are commonly found in real-
+three major categories (Task Requirement Conflicts, Factual world generation scenarios. By analyzing the 100 most popular
+Knowledge Conflicts, and Project Context Conflicts) with projects written in Java and Python on GitHub [59], previous
+eight subcategories: Functional Requirement Violation, Non- work found that dependent functions account for more than
+Functional Requirement Violation, Background Knowledge 70% of the functions in open source projects. In order to
+Conflicts, Library knowledge Conflicts, API Knowledge Con- better simulate real development scenarios and to check
+flicts, Environment Conflicts, Dependency Conflicts, and Non- the correctness of LLMs, CoderEval [59], ClassEval [60],
+code Resource Conflicts. 2    ⃝ We analyze the hallucination and EvoCodeBench [61] collected code snippets and text
+distribution in different LLMs and find that Task Requirement descriptions from real code repositories and used test cases
+Conflicts are the most prevalent type of hallucination across to check the correctness of the code repositories in their
+all models. 3  ⃝ We identify four potential factors that cause corresponding environments.However, the performance of the
+hallucinations: training data quality, intention understanding model on these benchmarks is extremely poor. LLMs cannot
+capacity, knowledge acquisition capacity, and repository-level generate correct code based on the problem description, and
+context awareness.                                                 the model prefers to generate independent code segments
+                                                                   rather than using existing functions in the current development
+   Mitigation. Based on the findings, we explore a lightweight
+                                                                   scenario.
+mitigation approach based on retrieval augmented generation
+(RAG) and evaluate its effectiveness. In this approach, we B. Hallucinations in LLMs
+construct a retrieval library based on the repository in the
+development scenario of each generation task and obtain the           In the field of natural language processing (NLP), hallu-
+code snippet that is beneficial to the current generation task     cination  refers specifically to situations where the content
+as a prompt through the similarity detection between the task      produced   by a language model in the process of generating
+description in the generation task and the code snippet in the     text is inconsistent  with the given input or expected output
+retrieval library. Experimental results show that this lightweight environment,   lacks  meaning,    or violates the facts [68]. This
+mitigation can consistently improve the performance of all         kind of phenomenon     is particularly prominent in text generation
+studied LLMs.                                                      models,  especially  in  tasks such  as text completion, summary
+                                                                   generation, and machine translation. The output of the model
+   In summary, this paper makes the following contributions:
+                                                                   must maintain a high degree of consistency and authenticity to
+  • We conduct an empirical study to analyze the types             ensure its practicality and reliability. Hallucination phenomena
+     hallucinations in LLM code generation in real development can be divided into the following categories according to their
+     scenarios and establish a hallucination taxonomy in LLM- nature [69]: (1) Input-Conflicting Hallucinations: When the
+     based code generation.                                        text generated by the model deviates from the original input
+  • We elaborate on the phenomenon of hallucinations, analyze      source, input-conflicting hallucinations will occur. This illusion
+     the distribution of hallucinations on different models.       may result from the model’s incorrect parsing or inaccurate
+  • We further analyze causes of hallucinations and identify       internal representation of the input information, causing the
+     four possible factors.                                        output content to deviate from the intent and context of the
+  • We propose a RAG-based mitigation approach based on the        source input. (2) Context-Conflicting Hallucinations: This type
+     causes of hallucinations and experiment on various LLMs of hallucination occurs when the text generated by the model
+     to study its effectiveness.                                   is contradictory or inconsistent with its previously generated
+  • We make the replication package available at https://github. content. Contextual conflict hallucinations reflect the model’s
+     com/DeepSoftwareAnalytics/LLMCodingHallucination, to challenges in maintaining textual coherence and consistency,
+     support further studies in this field.                        which may be due to the model’s insufficient processing of
+
+=== [PDF page 3] ===
+
+contextual information or limitations of its memory mechanism.          versions. To better accomplish the generation task, we use
+(3) Fact-Conflicting Hallucinations: When the content generated         the CodeGen-350M-Mono model.
+by LLM is inconsistent with established knowledge or facts            • PanGu-α [44]: PanGu-α can perform code generation tasks
+in the real world, fact-conflicting hallucinations will occur.          in multiple languages. We use the PanGu-α-2.6B model.
+This illusion reveals the model’s inadequacy in understanding         • DeepSeekCoder [51]: DeepSeekCoder performs well in
+and applying knowledge about the external world, and may be             open source models across multiple programming languages
+caused by limitations in model training data, lags in knowledge         and various benchmarks. We use the DeepSeekCoder-6.7B
+updates, or limitations in the model’s reasoning capabilities.          base model.
+   However, there is a lack of research on hallucination              • CodeLlama [14]: CodeLlama is a set of pre-trained and
+phenomena in the field of code generation. Although there have          fine-tuned generative text models ranging in size from 7 to
+been a large number of LLM-based methods to optimize code               34 billion parameters. We use the CodeLlama-7b-Python-hf
+generation tasks, these works do not have a clear definition of         model.
+the code generation illusion. The presence of hallucination           • StarCoder2 [18]: StarCoder2 is a family of open code-
+problems can be detrimental to the overall quality of the               oriented models for large languages, providing three scales
+generated code. This may not only affect the performance and            of models, we use the StarCoder2-7B model.
+maintainability of the code, but may also lead to unexpected           For each task, we use the LLMs to generate 10 code
+errors and security vulnerabilities, thus posing a threat to the snippets by employing the nuclear sampling strategy and setting
+stability and security of the software. In order to make up for the temperature to 0.6, following the same setting as CoderEval.
+gaps in the definition of hallucination problems, there has been
+work to define hallucinations for LLMs in code generation tasks.
+This work [8] defined new hallucination standards for LLMs C. Taxonomy Annotation
+in code generation tasks and divided hallucinations into five
+main types, but this work ignores that LLMs in real-world code         In order to analyze the hallucination types in the LLM-
+generation tasks will involve relevant knowledge unique to the      generated   code, we manually perform open coding [65] on the
+software engineering field such as development environment,         generated    code to obtain the hallucination taxonomy.
+system resources, external constraints, code warehouses, etc.          (1)  Initial  Open Coding. Firstly, in the initial open-coding
+These factors often cause LLMs to fail in actual development.       stage,   we  select  10% of the 230 coding tasks in CoderEval
+Problems such as low usability and low accuracy. In order           Python   dataset  for preliminary analysis. We randomly collect 23
+to better explore the illusions that exist in LLMs in real          generative   tasks  from  CoderEval, we employ CodeGen, Pangu-
+development scenarios, our work obtained data sets in real          α,  ChatGPT,     DeepSeekCoder,       CodeLlama, and StarCoder2,
+development scenarios for empirical study, and defined new          with  each   model    generating  ten   code snippets for each code
+types of illusions, which opened up new ideas for subsequent        generation    task, culminating   in  a  total of 1,380 code snippets
+research on illusions.                                              to be  analysed   for hallucination  taxonomy     framework. For each
+                                                                    code snippet, we test it in the actual development environment
+                    III. E VALUATION S ETUP                         corresponding to the task to determine its correctness. On this
+                                                                    basis, the two authors will compare the differences between the
+A. Dataset
+                                                                    ground-truth and LLMs generated code snippets and discuss
+   To better simulate practical development scenarios, we use a and record possible hallucination phenomena.
+set of coding tasks from real-world Python repositories based          (2) Preliminary Taxonomy Construction. Secondly, we
+on the CoderEval benchmark [59]. CoderEval comprises 230 document possible hallucinations in the generated code and
+Python code generation tasks, extracted from a diverse set of the location of the hallucination content. Several different
+Python repositories. Each task consists of a natural language hallucinations may occur within a single code snippet. All
+description, a ground-truth code snippet, and a set of test cases, annotators are required to discuss the codes and define the
+along with the project environment context associated with the code’s hallucinatory taxonomy. In this process, we classify
+task.                                                               similar hallucination to create a preliminary taxonomy that
+                                                                    illustrates the various hallucination types and their meanings
+B. Studied LLMs
+                                                                    in the code generated by LLMs.
+   We utilize several mainstream LLMs to perform code                  (3) Full Taxonomy Construction. Finally, after obtaining
+generation for the studied programming tasks. The LLMs being the categorisation criteria, the remaining code snippets will be
+used cover both open-source and closed-source models and independently annotated by three newly invited volunteers with
+span various parameter sizes, listed as follows.                    extensive Python programming experience, two with more than
+  • ChatGPT [55]: ChatGPT is a versatile text generation            ten years of experience and one with four years of programming
+    model for multilingualism with powerful code generation experience. If new types of hallucinations arise that are not
+    capabilities, we use the GPT-3.5-Turbo in our experiments. covered by the current taxonomy, annotators are required
+  • CodeGen [53]: CodeGen is a family of auto-regressive lan- to write descriptions of the hallucinations to allow further
+    guage models for program synthesis with several different discussion to establish new types and enhance the taxonomy.
+
+=== [PDF page 4] ===
+
+                                                                                 Functional Requirement Violation     Example: Wrong Functionality, Missing Functionality
+
+
+
+
+  Code Generation Hallucination
+                                  Task Requirement Conflicts (§IV-A1)
+                                                                               Non-functional Requirement Violation    Example: Security, Performance, Style, Code Smell
+
+                                                                                 Background Knowledge Conflicts
+
+                                  Factual Knowledge Conflicts (§IV-A2)             Library Knowledge Conflicts
+                                                                                                                          Example: Parameter, Guard Conditions
+                                                                                     API Knowledge Conflicts
+                                                                                                                          Similar-but-wrong APIs, Exception Handling
+                                                                                      Environment Conflicts
+
+                                   Project Context Conflicts (§IV-A3)                 Dependency Conflicts             Example: Undefined Methods, API Version Conflict
+
+                                                                                   Non-code Resource Conflicts             Example: Data, Config, Assert, Connection
+
+                                                                Fig. 1. Taxonomy of Hallucinations in LLM-based Code Generation
+
+
+
+                                        IV. E VALUATION R ESULTS
+   In this section, we present the evaluation results and answer
+the three aforementioned research questions.
+A. RQ1: Hallucination Taxonomy
+   The overall LLM coding hallucination taxonomy we obtained
+from Section III-C is presented in Figure 1. Through manual
+annotation, we identify three primary hallucination categories:
+Task Requirement Conflicts, Factual Knowledge Conflicts, and
+Project Context Conflicts, which can be further divided into
+eight specific types. Note that our three primary categories align
+well with the hallucination types in the general domain [68].
+Task requirement conflicts correspond to input-conflicting
+hallucinations in the general domain, indicating that the
+generated code does not meet the functional or non-functional
+requirements of the coding tasks. Factual knowledge conflicts                               Fig. 2. Hallucination Distribution
+correspond to knowledge-conflicting hallucinations in the gen-
+eral domain, indicating that the generated code does not comply Docstring
+with background knowledge, library/framework knowledge, or # similarity_filter.py
+                                                                    Hydrator for `Time` and `LocalTime` values.
+API knowledge. Project context conflicts correspond to context- :param nanoseconds:
+                                                                    :param tz:
+conflicting hallucinations in the general domain, indicating that :return: Time
+the generated code incorrectly uses project contexts, including Ground-truth
+environments, dependencies, and resources. In the following, def hydrate_time(nanoseconds,
+                                                                        from pytz import FixedOffset
+                                                                                                    tz=None):
+
+we present the detailed hallucination types in our taxonomy.            seconds,  nanoseconds  = map(int,  divmod(nanoseconds, 1000000000))
+                                                                        minutes, seconds = map(int, divmod(seconds, 60))
+Figure 2 shows the distribution of the hallucination types.             hours,  minutes  = map(int, divmod(minutes,  60))
+                                                                        t = Time(hours, minutes, seconds, nanoseconds)
+   1) Task Requirement Conflicts (43.53%): In the general               if  tz is None:
+                                                                             return t
+                                                                                                                                    Handle `LocalTime`
+domain, input-conflicting hallucinations occur when the an-             tz_offset_minutes, tz_offset_seconds = divmod(tz, 60)       in functional
+                                                                        zone = FixedOffset(tz_offset_minutes)                       requirement
+swers generated by LLMs deviate from the original intentions            return zone.localize(t)
+of user inputs [7]. In the context of code generation tasks, LLM Generation
+the primary intentions of inputs typically revolve around def hydrate_time(nanoseconds, tz=None):                                   Overlook
+                                                                      from .time import Time                                        `LocalTime`
+the functional and non-functional requirements of the coding          return Time.from_nanoseconds(nanoseconds, tz)
+
+tasks. When the code generated by LLMs does not align with
+these requirements, hallucinations related to Task Requirement                   Fig. 3. Example: Functional Requirement Violation
+Conflicts occur. Specifically, these conflicts can be categorized
+into two types: Functional Requirement Violation and Non-
+functional Requirement Violation.                                  execution behaviors) or runtime errors (such as the KeyError
+   Functional Requirement Violation (36.66%). Functional re- during dictionary access). More specifically, the functional
+quirements are typically expressed in natural language and requirement mismatch can be subdivided into two typical types:
+describe the desired functionality of the generated code. When Wrong Functionality and Missing Functionality. For example,
+these requirements are not correctly and comprehensively as illustrated in Figure 3, the functional requirement involves
+understood, the resulting code may fail to meet expected handling LocalTime based on the specific timezone tz. In
+functionality, leading to logic bugs (such as unexpected the ground-truth code, this requirement is addressed by the
+
+=== [PDF page 5] ===
+
+Docstring                                                                      Docstring
+validates that Registry YAML content has all required fields                   validates that Registry YAML content has all required fields
+:param file_content: content of the Registry YAML file                         :param file_content: content of the Registry YAML file
+:raise IRValidatorException: when mandatory data is missing in Registry        :raise IRValidatorException: when mandatory data is missing in Registry
+:return: Dictionary with data loaded from a Registry YAML file                 :return: Dictionary with data loaded from a Registry YAML file
+Ground-truth                                                                   Ground-truth
+def validate_from_content(cls, file_content=None):                             def initialize(self):
+    if file_content is None:                                                       (parent, root_dir) = fs.path.split(self.root)
+       raise IRValidatorException(                                                 parent_fs = open_fs(parent)
+                                                                                   if parent_fs.exists(root_dir):
+             "Registry YAML content is missing")
+                                                                                      raise StoreException("OCFL storage root %s already exists, aborting!" % (self.root))
+    registry_dict = yaml.safe_load(file_content)        Avoiding safety            self.root_fs = parent_fs.makedir(root_dir)
+    if not isinstance(registry_dict, dict):
+                                                        hazards                           Namaste(d=0, content=self.declaration_tvalue).write(pyfs=self.root_fs)
+                                                                                   if self.disposition is not None:
+       raise IRValidatorException(                                                    with self.root_fs.open(self.layout_file, 'w') as fh:
+             "Registry file is empty or corrupted: {}".format(file_content))               layout = {'extension': self.disposition,                 Create an OCFL
+    try:                                                                                             'description’: "..."}
+                                                                                           json.dump(layout, fh, sort_keys=True, indent=2)
+                                                                                                                                                    storage root
+        jsonschema.validate(registry_dict,
+                            cls.SCHEMA_REGISTRY)                               LLM Generation
+    except jsonschema.exceptions.ValidationError as error:
+        raise IRValidatorException(                                            def initialize(self):
+                                                                                   self.root = File(self.path, “ro”, "ocfl_storage.json")           Misunderstood
+              "{} in file:\n{}".format(error.message, file_content))               self.root.open()                                                 OCFL and
+                                                                                   self.root.create_child("ocfl_storage", "ocfl_storage")
+    return registry_dict                                                           self.root.create_child("ocfl_storage ", "ocfl_storage.json")
+                                                                                                                                                    generated wrong
+LLM Generation                                                                     ... //omitted                                                    file structure
+                                                                                   self.root.create_child("ocfl_storage", "ocfl_storage.tar.bz2")
+def validate_from_content(cls, file_content=None):
+    if file _content is None:
+        raise IRValidatorException('file content is missing’)                               Fig. 5. Example: Background Knowledge Conflicts
+    file_data = yaml.load(spec_content)                 Leading to system
+    validate_data(cls, file_data)                       security risks
+    return file_data
+                                                                   2) Factual Knowledge Conflicts (31.91%): In the field of
+          Fig. 4. Example: Non-functional Requirement Violation
+                                                                NLP, the term “factual conflicts” refers to content generated
+                                                                by LLMs that does not align with established knowledge or
+                                                                facts about the real world. Practical software development
+lines highlighted in the green rectangle. However, the code similarly relies on various types and levels of factual knowledge
+generated by PanGu-α overlooks this requirement, resulting in to produce correct code. Consequently, when LLMs fail to
+a hallucination of Functional Requirement Violation.            accurately understand and apply background knowledge [67], li-
+   Non-functional Requirement Violation (6.86%). Besides brary/framework knowledge, or API knowledge, hallucinations
+functional requirements, developers often have non-functional on Factual Knowledge Conflicts arise. We further divide this
+requirements for the generated code, such as security hallucination category into three types: Background Knowledge
+concerns or performance considerations. These non-functional Conflicts, Library Knowledge Conflicts, and API Knowledge
+requirements are usually more implicit than functional Conflicts.
+requirements and are not described in the input natural            Background Knowledge Conflicts (8.82%).                  Background
+language descriptions. Our open coding annotation reveals that  Knowledge         Conflicts    are  a  common   issue when   using large
+non-functional requirements in coding tasks can be mainly       language      models.      These   conflicts refer to the situation that
+divided into the following aspects: Security, Performance,      the   generated        code   is  inconsistent   with existing  domain-
+Style, and Code Smell. Generated code that violates these specific knowledge, potentially rendering the code invalid or
+non-functional requirements may introduce safety risks or introducing logic bugs and risks. For instance, in automotive
+increase the maintenance complexity of the corresponding software development, if the generated code1 fails to adhere to
+project.                                                        certain industry standards (e.g., AUTOSAR ), it can result in
+                                                                significant compliance issues or safety risks.
+   Specifically, on the security side, the generated code may      Background knowledge typically includes Domain Concepts
+introduce vulnerabilities such as unsanitized inputs, which can (e.g., specific data formats or protocols) and related Standards
+lead to insecure deserialization or SQL injection attacks. As and Specifications (e.g., standard parameters or configurations).
+shown in Figure 4, the ground-truth code uses the safe_load For example, Figure 5 shows an example about OCFL (Oxford
+function to safely read YAML files. In contrast, the LLM- Common File Layout), a specification for data storage and
+generated code utilizes the load function, thereby introducing transformation. According to the official description2 , an OCFL
+a potential security risk. Regarding performance, the generated storage root must contain a “Root Conformance Declaration”
+code may lack optimization for execution efficiency, for following the “NAMASTE” specification and may include a
+example, by using inefficient loop structures that lead to file named ocfl_layout.json to describe the root layout
+unnecessary overhead in computing and memory resources. arrangement. While the ground-truth code aligns with these
+Style violations often occur when the generated code fails to specifications when initializing the OCFL storage root, the
+follow established programming conventions or style guides, generated code might incorrectly focus on other OCFL aspects
+such as inconsistent naming conventions or inappropriate that are irrelevant to creating the storage root.
+code layout, which can negatively affect code readability and      Library Knowledge Conflicts (2.68%). In modern software
+maintainability. Code smell violations include issues such as development, developers frequently employ frameworks or
+overly complex functions or excessive use of global variables,
+which increase the complexity and potential risks associated      1 https://en.wikipedia.org/wiki/AUTOSAR
+
+with future maintenance.                                          2 https://ocfl.io/1.1/spec/#storage-root
+
+=== [PDF page 6] ===
+
+Docstring                                                                             Docstring
+Decorator to wrap a function with a memoizing callable that saves up to `maxsize`     Given a frequency string with a number and a unit of time, return a corresponding
+results based on a Least Recently Used (LRU) algorithm with a per-item time-to-live   datetime.timedelta instance or None if the frequency is None or “always”. For instance,
+(TTL) value.                                                                          given "3 weeks", return datetime.timedelta(weeks=3)
+:param maxsize ttl timer typed                                                        Raise ValueError if the given frequency cannot be parsed.
+:type int int object boolean
+:return Decorator
+                                                                                      Ground-truth
+                                                                                      def parse_frequency(frequency):
+Ground-truth                                                                              if not frequency:
+                                                                                              … … //omitted
+def ttl_cache(maxsize=128, ttl=600, timer=time.monotonic, typed=False):                   if not time_unit.endswith('s'):
+    if maxsize is None:                                                                       time_unit += 's'
+       return _cache(_UnboundTTLCache(ttl, timer), typed)       Correctly handle          if time_unit == 'months':
+    elif callable(maxsize):                                     the decorator                 number *= 30
+       return _cache(TTLCache(128, ttl, timer), typed)(maxsize)                               time_unit = 'days’
+                                                                                                                                                 Correct use of parameter 'day'
+    else:                                                                                 elif time_unit == 'years':
+                                                                                              number *= 365
+                                                                                                                                                 in datetime.timedelta()
+       return _cache(TTLCache(maxsize, ttl, timer), typed)
+                                                                                              time_unit = 'days'
+LLM Generation                                                                            try:
+                                                                                              return datetime.timedelta(**{time_unit: number})
+def ttl_cache(maxsize=128, ttl=600, timer=time.monotonic, typed=False):
+                                                                                         except TypeError:
+    timer = timer or (lambda: perf_counter())                                                raise ValueError(f"Could not parse consistency check frequency '{frequency}'")
+    is_async = asyncio.iscoroutinefunction
+                                                          Incorrectly adopt the       LLM Generation
+    is_async_gen = asyncio.iscoroutine
+    get_loop = asyncio.get_event_loop                     asyncio framework           def parse_frequency(frequency):
+    if is_async(func):                                                                    if frequency == "always":
+                                                                                              return None                                        Incorrect use of a non-existent
+        return _cache(TTLCache(maxsize, ttl, timer), typed)(maxsize)                     elif frequency == "year":                               parameter 'year' in
+                                                                                             return datetime.timedelta(year=1)                   datetime.timedelta()
+                                                                                         ... //omitted
+               Fig. 6. Example: Library Knowledge Conflicts                              else:
+                                                                                             raise ValueError("Unknown frequency: '%s'", frequency)
+
+
+
+
+third-party libraries (e.g., Django3 for web applications) to                       Fig. 7. Example: API Knowledge Conflicts
+expedite the development process by reusing the features
+or functionalities that these frameworks or libraries provide.
+When utilizing these frameworks or libraries, LLMs may                We present an example in Figure 7. In this generation
+encounter factual errors that lead to unexpected behaviors         task,  CodeGen correctly identifies the task intent and utilizes
+or even security risks. For example, As depicted in Figure 6,      the datetime.timedelta()                   function. However, the code
+the task requires the model to generate a decorator that caches    snippet   generated     by   CodeGen    uses   a non-existing parameter
+the return value of the function upon each invocation. In          year.
+the code generated by the DeepSeekCoder model, the APIs               3) Project Context Conflicts (24.56%): Project Context
+from the asyncio framework are utilized. This framework is         Conflict   hallucination refers to the phenomenon where the code
+designed for asynchronous processing, and the model’s misuse       generated    by LLMs is inconsistent with the specific context of a
+of the asynchronous processing framework poses unexpected          given  project.   In a sense, this type of hallucination is also a type
+behaviors to the developed application.                            of factual   conflict,  where facts within the current project context
+    API Knowledge Conflicts (20.41%). API Knowledge Con-           are  violated.    The   key difference is that Factual Knowledge
+flicts are a common hallucination in LLM-generated code            Conflicts    involve   common     facts (e.g., libraries and APIs) that
+caused by various types of API misuses, such as pa-                are publicly    accessible,   while   Project Context Conflicts pertain
+rameter errors, improper guard conditions, similar-but-            to facts   that  are  specific  to  the  corresponding project, which
+incorrect/deprecated API usage, and improper exception han-        are  generally     unavailable    for  public   access. Project Context
+dling. For example, parameter errors can occur when inappro-       Conflicts   are  often   caused  by   LLMs    not aware of such project-
+priate parameter types or values are used in the generated code,   specific  facts   when    generating   code.   This hallucination can be
+causing API calls to fail or return unexpected results. This       divided   into  Environment      Conflicts,  Dependency     Conflicts, and
+case is especially common in dynamically typed programming         Non-code      Resource    Conflicts.
+language such as Python [29]. Improper guard conditions               Environment Conflicts (0.94%). In the process of software
+mean that the generated code does not correctly implement          development,       conflicts between the generated code and the
+pre-condition checks. If the validity of the pre-conditions of     development       environment      are common, especially regarding
+certain APIs is not verified before calling them (e.g., file       version   differences      in platforms,    operating systems, drivers,
+existence), runtime errors may occur. In terms of similar-but-     languages,     compilers/interpreters,       frameworks, and libraries.
+wrong/deprecated API usage, LLMs may mistakenly choose             When    generating     code,  such   environmental   concerns are often
+APIs with similar functions but different applicable scenar-       not   considered,      leading   to   problematic    code    if there are
+ios. Although this choice is syntactically correct, it cannot      environment-sensitive        operations.  For  example,  if the  generated
+meet actual application needs. Improper exception handling         code   uses   language     features  (e.g., f-string  expressions)   from
+involves generating code that fails to properly handle potential   higher   Python     versions   that  are  not  supported  by   the current
+exceptions, which can cause the program to crash or behave development environment, a conflict arises. For example,
+abnormally when faced with an error condition. This kind of Figure 8 shows a code snippet generated by CodeGen that
+API knowledge conflict will not only directly lead to program attempts to use the package _lfu_cache, which does not
+functional errors, but may also affect the stability of the system exist in the current environment.
+and the usability of the code.                                        Dependency Conflicts (11.26%). Dependency Conflicts
+                                                                   arise when the generated code relies on undefined or
+   3 https://www.djangoproject.com/                                unimported dependencies, such as user-defined attributes
+
+=== [PDF page 7] ===
+
+ Docstring                                                                                                    Docstring
+                                                                                                              Given an url and a destination path, retrieve and extract.tar.gz archive which contains
+ Decorator to wrap a function with a memoizing callable that saves up to `maxsize` results based on a Least   'desc' file for each package
+ Frequently Used (LFU) algorithm.                                                                                     Args:
+                                                                                                                          url: url of the.tar.gz archive to download
+                                                                                                                          destination_path: the path on disk where to extract archive
+ Ground-truth                                                                                                         Returns:
+ def lfu_cache(maxsize=128, typed=False):                                                                                     path where the archive is extracted to
+     if maxsize is None:
+        return _cache(_UnboundCache(), typed)
+                                                                                                              Ground-truth
+     elif callable(maxsize):                                                                                  def get_repo_archive(self, url: str, destination_path: Path) -> Path:
+         return _cache(LFUCache(128), typed)(maxsize)                            Use the current                  res = self.http_request(url)
+                                                                                                                  destination_path.parent.mkdir(parents=True, exist_ok=True)   Successfully fetched the
+     else:                                                                       development                      destination_path.write_bytes(res.content)
+                                                                                                                  extract_to = Path(str(destination_path).split(".tar.gz")[0]) file with the correct path
+         return _cache(LFUCache(maxsize), typed)                                 environment’s classes
+                                                                                                                  tar = tarfile.open(destination_path)                         and filename
+ LLM Generation                                                                                                   tar.extractall(path=extract_to)
+                                                                                                                  tar.close()
+ def lfu_cache(maxsize=128, typed=False):                                         Using a non-existent            return extract_to
+    import _lfu_cache                                                             package in the current
+                                                                                                              LLM Generation
+    return _lfu_cache.lfu_cache(maxsize, typed)                                   environment
+                                                                                                              def get_repo_archive(self, url: str, destination_path: Path) -> Path:
+                                                                                                                 archive_name = url.split('/')[-1]
+                                                                                                                 archive_path = os.path.join(os.getcwd(), "archive", archive_name)    Fail to fetch the
+                                                                                                                 if not os.path.exists(archive_path):                                 file due to the use
+                                                                                                                     os.makedirs(archive_path)
+                           Fig. 8. Example: Environment Conflicts                                                    tar = tarfile.open(archive_path, "w:gz")                         of a non-existent
+                                                                                                                 for i in range(len(url.split('/'))-1):
+                                                                                                                                                                                      file path
+                                                                                                                     tar.add(url.split('/')[i+1], arcname=url.split('/')[i+1])
+                                                                                                                     tar.close()
+Docstring                                                                                                        return archive_path
+Generate the default observer schema for each Kubernetes resource present
+in``spec.manifest`` for which a custom observer schema hasn't been specified.
+:param app (krake.data.kubernetes.Application): The application for which to generate                                        Fig. 10. Example: Non-code Resource Conflicts
+a default observer schema
+:return
+Ground-truth
+def generate_default_observer_schema(app):
+    observer_schema = {}
+                                                                                          code incorrectly parses a data file or attempts to access a
+    resources = app.spec.manifest                                                       Proper use of the
+                                                                                          non-existent data field, it can lead to runtime errors or data
+    for resource in resources:
+                                                                                        generate_default_
+        if resource not in app.observer_schemas:
+            observer_schema[resource] = generate_default_schema()
+                                                                                          inconsistencies. Config conflicts arise from incorrect settings
+                                                                                        schema function
+     return observer_schema                                                               or options in configuration files. This might include using
+ LLM Generation
+ def generate_default_observer_schema(app):
+                                                                                          undefined configuration fields or options, which can prevent
+    app.status.mangled_observer_schema = deepcopy(app.observer_schema)
+    observer_schema = {}
+                                                                                          the generated code from properly applying the configuration
+    for resource_manifest in app.spec.manifest:
+        try:
+                                                                                          and affect system behavior. Asset conflicts here involve
+            if resource_manifest not in app.observer_schemas:
+                 observer_schema[resource] = generate_default_observer_schema_dict()
+                                                                                          improper handling of asset files and their properties. For
+        except IndexError:
+            app.status.mangled_observer_schema.append(
+                                                                                          instance, if the generated code fails to set the correct size
+                                                            Error using non-existing
+                 generate_default_observer_schema_dict(
+                     resource_manifest,                     generate_default_observer_    and resolution for images or videos, it can result in display
+                     first_level=True))                     schema_dict function.
+    return observer_schema                                                                issues or severe bugs, such as application crashes. Connection
+                                                                                          conflicts relate to wrong settings of various connection
+                      Fig. 9. Example: Dependency Conflicts
+                                                                                          resources, such as incorrect IP addresses, port numbers, or
+                                                                                          database tables. These issues often lead to failed connections
+                                                                                          or operations being performed on the wrong server or database,
+and functions. This often results in errors such as undefined potentially causing data leaks or security incidents.
+variables or no-member errors. In practical software
+                                                                                             For example, Figure 10 illustrates the generation task hopes
+development, 70% of functions are non-standalone and depend
+                                                                                          that LLM can generate a function for a given URL and
+on entities defined elsewhere in the project or imported from target path to retrieve and extract the tar.gz compressed
+third-party libraries [59]. Due to the inability of LLMs to package containing each package’s “description” file. However,
+access the entire project context, they often resort to using
+                                                                                          in the code snippet generated by the model, the model adds
+non-existent APIs, functions, attributes, and variables when
+                                                                                          “archive” as a path in the target path, which causes the code
+dealing with non-standalone functions.
+                                                                                          snippet to point to a non-existent file path. This will not allow
+    For        example,            Figure          9       illustrates          a    sce- the tar.gz compressed package to be correctly obtained,
+nario            involving               a           user-defined                function resulting in a program error.
+generate_default_observer_schema_dict(). In
+this case, the PanGu-α erroneously uses a function with a sim-                              RQ1 Summary: We have established a hallucination
+ilar but incorrect name, generate_default_schema(),                                         taxonomy in LLM-based code generation, comprising three
+which does not exist in the project. This leads to a Dependency                             main categories (i.e., Task Requirement Conflicts, Factual
+Conflict, as the code fails to execute correctly due to the                                 Knowledge Conflicts, and Project Context Conflicts) with
+missing definition.                                                                         eight subtypes. Among these, Task Requirement Conflicts
+    Non-code Resource Conflicts (12.36%).                                     Non-code      are the most frequently occurring category.
+Resource Conflicts can be further categorized into four
+main types: Data, Configs, Assets, and Connections. Each B. RQ2: LLM Comparison
+type of conflict can undermine the correctness and reliability                               Based on the obtained hallucination taxonomy for LLM-
+of the system. Data conflicts often involve mishandling of based code generation, we further analyze the hallucination
+data formats, fields, or content. For example, if the generated distribution comparison across different models. Figure 11
+
+=== [PDF page 8] ===
+
+ 1600                                                                        CodeGen           such corpora, they may unintentionally incorporate these flaws
+ 1400                                                                        PanGu-α           into their knowledge base, leading to hallucinations in code
+                                                                             ChatGPT
+ 1200
+                                                                                               generation. As shown in Figure 4, LLMs may generate code that
+                                                                             DeepSeekCoder
+                                                                             CodeLlama
+                                                                                               uses unsafe APIs, reflecting problematic patterns commonly
+ 1000
+                                                                             StarCoder2        found in the training data. This indicates that the model may
+  800
+                                                                                               have been affected by low-quality data during the training
+  600                                                                                          phase. Most hallucinations associated with Task Requirement
+  400                                                                                          Conflicts and Factual Knowledge Conflicts can be, to a certain
+  200                                                                                          extent, attributed to data quality issues in the training corpora.
+   0
+                                                                                               This highlights the importance of building a high-quality code-
+        Task Requirement Conflicts   Factual Knowledge Conflicts   Project Context Conflicts   related training data to reduce hallucinations in code generation.
+           Fig. 11. Hallucination distribution of different models                                2) Intention Understanding Capacity: Although LLMs
+                                                                                               have shown great potential in code generation, they still face
+                                                                                               challenges in accurately capturing and interpreting specific user
+shows the distribution of the number of hallucinations of                                      intentions and needs [49]. This limitation can result in generated
+different models based on the breakdown analysis of the three                                  code that is functionally or non-functionally inaccurate, thereby
+hallucination types. We find that Task Requirement Conflicts                                   affecting the overall effectiveness and trustworthiness of LLM-
+are the most common hallucination type for all models, while                                   based code generation [48]. The core advantage of LLMs
+Factual Knowledge Conflicts and Project Context Conflicts                                      lies in their excellent pattern recognition capabilities, but
+remain at approximately the same frequency. Additionally, we                                   this is also the source of their limitations. LLMs tend to
+find that CodeGen and StarCoder2 exhibit a notably higher fre-                                 generate code based on common patterns observed in the
+quency of hallucinations related to Task Requirement Conflicts,                                training data rather than from a deep understanding of the
+whereas DeepSeekCoder and CodeLlama demonstrates the                                           specific requirements context. As shown in Figure 3, the
+lowest occurrence. This variation may be related to the models’                                task description requires the LLM to handle LocalTime,
+ability to understand task requirements, potentially influenced                                which is ignored in the LLM-generated code. This example
+by factors such as the model size or the training corpora.                                     highlights LLMs’ inadequacy in comprehensively interpreting
+For instance, DeepSeekCoder and CodeLlama are trained on                                       the intentions behind requirements. Furthermore, LLMs also
+diverse corpora including both extensive code and text data,                                   show limitations in handling subtle requirements involving
+while CodeGen and StarCoder2 are primarily trained on code-                                    complex logic or multi-step operations [47]. Due to a poor
+related data. In terms of factual knowledge conflicts, PanGu-α                                 understanding of the overall scope and potential limitations of
+demonstrates the highest frequency of factual hallucinations.                                  the task, LLM-generated code may only address part of the
+This can be attributed to its extensive training on Chinese                                    requirements or perform poorly in handling edge cases. This
+corpora, which may have led to a relatively limited exposure to                                can result in generated code snippets that seem correct on the
+factual knowledge, such as specific domain concepts, expressed                                 surface but fail to meet specific business logic or functional
+in English.                                                                                    requirements in practice.
+ RQ2 Summary: Task Requirement Conflicts are the most                                             3) Knowledge Acquisition Capacity: LLMs may learn
+ prevalent type of hallucination across all models, with                                       incorrect knowledge and miss certain domain-specific knowl-
+ CodeGen and StarCoder2 showing a notably higher frequency                                     edge due to the aforementioned training data quality issues.
+ of this type compared to others.                                                              Moreover, as software development techniques evolve, such
+                                                                                               as library updates, relevant knowledge developed after model
+                                                                                               training period cannot be acquired by LLMs. Unlike human
+C. RQ3: Root Cause Analysis                                                                    developers who can continuously learn and integrate latest
+   In this research question, we conduct further analysis on the                               information during development, LLMs are limited to the
+possible root causes of the hallucinations in practical LLM-                                   knowledge available at the time of training. For example, as
+based code generation.                                                                         shown in Figure 5, the task description needs a piece of code
+   1) Training Data Quality: The quality of the training                                       for generating a data format that satisfies the OCFL storage
+data is a crucial factor in the development of LLMs, as it                                     specification, but LLM generates incorrect code, possibly due
+significantly affects models’ inference capabilities. Recent                                   to its lack of the OCFL-related knowledge during inference.
+LLMs are often trained on large-scale code corpora typically                                   This limitation in LLMs’ knowledge acquisition capacity
+collected from open-source repositories. However, the quality                                  leads to hallucinations related to incorrect or outdated factual
+of these repositories is not always assured, leading to the                                    information in the generated code. This highlights the need for a
+inclusion of low-quality data in the training corpora. Such                                    knowledge acquisition mechanism, such as retrieval augmented
+issues include mismatches between docstrings and code [77],                                    generation (RAG), to allow LLMs to update, correct, and
+inefficient or insecure code implementations [46], misused                                     supplement the knowledge they have learned.
+API calls, outdated library documentation and usage [50],                                         4) Repository-level Context Awareness: Feeding all project
+and a lack of domain diversity. When LLMs are trained on                                       contexts, including code, documents, and non-code resources,
+
+=== [PDF page 9] ===
+
+into an LLM for repository-level code generation is challenging                                 TABLE I
+and impractical. This is because LLMs, typically based on the         E XPERIMENTAL R ESULTS OF M ITIGATION M ETHOD UNDER PASS @1.
+Transformer architecture [1], have token number limits (e.g. 8k
+                                                                       Model             Raw Method      RAG-based Mitigation
+or 12k tokens) and experience quadratic computation growth
+as the number of tokens increases. Additionally, including all         CodeGen                  1.30%          2.61% (↑ 1.31%)
+project contexts can introduce a significant amount of irrelevant      PanGu-α                  0.04%          1.74% (↑ 1.70%)
+                                                                       DeepSeekCoder            3.04%          3.91% (↑ 0.87%)
+information, hindering LLMs’ ability to focus on the most              CodeLlama                2.17%          5.22% (↑ 3.05%)
+relevant context for code generation. Therefore, it is crucial         StarCoder2               0.04%          2.61% (↑ 2.57%)
+to develop methods that make LLMs aware of the project                 ChatGPT                 10.40%         12.61% (↑ 2.21%)
+contexts (project-specific memory) that are precisely related to
+the current coding task. Recent works attempt to integrate static
+analysis tools [78] or apply retrieval-augmented generation            We employ a sparse bag-of-words (BOW) model for our
+(RAG) based on repository-level retrieval corpora [62] to           retrieval mechanism, which simplifies gauging similarity be-
+address such context awareness issues.                              tween textual data. This model transmutes both the query and
+                                                                    the candidate code snippets into sets of tokens, which are
+ RQ3 Summary: By further analyzing the causes of
+                                                                    compared using the Jaccard index. The Jaccard index measures
+ hallucinations, we identify four possible contributing fac-
+                                                                    the similarity between two sets by dividing the size of their
+ tors: training data quality, intention understanding capacity,
+                                                                    intersection by the size of their union, we choose the code
+ knowledge acquisition capacity, and repository-level context
+                                                                    snippet that retrieves the top ten scores each time to return as
+ awareness. Deficiencies in any of these factors can lead to
+                                                                    the prompt for the LLMs.
+ hallucinations in practical development scenarios.
+
+                 V. M ITIGATION A PPROACH                           C. Evaluation
+A. Motivation                                                          We evaluate the effectiveness of the RAG-based mitigation
+   The aforementioned root causes of hallucinations in code         method with the six LLMs: CodeGen, PanGu-α, ChatGPT,
+generated by LLMs can be traced back to three main factors at       DeepSeekCoder, CodeLlama, and StarCoder2 on the CodeEval
+the inference stage: incorrect or insufficient understanding for    dataset. We compared our RAG-based mitigation method with
+task requirements, the lack of factual knowledge pertinent to       the Raw method. In the Raw method, we only provide LLMs
+the generation tasks, and the inability to access the necessary     basic docstrings and function signatures. In the RAG-based
+code and non-code resources from the repository. These              mitigation, when providing docstrings and function signatures,
+limitations create substantial challenges for LLMs in code          we will obtain ten related code snippets from the above-
+generation in practical development settings. There are many        constructed retrieval library through a similarity algorithm
+previous works investing LLM-based code generation [26]–[28],       as prompts and provide them to LLMs. We use the Pass@1
+[28], [30], [31], [33]–[35], we draw inspiration from existing      metric to assess the functionality correctness of the generated
+work [62] on repository-level code generation and explore the       code snippets according to test cases. As shown in Table I, the
+feasibility of applying retrieval-augmented generation (RAG)        Pass@1 scores of all six models are consistently improved with
+to mitigate hallucinations.The idea is that by providing LLMs       the RAG-based mitigation method. Note that the performance
+with code snippets relevant to the current task, they can better    improvement in our experiments is modest, as the mitigation
+understand the requirements and gain awareness of specific          method we explored is preliminary. We consider this experiment
+factual knowledge and project contexts.                             as an pilot study to explore the potential effectiveness of RAG-
+                                                                    based mitigation. In future work, there are more methods worth
+B. RAG-based Mitigation                                             studying, such as model fine-tuning and multi-agent framework
+   To implement the RAG method, we first collect all code           with tool using, etc.
+repositories from the CoderEval dataset and follow Re-                 To further illustrate the effectiveness of the hallucination
+poCoder’s method [62] to construct the retrieval corpora.           mitigation, we conduct two case studies. As shown in Figure 12,
+Specifically, for each repository, we apply a sliding window to     in the Raw method, which only provides a docstring and a
+scan all the source files in it. This scanning process extracts     function signature, CodeGen incorrectly uses the replace
+consecutive lines of code based on a predefined window size.        function and fails to convert scripts to one-line commands.
+The sliding window moves by a fixed number of lines (slicing        In contrast, with the RAG-based method, CodeGen correctly
+step) at each iteration to ensure complete coverage of the code.    uses the splitlines function, aligning with the ground-
+We adhere to RepoCoder’s parameter settings, with a window          truth and successfully addressing the requirement. In addition,
+size of 20 lines and a sliding step of 2 lines. To prevent answer   the RAG-based method can also effectively mitigate Project
+leakage, code lines containing or following the ground-truth        Context Conflicts. As shown in Figure 13, in the Raw method,
+code are excluded from the scanning process. Once all files         ChatGPT attempts to use the self.items.popitem()
+are processed, a retrieval corpus of code snippets is generated     API, which does not exist in the repository, leading to
+for the repository.                                                 hallucinated generation. In contrast, with the RAG-based
+
+=== [PDF page 10] ===
+
+Docstring                                                                                  work, researchers may consider developing more effective
+converts a script to one line command.THis is useful to run a single ssh command andp
+ass a one line script.                                                                     techniques to quickly and precisely identify and localize
+:param script:
+:return:                                                                                   hallucinations in LLM-generated code.
+Ground-truth                                                                                  Developing more effective hallucination mitigation tech-
+def oneline(script, separator=’&&’):                                                       niques: In Section V, we explore the feasibility of applying a
+    return seperator.join(textwrap.dedent(script).strip().splitlines())
+                                                                                           lightweight RAG-based method to mitigate hallucinations in
+Raw Method
+                                                                                           LLM-based code generation. While the method demonstrates
+def oneline(script, separator=’&&'):                                                       effectiveness in mitigating hallucinations such as undefined
+                                                            Task Requirement
+    return script.replace(’\t', seperator)                  Conflicts
+                                                                                           attributes, the potentials of RAG need to be further explored.
+RAG-based Mitigation
+                                                                                           For example, we only construct retrieval corpus using current
+def oneline(script, separator=’&&’):                        Correctly convert scripts to
+    return seperator.join(script.splitlines())              one-line commands              code repository, leading to the augmented information is
+                                                                                           insufficient to mitigate many hallucinations such as background
+ Fig. 12. Example: hallucination mitigation in Task Requirement Conflicts                  knowledge conflicts. In the future, we can integrate more
+                                                                                           comprehensive knowledge sources like online search engines,
+Docstring
+                                                                                           API documents, and StackOverflow discussions. In addition
+Remove and return the `(key, value)` pair first inserted.
+                                                                                           to RAG techniques, other methods such as input query
+Ground-truth
+                                                                                           refinement [4], [49] and multi-agent systems [73] can also
+def popitem(self):
+    try:                                                                                   be leveraged to achieve an iterative process of (i) clarifying
+       key = next(iter(self.__order))
+    except StopIteration:                                                                  task requirements, (ii) generating code, (iii) running test cases,
+       raise KeyError('%s is empty' % type(self).__name__) from None
+    else:                                                                                  and (iv) mitigating hallucinations. To achieve this, we need to
+       return (key, self.pop(key))                                                         design the appropriate interaction protocols between agents and
+Raw Method
+                                                                                           relevant tools (e.g., search engines and static analysis tools)
+def popitem(self):                                             AttributeError: 'self '
+                                                               object has no               and apply suitable prompting strategies.
+    return self.items.popitem( )
+                                                               attribute 'items'
+RAG-based Mitigation                                                                                        VII. T HREATS TO VALIDITY
+def popitem(self):
+    try:                                                                      External Validity. Threats to external validity mainly con-
+       key = next(iter(self.__order))
+    except StopIteration:                                                  cern the generalizability of our findings. We focused on Python
+       raise KeyError('%s is empty' % type(self).__name__) from None
+    else:
+                                                Proper use of the
+                                                                           when exploring the taxonomy and root causes of hallucinations
+        return (key, self.pop(key))             repository's internal API  in LLM-based code generation due to its simplicity and
+                                                                           ease of use. Constructing hallucination taxonomies for other
+   Fig. 13. Example: hallucination mitigation in Project Context Conflicts
+                                                                           programming languages and comparing them with our current
+                                                                           taxonomy is a valuable future direction. Another potential
+mitigation, ChatGPT correctly implements the requirement threat is the limited scale of the adopted CoderEval dataset,
+using the self.pop() function.                                             which contains only 230 coding tasks. To mitigate this, we
+                                                                           selected six LLMs and had each generate 10 code snippets for
+                             VI. D ISCUSSION
+                                                                           each task to ensure a sufficient number of annotations.
+   We provide implications for future research on the halluci-                Internal Validity. Threats to internal validity primarily
+nations in practical LLM-based code generation.                            concern the manual annotation process in taxonomy con-
+   Developing hallucination identification techniques: struction. A key issue is the absence of formal inter-rater
+Through our study, we find 3 major categories of hallucinations reliability measure for annotating hallucinations. To address
+in the LLM-based code generation. Some hallucinations can be this, discrepancies were discussed and resolved in annotator
+detected by using static analysis (e.g., undefined variables) or meetings to ensure a consistent annotation protocol, with each
+dynamic test execution (runtime errors or test failures), making identified hallucination receiving a mutually agreed-upon label.
+it relatively easy for developers to recognize and locate the Additionally, to ensure consistency in our findings, one author
+relevant code issues. However, certain hallucinations, such as reviewed all labeled data. Another potential threat is model
+incomplete functionality and security issues, are very difficult bias during the annotation process. To mitigate this, we mixed
+for developers to detect and correct, as they can likely pass the generation results of the six models before annotation.
+static checks and all test cases. As a result, LLM-generated                  Construct Validity. Threats to construct validity are related
+code containing these hallucinations may be introduced into to evaluating our hallucination mitigation approach. To alleviate
+development projects and even real production environments, these threats, we conducted experiments on six models using
+leading to unreliable software systems and severe security risks. test cases available in the CoderEval dataset, a standard method
+Existing hallucination localization approaches [71], [72] based for evaluating the correctness of generated code.
+on LLM self-feedback methods can detect hallucinations to a
+certain extent. However, these approaches heavily rely on the                                   VIII. C ONCLUSION
+current model’s capabilities and cannot address the fundamental               In this paper, we conduct an empirical study on code-
+limitations imposed by the training corpora. Therefore, in future generated hallucinations of large models in the practical
+
+=== [PDF page 11] ===
+
+development scenarios and through a full manual analysis,                           [14] B. Rozière, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan,
+we construct a taxonomy of hallucinations and follow up with                             Y. Adi, J. Liu, T. Remez, J. Rapin, A. Kozhevnikov, I. Evtimov,
+                                                                                         J. Bitton, M. Bhatt, C. Canton-Ferrer, A. Grattafiori, W. Xiong,
+further hallucination classifications. Based on the hallucinations                       A. Défossez, J. Copet, F. Azhar, H. Touvron, L. Martin, N. Usunier,
+found, we provide a deeper discussion of the causes of halluci-                          T. Scialom, and G. Synnaeve, “Code llama: Open foundation models
+nations and the distribution of hallucinations in different LLMs.                        for code,” CoRR, vol. abs/2308.12950, 2023. [Online]. Available:
+                                                                                         https://doi.org/10.48550/arXiv.2308.12950
+At last, we implement a RAG-based approach for hallucination                        [15] M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. de Oliveira Pinto, J. Kaplan,
+mitigation and further discuss potential hallucination mitigation                        H. Edwards, Y. Burda, N. Joseph, G. Brockman, A. Ray, R. Puri,
+approaches.                                                                              G. Krueger, M. Petrov, H. Khlaaf, G. Sastry, P. Mishkin, B. Chan,
+                                                                                         S. Gray, N. Ryder, M. Pavlov, A. Power, L. Kaiser, M. Bavarian,
+                                                                                         C. Winter, P. Tillet, F. P. Such, D. Cummings, M. Plappert, F. Chantzis,
+                               R EFERENCES                                               E. Barnes, A. Herbert-Voss, W. H. Guss, A. Nichol, A. Paino, N. Tezak,
+                                                                                         J. Tang, I. Babuschkin, S. Balaji, S. Jain, W. Saunders, C. Hesse,
+ [1] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez,             A. N. Carr, J. Leike, J. Achiam, V. Misra, E. Morikawa, A. Radford,
+     L. Kaiser, and I. Polosukhin, “Attention is all you need,” in Advances              M. Knight, M. Brundage, M. Murati, K. Mayer, P. Welinder, B. McGrew,
+     in Neural Information Processing Systems 30: Annual Conference on                   D. Amodei, S. McCandlish, I. Sutskever, and W. Zaremba, “Evaluating
+     Neural Information Processing Systems 2017, December 4-9, 2017,                     large language models trained on code,” CoRR, vol. abs/2107.03374,
+     Long Beach, CA, USA, I. Guyon, U. von Luxburg, S. Bengio, H. M.                     2021. [Online]. Available: https://arxiv.org/abs/2107.03374
+     Wallach, R. Fergus, S. V. N. Vishwanathan, and R. Garnett, Eds., 2017,         [16] E. Nijkamp, B. Pang, H. Hayashi, L. Tu, H. Wang, Y. Zhou,
+     pp. 5998–6008. [Online]. Available: https://proceedings.neurips.cc/paper/           S. Savarese, and C. Xiong, “Codegen: An open large language
+     2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html                            model for code with multi-turn program synthesis,” in The Eleventh
+ [2] A. M. Dakhel, V. Majdinasab, A. Nikanjam, F. Khomh, M. C. Desmarais,                International Conference on Learning Representations, ICLR 2023,
+     and Z. M. J. Jiang, “Github copilot ai pair programmer: Asset or liability?”        Kigali, Rwanda, May 1-5, 2023. OpenReview.net, 2023. [Online].
+     Journal of Systems and Software, vol. 203, p. 111734, 2023.                         Available: https://openreview.net/pdf?id=iaYcJKpY2B_
+ [3] A. Lozhkov, R. Li, L. B. Allal, F. Cassano, J. Lamy-Poirier, N. Tazi,          [17] J. Austin, A. Odena, M. I. Nye, M. Bosma, H. Michalewski, D. Dohan,
+     A. Tang, D. Pykhtar, J. Liu, Y. Wei et al., “Starcoder 2 and the stack              E. Jiang, C. J. Cai, M. Terry, Q. V. Le, and C. Sutton, “Program
+     v2: The next generation,” arXiv preprint arXiv:2402.19173, 2024.                    synthesis with large language models,” CoRR, vol. abs/2108.07732,
+ [4] K. D. Dhole, R. Chandradevan, and E. Agichtein, “An interactive                     2021. [Online]. Available: https://arxiv.org/abs/2108.07732
+     query generation assistant using llm-based prompt modification and             [18] R. Li, L. B. Allal, Y. Zi, N. Muennighoff, D. Kocetkov, C. Mou,
+     user feedback,” arXiv preprint arXiv:2311.11226, 2023.                              M. Marone, C. Akiki, J. Li, J. Chim, Q. Liu, E. Zheltonozhskii,
+ [5] H. Ye, T. Liu, A. Zhang, W. Hua, and W. Jia, “Cognitive mirage:                     T. Y. Zhuo, T. Wang, O. Dehaene, M. Davaadorj, J. Lamy-Poirier,
+     A review of hallucinations in large language models,” arXiv preprint                J. Monteiro, O. Shliazhko, N. Gontier, N. Meade, A. Zebaze, M. Yee,
+     arXiv:2309.06794, 2023.                                                             L. K. Umapathi, J. Zhu, B. Lipkin, M. Oblokulov, Z. Wang, R. M. V,
+ [6] Z. Zhang, C. Chen, B. Liu, C. Liao, Z. Gong, H. Yu, J. Li, and R. Wang,             J. Stillerman, S. S. Patel, D. Abulkhanov, M. Zocca, M. Dey, Z. Zhang,
+     “Unifying the perspectives of nlp and software engineering: A survey on             N. Moustafa-Fahmy, U. Bhattacharyya, W. Yu, S. Singh, S. Luccioni,
+     language models for code,” arXiv preprint arXiv:2311.07989, 2023.                   P. Villegas, M. Kunakov, F. Zhdanov, M. Romero, T. Lee, N. Timor,
+ [7] L. Huang, W. Yu, W. Ma, W. Zhong, Z. Feng, H. Wang, Q. Chen,                        J. Ding, C. Schlesinger, H. Schoelkopf, J. Ebert, T. Dao, M. Mishra,
+     W. Peng, X. Feng, B. Qin et al., “A survey on hallucination in large                A. Gu, J. Robinson, C. J. Anderson, B. Dolan-Gavitt, D. Contractor,
+     language models: Principles, taxonomy, challenges, and open questions,”             S. Reddy, D. Fried, D. Bahdanau, Y. Jernite, C. M. Ferrandis, S. Hughes,
+     arXiv preprint arXiv:2311.05232, 2023.                                              T. Wolf, A. Guha, L. von Werra, and H. de Vries, “Starcoder: may
+ [8] S. Tonmoy, S. Zaman, V. Jain, A. Rani, V. Rawte, A. Chadha, and A. Das,             the source be with you!” CoRR, vol. abs/2305.06161, 2023. [Online].
+     “A comprehensive survey of hallucination mitigation techniques in large             Available: https://doi.org/10.48550/arXiv.2305.06161
+     language models,” arXiv preprint arXiv:2401.01313, 2024.                       [19] S. Black, L. Gao, P. Wang, C. Leahy, and S. Biderman, “GPT-Neo:
+ [9] S. Barke, M. B. James, and N. Polikarpova, “Grounded copilot: How                   Large Scale Autoregressive Language Modeling with Mesh-Tensorflow,”
+     programmers interact with code-generating models,” Proceedings of the               Mar. 2021, If you use this software, please cite it using these metadata.
+     ACM on Programming Languages, vol. 7, no. OOPSLA1, pp. 85–111,                      [Online]. Available: https://doi.org/10.5281/zenodo.5297715
+     2023.                                                                          [20] B. Wang and A. Komatsuzaki, “GPT-J-6B: A 6 Billion Parame-
+[10] M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. d. O. Pinto, J. Kaplan,                  ter Autoregressive Language Model,” https://github.com/kingoflolz/
+     H. Edwards, Y. Burda, N. Joseph, G. Brockman et al., “Evaluating large              mesh-transformer-jax, May 2021.
+     language models trained on code,” arXiv preprint arXiv:2107.03374,             [21] Y. Wang, W. Wang, S. R. Joty, and S. C. H. Hoi, “Codet5:
+     2021.                                                                               Identifier-aware unified pre-trained encoder-decoder models for code
+[11] T. Schick, J. Dwivedi-Yu, R. Dessì, R. Raileanu, M. Lomeli,                         understanding and generation,” in Proceedings of the 2021 Conference
+     L. Zettlemoyer, N. Cancedda, and T. Scialom, “Toolformer: Language                  on Empirical Methods in Natural Language Processing, EMNLP 2021,
+     models can teach themselves to use tools,” CoRR, vol. abs/2302.04761,               Virtual Event / Punta Cana, Dominican Republic, 7-11 November, 2021,
+     2023. [Online]. Available: https://doi.org/10.48550/arXiv.2302.04761                M. Moens, X. Huang, L. Specia, and S. W. Yih, Eds. Association for
+[12] B. Paranjape, S. M. Lundberg, S. Singh, H. Hajishirzi, L. Zettlemoyer,              Computational Linguistics, 2021, pp. 8696–8708. [Online]. Available:
+     and M. T. Ribeiro, “ART: automatic multi-step reasoning and tool-use                https://doi.org/10.18653/v1/2021.emnlp-main.685
+     for large language models,” CoRR, vol. abs/2303.09014, 2023. [Online].         [22] Y. Wang, H. Le, A. Gotmare, N. D. Q. Bui, J. Li, and S. C. H. Hoi,
+     Available: https://doi.org/10.48550/arXiv.2303.09014                                “Codet5+: Open code large language models for code understanding
+[13] H. Touvron, L. Martin, K. Stone, P. Albert, A. Almahairi, Y. Babaei,                and generation,” in Proceedings of the 2023 Conference on Empirical
+     N. Bashlykov, S. Batra, P. Bhargava, S. Bhosale, D. Bikel, L. Blecher,              Methods in Natural Language Processing, EMNLP 2023, Singapore,
+     C. Canton-Ferrer, M. Chen, G. Cucurull, D. Esiobu, J. Fernandes,                    December 6-10, 2023, H. Bouamor, J. Pino, and K. Bali, Eds.
+     J. Fu, W. Fu, B. Fuller, C. Gao, V. Goswami, N. Goyal, A. Hartshorn,                Association for Computational Linguistics, 2023, pp. 1069–1088.
+     S. Hosseini, R. Hou, H. Inan, M. Kardas, V. Kerkez, M. Khabsa,                      [Online]. Available: https://aclanthology.org/2023.emnlp-main.68
+     I. Kloumann, A. Korenev, P. S. Koura, M. Lachaux, T. Lavril, J. Lee,           [23] D. Fried, A. Aghajanyan, J. Lin, S. Wang, E. Wallace, F. Shi,
+     D. Liskovich, Y. Lu, Y. Mao, X. Martinet, T. Mihaylov, P. Mishra,                   R. Zhong, S. Yih, L. Zettlemoyer, and M. Lewis, “Incoder: A
+     I. Molybog, Y. Nie, A. Poulton, J. Reizenstein, R. Rungta, K. Saladi,               generative model for code infilling and synthesis,” in The Eleventh
+     A. Schelten, R. Silva, E. M. Smith, R. Subramanian, X. E. Tan,                      International Conference on Learning Representations, ICLR 2023,
+     B. Tang, R. Taylor, A. Williams, J. X. Kuan, P. Xu, Z. Yan, I. Zarov,               Kigali, Rwanda, May 1-5, 2023. OpenReview.net, 2023. [Online].
+     Y. Zhang, A. Fan, M. Kambadur, S. Narang, A. Rodriguez, R. Stojnic,                 Available: https://openreview.net/pdf?id=hQwb-lbM6EL
+     S. Edunov, and T. Scialom, “Llama 2: Open foundation and fine-tuned            [24] Y. Li, D. H. Choi, J. Chung, N. Kushman, J. Schrittwieser, R. Leblond,
+     chat models,” CoRR, vol. abs/2307.09288, 2023. [Online]. Available:                 T. Eccles, J. Keeling, F. Gimeno, A. D. Lago, T. Hubert, P. Choy,
+     https://doi.org/10.48550/arXiv.2307.09288                                           C. de Masson d’Autume, I. Babuschkin, X. Chen, P. Huang, J. Welbl,
+
+=== [PDF page 12] ===
+
+     S. Gowal, A. Cherepanov, J. Molloy, D. J. Mankowitz, E. S. Robson,               Computational Linguistics, 2020, pp. 1536–1547. [Online]. Available:
+     P. Kohli, N. de Freitas, K. Kavukcuoglu, and O. Vinyals, “Competition-           https://doi.org/10.18653/v1/2020.findings-emnlp.139
+     level code generation with alphacode,” CoRR, vol. abs/2203.07814,           [40] D. Guo, S. Ren, S. Lu, Z. Feng, D. Tang, S. Liu, L. Zhou, N. Duan,
+     2022. [Online]. Available: https://doi.org/10.48550/arXiv.2203.07814             A. Svyatkovskiy, S. Fu, M. Tufano, S. K. Deng, C. B. Clement,
+[25] S. Black, S. Biderman, E. Hallahan, Q. Anthony, L. Gao,                          D. Drain, N. Sundaresan, J. Yin, D. Jiang, and M. Zhou, “Graphcodebert:
+     L. Golding, H. He, C. Leahy, K. McDonell, J. Phang, M. Pieler,                   Pre-training code representations with data flow,” in 9th International
+     U. S. Prashanth, S. Purohit, L. Reynolds, J. Tow, B. Wang,                       Conference on Learning Representations, ICLR 2021, Virtual Event,
+     and S. Weinbach, “Gpt-neox-20b: An open-source autoregressive                    Austria, May 3-7, 2021. OpenReview.net, 2021. [Online]. Available:
+     language model,” CoRR, vol. abs/2204.06745, 2022. [Online]. Available:           https://openreview.net/forum?id=jLoC4ez43PZ
+     https://doi.org/10.48550/arXiv.2204.06745                                   [41] S. Lu, D. Guo, S. Ren, J. Huang, A. Svyatkovskiy, A. Blanco, C. B.
+[26] L. Guo, Y. Wang, E. Shi, W. Zhong, H. Zhang, J. Chen, R. Zhang,                  Clement, D. Drain, D. Jiang, D. Tang, G. Li, L. Zhou, L. Shou,
+     Y. Ma, and Z. Zheng, “When to stop? towards efficient code generation            L. Zhou, M. Tufano, M. Gong, M. Zhou, N. Duan, N. Sundaresan, S. K.
+     in llms with excess token prevention,” in Proceedings of the 33rd ACM            Deng, S. Fu, and S. Liu, “Codexglue: A machine learning benchmark
+     SIGSOFT International Symposium on Software Testing and Analysis,                dataset for code understanding and generation,” in Proceedings of
+     2024, pp. 1073–1085.                                                             the Neural Information Processing Systems Track on Datasets and
+[27] Y. Wang, T. Jiang, M. Liu, J. Chen, and Z. Zheng, “Beyond functional             Benchmarks 1, NeurIPS Datasets and Benchmarks 2021, December
+     correctness: Investigating coding style inconsistencies in large language        2021, virtual, J. Vanschoren and S. Yeung, Eds., 2021. [Online].
+     models,” arXiv preprint arXiv:2407.00456, 2024.                                  Available: https://datasets-benchmarks-proceedings.neurips.cc/paper/
+[28] Z. Zheng, K. Ning, J. Chen, Y. Wang, W. Chen, L. Guo, and W. Wang,               2021/hash/c16a5320fa475530d9583c34fd356ef5-Abstract-round1.html
+     “Towards an understanding of large language models in software              [42] D. Guo, S. Lu, N. Duan, Y. Wang, M. Zhou, and J. Yin, “Unixcoder:
+     engineering tasks,” arXiv preprint arXiv:2308.11396, 2023.                       Unified cross-modal pre-training for code representation,” in Proceedings
+[29] C. Wang, J. Zhang, Y. Lou, M. Liu, W. Sun, Y. Liu, and X. Peng, “Tiger:          of the 60th Annual Meeting of the Association for Computational
+     A generating-then-ranking framework for practical python type inference,”        Linguistics (Volume 1: Long Papers), ACL 2022, Dublin, Ireland,
+     arXiv preprint arXiv:2407.02095, 2024.                                           May 22-27, 2022, S. Muresan, P. Nakov, and A. Villavicencio, Eds.
+                                                                                      Association for Computational Linguistics, 2022, pp. 7212–7225.
+[30] Y. Wang, Y. Wang, D. Guo, J. Chen, R. Zhang, Y. Ma, and Z. Zheng,
+                                                                                      [Online]. Available: https://doi.org/10.18653/v1/2022.acl-long.499
+     “Rlcoder: Reinforcement learning for repository-level code completion,”
+                                                                                 [43] K. Zhang, G. Li, J. Li, Z. Li, and Z. Jin, “Toolcoder: Teach code
+     arXiv preprint arXiv:2407.19487, 2024.
+                                                                                      generation models to use apis with search tools,” arXiv preprint
+[31] Y. Li, E. Shi, D. Zheng, K. Duan, J. Chen, and Y. Wang, “Repomincoder:
+                                                                                      arXiv:2305.04032, 2023.
+     Improving repository-level code generation based on information loss
+                                                                                 [44] W. Zeng, X. Ren, T. Su, H. Wang, Y. Liao, Z. Wang, X. Jiang,
+     screening,” in Proceedings of the 15th Asia-Pacific Symposium on
+                                                                                      Z. Yang, K. Wang, X. Zhang et al., “Pangu-α: Large-scale autoregressive
+     Internetware, 2024, pp. 229–238.
+                                                                                      pretrained chinese language models with auto-parallel computation,”
+[32] C. Wang, Y. Lou, X. Peng, J. Liu, and B. Zou, “Mining resource-operation         arXiv preprint arXiv:2104.12369, 2021.
+     knowledge to support resource leak detection,” in Proceedings of the 31st   [45] K. Washio and Y. Miyao, “Code generation for unknown libraries via
+     ACM Joint European Software Engineering Conference and Symposium                 reading api documentations,” arXiv preprint arXiv:2202.07806, 2022.
+     on the Foundations of Software Engineering, 2023, pp. 986–998.              [46] J. H. Klemmer, S. A. Horstmann, N. Patnaik, C. Ludden, C. Burton Jr,
+[33] Z. Zheng, K. Ning, Y. Wang, J. Zhang, D. Zheng, M. Ye, and J. Chen,              C. Powers, F. Massacci, A. Rahman, D. Votipka, H. R. Lipford et al.,
+     “A survey of large language models for code: Evolution, benchmarking,            “Using ai assistants in software development: A qualitative study on
+     and future trends,” arXiv preprint arXiv:2311.10372, 2023.                       security practices and concerns,” arXiv preprint arXiv:2405.06371, 2024.
+[34] Y. Wang and H. Li, “Code completion by modeling flattened abstract          [47] D. Zan, B. Chen, Z. Lin, B. Guan, Y. Wang, and J.-G. Lou, “When
+     syntax trees as graphs,” in Proceedings of the AAAI conference on                language model meets private library,” arXiv preprint arXiv:2210.17236,
+     artificial intelligence, vol. 35, no. 16, 2021, pp. 14 015–14 023.               2022.
+[35] L. Nie, J. Sun, Y. Wang, L. Du, S. Han, D. Zhang, L. Hou, J. Li,            [48] C. Spiess, D. Gros, K. S. Pai, M. Pradel, M. R. I. Rabin, S. Jha,
+     and J. Zhai, “Unveiling the black box of plms with semantic anchors:             P. Devanbu, and T. Ahmed, “Quality and trust in llm-generated code,”
+     towards interpretable neural semantic parsing,” in Proceedings of the            arXiv preprint arXiv:2402.02047, 2024.
+     AAAI Conference on Artificial Intelligence, vol. 37, no. 11, 2023, pp.      [49] F. Mu, L. Shi, S. Wang, Z. Yu, B. Zhang, C. Wang, S. Liu, and
+     13 400–13 408.                                                                   Q. Wang, “Clarifygpt: Empowering llm-based code generation with
+[36] Y. Wang, L. Guo, E. Shi, W. Chen, J. Chen, W. Zhong, M. Wang, H. Li,             intention clarification,” arXiv preprint arXiv:2310.10996, 2023.
+     H. Zhang, Z. Lyu et al., “You augment me: Exploring chatgpt-based data      [50] L. Zhong and Z. Wang, “Can llm replace stack overflow? a study on
+     augmentation for semantic code search,” in 2023 IEEE International               robustness and reliability of large language model code generation,” in
+     Conference on Software Maintenance and Evolution (ICSME). IEEE,                  Proceedings of the AAAI Conference on Artificial Intelligence, vol. 38,
+     2023, pp. 14–25.                                                                 no. 19, 2024, pp. 21 841–21 849.
+[37] L. B. Allal, R. Li, D. Kocetkov, C. Mou, C. Akiki, C. M. Ferrandis,         [51] D. Guo, Q. Zhu, D. Yang, Z. Xie, K. Dong, W. Zhang, G. Chen,
+     N. Muennighoff, M. Mishra, A. Gu, M. Dey, L. K. Umapathi,                        X. Bi, Y. Wu, Y. Li et al., “Deepseek-coder: When the large language
+     C. J. Anderson, Y. Zi, J. Lamy-Poirier, H. Schoelkopf, S. Troshin,               model meets programming–the rise of code intelligence,” arXiv preprint
+     D. Abulkhanov, M. Romero, M. Lappert, F. D. Toni, B. G. del Río,                 arXiv:2401.14196, 2024.
+     Q. Liu, S. Bose, U. Bhattacharyya, T. Y. Zhuo, I. Yu, P. Villegas,          [52] R. Li, L. B. Allal, Y. Zi, N. Muennighoff, D. Kocetkov, C. Mou,
+     M. Zocca, S. Mangrulkar, D. Lansky, H. Nguyen, D. Contractor,                    M. Marone, C. Akiki, J. Li, J. Chim et al., “Starcoder: may the source
+     L. Villa, J. Li, D. Bahdanau, Y. Jernite, S. Hughes, D. Fried,                   be with you!” arXiv preprint arXiv:2305.06161, 2023.
+     A. Guha, H. de Vries, and L. von Werra, “Santacoder: don’t reach            [53] E. Nijkamp, B. Pang, H. Hayashi, L. Tu, H. Wang, Y. Zhou, S. Savarese,
+     for the stars!” CoRR, vol. abs/2301.03988, 2023. [Online]. Available:            and C. Xiong, “Codegen: An open large language model for code with
+     https://doi.org/10.48550/arXiv.2301.03988                                        multi-turn program synthesis,” arXiv preprint arXiv:2203.13474, 2022.
+[38] F. Christopoulou, G. Lampouras, M. Gritta, G. Zhang, Y. Guo, Z. Li,         [54] B. Roziere, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan, Y. Adi,
+     Q. Zhang, M. Xiao, B. Shen, L. Li, H. Yu, L. Yan, P. Zhou, X. Wang,              J. Liu, T. Remez, J. Rapin et al., “Code llama: Open foundation models
+     Y. Ma, I. Iacobacci, Y. Wang, G. Liang, J. Wei, X. Jiang, Q. Wang, and           for code,” arXiv preprint arXiv:2308.12950, 2023.
+     Q. Liu, “Pangu-coder: Program synthesis with function-level language        [55] OpenAI, “Chatgpt: Optimizing language models for dialogue,” https:
+     modeling,” CoRR, vol. abs/2207.11280, 2022. [Online]. Available:                 //openai.com/blog/chatgpt, 2022.
+     https://doi.org/10.48550/arXiv.2207.11280                                   [56] Z. Tu, Z. Su, and P. Devanbu, “On the localness of software,” in
+[39] Z. Feng, D. Guo, D. Tang, N. Duan, X. Feng, M. Gong, L. Shou,                    Proceedings of the 22nd ACM SIGSOFT International Symposium on
+     B. Qin, T. Liu, D. Jiang, and M. Zhou, “Codebert: A pre-trained                  Foundations of Software Engineering, 2014, pp. 269–280.
+     model for programming and natural languages,” in Findings of the            [57] W. Zou, J. Xuan, X. Xie, Z. Chen, and B. Xu, “How does code style
+     Association for Computational Linguistics: EMNLP 2020, Online                    inconsistency affect pull request integration? an exploratory study on 117
+     Event, 16-20 November 2020, ser. Findings of ACL, T. Cohn,                       github projects,” Empirical Software Engineering, vol. 24, pp. 3871–3903,
+     Y. He, and Y. Liu, Eds., vol. EMNLP 2020. Association for                        2019.
+
+=== [PDF page 13] ===
+
+[58] S. Bajracharya, J. Ossher, and C. Lopes, “Sourcerer: An internet-             [78] C. Wang, J. Zhang, Y. Feng, T. Li, W. Sun, Y. Liu, and X. Peng, “Teaching
+     scale software repository,” in 2009 ICSE Workshop on Search-Driven                 code llms to use autocompletion tools in repository-level code generation,”
+     Development-Users, Infrastructure, Tools and Evaluation. IEEE, 2009,               arXiv preprint arXiv:2401.06391, 2024.
+     pp. 1–4.                                                                      [79] R. Bommasani, D. A. Hudson, E. Adeli, R. Altman, S. Arora, S. von
+[59] H. Yu, B. Shen, D. Ran, J. Zhang, Q. Zhang, Y. Ma, G. Liang, Y. Li,                Arx, M. S. Bernstein, J. Bohg, A. Bosselut, E. Brunskill et al., “On
+     Q. Wang, and T. Xie, “Codereval: A benchmark of pragmatic code                     the opportunities and risks of foundation models,” arXiv preprint
+     generation with generative pre-trained models,” in Proceedings of the              arXiv:2108.07258, 2021.
+     46th IEEE/ACM International Conference on Software Engineering, 2024,
+     pp. 1–12.
+[60] X. Du, M. Liu, K. Wang, H. Wang, J. Liu, Y. Chen, J. Feng, C. Sha,
+     X. Peng, and Y. Lou, “Classeval: A manually-crafted benchmark
+     for evaluating llms on class-level code generation,” arXiv preprint
+     arXiv:2308.01861, 2023.
+[61] J. Li, G. Li, X. Zhang, Y. Dong, and Z. Jin, “Evocodebench: An evolving
+     code generation benchmark aligned with real-world code repositories,”
+     arXiv preprint arXiv:2404.00599, 2024.
+[62] F. Zhang, B. Chen, Y. Zhang, J. Keung, J. Liu, D. Zan, Y. Mao, J.-G. Lou,
+     and W. Chen, “Repocoder: Repository-level code completion through
+     iterative retrieval and generation,” arXiv preprint arXiv:2303.12570, 2023.
+[63] M. Liu, T. Yang, Y. Lou, X. Du, Y. Wang, and X. Peng, “Codegen4libs:
+     A two-stage approach for library-oriented code generation,” in 2023 38th
+     IEEE/ACM International Conference on Automated Software Engineering
+     (ASE). IEEE, 2023, pp. 434–445.
+[64] D. Liao, S. Pan, Q. Huang, X. Ren, Z. Xing, H. Jin, and Q. Li, “Context-
+     aware code generation framework for code repositories: Local, global,
+     and third-party library awareness,” arXiv preprint arXiv:2312.05772,
+     2023.
+[65] S. H. Khandkar, “Open coding,” University of Calgary, vol. 23, no. 2009,
+     2009.
+[66] M. Grechanik, C. McMillan, L. DeFerrari, M. Comi, S. Crespi, D. Poshy-
+     vanyk, C. Fu, Q. Xie, and C. Ghezzi, “An empirical investigation into a
+     large-scale java open source code repository,” in Proceedings of the 2010
+     ACM-IEEE International Symposium on Empirical Software Engineering
+     and Measurement, 2010, pp. 1–10.
+[67] C. Wang, X. Peng, Z. Xing, and X. Meng, “Beyond literal meaning:
+     Uncover and explain implicit knowledge in code through wikipedia-based
+     concept linking,” IEEE Transactions on Software Engineering, vol. 49,
+     no. 5, pp. 3226–3240, 2023.
+[68] Z. Ji, N. Lee, R. Frieske, T. Yu, D. Su, Y. Xu, E. Ishii, Y. J. Bang,
+     A. Madotto, and P. Fung, “Survey of hallucination in natural language
+     generation,” ACM Computing Surveys, vol. 55, no. 12, pp. 1–38, 2023.
+[69] Y. Zhang, Y. Li, L. Cui, D. Cai, L. Liu, T. Fu, X. Huang, E. Zhao,
+     Y. Zhang, Y. Chen et al., “Siren’s song in the ai ocean: a survey on
+     hallucination in large language models,” arXiv preprint arXiv:2309.01219,
+     2023.
+[70] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal,
+     H. Küttler, M. Lewis, W.-t. Yih, T. Rocktäschel et al., “Retrieval-
+     augmented generation for knowledge-intensive nlp tasks,” Advances
+     in Neural Information Processing Systems, vol. 33, pp. 9459–9474, 2020.
+[71] A. Agrawal, M. Suzgun, L. Mackey, and A. T. Kalai, “Do language
+     models know when they’re hallucinating references?” arXiv preprint
+     arXiv:2305.18248, 2023.
+[72] P. Manakul, A. Liusie, and M. J. Gales, “Selfcheckgpt: Zero-resource
+     black-box hallucination detection for generative large language models,”
+     arXiv preprint arXiv:2303.08896, 2023.
+[73] T. Guo, X. Chen, Y. Wang, R. Chang, S. Pei, N. V. Chawla, O. Wiest,
+     and X. Zhang, “Large language model based multi-agents: A survey of
+     progress and challenges,” arXiv preprint arXiv:2402.01680, 2024.
+[74] F. Shi, X. Chen, K. Misra, N. Scales, D. Dohan, E. H. Chi, N. Schärli, and
+     D. Zhou, “Large language models can be easily distracted by irrelevant
+     context,” in International Conference on Machine Learning. PMLR,
+     2023, pp. 31 210–31 227.
+[75] F. Liu, Y. Liu, L. Shi, H. Huang, R. Wang, Z. Yang, and L. Zhang,
+     “Exploring and evaluating hallucinations in llm-powered code generation,”
+     arXiv preprint arXiv:2404.00971, 2024.
+[76] Y. Lai, C. Li, Y. Wang, T. Zhang, R. Zhong, L. Zettlemoyer, W.-t.
+     Yih, D. Fried, S. Wang, and T. Yu, “Ds-1000: A natural and reliable
+     benchmark for data science code generation,” in International Conference
+     on Machine Learning. PMLR, 2023, pp. 18 319–18 345.
+[77] Z. Sun, L. Li, Y. Liu, X. Du, and L. Li, “On the importance of building
+     high-quality training datasets for neural code search,” in Proceedings of
+     the 44th International Conference on Software Engineering, 2022, pp.
+     1609–1620.

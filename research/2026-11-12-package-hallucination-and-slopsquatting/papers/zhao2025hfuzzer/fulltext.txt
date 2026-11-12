@@ -1,0 +1,1111 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                            HF UZZER: Testing Large Language Models for
+                                           Package Hallucinations via Phrase-based Fuzzing
+                                                                              Yukai Zhao∗† , Menghan Wu† , Xing Hu†‡ , Xin Xia†
+                                                                        ∗ School of Software Technology, Zhejiang University, Ningbo, China
+                                                      † The State Key Laboratory of Blockchain and Data Security, Zhejiang University, Hangzhou, China
+
+                                                                        {yukaizhao2000, menghanwu, xinghu}@zju.edu.cn, xin.xia@acm.org
+
+
+                                           Abstract—Large Language Models (LLMs) are widely used              [9]. Such attacks often fall under package obfuscation inci-
+                                        for code generation, but they face critical security risks when       dents, where developers are misled into importing packages
+                                        applied to practical production due to package hallucinations, in     they do not expect, which is one of the most serious problems
+                                        which LLMs recommend non-existent packages. These halluci-
+
+
+
+
+arXiv:2509.23835v2 [cs.SE] 4 Oct 2025
+                                        nations can be exploited in software supply chain attacks, where      in supply chain security [10], [12]. Figure 1 shows an example.
+                                        malicious attackers exploit them to register harmful packages. It     A user first prompts the model to generate a Python program
+                                        is critical to test LLMs for package hallucinations to mitigate       that implements a simple HTTP/2 server with some specific
+                                        package hallucinations and defend against potential attacks.          requirements. After generating the code, the user then asks
+                                        Although researchers have proposed testing frameworks for fact-       how to install the packages used in the generated program. In
+                                        conflicting hallucinations in natural language generation, there is
+                                        a lack of research on package hallucinations. To fill this gap, we    response, the model recommends two packages to be installed
+                                        propose HF UZZER, a novel phrase-based fuzzing framework to           via pip. Upon inspection, it is found that the package “h2” is
+                                        test LLMs for package hallucinations. HF UZZER adopts fuzzing         correct, while “hyper-h2” is a hallucinated package that does
+                                        technology and guides the model to infer a wider range of             not exist in the package repository (PyPI [13]). If an attacker
+                                        reasonable information based on phrases, thereby generating           registers this hallucinated package in the repository and em-
+                                        enough and diverse coding tasks. Furthermore, HF UZZER ex-
+                                        tracts phrases from package information or coding tasks to            beds malicious code within it, uninformed developers may
+                                        ensure the relevance of phrases and code, thereby improving the       inadvertently install and execute it, exposing themselves to
+                                        relevance of generated tasks and code. We evaluate HF UZZER on        supply-chain attacks. Moreover, researchers and practitioners
+                                        multiple LLMs and find that it triggers package hallucinations        have developed various LLM agents for end-to-end software
+                                        across all selected models. Compared to the mutational fuzzing        development (such as Devin [14]), which are capable of using
+                                        framework, HF UZZER identifies 2.60× more unique hallucinated
+                                        packages and generates more diverse tasks. Additionally, when         tools and executing commands [15]. This further increases
+                                        testing the model GPT-4o, HF UZZER finds 46 unique hallucinated       the success rate of package hallucination-based attacks, as
+                                        packages. Further analysis reveals that for GPT-4o, LLMs exhibit      malicious packages may be downloaded into the development
+                                        package hallucinations not only during code generation but also       environment without the developers’ awareness.
+                                        when assisting with environment configuration.                           Spracklen et al. [10] and Krishna et al. [9] construct datasets
+                                           Index Terms—Large Language Models, Package Hallucination,
+                                        Fuzzing                                                               and empirical studies on package hallucinations. While valu-
+                                                                                                              able, their studies are limited by the size of the dataset
+                                                                   I. I NTRODUCTION                           and cannot cover a wide range of code generation scenarios.
+                                           Large Language Models (LLMs) have shown significant                Although Drowzee [16] is proposed to test LLMs for fact-
+                                        potential across various domains and are widely used for code         conflicting hallucinations in NLG, research on code hal-
+                                        generation [1]. However, despite their success in tackling com-       lucinations—particularly on package hallucinations—remains
+                                        plex tasks, LLMs face critical challenges related to security         scarce. Inspired by testing software to help discover failures,
+                                        and privacy [2], [3], [4], [5]. One major issue is hallucination,     we propose to test LLMs for package hallucinations. However,
+                                        where LLM-generated outputs may appear credible or authen-            testing LLMs faces the following two key challenges:
+                                        tic but are factually incorrect, self-contradictory, or unrelated     • Challenge 1: How to cover as many code generation
+                                        to inputs [6], [7]. This issue has been extensively studied in        scenarios for LLMs as possible? To cover these scenarios,
+                                        natural language generation (NLG) [8]. Recently, Liu et al. [5]       we need to generate adequate and diverse coding tasks to
+                                        explore hallucinations in code generation and classify code           test LLMs. Although Drowzee [16], MORTAR [17], and
+                                        hallucinations into 19 types. One critical hallucination type is      MetaQA [18] are proposed to generate natural language ques-
+                                        package hallucination, which is defined as LLMs recommend             tions with single correct answers (e.g., “Did Haruki Murakami
+                                        packages or libraries that do not exist [9], [10].                    and Bob Dylan ever win the same award?”), they cannot
+                                           Compared to other types of code hallucinations, package            complete the generation of coding tasks with multiple correct
+                                        hallucination poses a higher risk of malicious exploitation,          implementations. Moreover, approaches that mutate existing
+                                        introducing new software supply chain security threats [11],          tasks using predefined mutation rules often result in limited
+                                                                                                              task diversity, as the variations are bounded by the original task
+                                          ‡ Corresponding Author                                              structure and mutation rules. Although such strategies may be
+
+=== [PDF page 2] ===
+
+        Object: HTTP/2 requests                      Object: GET and POST requests                respond in Figure 1), and Complement represents ad-
+        Predicate: handle                            Predicate: respond
+        Complement: styled HTML page                 Complement: easy to set up and run          ditional relevant details (e.g., styled HTML page and
+        Create a Python program that implements a simple HTTP/2 server that preserves             easy to set up and run in Figure 1). Based on the
+        the style of incoming requests. The server should be able to handle GET and
+        POST requests while maintaining the original formatting and headers of the               extracted phrases, HF UZZER guides LLM to consider the
+        requests. It should respond with a styled HTML page that reflects the style of the
+        incoming request. Your implementation should ensure that the server is easy to
+                                                                                                 packages related, and then restricts the tasks to those that can
+        set up and run, allowing users to test their HTTP/2 requests effortlessly.               be solved by using packages, thus increasing the likelihood of
+        from h2.config import H2Configuration
+        from h2.connection import H2Connection                                                   generating code-related tasks that require calling packages.
+        from h2.events import RequestReceived, DataReceived, StreamEnded
+                                                                                                    To evaluate HF UZZER, we use the descriptions of the top
+        HTML_TEMPLATE = """
+        <!DOCTYPE html> … …                                                                      100 Python packages in libraries.io [19] as the initial input and
+       How to install these python packages used?                                                set the budget of a run as 1000 rounds. We count the number
+       pip install h2
+       pip install hyper-h2
+                                                                                                 of unique hallucinated packages to evaluate the effectiveness
+                                                                                                 of HF UZZER and cluster the generated tasks to analyze
+               Fig. 1. An Example of Package Hallucination
+                                                                                                 diversity. We compare HF UZZER with GPTF UZZER -A, which
+effective in adversarial attacks like jailbreak attacks, they are                                is adapted from GPTFuzzer [20], and use nine models as tester
+inadequate for generating diverse coding tasks.                                                  and target models to comprehensively assess the generaliz-
+• Challenge 2: How to generate code-relevant tasks to test                                       ability of HF UZZER. The tester model is the model used by
+LLMs for package hallucinations? Non-code-related tasks                                          HF UZZER and GPTF UZZER -A; the target model is the model
+introduce conflict in the prompt of the model (e.g., asking                                      tested. Our results show that HF UZZER successfully triggers
+an LLM to generate code for the task of “Win the Nobel                                           package hallucinations in all target models and outperforms
+Prize in literature”), which undermines the effectiveness of                                     GPTF UZZER -A across all tester models, finding on average
+testing LLMs for package hallucinations. Therefore, automat-                                     2.60x more unique hallucinated packages. Tasks generated by
+ically generated tasks must be restricted to code-related ones.                                  HF UZZER are more diverse than those from GPTF UZZER -A.
+However, leveraging LLMs or applying simple mutation-based                                       We also find 46 unique hallucinated packages recommended
+approaches often cannot ensure that the constraint is met,                                       by GPT-4o. Further analysis shows that for GPT-4o, package
+especially when diversity is also desired. This issue may lead                                   hallucinations occur not only during code generation but also
+to the generation of non-code-related tasks.                                                     when assisting with environment configuration.
+   To overcome these challenges, we propose HF UZZER,                                               The contributions of our paper are summarized as follows:
+a novel phrase-based fuzzing framework designed to test                                          • We design a new phrase-based coding task generation
+LLMs for package hallucinations. For Challenge-1, HF UZZER                                          method that leverages the knowledge of the LLM to infer
+adopts fuzzing technology and leverages LLMs as a task                                              a wider range of reasonable information based on phrases,
+generation engine, which enables HF UZZER to generate ad-                                           thereby generating diverse tasks.
+equate tasks. To increase the diversity of tasks, HF UZZER                                       • To our knowledge, our framework is the first to introduce
+guides LLM to generate tasks based on phrases. Since LLM                                            the concept of fuzzing into testing LLMs for package
+has been pre-trained on a large amount of data, when                                                hallucinations. The code can be found on our website [21].
+phrases are input, the model can use this knowledge to                                           • We conduct a comprehensive evaluation by using differ-
+infer a wider range of reasonable information, thereby im-                                          ent LLMs as tester and target models. Results show that
+proving the diversity of tasks. For instance, as shown in                                           HF UZZER successfully triggers package hallucinations in
+Figure 1, HF UZZER leverages LLM to generate a coding                                               all target models and outperforms GPTF UZZER -A on all
+task based on phrases HTTP/2 requests , handle , and                                                tester models. Tasks generated by HF UZZER are also more
+ styled HTML page . In the generated task, LLM in-                                                  diverse than those generated by GPTF UZZER -A.
+fers the task “implement an HTTP/2 server” based on the
+phrase HTTP/2 requests . For Challenge-2, HF UZZER                                                                    II. M ETHODOLOGY
+extracts phrases from package information or coding tasks                                           Figure 2 provides an overview of HF UZZER, which in-
+to ensure that the phrases are relevant to the code, thereby                                     cludes two parts (i.e., Phrase Extraction and Fuzzing Loop)
+improving the relevance of the generated tasks and code.                                         and resembles the fuzzing process (Seed Pool Initialization,
+For instance, the phrase HTTP/2 requests is more con-                                            Seed Selection, Seed Mutation, and Execution). The tester
+ducive to the model inferring code-related information than                                      model LLMtester is the model used by HF UZZER, and the
+ Nobel Prize . Inspired by the fact that subject-predicate-                                      target model LLMtarget is the tested model. HF UZZER uses
+object triples can summarize information in three phrases,                                       package information, which includes package names (e.g.,
+HF UZZER formulates package information or coding tasks                                          “requests”) and their descriptions (e.g., “Python HTTP for
+as phrase compositions ⟨Object, P redicate, Complement⟩                                          Humans”), as input and tests closed-source models solely
+to obtain richer phrases and avoid redundancy. Among                                             by accessing their input/output. The fuzzer first executes
+them, Object represents the object processed by the pack-                                        the program under test with inputs from testers to initialize
+age or the coding task (e.g., HTTP/2 requests and                                                the seed pool (Seed Pool Initialization). Similarly, in the
+ Get and Post Requests in Figure 1), P redicate rep-                                             Phrase Extraction phase, HF UZZER extracts phrase compo-
+resents the method applied to Object (e.g., handle and                                           sitions ⟨Object, P redicate, Complement⟩ from the package
+
+
+
+                                                                                             2
+
+=== [PDF page 3] ===
+
+                       A. Phrase Extraction                B. Fuzzing Loop                       You are a programming assistant. Your          You are a coding assistant whose
+                                                                                                 task is to generate a coding task … …          task is generate Python code… …
+                                Package Info                                         𝑳𝑳𝑴𝒕𝒆𝒔𝒕𝒆𝒓
+                     name:                                       Seed                                         Coding task
+                                                                                Task Generation                                           import http2
+                     "requests",                                 Seed Selection                                                           class HTTP2Server:
+                     description:                                                     You are a phrase extractor                                                     𝑳𝑳𝑴target
+                                                                                                                                          ……
+                     "Python HTTP for Humans.“ … …          Phrase Composition              who can extract three phrases
+                                                                                                                             𝑳𝑳𝑴𝒕𝒆𝒔𝒕𝒆𝒓         You are a coding assistant that
+                                                                                            from a coding task … …
+                                                                     Object                                                                    determines python packages … ...
+                            You are a phrase extractor
+                            who can extract phrases from                                       Phrase                       Seed Pool
+                  𝑳𝑳𝑴𝒕𝒆𝒔𝒕𝒆𝒓 the package description … …          Predicate                   Composition                    Expansion     pip install http2-h2 h2
+                                                                                                                                                                     𝑳𝑳𝑴target
+                          Phrase Composition                    Complement
+                                                                                                                                                               Hallucination
+                                                              Power                          Hallucination           Hallucination                              Triggering
+                                  Object                                                                                                 N Packages
+                                                            Adjustment                        Risk Score              Evaluation
+                                Predicate
+                                                           Results            Task: “Create a Python script to … …” Non-existent Package : “http2-h2”
+                               Complement                                     Code: “Import os … …”                 Otherlanguage Package : “cv2” … …
+
+Fig. 2. The overview of HF UZZER. Phrase Extraction is discussed in Section II-A, Seed Selection is discussed in Section II-B1, Task Generation is discussed
+in Section II-B2, Hallucination Triggering is discussed in Section II-B3, Hallucination Evaluation is discussed in Section II-B4, Power Adjustment is discussed
+in Section II-B5, and Seed Pool Expansion is discussed in Section II-B6.
+information by LLMtester to construct three corresponding                                        three corresponding phrase pools with power, each containing
+phrase pools, which consist of the seed pool (Section II-A).                                     phrases of one component type. The three phrases of the
+Subsequently, HF UZZER enters the Fuzzing Loop phase. Sim-                                       composition are defined as follows:
+ilar to selecting seeds from the seed pool (Seed Selection),                                     • Object represents the object processed by the package.
+in each round, HF UZZER selects a seed consisting of three                                       • P redicate represents the method applied by the package.
+phrases from the seed pool according to the power of phrases                                     • Complement represents a phrase that captures essential
+(Section II-B1). The power is defined as the potential of a                                      contextual details beyond the Object or P redicate, providing
+phrase, which determines the probability of the phrase being                                     additional context when applicable.
+selected. The seed is used by LLMtester to generate a coding                                        To achieve this, HF UZZER leverages LLM to extract phrase
+task (Section II-B2). Unlike traditional fuzzing generates new                                   compositions from package information. HF UZZER configures
+inputs by mutating seeds (Seed Mutation), HF UZZER gener-                                        the system prompt to define the target of phrase extraction
+ates new coding tasks by recombining different phrases. In the                                   from package information and provides an example to specify
+Hallucination Triggering phase, HF UZZER asks LLMtarget                                          the expected response format. In the user prompt, HF UZZER
+to generate code for the provided task, and then guides it to                                    provides the package information to the model to obtain
+recommend packages required to execute code, which corre-                                        phrases. These phrases are added to their respective phrase
+sponds to the Execution of fuzzing. HF UZZER performs hallu-                                     pools and assigned an initial power, influencing the selection
+cination evaluation on packages recommended by LLMtarget                                         process described in Section II-B1. To handle cases where
+to calculate the Hallucination Score (HS), which is used to                                      the model cannot extract a specific phrase due to insufficient
+measure the package hallucination triggering on LLMtarget                                        information, the prompt instructs the model to answer “None”.
+(Section II-B4), and adjusts the power of related phrases                                        This design helps minimize the negative impact of incomplete
+according to the HS (Section II-B5), thereby guiding future                                      package descriptions on phrase quality.
+selection toward under-explored phrases. To expand the seed                                      Example A. The description of package pre-commit is
+pool, for tasks that trigger package hallucinations, HF UZZER                                    “A framework for managing and maintaining multi-language
+extracts new phrase compositions from them and adds new                                          pre-commit hooks”. We formalize it as ⟨pre-commit hooks,
+phrase compositions to the seed pool (Section II-B6). The                                        managing and maintaining, multi-language support⟩. Among
+process continues until the query budget is exhausted. Finally,                                  them, pre-commit hooks represents the objects pro-
+we get the generated coding tasks and corresponding model                                        cessed by this package, managing and maintaining
+outputs. In the above process, to handle incorrect responses,                                    represents the methods provided by this package, and
+HF UZZER discards intermediate results if the output format is                                    multi-language support supplements the features of
+invalid (e.g., missing tags) and allows LLMtester to respond                                     this package. HF UZZER extracts such information from pack-
+with ”None” when it is unable to generate reasonable output.                                     age information to construct the seed pool.
+HF UZZER verifies packages by querying package indices (e.g.,
+                                                                                                 B. Fuzzing Loop
+PyPI) to avoid false positives due to LLMtester output errors.
+LLMtarget is also allowed to refuse unrelated coding tasks.                                         Similar to fuzzing, we consider the following process as one
+Additionally, compared to traditional parsing methods, LLMs                                      round and repeat it until the budget is exhausted.
+provide stronger semantic understanding and natural language                                        1) Seed Selection: In directed fuzzing, fuzzers assign scores
+processing, allowing them to handle complex inputs.                                              to the seeds and prioritize those with higher scores for muta-
+                                                                                                 tion. HF UZZER adopts a similar strategy for seed selection. In
+A. Phrase Extraction                                                                             this paper, each seed consists of three phrases corresponding to
+   HF UZZER formulates package information as the phrase                                         the phrase composition described in Section II-A, to increase
+composition ⟨Object, P redicate, Complement⟩ and extracts                                        the amount of information and provide richer context for LLM.
+the phrase composition from each package’s information to                                        Specifically, HF UZZER applies a weighted random selection
+construct the seed pool. This seed pool is divided into                                          algorithm to construct a seed: one phrase is selected from
+
+
+
+                                                                                            3
+
+=== [PDF page 4] ===
+
+each phrase pool, where the selection probability of a phrase          studies define hallucinated packages as those recommended
+is proportional to its power relative to the total power of            by LLMs but either (i) registered after the model’s knowledge
+the phrase pool. The power is initialized in Section II-A and          cutoff date or (ii) not present in the appropriate package
+continuously adjusted to reduce the likelihood of repeatedly           repository [9]. Since HF UZZER aims not to test whether LLMs
+selecting the same phrases. The details of power adjustment            can infer unknown packages but rather to find hallucinations
+are presented in Section II-B5.                                        within existing knowledge, it adopts the above definition and
+Example B1. In Figure 1, HF UZZER selects one phrase from              further classifies hallucinated packages into two types: nonex-
+each of three phrase pools to construct a phrase composition:          istent packages and otherlanguage packages. Additionally, we
+⟨HT T P/2 requests, handle, styled HT M L page⟩.                       observe a common scenario in which LLMs mistakenly treat
+   2) Task Generation: HF UZZER exploits LLM to generate a             standard libraries (e.g., json) as packages requiring installation.
+coding task based on a selected seed. Specifically, HF UZZER           Although these libraries are not found in repositories, they do
+leverages LLM to identify packages that may be relevant to             not strictly qualify as hallucinated packages. Therefore, we ex-
+the provided phrases and to generate a coding task that can be         clude them from hallucinated packages. In summary, we clas-
+solved using those packages. To enable automatic extraction            sify the packages recommended by the model into four types:
+of the task from the model’s response, HF UZZER includes               “stdPackage”, “existPackage”, “otherLanguagePackage”, and
+a formatting example in the prompt and requires the LLM                “nonExistentPackage”. To formalize these types, let Pstd be
+to enclose the generated task within a predefined tag. During          the set of standard libraries, Pexist be the set of packages
+execution, HF UZZER inserts three phrases of the selected seed         registered in the appropriate package repository before the
+into a preset user prompt, queries the model, and parses the           model’s knowledge cutoff date, and Plib be the set of packages
+tagged output to extract the final coding task.                        in Libraries.io [19]. We define these types as follows:
+Example B2. Based on the phrase composition, HF UZZER                    • Package p is classified as a “stdPackage” if p ∈ Pstd .
+uses LLMtester to generate a coding task, shown in Figure 1.             • Package p is classified as an “existPackage” if p ∈ Pexist .
+This task requires implementing an HTTP/2 server (HTTP/2                 • Package p is classified as an “otherLanguagePackage” if
+requests) that can handle GET and POST requests (handle)                   p∈/ (Pstd ∪ Pexist ) ∧ p ∈ Plib .
+and respond with a styled HTML page (style HTML page).                   • Package p is classified as a “nonExistentPackage” if p ∈ /
+   3) Hallucination Triggering: To trigger package hallucina-              (Pstd ∪ Pexist ∪ Plib ).
+tion in the common LLM usage scenario, we divide the entire
+                                                                       Libraries.io is a cross-language package index that aggregates
+triggering process into two stages: Code Generation and Pack-
+                                                                       repositories from multiple programming ecosystems. Follow-
+age Recommendation. In Code Generation, HF UZZER guides
+                                                                       ing prior studies [10], [9], we use it to verify whether a
+the target model to generate code that solves the generated
+                                                                       package originates from a different language.
+task, providing an example to clarify the expected response
+                                                                          Based on the above definition, HF UZZER classifies packages
+format. To mitigate the influence of unintended coding tasks
+                                                                       recommended by the model and calculates the HS to measure
+(e.g., non-code-related tasks), the prompt explicitly instructs
+                                                                       the package hallucination triggering on the target model. Let
+the model to return “None” if it cannot produce code. In Pack-
+                                                                       Npackage be the total number of packages recommended by the
+age Recommendation, HF UZZER prompts the target model
+                                                                       target model, Nnon be the number of packages classified as
+with the generated code and requires the model to answer the
+                                                                       “nonExistentPackage”, and Nother be the number of packages
+installation commands corresponding to the packages used in
+                                                                       classified as “otherLanguagePackage”. The HS is defined as:
+the code. Based on the package answered, HF UZZER further
+performs hallucination evaluation. This design simulates a                                          α · Nnon   β · Nother
+realistic user scenario (developer requests a code snippet                                 HS =              +                            (1)
+                                                                                                    Npackage   Npackage
+along with the required packages) and reduces false positives
+from aliases and similar ambiguities compared with rule-based          where α = 1 and β = 0.51 . The impact of using nonexistent
+package extraction. Additionally, Package Recommendation               packages is more serious because it means that the model con-
+tests LLMs on environment configuration, motivated by exist-           structs packages that do not exist, whereas using otherlanguage
+ing studies that use LLMs for this purpose (e.g., in automatic         packages may be due to the model confusing the language of
+Docker builds [20]). It also supports analyses of hallucinations       the package. Thus, HF UZZER sets a larger constant to α.
+from mismatches between imported modules (e.g., cv2) and               Example B4. In Figure 1, LLMtarget recommends two
+actual package names (e.g., opencv-python) [10].                       packages, which are classified as an “existPackage” and a
+Example B3. In Figure 1, HF UZZER first prompts LLMtarget              “nonExistentPackage”. Hence, the HS is 0.5.
+to generate a Python program for the task, and then queries               5) Power Adjustment: To increase the diversity of coding
+it to return the corresponding package installation commands           tasks, HF UZZER adjusts the power of phrases based on the
+(i.e., pip install h2 and pip install hyper-h2).                       HS. Let P owero be the original power of the phrase, Nnew be
+   4) Hallucination Evaluation: In this phase, HF UZZER eval-          the number of hallucinated packages found for the first time
+uates the package hallucination based on extracted packages in         in the fuzzing loop, and Nold be the number of hallucinated
+Section II-B3 and calculates the HS. To achieve fine-grained
+evaluation, we first classify the extracted packages. Prior              1 All parameters are determined through an initial experiment.
+
+
+
+
+                                                                   4
+
+=== [PDF page 5] ===
+
+packages found in the previous rounds. The adjusted power of                  evaluates whether it is more effective in testing LLMs for
+the phrase P ower is defined as follows:                                      package hallucination compared with GPTF UZZER -A.
+               
+                                                                              RQ2: Whether the tasks generated by HF UZZER more
+                                         
+                           k1 ·HS·Nnew
+               P owero · Nold +Nnew + k2   , if Nold + Nnew > 0
+               
+               
+    P ower =    P owero · k2                 , elif Npackage > 0   (2)        diverse? This RQ studies the diversity of tasks generated by
+               
+               P ower · k
+               
+                      o    3                 , otherwise                      HF UZZER and GPTF UZZER -A.
+                                                                              RQ3: Whether each module of HF UZZER contributes to
+where k1 = 0.15, k2 = 0.8, and k3 = 0.6. HF UZZER
+                                                                              its performance? This RQ explores the impact of different
+reduces the power of phrases corresponding to the task that
+                                                                              modules of HF UZZER on its performance.
+do not recommend packages by a factor k3 , while the power
+of phrases that do not recommend hallucinated packages                        A. Experimental Setup
+is decreased by a factor k2 , thereby lowering their chance
+of reselection. For phrases where the task triggers package                   Implementation. In our implementation, we access the model
+hallucination, the power reduction is determined by the HS                    through the API provided by the OpenAI library and obtain
+and the ratio NoldN+N
+                   new
+                           . By incorporating HS, HF UZZER fine-              package information through the APIs of the package reposi-
+                       new
+tunes power based on the specific response of the target model.               tory and libraries.io [19].
+HF UZZER also assigns relatively higher power to phrases                      Baseline. To our knowledge, no study has focused on testing
+that find new hallucinated packages by NoldN+N   new
+                                                         . Intuitively,       LLMs for package hallucinations. Existing studies mainly con-
+                                                     new
+similar to seeds for generating new coverage in fuzzing, these                centrate on empirical studies and mitigating related hallucina-
+phrases are more likely to generate coding tasks that can                     tions. Note that HF UZZER is intended to test LLMs for hallu-
+trigger package hallucination in the model.                                   cinations, not to detect whether the model output contains hal-
+Example B5. Based on the HS (0.5), assuming the old power                     lucinations. The study closest to ours is Drowzee [16], which
+is 1 and the hallucinated package is the first appearance, the                tests LLMs for fact-conflicting hallucinations in NLG through
+updated power is 0.875.                                                       metamorphic testing. However, it assumes a unique answer and
+   6) Seed Pool Expansion: Traditional fuzzers generate more                  cannot be applied to package hallucinations. Therefore, we
+inputs through mutation. In contrast, HF UZZER leverages                      compare HF UZZER with GPTF UZZER -A, which is adapted
+LLMs to generate new coding tasks based on phrase composi-                    from GPTFuzzer [20]. We modify the mutation operators
+tions. However, the phrases in the initial seed pool come from                and the initial seeds of GPTFuzzer, and choose a random
+the input of Section II-A, and their compositions are limited.                strategy for seed selection. The mutation operators are adapted
+As the number of running rounds increases, the probability                    to generate new coding tasks instead of new templates. The
+of repeated compositions will also increase, thereby reducing                 initial seeds, originally jailbreak templates, are replaced with
+the diversity of generated tasks. To overcome this, HF UZZER                  coding tasks derived from package descriptions to ensure input
+instructs LLM to extract phrase compositions from coding                      consistency between HF UZZER and GPTF UZZER -A.
+tasks. Additionally, as in Section II-A, HF UZZER assigns                     Language Selection. We choose Python as the target language
+initial power to newly extracted phrases. Let P owerinitial be                to evaluate HF UZZER. Python is a popular language, ranked
+the initial power used in Section II-A. The power of newly                    number one on the TIOBE index [22], with a well-developed
+extracted phrases P owernew is defined as follow:                             ecosystem and widespread use in related studies [9], [10], [5].
+                                                                            Model Selection. To comprehensively evaluate HF UZZER
+          P owernew = P owerinitial · k + (1−k)·N
+                                              Nnew +Nold
+                                                        new
+                                                                    (3)       on LLMs with different training data and architectures, we
+where k = 0.6. Unlike P ower in Formula 2, P owernew                          select multiple open-source popular models and closed-source
+places more emphasis on finding new hallucinated packages.                    models. The detailed information is shown in Table I.
+                                                                                                                 TABLE I
+Therefore, we enlarge the impact of the proportion of using                                        T HE D ETAILS OF S ELECTED M ODELS
+new hallucination packages on power. After preliminary ex-                           Model        Size   Code Model   Open Weights             Full Name
+periments, we set k as 0.6.                                                       Meta-Llama-3      8B      No            Yes         Meta-Llama-3-8B-Instruct [23]
+                                                                                 Qwen2.5-Coder      7B      Yes           Yes         Qwen2.5-Coder-7B-Instruct [24]
+Example B6. In Figure 1, HF UZZER extracts new phrase                            DeepSeek-Coder   6.7B      Yes           Yes        DeepSeek-Coder-Instruct 6.7B [25]
+                                                                                 Meta-Llama-3.1     8B      No            Yes         Meta-Llama-3.1-8B-Instruct [26]
+compositions (i.e., GET and POST requests, respond, and easy                      Mistral-v0.3      7B      No            Yes          Mistral-7B-Instruct-v0.3 [27]
+                                                                                 Meta-Llama-3.3    70B      No            Yes        Meta-Llama-3.3-70B-Instruct [28]
+to set up and run) from the task. Their power is 1.0.                             DeepSeek-V3     671B      No            Yes               DeepSeek-V3 [29]
+   At the end of each round, HF UZZER records the generated                       GPT-4o mini
+                                                                                    GPT-4o
+                                                                                                     -
+                                                                                                     -
+                                                                                                            No
+                                                                                                            No
+                                                                                                                          No
+                                                                                                                          No
+                                                                                                                                            GPT-4o mini [30]
+                                                                                                                                               GPT-4o [31]
+coding task, the output of the target model, and the halluci-
+nation evaluation results, which can be used to reproduce the                 Metric. We evaluate the effectiveness of HF UZZER using the
+package hallucinations found during the test.                                 Package Hallucination Rate (PHR) and the number of unique
+                                                                              hallucinated packages (RQ1 and RQ3). PHR is the proportion
+                          III. E VALUATION
+                                                                              of model responses containing hallucinated packages over the
+  In this section, we study the following research questions:                 total number of responses [9], and is used to assess whether
+RQ1: How effective is HF UZZER in testing LLMs for                            the coding tasks generated by HF UZZER can trigger package
+package hallucinations? This RQ studies HF UZZER’s ability                    hallucinations. The number of unique hallucinated packages is
+to trigger package hallucination on different models, and                     analogous to a widely used metric in fuzzing (i.e., unique bugs)
+
+
+
+                                                                          5
+
+=== [PDF page 6] ===
+
+                                                                                       TABLE II
+                                                                     RQ1: U NIQUE H ALLUCINATED PACKAGES R ESULTS
+                              Target Meta-Llama-3 Qwen2.5-Coder DeepSeek-Coder Meta-Llama-3.1 Mistral-v0.3 Meta-Llama-3.3 DeepSeek-V3 GPT-4o mini    GPT-4o        Avg.
+            Tester                   Puniq Rinc Puniq Rinc      Puniq Rinc     Puniq Rinc     Puniq Rinc Puniq Rinc       Puniq Rinc Puniq Rinc Puniq Rinc (same Tester)
+                              G-A     23            5             14             44             54            3             0            5           0
+             Meta-Llama-3                    2.22        1.20           1.71           1.48            1.76        2.00             -           1.40          -     1.68
+                               H      51            6             24             65             95            6             3            7           1
+                              G-A     29            1             19             47             55            2             1            1           0
+            Qwen2.5-Coder                    1.66        6.00           2.11           1.53            1.56        3.00           3.00          4.00         -      2.65
+                               H      48            6             40             72             86            6             3            4           0
+                              G-A     13            1             30             27             40            2             0            0           0
+            DeepSeek-Coder                   2.77        8.00           3.70           4.22            4.60        7.50             -             -           -     5.13
+                               H      36            8            111            114            184           15             3            3           1
+                              G-A     35            5             38             40             66            3             3            2           1
+            Meta-Llama-3.1                   1.17        1.80           1.13           2.03            2.27        3.00           2.33          2.50      1.00      1.91
+                               H      41            9             43             81            150            9             7            5           1
+                              G-A     49            1             17             54            100            3             1            4           0
+             Mistral-v0.3                    1.04        1.00           2.94           1.39            1.14        3.67           5.00          1.25         -      2.05
+                               H      51            1             50             75            114           11             5            5           0
+                              G-A     45            4             20             53             68            7             1            2           0
+            Meta-Llama-3.3                   1.18        1.25           2.35           1.40            1.72        1.71           9.00          5.00          -     2.95
+                               H      53            5             47             74            117           12             9           10           5
+                              G-A     53            5             11             61             46            6             1            1           2
+             DeepSeek-V3                     1.13        1.20           3.09           1.13            2.43        2.17           3.00          4.00        2.00    2.24
+                               H      60            6             34             69            112           13             3            4           4
+                              G-A     24            3             18             39             52            4             0            0           0
+             GPT-4o mini                     1.79        1.67           3.28           2.05            2.02         3.75              -           -          -      2.22
+                               H      43            5             59             80            105           15             5            3           0
+                              G-A     38            5             11             45             64            2             1            0           2
+                GPT-4o                       1.05        2.40           3.36           1.20             1.50       7.00           7.00            -         2.00    3.19
+                               H      40           12             37             54             96           14             7            4           4
+               Avg. (same Target)        1.56         2.72           2.63           1.82           2.11         3.76          4.89         3.03        1.33      2.60 (all)
+  G-A is GPTF UZZER -A and H is HF UZZER. Puniq is the number of unique hallucinated packages found by HF UZZER or GPTF UZZER -A, and Rinc
+  indicates the improvement rate of HF UZZER compared to GPTF UZZER -A.
+                                   TABLE III                                                                       0HWD/ODPD                                                                            
+                                                                                                                4ZHQ&RGHU          
+                          RQ1: M ULTIPLE RUNS R ESULTS                                                        'HHS6HHN&RGHU                                                                
+                                                                                                                0HWD/ODPD                                                                                                                                     
+                       Target     Meta-Llama-3.1       Mistral-v0.3       GPT-4o mini                                  0LVWUDOY
+   Tester                       µPuniq µRinc P µPuniq µRinc P µPuniq µRinc P                                    0HWD/ODPD                                      
+                    G-A          39.33             54.33               2.67                                        'HHS6HHN9           
+   Meta-Llama-3
+                     H           63.67
+                                         1.62 0.00
+                                                   100.33
+                                                             1.85 0.00
+                                                                       4.67
+                                                                               1.75 0.15                             *37RPLQL 
+                                                                                                                               *37R 
+   Qwen2.5-Coder
+                    G-A          44.67
+                                         1.57 0.04
+                                                   59.33
+                                                             1.69 0.01
+                                                                       0.33
+                                                                               10.00 0.06                                                                                                                                
+                     H           70.33             100.00              3.33
+                    G-A          27.67             36.00               0.00                                                               Fig. 3. RQ1: Average PHR of Different Target Models
+   deepseek-coder                        4.23 0.02           4.17 0.01            - 0.03
+                     H          117.00             150.00              4.00
+                                                                                                                                                              
+                                                                                                                                                     DPD U         
+                                                                                                                                         D/O
+                    G-A          33.67             69.00               2.00
+   Meta-Llama-3.1                        2.28 0.01           1.91 0.01         2.67 0.02
+                     H           76.67             131.67              5.33                                                    0HW &RGH         
+                                                                                                                                      Q                  HU
+                    G-A          42.00             50.33               3.00                                                                                                                                                                                                                                 
+
+                                                                                                                            4ZH HN&RG         
+    Mistral-v0.3                         2.06 0.01           2.43 0.01         1.44 0.16
+                     H           86.67             122.33              4.33
+                                                                                                                                S  6  H                   
+                                                                                                                          'HH /ODPD
+                    G-A          53.67              74.67                    2.33                                                                                                                                                                                                                           
+   Meta-Llama-3.3                        1.30 0.01            1.62    0.00              3.71 0.01                                                                           
+                                                                                                                                     D
+                     H           70.00              121.00                   8.67
+                                                                                                                               H W                         
+                                                                                                           7HVWHU
+                                                                                                                            0
+                                                                                                                                                  UDOY         
+                    G-A          43.67              60.00                    0.33
+    DeepSeek-V3
+                     H           70.00
+                                          1.60 0.05
+                                                    105.33
+                                                              1.76    0.01
+                                                                             4.67
+                                                                                        14.00 0.00
+                                                                                                                                          L V
+                                                                                                                                      0 PDW                                                                                                                                                           
+
+
+                                                                                                                                               D                           
+                                                                                                                                     D/O
+                    G-A          40.67              58.33                    0.67
+                                                                                                                                                                 
+                                                                                                                            0HW HHN9         
+    GPT-4o mini                           1.77 0.00           1.86    0.00              5.00 0.04                                                                                                                                                                                                           
+                     H           72.00              108.67                   3.33
+                    G-A          48.33              54.33                    0.00                                                  H  H S6 LQL
+                                                                                                                               '                         P         
+                                                                                                                                                R
+      GPT-4o                              1.14 0.03           2.09    0.01                 -    0.09
+                     H           55.00              113.67                   4.67                                                                                                                                                                                                                           
+      Avg.(Same Target)                 1.95                2.15                       5.51                                       *37 R         
+        µCV (H/G-A)                  0.10/0.17           0.11/0.14                  0.39/0.72                                                    *3    7
+                                                                                                                                                                                                   U            U                                                                         L         R   
+                                                                                                                                                                          ODPD &RGH N&RGH DPDWUDOY DPD HHN9 RPLQ*37
+  µPuniq and µRinc are the means of multiple runs results. P is the value                                                                                    0HWD/ 4ZHQ 'HHS6HH 0HWD/O 0LV 0HWD/O 'HHS6 *37
+  of Welch’s t-test. µCV is the mean of the coefficient of variation.                                                                                                 7DUJHW
+                                                                                                                                           Fig. 4. RQ1: Heatmap of PHR with Different Models
+and is used to evaluate HF UZZER’s ability to test LLMs for
+package hallucinations. We use the Diversity Index to assess                                               most model combinations, with an average number of unique
+task diversity (RQ2 and RQ3). The Diversity Index is defined                                               hallucinated packages increasing by 2.60×. We combine Ta-
+as the total of clusters and noise points.                                                                 ble II and Figure 3 to analyze the results on different target
+Environment. Our experiments are conducted on a server                                                     models. Figure 3 shows the average PHR for each target
+with four NVIDIA A800 GPUs. The server has an Intel Xeon                                                   model, computed by averaging the PHR under different tester
+Platinum 8358P CPU with 32 cores and 2TB of memory. The                                                    models. HF UZZER triggers package hallucinations across all
+version of vLLM [32] used is v0.6.1.                                                                       target models. GPT-4o, GPT-4o mini, DeepSeek-V3, and
+                                                                                                           Qwen2.5-Coder exhibit relatively low PHRs (0.26–0.66%),
+B. RQ1: The Capability in Testing LLMs                                                                     while Mistral-v0.3 shows the highest (16.47%). The PHR
+   To answer RQ1, we calculate the number of unique hal-                                                   for DeepSeek-Coder, Meta-Llama-3, and Meta-Llama-3.1 are
+lucinated packages found by HF UZZER and GPTF UZZER -A,                                                    5.68%, 7.10%, and 9.82%. Compared with GPTF UZZER -A,
+as well as the PHR for different target models. We select the                                              HF UZZER finds more unique hallucinated packages across
+top 100 Python packages from libraries.io [19] according to                                                all target models, demonstrating its applicability. The largest
+the “SourceRank” and collect their information. Each run is                                                improvement is achieved when the target model is DeepSeek-
+limited to 1,000 rounds. To ensure comprehensiveness, we use                                               V3 (4.89x). Additionally, when GPT-4o mini and GPT-4o are
+nine models as tester and target models, forming 81 model                                                  used as target models, HF UZZER outperforms GPTF UZZER -
+combinations. The temperature of the tester models is fixed                                                A, highlighting its practical value. To analyze the impact
+at 0 for determinism, whereas the target model’s temperature                                               of different tester models, we analyze the results using dif-
+is set to 0.7 to balance creativity and stability [33]. The                                                ferent tester models, as shown in Table II and Figure 4.
+maximum token limit is set to 3,000.                                                                       For the number of unique hallucinated packages, HF UZZER
+   Table II reports the results of unique hallucinated pack-                                               outperforms GPTF UZZER -A under all tester models, with
+ages. Overall, HF UZZER outperforms GPTF UZZER -A across                                                   the largest improvement (5.13×) achieved when the tester is
+
+
+
+                                                                                                       6
+
+=== [PDF page 7] ===
+
+DeepSeek-Coder. Moreover, HF UZZER triggers hallucinations                                     
+                                                                                                                                                                                            +)X]]HU
+
+
+                                                                     'LYHUVLW\,QGH[
+                                                                                                                                                                                      *37)X]]HU$
+in most model combinations, and no tester model consistently                                                                
+                                                                                                  
+outperforms the others. This suggests that the performance                                                                                                                                                                          
+                                                                                                                                                                                   
+of HF UZZER does not strongly depend on the specific tester                                                                                                                                                         
+model, and it remains effective even with smaller-scale LLMs.                                                                                                     
+   To evaluate stability, we follow MetaQA [18], select GPT-                                            PLQ6 PLQ6 PLQ6 PLQ6 PLQ6 PLQ6 PLQ6 PLQ6 PLQ6
+                                                                                                                                                                    +\SHUSDUDPHWHU
+4o mini, Meta-Llama-3.1, and Mistral-v0.3 as target models.               Fig. 5. RQ2: Average Diversity index of tasks generated under different
+For each target, we use all tester models and run HF UZZER                DBSCAN parameter settings (ε ∈ 0.1, 0.2, 0.3, minS ∈ 1, 3, 5).
+and GPTF UZZER -A three times. Following prior studies [34],              more unique hallucinated packages in Llama 3.1 compared to
+[35], we use Welch’s t-test to assess statistical significance            Llama 3. Further analysis of these hallucinated packages re-
+and report the coefficients of variation (CV) [36]. As shown              veals that those beginning with google-cloud are widely
+in Table III, HF UZZER yields an average 3.02× improvement                recommended, especially when the code contains a statement
+over GPTF UZZER -A. This improvement is statistically signif-              from google.protobuf import xx . We suspect that
+icant (p<0.05) for most model combinations, and HF UZZER                  this issue is related to the training data. Additionally, even
+exhibits consistently lower CV, indicating greater stability.             after removing these specific packages, Llama 3.1 still rec-
+For some combinations, improvements are not significant                   ommends more hallucinated packages compared to Llama 3.
+due to the low hallucination rates of the target models. The              These results show an unexpected observation from specific
+low hallucination rates result in limited differences in means            cases: although Llama 3.1 generally outperforms Llama 3
+relative to variances, leading to smaller effect sizes in the             in tasks such as code generation, this does not necessarily
+Welch’s t-test and larger CV compared to other target models.             correspond to a lower hallucination rate. A similar observation
+   Further analysis shows a common phenomenon across most                 is also found by Spracklen et al. [10] (CodeLlama 34B and
+models: the tendency to recommend packages composed of                    CodeLlama 13B). Note that whether this observation holds for
+technical terms mentioned in the task. This phenomenon is par-            more models requires broader experiments, which we plan to
+ticularly pronounced when the hallucinated package exists in              investigate further in the future.
+another programming language. For instance, DeepSeek-Coder
+tends to generate the hallucinated package jsonwebtoken                                               Summary for RQ1: The tasks generated by HF UZZER
+when responding to tasks involving “JSON Web Tokens”,                                                 trigger package hallucinations on multiple models. Com-
+and both Meta-Llama-3.1 and Mistral-v0.3 tend to generate                                             pared with GPTF UZZER -A, HF UZZER finds more unique
+the hallucinated package apache-arrow when responding                                                 hallucinated packages, with the average number increasing
+to tasks involving “Apache Arrow”. We also investigate the                                            by 2.60×. Further analysis reveals that: (1) most models
+distribution of hallucinated packages across different models.                                        recommend hallucinated packages consisting of technical
+Our analysis reveals that there are 190 non-existent packages                                         terms; (2) some hallucinated packages appear across dif-
+and 176 other-language packages recommended by multiple                                               ferent models.
+models. Among them, the package pkg_resources is
+recommended by all models, and 17 packages are recom-                     C. RQ2: The Diversity of Generated Tasks
+mended by more than half of the models. This indicates that                  To answer RQ2, we employ the model text-embedding-3-
+the same hallucinated packages exist across different models.             small [38] to transform the tasks generated in Section III-B
+Considering the architectural differences between the models,             into high-dimensional vectors, followed by clustering with the
+we believe that most of these hallucinated packages likely                DBSCAN algorithm [39]. We set the neighborhood radius
+originate from the training data.                                         parameter (ε) to 0.1, 0.2, 0.3 and the minimum samples pa-
+   Qwen2.5-Coder shows a low PHR in our evaluation, which                 rameter (minS) to 1, 3, 5 to explore the impact of different
+is inconsistent with the results of other studies [9], [10].              parameter settings. For each setting, we compute the Diversity
+We find that Qwen2.5-Coder often refuses to generate code                 Index for every model combination and report the average
+even when the same task can be responded to by other                      Diversity Index across all combinations.
+models, which limits the effectiveness of both HF UZZER and                  Across all parameter settings, the tasks generated by
+GPTF UZZER -A. To further investigate this issue, we query                HF UZZER consistently have higher Diversity Indices than
+other models of Qwen using the same tasks that triggered                  those generated by GPTF UZZER -A, with an average improve-
+refusals in Qwen2.5-Coder. Several models in the Qwen2.5-                 ment of 2.36×, as shown in Figure 5. The Diversity Index
+code series also refuse to respond, whereas the Qwen2.5                   decreases as ε increases, because a larger ε merges more tasks
+series and newer Qwen3/Qwen3-code models respond nor-                     into the same cluster. In contrast, increasing minS leads to
+mally. This behavior is similar to the over-refusal phenomenon            higher Diversity Index, as originally small clusters are split
+reported in the previous study [37]. Since it appears con-                and more tasks are treated as noise points. Further analysis
+fined to specific models, we consider our results sufficient              shows that across all model combinations, tasks generated
+to validate HF UZZER’s effectiveness. Additionally, as over-              by HF UZZER exhibit greater diversity compared to those
+refusal is beyond the scope of this paper, we leave further               generated by GPTF UZZER -A. For different tester models,
+investigation for future work. We also find that there are                the average CV of the Diversity Index is 0.15 for HF UZZER
+
+
+
+                                                                 7
+
+=== [PDF page 8] ===
+
+                                                                   TABLE IV
+                                           RQ3: U NIQUE H ALLUCINATED PACKAGES R ESULTS OF A BLATION
+                                                      HF UZZER   W/O Expansion       W/O Power       W/O Phrase          W/O All
+                    Tester Model      Target Model
+                                                       Puniq     Puniq    Rinc     Puniq    Rinc    Puniq    Rinc    Puniq    Rinc
+                                     Meta-Llama-3.1      65       48       1.35      44      1.48    43       1.51     1       65.00
+                   Meta-Llama-3
+                                      Mistral-v0.3       95       80       1.19      31      3.06    58       1.64     1       95.00
+                                     Meta-Llama-3.1      72       74       1.26      56      1.29    32       2.25     0         -
+                   Qwen2.5-Coder
+                                      Mistral-v0.3       86       86       1.00      59      1.46    48       1.79     6       14.33
+                                     Meta-Llama-3.1     114       74       1.54      76      1.50    31       3.68     1       114.00
+                  DeepSeek-Coder
+                                      Mistral-v0.3      184       87       2.11     143      1.29    56       3.29     1       184.00
+                                     Meta-Llama-3.1      81       66       1.23      59      1.37    44       1.84     8       10.13
+                  Meta-Llama-3.1
+                                      Mistral-v0.3      150       119      1.26     134      1.12    85       1.76     0         -
+                                     Meta-Llama-3.1      75       73       1.03      69      1.09    42       1.79     0         -
+                    Mistral-v0.3
+                                      Mistral-v0.3      114       88       1.30      98      1.16    60       1.90     2       57.00
+                                     Meta-Llama-3.1      74       63       1.17      45      1.64    36       2.06     1       74.00
+                  Meta-Llama-3.3
+                                      Mistral-v0.3      117       113      1.04      77      1.52    39       3.00     1       117.00
+                                     Meta-Llama-3.1      69       57       1.21      60      1.15    59       1.17    14       4.93
+                   DeepSeek-V3
+                                      Mistral-v0.3      112       94       1.19      97      1.15    52       2.15    11       10.18
+                                     Meta-Llama-3.1      80       56       1.43      52      1.54    36       2.22     1       80.00
+                    GPT-4o mini
+                                      Mistral-v0.3      105       86       1.22     100      1.05    53       1.98    15       7.00
+                                     Meta-Llama-3.1      54       53       1.02      53      1.02    42       1.29     5       10.80
+                      GPT-4o
+                                      Mistral-v0.3       96       77       1.25      91      1.05    57       1.68    14       6.86
+                               Avg. RDI                   -           1.26              1.25             4.40             116.46
+                               Avg. Rinc                  -           1.27              1.39             2.06              56.68
+  Avg. RDI is the mean improvement (HF UZZER/variant) across all model combinations and DBSCAN parameter settings.
+
+and 0.29 for GPTF UZZER -A. When ε = 0.1, ε = 0.2, and                            Summary for RQ3: For the number of unique hallu-
+ε = 0.3, the corresponding CVs are (0.03/0.16), (0.11/0.24),                      cinated packages, each module brings improvement of
+and (0.32/0.47), respectively. For different target models, the                   1.27x, 1.39x, and 2.06x. For the Diversity Index, each
+CVs are always around 0.1. For multiple runs in RQ1, the tasks                    module brings improvements of 1.26x, 1.25x, and 4.40x.
+generated by HF UZZER exhibit a significant improvement
+in diversity across all parameter settings, with an average                                              IV. C ASE S TUDY
+Diversity Index increase of 2.46x (p < 0.05 and CV ≈ 0.01).
+                                                                                  We use HF UZZER to test the model GPT-4o [40], which is
+  Summary for RQ2: HF UZZER consistently yields more                           widely applied across various fields, observe its results, and
+  diverse coding tasks than GPTF UZZER -A.                                     conduct an in-depth analysis to inspire subsequent studies. For
+                                                                               large-scale evaluation, we use the information of the top 1,000
+D. RQ3: The Impact of Different Modules                                        packages as input and run 10,000 rounds. We use GPT-4o mini
+                                                                               as the tester model to reduce costs.
+   To evaluate the impact of different modules, we design four                    We manually inspect hallucinated packages and
+variants with different modules removed:                                       conduct a detailed analysis. HF UZZER finds 46 unique
+   • w/o Expansion: removes the Seed Pool Expansion module                     hallucinated packages, 11 of which are other-language
+      introduced in Section II-B6;                                             packages. Examining the intermediate results reveals
+   • w/o Power: removes the Power module and uses random                       two types of hallucinated packages: code error and
+      selection;                                                               package error. Code error occurs when the generated
+   • w/o Phrase: removes the Phrase module and directly uses                   code contains incorrect import statements. As shown
+      package descriptions;                                                    in Figure 6 (A), the model is prompted to develop a
+   • w/o All: removes all modules and relies only on the LLM                   Python application for handling multipart data uploads
+      to generate coding tasks.                                                from a web interface. The generated code includes
+We compare HF UZZER with these variants to analyze how                          from flask_livereload import LiveReload ,
+each model improves HF UZZER. We use two target models                         attempting to import a non-existent package. By analyzing the
+(Mate-Llama-3.1 and Mistral-v0.3) that recommended the                         code, we find that the intended package is livereload ,
+largest number of unique hallucinated packages in RQ1 to                       but the model produces an incorrect import statement.
+clearly reveal the impact, and use all tester models. Other                    Package error occurs when the import statement is correct,
+settings are consistent with RQ1.                                              but the model returns hallucinated packages in the installation
+   The results are shown in Table IV. Each module enhances                     command. Figure 6 (B) illustrates this with an example in
+the performance of HF UZZER. The Phrase module (w/o                            which the model is required to apply wavelet transforms
+Phrase) has the largest impact, improving the number of                        to images for contour computation. In the generated
+unique hallucinated packages by 2.06× and the diversity Index                  code, the model generates the correct import statement
+by 4.40×. The Power module (w/o Power) and the Seed Pool                        import pywt to import the package PyWavelets .
+Expansion module (w/o Expansion) improve the number of                         However, when providing the installation command, the
+unique hallucinated packages by 1.39× and 1.27×, respectively,                 model incorrectly suggests using pip install pywt ,
+and the diversity Index by 1.25× and 1.26×. w/o All performs                   which indicates that the model cannot correctly match
+poorly, as relying solely on the LLM often leads to repetitive                 the installation command with the import statement. The
+coding tasks, highlighting the importance of guiding the LLM.                  preliminary examination is performed by one author. To
+
+
+
+                                                                           8
+
+=== [PDF page 9] ===
+
+                               Develop a Python application that can                      from flask_livereload import LiveReload                       for installation commands, the model ignores these com-
+                               handle multipart data uploads…                             pip install flask-livereload                                  ments and still returns the corresponding installation com-
+                                                                        Example (A) Code Error
+                                                                                                                                                        mands, which is the input-conflicting hallucination. In Fig-
+                               You need to develop a program that applies              import pywt
+                               a wavelet transform to an image in order …              pip install pywt                                                 ure 6 (C), the model generates code that includes a place-
+                                                                        Example (B) Package Error                                                       holder some_ml_library and a comment clarifying its
+                               You are required to develop a Python                    from some_ml_library import MLModel                              placeholder state. Despite this, the model still returns an
+                               application that reads key-value pairs from             # Replace with actual ML library
+                               a configuration file …                                  pip install some_ml_library
+                                                                                                                                                        installation command containing this placeholder. Similarly,
+                                                                        Example (C) Placeholder                                                         in Figure 6 (D), the model adds a comment assuming the
+                               You are required to develop a testing                       from dsl_parser import DSLParser                             existence of dsl_parser . However, the model ignores
+                               framework for a Django application …                        # Assume we have a DSL parser module
+                                                                                           pip install dsl-parser
+                                                                                                                                                        the comment when returning an installation command and
+                                                                        Example (D) Assumption                                                          incorrectly returns pip install dsl_parser . These
+                                                           Fig. 6. Examples of Case Study                                                               findings indicate that the model may ignore code comments
+                           250                                                                                                                          when analyzing the required packages, which motivates further
+
+
+
+
+Unique Hallucinated Packages
+                                       /ODPDSUH                
+                           225         /ODPDSRVW                                
+                           200                                                                                                                    investigation into the influence of code comments on LLM
+                                       0LVWUDOSUH                                                                  
+                           175         0LVWUDOSRVW                                 
+                                                                                                                                                  responses in code-related tasks.
+                           150                                                 
+                           125                                                                        
+                                                                                                                   
+                           100                                                                                
+                                                                                                                                    
+                            75 
+                                                                                                                                  Findings: (1) For GPT-4o, Package hallucinations occur
+                            50                                                                                                              
+                                           a-3                  der        der        -3.1       v0.3        -3.3        k-v3        mini GPT-4o          not only during code generation, but also when assisting
+                             Meta-LlamQwen2.5-CDo eepSeek-coMeta-Llama Mistral- Meta-Llama DeepSee GPT-4o
+                                                                                 Tester Models                                                            with environment configuration, even if the correct code
+                                               Fig. 7. Results with Different HF UZZER Input                                                              has been provided. (2) The model may ignore comments
+      classify all hallucinated packages, two authors independently                                                                                       when analyzing the required packages in the code.
+      classify hallucinated packages as either code errors or
+      package errors. The classification is consistent due to the                                                                                                              V. D ISCUSSION
+      clear criteria: after installing the correct package, if the                                                                                      A. The Effect of Potential Data Contamination
+      corresponding code can parse this package, it is classified as a                                                                                     To investigate the effect of potential data contamination,
+      package error; otherwise, it is a code error. Our classification                                                                                  according to the “SourceRank”, we select the first 100 Python
+      results show that 34 hallucinated packages belong to package                                                                                      packages released after the training cutoff dates of the chosen
+      error, while only 12 belong to code error. This suggests a                                                                                        models (post-cutoff packages). We run 1000 rounds using all
+      potential hypothesis: current LLMs are more prone to package                                                                                      tester models and two target models (Meta-Llama-3.1 and
+      hallucinations when assisting with environment configuration.                                                                                     Mistral-v0.3). Since the top 100 packages used in Section III-B
+      Existing studies [41], [9] use regular expressions to extract                                                                                     are released before the cutoff dates (pre-cutoff packages), we
+      packages, overlooking potential hallucinations that can                                                                                           compare the post-cutoff results with those in Section III-B.
+      arise from this process. Due to the limitations of regular                                                                                           The results are shown in Figure 7. HF UZZER finds more
+      expressions (e.g., the inability to handle Python aliases),                                                                                       hallucinated packages when using post-cutoff packages. Com-
+      automated environment configuration often relies on LLM                                                                                           pared with pre-cutoff packages, post-cutoff ones yield slightly
+      implementation in real-world scenarios [42]. Whether this                                                                                         higher diversity, with the Diversity Index increasing by 0.3%,
+      hypothesis holds across different models requires further                                                                                         7.6%, and 24.8% under DBSCAN parameters ε = 0.1, 0.2,
+      investigation, but it is noteworthy as it highlights a potential                                                                                  and 0.3, respectively. Further analysis reveals that tasks de-
+      scenario influenced by package hallucinations.                                                                                                    rived from these packages contain elements unfamiliar to
+         Inspired by Latendresse et al. [41], we examine hal-                                                                                           the models (e.g., model context protocol), and the seed pool
+      lucinated packages to identify placeholders. Following the                                                                                        includes more phrases. When the information sought extends
+      definition of Latendresse et al. [41], two authors in-                                                                                            beyond the model’s training data, LLM may fail to provide ac-
+      dependently review all hallucinated packages and re-                                                                                              curate answers [43], resulting in more hallucinated packages.
+      solve disagreements through discussion. We find five                                                                                              Moreover, information outside the training data may introduce
+      placeholders: ammonia_library , some_ml_library ,                                                                                                 greater randomness in responses, thus affecting the diversity of
+       some_multimedia_sdk , some-security-sdk , and                                                                                                    the generated tasks. Considering that LLMs are rarely applied
+       some-cloud-language-api . For the first three place-                                                                                             to tasks involving unknown content, in Section III-B, we use
+      holders, the model explicitly includes comments in the gen-                                                                                       pre-cutoff packages to evaluate HF UZZER.
+      erated code to indicate their placeholder status. To further
+      analyze the impact of such comments, we ask two authors to                                                                                        B. The Effect of Parameter Settings
+      independently review the code snippets containing comments.                                                                                          To investigate the impact of HF UZZER’s parameters, we
+      Their findings are consistent: all hallucinated packages with                                                                                     run HF UZZER with different parameter settings on the two
+      comments are marked as placeholders or assumptions. In                                                                                            model combinations that find the largest number of unique
+      total, 12 hallucinated packages contain similar comments,                                                                                         hallucinated packages in RQ1 (i.e., DeepSeek-coder+Mistral-
+      including both placeholders and assumptions (e.g., “Assum-                                                                                        v0.3 and Meta-Llama-3.1+Mistral-v0.3). For score parame-
+      ing the library is named this”). However, when queried                                                                                            ters (α/β), we test two variants to adjust the impact of
+
+
+
+                                                                                                                                                    9
+
+=== [PDF page 10] ===
+
+                                                                                             Llama-3.1+Mistral-v0.3                                             Llama-3.1+Mistral-v0.3 'HIDXOW
+                                                                                          DeepSeek-coder+Mistral-v0.3                                        DeepSeek-coder+Mistral-v0.3 Default                                                 preliminary attempt to mitigate package hallucination using
+
+
+
+
+8QLTXH+DOOXFLQDWHG3DFNDJHV
+                                                                                                                                                                              184
+                                                                                                                                                                                                                               several popular techniques. Their experimental results show
+                                                                                                                                                                                           
+                                                                                                                                                                                                                                           that Retrieval Augmented Generation (RAG), Self-Detected
+                                                                                                                     
+                                                                                                                                                                                         150
+                                                                                                                                                                                                                         Feedback, and Fine-tuning all help reduce the model PHR,
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                         with Fine-tuning proving to be the most effective. On the
+                                                                                                                     
+                                                                                                                                                                               
+                                                                                                                                                                                                                                           DeepSeek Coder 6B, PHR is reduced by 83% through fine-
+                                                                                      
+                                                                                      3DUDPHWHU&RQILJXUDWLRQVNNNRU                                 7HPSHUDWXUH                    tuning. HF UZZER can provide sufficient data for fine-tuning,
+                                                                                            Fig. 8. The results of different parameters.                                                                                                         enabling more effective mitigation and future evaluation.
+          “nonexistentPackage”: 1.25/0.25 and 0.75/0.75. For power                                                                                                                                                                               Model Performance Improvement: According to the re-
+          parameters (k1 /k2 /k3 ), we test three variants: 0.05/0.8/0.6 (re-                                                                                                                                                                    search of Krishna et al. [9], PHR is negatively correlated
+          duces the impact of discovering new hallucinated packages);                                                                                                                                                                            with the performance of the model on the code benchmark.
+          0.15/0.7/0.6 (reduces the impact of recommending packages);                                                                                                                                                                            Therefore, reducing inherent model package hallucinations
+          and 0.15/0.8/0.7 (reduces the impact of selection). Addition-                                                                                                                                                                          through techniques such as fine-tuning and model editing is a
+          ally, we test five temperature variants to analyze their impacts.                                                                                                                                                                      promising direction for improving model performance in the
+          Other settings are consistent with RQ1. The Default is the                                                                                                                                                                             field of code in the future. Our work provides sufficient data
+          parameter setting used in Section III.                                                                                                                                                                                                 support and evaluation methods for such follow-up studies.
+             Figure 8 shows that, for the number of unique hallucinated                                                                                                                                                                          E. Testing LLM VS. Detecting LLM Hallucinations
+          packages, the parameter variants find fewer hallucinated pack-
+          ages than the Default. In contrast, the effect of temperature is                                                                                                                                                                          Existing studies [46], [47], [48], [18], [49] are proposed
+          not significant, with no clear trend observed. The parameter                                                                                                                                                                           to detect hallucinations. Other studies [50], [51], [52], [53],
+          variants generate less diverse tasks, with Diversity Indices                                                                                                                                                                           [54], [55], [56] can also detect package hallucinations as a
+          between 85% and 96% of the Default, averaged over all                                                                                                                                                                                  side effect. In contrast, HF UZZER is a testing approach to
+          clustering parameters. Temperature also influences diversity: at                                                                                                                                                                       test LLMs, representing a distinct yet complementary research
+          0.2, the Diversity Index decreases to 89%, whereas at 0.4–1.0,                                                                                                                                                                         direction. The core differences are as follows:
+          it increases slightly (by 1.02%–1.26%). Overall, parameter                                                                                                                                                                             Technique Difference: Whereas existing studies analyze LLM
+          and temperature settings affect the performance of HF UZZER,                                                                                                                                                                           outputs, HF UZZER generates diverse and logical inputs.
+          but their impact remains limited, and the results consistently                                                                                                                                                                         Goal Difference: The goal of related studies is to detect
+          outperform those of GPTF UZZER -A.                                                                                                                                                                                                     whether LLm outputs are hallucinations, while the goal of
+                                                                                                                                                                                                                                                 HF UZZER is to test LLMs.
+          C. The Impact of Package Hallucinations
+                                                                                                                                                                                                                                                 F. Threats to Validity
+             To further assess the impact of package hallucinations on
+                                                                                                                                                                                                                                                 Limited of Language. In this paper, we primarily evaluate
+          real-world developers, we manually investigate instances of
+                                                                                                                                                                                                                                                 HF UZZER on Python. However, the framework is designed
+          GPT-4o’s hallucinated package usage on GitHub [44] and
+                                                                                                                                                                                                                                                 to be language-agnostic. We focus on Python because it is
+          find that some hallucination packages have been used in
+                                                                                                                                                                                                                                                 widely used and frequently studied in related work [9], [10].
+          the repository. For instance, we identify that the hallucinated
+                                                                                                                                                                                                                                                 In future work, we plan to extend our evaluation to multiple
+          package “data-analysis-toolkit” appears in several open-source
+                                                                                                                                                                                                                                                 programming languages.
+          repositories, such as research-manual2 . Similarly, Lanyado
+                                                                                                                                                                                                                                                 Limited Accuracy of Regular Extraction. We rely on regular
+          conducts a case study on hallucinated packages [45], finding
+                                                                                                                                                                                                                                                 expressions to extract information from the model’s output.
+          that a hallucinated package is downloaded over 30,000 more
+                                                                                                                                                                                                                                                 Due to the inherent instability of the LLM’s output, the
+          times than a randomly named package within three months,
+                                                                                                                                                                                                                                                 extracted content may not always align with expectations. To
+          and is even incorporated into repositories of some commercial
+                                                                                                                                                                                                                                                 improve the stability of the LLM’s output format, we employ
+          companies. These findings illustrate that developers can be
+                                                                                                                                                                                                                                                 one-shot prompting to guide the output format and implement
+          inadvertently exposed to hallucinated packages during devel-
+                                                                                                                                                                                                                                                 validation checks on the extracted results.
+          opment, potentially increasing their vulnerability to malicious
+                                                                                                                                                                                                                                                 Limited LLM Sampling Strategy. The LLM sampling strat-
+          attacks. Moreover, recent advances in LLM-based software
+                                                                                                                                                                                                                                                 egy may affect the performance of LLM-based methods.
+          development agents, such as Devin [14], which support end-
+                                                                                                                                                                                                                                                 Investigating the impact of sampling strategies on HF UZZER
+          to-end application development and automatic deployment,
+                                                                                                                                                                                                                                                 helps to assess its robustness. Therefore, we examine the effect
+          further exacerbate this risk, as these agents may unknowingly
+                                                                                                                                                                                                                                                 of the temperature of the tester model in Section V-B. For
+          install hallucinated packages in practice.
+                                                                                                                                                                                                                                                 cost considerations, the study is conducted on two model
+          D. Potential downstream tasks                                                                                                                                                                                                          combinations. We plan to further extend it in future work.
+          Package Hallucination Mitigation: In existing studies,                                                                                                                                                                                                     VI. R ELATED W ORK
+          Spracklen et al. [10] have proposed their insights to mit-
+                                                                                                                                                                                                                                                 A. Fuzzing
+          igate package hallucination. Spracklen et al. [10] make a
+                                                                                                                                                                                                                                                   Fuzzing is one of the most popular testing techniques, which
+                                                           2 https://github.com/iHuman-Lab/research-manual                                                                                                                                       can find weaknesses in a program [57], [58]. Lee et al. [59]
+
+
+
+                                                                                                                                                                                                                                            10
+
+=== [PDF page 11] ===
+
+group seeds by syntax and semantic similarity and use a                 al. [46] propose to explore the dense semantic information re-
+customized Thompson sampling method to choose effective                 tained within LLMs’ internal states for hallucination detection.
+mutation strategies for each group. Liu et al. [60] propose             Zhang et al. [47] introduce a reference-free, uncertainty-based
+mutating inputs directly in memory and using print functions            method to detect hallucinations in LLMs. Quevedo et al.[48]
+to regenerate files, improving fuzzing for complex file formats.        construct two simple classifiers for hallucination detection
+Yang et al. [61] implement a fully automated API-level fuzzer           using four numerical features, using supervised learning. Yang
+for automatic differentiation in deep learning libraries. Hough         et al. [18] use metamorphic testing to mutate the model
+et al. [62] exploit dynamic execution information to identify           response and evaluate whether the mutated content is correct
+and exchange similar parts of parameter sequences for para-             through LLM to detect hallucinations. Note that their mutation
+metric fuzzing. Wang et al. [63] use fine-grained semantic              method is still based on the assumption of a unique answer.
+alignment techniques to generate semantically correct test                 Given the application of LLMs in code-related tasks, re-
+inputs for fuzzing browsers. With the widespread use of                 searchers study hallucinations in the code domain [72]. Liu et
+LLMs, some researchers have attempted to combine LLMs                   al. [5] explore hallucinations in code generation and propose
+with fuzzing. Xia et al. [64] leverage an LLM to generate and           a novel classification for code hallucinations. Jain et al. [73]
+mutate inputs for systems that take programming languages or            mitigate API hallucinations in low-frequency APIs through
+formal languages as inputs. Eom et al. [65] combine coverage            documentation augmented generation. Tian et al. [49] propose
+feedback with an LLM-based mutator using reinforcement                  a hallucination detection algorithm based on execution valida-
+learning to test JavaScript engines. Deng et al. [66] propose           tion and a code hallucination classification method. Spracklen
+FuzzGPT, which uses LLMs to generate anomalous programs                 et al. [10] and Krishna et al. [9] further investigate a special
+for fuzzing deep learning libraries. In contrast to these works,        type of code hallucinations, i.e., package hallucination. They
+HF UZZER treats the LLM as the target of testing.                       define package hallucination as an LLM generates code that
+                                                                        either recommends or contains a reference to a package that
+B. LLM Jailbreak                                                        is not registered in the appropriate package repository or is
+                                                                        first registered after the model’s knowledge cutoff date. These
+   LLM jailbreak refers to exploiting carefully crafted prompts
+                                                                        hallucinations pose security risks, as attackers may register
+to elicit content that violates service guidelines [67]. To
+                                                                        phantom packages with malicious code, which LLMs then
+better guide defense strategies, existing studies have conducted
+                                                                        recommend to developers [10], [9], [11], [45]. Considering
+extensive testing on LLM jailbreak vulnerabilities through red
+                                                                        the security risks posed by package hallucination, we propose
+team attacks [67], [20], [68]. Yao et al. [67] use templates
+                                                                        HF UZZER and apply it to package hallucination. Different
+to preserve prompt structure and isolate jailbreak features
+                                                                        from existing methods for hallucination detection and mitiga-
+as constraints, creating an automated framework to test and
+                                                                        tion, HF UZZER focuses on generating tasks to trigger model
+find jailbreak vulnerabilities in LLMs. Yu et al. [20] exploit
+                                                                        hallucinations, which is a method similar to red team attacks.
+manually crafted templates as initial input and mutate them
+to generate new templates. Additionally, some studies have
+                                                                                  VII. C ONCLUSION AND F UTURE W ORK
+also made efforts to defend against LLM jailbreak. Zhang
+et al. [69] adjust the target LLM’s hidden representations by              In this paper, we present HF UZZER, a novel phrase-based
+enhancing toxic concepts and weakening jailbreak concepts,              fuzzing framework to test LLMs for package hallucinations.
+ensuring the LLM generates safe content. Wang et al. [70]               By automatically generating diverse coding tasks based on
+leverage reverse inference on the initial responses of the LLM          phrases, HF UZZER extensively tests LLMs for package hal-
+to reveale the actual intent behind the original prompt. They           lucinations. Through extensive evaluation, we demonstrate
+then re-prompt the LLM to generate responses in a way that              that HF UZZER can trigger package hallucination across all
+mitigates potential jailbreak attacks. Extensive studies have           selected models, find 2.60x more unique hallucinated packages
+been conducted through red team attacks to test LLMs for                compared with GPTF UZZER -A, and generate more diverse
+jailbreak vulnerabilities and guide defense strategies. However,        tasks. We further test the model GPT-4o and find 46 unique
+studies on hallucinations are relatively scarce. HF UZZER fills         hallucinated packages. Our analysis shows that for GPT-4o,
+this gap, laying the foundation for better mitigation of LLM            package hallucinations not only occur in code generation but
+package hallucinations, which is a high-risk hallucination type.        also occur when assisting with environment configuration.
+                                                                           In the future, we plan to conduct more extensive testing on
+C. LLM Hallucination                                                    more LLMs and more types of languages, and promote the
+                                                                        study of LLM package hallucination mitigation through open-
+   Despite recent progress, LLMs still generate hallucina-
+                                                                        sourcing results. Additionally, we hope to further expand our
+tions [9], which can be categorized into input-, context-, and
+                                                                        framework on code hallucination.
+fact-conflicting types [6]. To reduce the impact of hallucina-
+tions, researchers conduct studies on detecting and mitigat-
+                                                                                        VIII. ACKNOWLEDGMENTS
+ing hallucinations. Jones et al. [71] utilize prefix-tuning on
+synthetic tasks to optimize the system message, then transfer             This research is supported by the National Key R&D
+this message to realistic tasks to reduce hallucination. Chen et        Program of China (No. 2024YFB4506400).
+
+
+
+                                                                   11
+
+=== [PDF page 12] ===
+
+                              R EFERENCES                                             [20] J. Yu, X. Lin, Z. Yu, and X. Xing, “Gptfuzzer: Red teaming
+                                                                                           large language models with auto-generated jailbreak prompts,” 2024.
+ [1] I. Ahmed, A. Aleti, H. Cai, A. Chatzigeorgiou, P. He, X. Hu,                          [Online]. Available: https://arxiv.org/abs/2309.10253
+     M. Pezzè, D. Poshyvanyk, and X. Xia, “Artificial intelligence for               [21] “Replication package,” https://github.com/YukZhao/HFuzzer, 2025, last
+     software engineering: The journey so far and the road ahead,” ACM                     accessed Mar. 2025.
+     Trans. Softw. Eng. Methodol., vol. 34, no. 5, May 2025. [Online].                [22] “Tiobe index,” https://www.tiobe.com/tiobe-index/, 2000, last accessed
+     Available: https://doi.org/10.1145/3719006                                            Mar. 2025.
+ [2] M. Yang, Y. Chen, Y. Liu, and L. Shi, “Distillseq: A framework for               [23] A. Meta, “Introducing meta llama 3: The most capable openly available
+     safety alignment testing in large language models using knowledge                     llm to date,” https://ai.meta.com/blog/meta-llama-3/, 2024, last accessed
+     distillation,” in Proceedings of the 33rd ACM SIGSOFT International                   Mar. 2025.
+     Symposium on Software Testing and Analysis, ser. ISSTA 2024. New                 [24] B. Hui, J. Yang, Z. Cui, J. Yang, D. Liu, L. Zhang et al.,
+     York, NY, USA: Association for Computing Machinery, 2024, p.                          “Qwen2.5-coder technical report,” 2024. [Online]. Available: https:
+     578–589. [Online]. Available: https://doi.org/10.1145/3650212.3680304                 //arxiv.org/abs/2409.12186
+ [3] M. L. Siddiq, L. Roney, J. Zhang, and J. C. D. S. Santos, “Quality               [25] D. Guo, Q. Zhu, D. Yang, Z. Xie, K. Dong, W. Zhang et al.,
+     assessment of chatgpt generated code and their use by developers,” in                 “Deepseek-coder: When the large language model meets programming
+     Proceedings of the 21st International Conference on Mining Software                   – the rise of code intelligence,” 2024. [Online]. Available: https:
+     Repositories, ser. MSR ’24. New York, NY, USA: Association                            //arxiv.org/abs/2401.14196
+     for Computing Machinery, 2024, p. 152–156. [Online]. Available:                  [26] A. Meta, “Llama 3.1,” https://ai.meta.com/blog/meta-llama-3-1/, 2024,
+     https://doi.org/10.1145/3643991.3645071                                               last accessed Mar. 2025.
+ [4] M. L. Siddiq, J. C. da Silva Santos, S. Devareddy, and A. Muller,                [27] A. Q. Jiang, A. Sablayrolles, A. Mensch, C. Bamford, D. S. Chaplot,
+     “Sallm: Security assessment of generated code,” in Proceedings of                     D. d. l. Casas, F. Bressand, G. Lengyel, G. Lample, L. Saulnier et al.,
+     the 39th IEEE/ACM International Conference on Automated Software                      “Mistral 7b,” 2023. [Online]. Available: https://arxiv.org/abs/2310.06825
+     Engineering Workshops, ser. ASEW ’24. New York, NY, USA:                         [28] A.        Meta,        “Llama      3.3,”     https://www.llama.com/docs/
+     Association for Computing Machinery, 2024, p. 54–65. [Online].                        model-cards-and-prompt-formats/llama3 3/, 2024, last accessed
+     Available: https://doi.org/10.1145/3691621.3694934                                    Mar. 2025.
+ [5] F. Liu, Y. Liu, L. Shi, H. Huang, R. Wang, Z. Yang, L. Zhang, Z. Li, and         [29] A. Liu, B. Feng, B. Xue, B. Wang, B. Wu, C. Lu, C. Zhao, C. Deng,
+     Y. Ma, “Exploring and evaluating hallucinations in llm-powered code                   C. Zhang, C. Ruan et al., “Deepseek-v3 technical report,” 2025.
+     generation,” 2024. [Online]. Available: https://arxiv.org/abs/2404.00971              [Online]. Available: https://arxiv.org/abs/2412.19437
+ [6] Y. Zhang, Y. Li, L. Cui, D. Cai, L. Liu, T. Fu, X. Huang, E. Zhao,               [30] J. Achiam, S. Adler, S. Agarwal, L. Ahmad, I. Akkaya, F. L.
+     Y. Zhang, Y. Chen, L. Wang, A. T. Luu, W. Bi, F. Shi, and S. Shi,                     Aleman, D. Almeida, J. Altenschmidt, S. Altman, S. Anadkat
+     “Siren’s song in the ai ocean: A survey on hallucination in large                     et al., “Gpt-4 technical report,” 2024. [Online]. Available: https:
+     language models,” Computational Linguistics, pp. 1–46, 09 2025.                       //arxiv.org/abs/2303.08774
+     [Online]. Available: https://doi.org/10.1162/COLI.a.16                           [31] A. Hurst, A. Lerer, A. P. Goucher, A. Perelman, A. Ramesh, A. Clark,
+ [7] C. Gao, X. Hu, S. Gao, X. Xia, and Z. Jin, “The current challenges of                 A. Ostrow, A. Welihinda, A. Hayes, A. Radford et al., “Gpt-4o system
+     software engineering in the era of large language models,” ACM Trans.                 card,” 2024. [Online]. Available: https://arxiv.org/abs/2410.21276
+     Softw. Eng. Methodol., vol. 34, no. 5, May 2025. [Online]. Available:            [32] “vllm,” https://docs.vllm.ai/, 2024, last accessed Mar. 2025.
+     https://doi.org/10.1145/3712005                                                  [33] C. Chen, J. Su, J. Chen, Y. Wang, T. Bi, J. Yu, Y. Wang,
+ [8] Z. Ji, N. Lee, R. Frieske, T. Yu, D. Su, Y. Xu, E. Ishii, Y. J. Bang,                 X. Lin, T. Chen, and Z. Zheng, “When chatgpt meets smart
+     A. Madotto, and P. Fung, “Survey of hallucination in natural language                 contract vulnerability detection: How far are we?” ACM Trans. Softw.
+     generation,” ACM Comput. Surv., vol. 55, no. 12, Mar. 2023. [Online].                 Eng. Methodol., vol. 34, no. 4, Apr. 2025. [Online]. Available:
+     Available: https://doi.org/10.1145/3571730                                            https://doi.org/10.1145/3702973
+ [9] A. Krishna, E. Galinkin, L. Derczynski, and J. Martin, “Importing                [34] D. Liyanage, N. Attanayake, Z. Luo, and R. Gopinath, “Assessing
+     phantoms: Measuring llm package hallucination vulnerabilities,” 2025.                 reliability of statistical maximum coverage estimators in fuzzing,” 2025.
+     [Online]. Available: https://arxiv.org/abs/2501.19012                                 [Online]. Available: https://arxiv.org/abs/2507.17093
+[10] J. Spracklen, R. Wijewickrama, A. H. M. N. Sakib, A. Maiti,                      [35] D. Shriver, S. Elbaum, M. B. Dwyer, and D. S. Rosenblum, “Evaluating
+     B. Viswanath, and M. Jadliwala, “We have a package for you! a                         recommender system stability with influence-guided fuzzing,” in
+     comprehensive analysis of package hallucinations by code generating                   Proceedings of the Thirty-Third AAAI Conference on Artificial
+     llms,” 2025. [Online]. Available: https://arxiv.org/abs/2406.10279                    Intelligence and Thirty-First Innovative Applications of Artificial
+[11] B. Lanyado, “Can you trust chatgpt’s package recommendations?” https:                 Intelligence Conference and Ninth AAAI Symposium on Educational
+     //vulcan.io/blog/ai-hallucinations-package-risk/, 2023, last accessed                 Advances in Artificial Intelligence, ser. AAAI’19/IAAI’19/EAAI’19.
+     Mar. 2025.                                                                            AAAI Press, 2019. [Online]. Available: https://doi.org/10.1609/aaai.
+[12] S. Neupane, G. Holmes, E. Wyss, D. Davidson, and L. De Carli,                         v33i01.33014934
+     “Beyond typosquatting: an in-depth look at package confusion,” in                [36] H. Abdi, “Coefficient of variation,” Encyclopedia of research design,
+     Proceedings of the 32nd USENIX Conference on Security Symposium,                      vol. 1, no. 5, pp. 169–171, 2010.
+     ser. SEC ’23. USA: USENIX Association, 2023.                                     [37] J. Cui, W.-L. Chiang, I. Stoica, and C.-J. Hsieh, “OR-bench: An
+[13] “Pypi,” https://pypi.org/, 2000, last accessed Mar. 2025.                             over-refusal benchmark for large language models,” 2025. [Online].
+[14] “Devin,” https://devin.ai/, 2024, last accessed Mar. 2025.                            Available: https://openreview.net/forum?id=obYVdcMMIT
+[15] X. Wang, B. Li, Y. Song, F. F. Xu, X. Tang, M. Zhuge, J. Pan,                    [38] OpenAI, “text-embedding-3-small,” https://platform.openai.com/docs/
+     Y. Song, B. Li, Jaskirat et al., “Openhands: An open platform                         models/text-embedding-3-small/, 2024, last accessed Aug. 2025.
+     for AI software developers as generalist agents,” in The Thirteenth              [39] E. Schubert, J. Sander, M. Ester, H. P. Kriegel, and X. Xu, “Dbscan
+     International Conference on Learning Representations, 2025. [Online].                 revisited, revisited: Why and how you should (still) use dbscan,” ACM
+     Available: https://openreview.net/forum?id=OJd3ayDDoF                                 Trans. Database Syst., vol. 42, no. 3, Jul. 2017. [Online]. Available:
+[16] N. Li, Y. Li, Y. Liu, L. Shi, K. Wang, and H. Wang, “Drowzee:                         https://doi.org/10.1145/3068335
+     Metamorphic testing for fact-conflicting hallucination detection in large        [40] “Chatgpt,” https://chatgpt.com/, 2022, last accessed Mar. 2025.
+     language models,” Proc. ACM Program. Lang., vol. 8, no. OOPSLA2,                 [41] J. Latendresse, S. Khatoonabadi, A. Abdellatif, and E. Shihab, “Is
+     Oct. 2024. [Online]. Available: https://doi.org/10.1145/3689776                       chatgpt a good software librarian? an exploratory study on the use
+[17] G. Guo, A. Aleti, N. Neelofar, C. Tantithamthavorn, Y. Qi, and T. Y.                  of chatgpt for software library recommendations,” 2024. [Online].
+     Chen, “Mortar: Multi-turn metamorphic testing for llm-based dialogue                  Available: https://arxiv.org/abs/2408.05128
+     systems,” 2025. [Online]. Available: https://arxiv.org/abs/2412.15557            [42] R. Hu, C. Peng, X. Wang, J. Xu, and C. Gao, “Repo2run: Automated
+[18] B. Yang, M. A. Al Mamun, J. Zhang, and G. Uddin, “Hallucination                       building executable environment for code repository at scale,” 2025.
+     detection in large language models with metamorphic relations,” Pro-                  [Online]. Available: https://arxiv.org/abs/2502.13681
+     ceedings of the ACM on Software Engineering, vol. 2, pp. 425–445, 06             [43] Y. Gao, Y. Xiong, X. Gao, K. Jia, J. Pan, Y. Bi, Y. Dai,
+     2025.                                                                                 J. Sun, M. Wang, and H. Wang, “Retrieval-augmented generation
+[19] “Libraries.io,” https://libraries.io/, 2015, last accessed Mar. 2025.                 for large language models: A survey,” 2024. [Online]. Available:
+                                                                                           https://arxiv.org/abs/2312.10997
+
+
+
+                                                                                 12
+
+=== [PDF page 13] ===
+
+[44] “Github,” https://github.com/, 2008, last accessed Mar. 2025.                    [59] M. Lee, S. Cha, and H. Oh, “Learning seed-adaptive mutation
+[45] B. Lanyado, “Diving deeper into ai package hallucinations,” https://                  strategies for greybox fuzzing,” in Proceedings of the 45th International
+     www.lasso.security/blog/ai-package-hallucinations/, 2024, last accessed               Conference on Software Engineering, ser. ICSE ’23. IEEE Press, 2023,
+     Mar. 2025.                                                                            p. 384–396. [Online]. Available: https://doi.org/10.1109/ICSE48619.
+[46] C. Chen, K. Liu, Z. Chen, Y. Gu, Y. Wu, M. Tao, Z. Fu,                                2023.00043
+     and J. Ye, “INSIDE: LLMs’ internal states retain the power of                    [60] X. Liu, W. You, Y. Ye, Z. Zhang, J. Huang, and X. Zhang, “Fuzzinmem:
+     hallucination detection,” in The Twelfth International Conference                     Fuzzing programs via in-memory structures,” in Proceedings of the
+     on Learning Representations, 2024. [Online]. Available: https:                        IEEE/ACM 46th International Conference on Software Engineering, ser.
+     //openreview.net/forum?id=Zj12nzlQbz                                                  ICSE ’24. New York, NY, USA: Association for Computing Machinery,
+[47] T. Zhang, L. Qiu, Q. Guo, C. Deng, Y. Zhang, Z. Zhang,                                2024. [Online]. Available: https://doi.org/10.1145/3597503.3639172
+     C. Zhou, X. Wang, and L. Fu, “Enhancing uncertainty-based                        [61] C. Yang, Y. Deng, J. Yao, Y. Tu, H. Li, and L. Zhang, “Fuzzing
+     hallucination detection with stronger focus,” in Proceedings of the 2023              automatic differentiation in deep-learning libraries,” in Proceedings
+     Conference on Empirical Methods in Natural Language Processing,                       of the 45th International Conference on Software Engineering, ser.
+     H. Bouamor, J. Pino, and K. Bali, Eds. Singapore: Association                         ICSE ’23. IEEE Press, 2023, p. 1174–1186. [Online]. Available:
+     for Computational Linguistics, Dec. 2023, pp. 915–932. [Online].                      https://doi.org/10.1109/ICSE48619.2023.00105
+     Available: https://aclanthology.org/2023.emnlp-main.58/                          [62] K. Hough and J. Bell, “Crossover in parametric fuzzing,” in
+[48] E. Quevedo, J. Y. Salazar, R. Koerner, P. Rivas, and T. Cerny, “Detecting             Proceedings of the IEEE/ACM 46th International Conference on
+     hallucinations in large language model generation: A token probability                Software Engineering, ser. ICSE ’24. New York, NY, USA:
+     approach,” in Artificial Intelligence and Applications, H. R. Arabnia,                Association for Computing Machinery, 2024. [Online]. Available:
+     L. Deligiannidis, S. Amirian, F. Shenavarmasouleh, F. Ghareh Moham-                   https://doi.org/10.1145/3597503.3639160
+     madi, and D. de la Fuente, Eds. Cham: Springer Nature Switzerland,               [63] J. Wang, P. Qian, X. Huang, X. Ying, Y. Chen, S. Ji, J. Chen,
+     2025, pp. 154–173.                                                                    J. Xie, and L. Liu, “Tacoma: Enhanced browser fuzzing with
+[49] Y. Tian, W. Yan, Q. Yang, X. Zhao, Q. Chen, W. Wang, Z. Luo, L. Ma,                   fine-grained semantic alignment,” in Proceedings of the 33rd
+     and D. Song, “Codehalu: investigating code hallucinations in llms via                 ACM SIGSOFT International Symposium on Software Testing and
+     execution-based verification,” in Proceedings of the Thirty-Ninth AAAI                Analysis, ser. ISSTA 2024. New York, NY, USA: Association
+     Conference on Artificial Intelligence and Thirty-Seventh Conference                   for Computing Machinery, 2024, p. 1174–1185. [Online]. Available:
+     on Innovative Applications of Artificial Intelligence and Fifteenth                   https://doi.org/10.1145/3650212.3680351
+     Symposium on Educational Advances in Artificial Intelligence, ser.               [64] C. S. Xia, M. Paltenghi, J. L. Tian, M. Pradel, and L. Zhang,
+     AAAI’25/IAAI’25/EAAI’25. AAAI Press, 2025. [Online]. Available:                       “Fuzz4all: Universal fuzzing with large language models,” in 2024
+     https://doi.org/10.1609/aaai.v39i24.34717                                             IEEE/ACM 46th International Conference on Software Engineering
+[50] M. H. Tanzil, J. Y. Khan, and G. Uddin, “Chatgpt incorrectness                        (ICSE). Los Alamitos, CA, USA: IEEE Computer Society, Apr. 2024,
+     detection in software reviews,” in Proceedings of the IEEE/ACM 46th                   pp. 1547–1559. [Online]. Available: https://doi.ieeecomputersociety.org/
+     International Conference on Software Engineering, ser. ICSE ’24.                 [65] J. Eom, S. Jeong, and T. Kwon, “Fuzzing javascript interpreters with
+     New York, NY, USA: Association for Computing Machinery, 2024.                         coverage-guided reinforcement learning for llm-based mutation,” in
+     [Online]. Available: https://doi.org/10.1145/3597503.3639194                          Proceedings of the 33rd ACM SIGSOFT International Symposium on
+[51] J. Liu, C. S. Xia, Y. Wang, and L. Zhang, “Is your code generated by                  Software Testing and Analysis, ser. ISSTA 2024. New York, NY, USA:
+     chatgpt really correct? rigorous evaluation of large language models for              Association for Computing Machinery, 2024, p. 1656–1668. [Online].
+     code generation,” in Proceedings of the 37th International Conference                 Available: https://doi.org/10.1145/3650212.3680389
+     on Neural Information Processing Systems, ser. NIPS ’23. Red Hook,               [66] Y. Deng, C. S. Xia, C. Yang, S. D. Zhang, S. Yang, and L. Zhang, “Large
+     NY, USA: Curran Associates Inc., 2023.                                                language models are edge-case generators: Crafting unusual programs
+[52] J. A. Prenner, H. Babii, and R. Robbes, “Can openai’s codex fix bugs?                 for fuzzing deep learning libraries,” in Proceedings of the IEEE/ACM
+     an evaluation on quixbugs,” in Proceedings of the Third International                 46th International Conference on Software Engineering, ser. ICSE ’24.
+     Workshop on Automated Program Repair, ser. APR ’22. New York,                         New York, NY, USA: Association for Computing Machinery, 2024.
+     NY, USA: Association for Computing Machinery, 2022, p. 69–75.                         [Online]. Available: https://doi.org/10.1145/3597503.3623343
+     [Online]. Available: https://doi.org/10.1145/3524459.3527351                     [67] D. Yao, J. Zhang, I. G. Harris, and M. Carlsson, “Fuzzllm: A novel
+[53] Z. Fan, X. Gao, M. Mirchev, A. Roychoudhury, and S. H.                                and universal fuzzing framework for proactively discovering jailbreak
+     Tan, “Automated repair of programs from large language models,”                       vulnerabilities in large language models,” in ICASSP 2024 - 2024 IEEE
+     in Proceedings of the 45th International Conference on Software                       International Conference on Acoustics, Speech and Signal Processing
+     Engineering, ser. ICSE ’23. IEEE Press, 2023, p. 1469–1481.                           (ICASSP), 2024, pp. 4485–4489.
+     [Online]. Available: https://doi.org/10.1109/ICSE48619.2023.00128                [68] G. Deng, Y. Liu, Y. Li, K. Wang, Y. Zhang, Z. Li, H. Wang, T. Zhang,
+[54] Y. Liu, T. Le-Cong, R. Widyasari, C. Tantithamthavorn, L. Li, X.-B. D.                and Y. Liu, “Masterkey: Automated jailbreaking of large language
+     Le, and D. Lo, “Refining chatgpt-generated code: Characterizing                       model chatbots,” in Proceedings 2024 Network and Distributed System
+     and mitigating code quality issues,” ACM Trans. Softw. Eng.                           Security Symposium, ser. NDSS 2024. Internet Society, 2024. [Online].
+     Methodol., vol. 33, no. 5, Jun. 2024. [Online]. Available: https:                     Available: http://dx.doi.org/10.14722/ndss.2024.24188
+     //doi.org/10.1145/3643674                                                        [69] S. Zhang, Y. Zhai, K. Guo, H. Hu, S. Guo, Z. Fang, L. Zhao, C. Shen,
+[55] C. S. Xia and L. Zhang, “Automated program repair via conversation:                   C. Wang, and Q. Wang, “Jbshield: defending large language models from
+     Fixing 162 out of 337 bugs for $0.42 each using chatgpt,” in Proceedings              jailbreak attacks through activated concept analysis and manipulation,”
+     of the 33rd ACM SIGSOFT International Symposium on Software                           in Proceedings of the 34th USENIX Conference on Security Symposium,
+     Testing and Analysis, ser. ISSTA ’24. ACM, Sep. 2024, p. 819–831.                     ser. SEC ’25. USA: USENIX Association, 2025.
+     [Online]. Available: http://dx.doi.org/10.1145/3650212.3680323                   [70] Y. Wang, Z. Shi, A. Bai, and C.-J. Hsieh, “Defending llms against
+[56] R. Pan, A. R. Ibrahimzada, R. Krishna, D. Sankar, L. P. Wassi,                        jailbreaking attacks via backtranslation,” 2024. [Online]. Available:
+     M. Merler, B. Sobolev, R. Pavuluri, S. Sinha, and R. Jabbarvand,                      https://arxiv.org/abs/2402.16459
+     “Lost in translation: A study of bugs introduced by large language               [71] E. Jones, H. Palangi, C. S. Ribeiro, V. Chandrasekaran, S. Mukherjee,
+     models while translating code,” in Proceedings of the IEEE/ACM                        A. Mitra, A. H. Awadallah, and E. Kamar, “Teaching language models
+     46th International Conference on Software Engineering, ser. ICSE ’24.                 to hallucinate less with synthetic tasks,” in The Twelfth International
+     New York, NY, USA: Association for Computing Machinery, 2024.                         Conference on Learning Representations, 2024. [Online]. Available:
+     [Online]. Available: https://doi.org/10.1145/3597503.3639226                          https://openreview.net/forum?id=xpw7V0P136
+[57] X. Zhao, H. Qu, J. Xu, X. Li, W. Lv, and G.-G. Wang, “A systematic               [72] X. Yu, L. Liu, X. Hu, J. W. Keung, J. Liu, and X. Xia, “Fight fire with
+     review of fuzzing,” Soft Comput., vol. 28, no. 6, p. 5493–5522, Oct.                  fire: How much can we trust chatgpt on source code-related tasks?”
+     2023. [Online]. Available: https://doi.org/10.1007/s00500-023-09306-2                 IEEE Trans. Softw. Eng., vol. 50, no. 12, p. 3435–3453, Dec. 2024.
+[58] H. Liang, X. Pei, X. Jia, W. Shen, and J. Zhang, “Fuzzing: State of the               [Online]. Available: https://doi.org/10.1109/TSE.2024.3492204
+     art,” IEEE Transactions on Reliability, vol. 67, no. 3, pp. 1199–1218,           [73] N. Jain, R. Kwiatkowski, B. Ray, M. K. Ramanathan, and V. Kumar,
+     2018.                                                                                 “On mitigating code llm hallucinations with api documentation,” 2024.
+                                                                                           [Online]. Available: https://arxiv.org/abs/2407.09726
+
+
+
+
+                                                                                 13

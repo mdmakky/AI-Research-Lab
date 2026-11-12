@@ -1,0 +1,1245 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                                         Evaluating Inference-Time Defenses against Package
+                                                               Hallucination in LLM-Generated Code
+                                                   Alberick Euraste Djire✉                                         Iyiola E. Olatunji                                   Melissa Tessa
+                                                     University of Luxembourg                                 University of Luxembourg                           University of Luxembourg
+                                                    Luxembourg, Luxembourg                                    Luxembourg, Luxembourg                             Luxembourg, Luxembourg
+                                                         AI4D (CITADEL)                                       emmanuel.olatunji@uni.lu                             melissa.tessa@uni.lu
+                                                    Ouagadougou, Burkina Faso
+                                                       euraste.djire@uni.lu
+
+                                                              Earl T. Barr                                            Jacques Klein                            Tegawendé F. Bissyandé
+
+
+
+
+arXiv:2608.22652v1 [cs.SE] 23 Aug 2026
+                                                    University College London                                 University of Luxembourg                           University of Luxembourg
+                                                    London, United Kingdom                                    Luxembourg, Luxembourg                            Luxembourg, Luxembourg
+                                                        e.barr@ucl.ac.uk                                        jacques.klein@uni.lu                           tegawende.bissyande@uni.lu
+
+                                         Abstract                                                                                CCS Concepts
+                                         LLMs are increasingly used for code generation, yet they frequently                     • Software and its engineering → Software usability; Software
+                                         hallucinate non-existent software packages, creating exploitable                        libraries and repositories; • Security and privacy → Software
+                                         entry points into the software supply chain. We make four con-                          security engineering.
+                                         tributions to this problem. First, we show that prior evaluation
+                                         methodologies systematically inflate hallucination rates by mis-                        Keywords
+                                         classifying standard-library modules as hallucinations in some                          LLM, Package Hallucination, Guided Decoding, Supply Chain Se-
+                                         languages. For Python, the overestimation reaches 9.4 percent-                          curity, Adversarial Prompts
+                                         age points. Second, we evaluate seven inference-time defenses for
+                                                                                                                                 ACM Reference Format:
+                                         mitigating package hallucinations, including five guided decod-
+                                                                                                                                 Alberick Euraste Djire, Iyiola E. Olatunji, Melissa Tessa, Earl T. Barr, Jacques
+                                         ing strategies (Greedy, Contrastive, DoLa, Nudging, and Active                          Klein, and Tegawendé F. Bissyandé. 2026. Evaluating Inference-Time De-
+                                         Layer-Contrastive Decoding), an iterative self-refinement approach                      fenses against Package Hallucination in LLM-Generated Code. In Proceed-
+                                         (Self-Refine), and a Retrieval-Augmented Generation (RAG)-based                         ings of the 41st IEEE/ACM International Conference on Automated Software
+                                         defense.. Across eight models spanning five families and four pro-                      Engineering (ASE ’26), October 12–16, 2026, Munich, Germany. ACM, New
+                                         gramming languages (Python, JavaScript, Ruby, Rust), RAG reduces                        York, NY, USA, 13 pages. https://doi.org/10.1145/3832783.3837555
+                                         the package hallucination rate (PHR) in 18 of 32 model–language
+                                         configurations. Third, we introduce Package Utility (PU) to assess                      1    Introduction
+                                         whether defenses preserve valid and task-relevant recommenda-                           Code-generating large language models (LLMs) have become a
+                                         tions. Among strategies evaluated, Greedy decoding provides the                         part of software development, powering IDE assistants, automated
+                                         strongest average mitigation–utility trade-off. Fourth, we stress-                      pipelines, and interactive chat-based programming workflows [9,
+                                         test all strategies under adversarial prompts seeded with fabricated                    11, 28, 31, 37, 38]. When a model produces code, it implicitly selects
+                                         package names and find that PHR surges by up to 45 percentage                           which external dependencies a developer will import, install, and
+                                         points relative to standard prompts, with Ruby consistently the                         ultimately trust. This selection is driven by the model’s paramet-
+                                         most vulnerable language (80.9–95.2%). Under adversarial condi-                         ric memory rather than by verified package metadata, and it can
+                                         tions, RAG and Self-Refine outperform all decoding-only strategies,                     go wrong in a way that is difficult to detect and easy to exploit.
+                                         indicating that robust defense requires either external grounding                       When an LLM recommends a package that does not exist in any
+                                         or iterative self-verification when prompts are actively hostile.                       legitimate registry, the result is a package hallucination [34]. If an
+                                            Our results recast package hallucination as both a measurement                       attacker registers that hallucinated name on a public registry and
+                                         problem and a decoding-time control problem, and they demon-                            uploads a malicious payload, any developer who blindly installs
+                                         strate that the choice of defense must be matched to the threat                         the LLM’s recommendation executes attacker-controlled code. This
+                                         model and recommendation utility.                                                       attack pattern, variously called slopsquatting or AI-induced pack-
+                                                                                                                                 age squatting [1, 2], is a growing threat to the software supply
+                                                                                                                                 chain [18, 40].
+                                                                                                                                    Empirical evidence shows that package hallucination is neither
+                                                                                                                                 rare nor confined to weak models. Spracklen et al. [34] found that
+                                                                                                                                 at least 5.2% of packages recommended by commercial LLMs and
+                                         This work is licensed under a Creative Commons Attribution 4.0 International License.   21.7% of those from open-source models were hallucinated, across
+                                         ASE ’26, Munich, Germany                                                                more than 576,000 code samples. Krishna et al. [17] showed that
+                                         © 2026 Copyright held by the owner/author(s).
+                                         ACM ISBN 979-8-4007-2882-2/2026/10                                                      hallucination rates vary with programming language, model size,
+                                         https://doi.org/10.1145/3832783.3837555                                                 and prompt specificity. Haque et al. [13] demonstrated that the
+
+=== [PDF page 2] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                            Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+phenomenon extends to shell-command generation for Go, where               • Inference-time defenses based on guided decoding for
+fabricated module paths take realistic URL-style forms. The problem          smaller LLMs. We adapt and evaluate five inference-time de-
+is compounded by the fact that hallucinated names are often per-             coding strategies (Greedy, Contrastive Decoding, DoLa, ALCD
+sistent across repeated generations [34], making them predictable            and Nudging) that intervene directly in token selection to re-
+targets for attackers. Recent work has also shown that package               duce package hallucinations without model retraining or depen-
+hallucination is more prevalent in smaller language models than in           dence on external retrieval. We compare them against standard
+larger ones, making them a particularly challenging setting for miti-        baselines, including Vanilla decoding, RAG, and Self-Refine.
+gation [17, 34]. Therefore, we focus our evaluation on smaller open-       • A utility-aware evaluation of package-hallucination de-
+source models. Beyond providing a stringent testbed for inference-           fenses. We introduce package utility (PU), a precision–recall
+time defenses, these models remain attractive in practice because            measure of valid and task-relevant recommendations, and show
+of their lower computational requirements and widespread deploy-             that reducing PHR does not necessarily preserve recommenda-
+ment in resource-constrained environments.                                   tion usefulness.
+   Several defenses have been proposed. Retrieval-augmented gen-           • A multilingual evaluation under both standard and adver-
+eration (RAG) grounds the model in verified registry data and can            sarial prompts. We assess all strategies across four program-
+sharply reduce hallucination rates [20, 34]. Self-refinement asks            ming languages with distinct package ecosystems and under
+the model to critique and revise its own output [24, 34]. Supervised         adversarial prompts seeded with fabricated package names, pro-
+fine-tuning updates model weights with package-aware supervi-                viding a comparative view of when guided decoding is effective
+sion [34]. Each of these approaches has clear merits, but each also          and where it fails.
+has structural limitations. RAG introduces an external retrieval
+pipeline that may not be available in all deployment settings and
+that can itself be poisoned. Self-refinement operates post-hoc and is
+unreliable for small models that cannot detect their own errors [19].     2    Related Work
+Fine-tuning is expensive and couples the defense to a specific model      Package Hallucination. Package hallucination occurs when an
+checkpoint.                                                               LLM generates imports or dependency recommendations for pack-
+   A largely unexplored alternative is to intervene during genera-        ages that do not exist in the target software ecosystem [17, 34].
+tion itself, at the point where the model commits to dependency           It represents a specialized form of code hallucination, alongside
+tokens. Guided decoding strategies modify the token selection pol-        broader syntactic, semantic, and requirement-level failures in LLM-
+icy at inference time without retraining the model and without            generated code [23, 35, 42]. Unlike syntactic errors, which can often
+relying on external knowledge. Contrastive Decoding [21] re-ranks         be detected through static analysis and iterative feedback [4, 6],
+candidate tokens by contrasting a larger “expert” model against a         package hallucinations are typically syntactically valid and only
+smaller “amateur” model, favoring tokens that reflect the expert’s        become apparent during installation or execution [13, 17, 34]. This
+superior factual grounding. DoLa [3] contrasts logits from late           makes them a software supply-chain security concern, enabling
+and early transformer layers within a single model, amplifying            attacks such as slopsquatting [1, 2, 36] and related forms of package
+factual knowledge encoded in deeper layers while suppressing sur-         squatting including typosquatting, impersonation squatting, and
+face patterns from shallower ones. Zhang et al. [41] extended this        compound squatting [15, 25]. Empirical studies have shown that
+idea with Active Layer-Contrastive Decoding (ALCD), which uses            package hallucination is prevalent across models, programming
+reinforcement learning to decide when to apply layer contrasts.           languages with over 19.7% of recommended packages for Python
+Nudging [10] uses a small aligned surrogate model to replace to-          and JavaScript prompting strategies and more severe for smaller
+kens whenever the base model’s confidence falls below a threshold.        LLMs [13, 17, 34, 39]. Prior work further attributes hallucinations
+All four methods were originally developed for natural-language           to both generation-time uncertainty [8, 16] and incorrect factual
+factuality tasks; none has been evaluated for package hallucination.      associations stored in parametric memory [8, 34]. Our work builds
+Beyond mitigation, we identify a fundamental measurement flaw.            on this literature by correcting evaluation artifacts that inflate hallu-
+Existing evaluation frameworks classify recommended packages              cination rates and by studying inference-time mitigation strategies.
+absent from the target registry (e.g., PyPI or npm) as hallucinated.      Defenses Against Package Hallucination. Existing defenses
+This misclassifies standard-library modules (e.g. os, math, and json      against package hallucination fall into three broad families. First,
+in Python) which appear in no registry. Consequently, reported            knowledge-grounding methods supplement the model with verified
+rates are inflated by up to 7.6 percentage points under default decod-    package information. Spracklen et al. [34] showed that Retrieval-
+ing, distorting baselines and apparent defense effectiveness. This        Augmented Generation (RAG) [20] substantially reduces hallucina-
+paper makes four contributions:                                           tions while largely preserving code quality. Second, post-hoc detec-
+                                                                          tion and correction methods validate or revise generated dependen-
+                                                                          cies. Krishna et al. [17] proposed checking dependencies against
+ • A corrected evaluation framework for package halluci-                  time-aware package registries, while Self-Refine [24] iteratively
+   nation. We identify a systematic source of false positives in          critiques and revises outputs without additional training. However,
+   registry-based evaluation, namely the misclassification of standard-   smaller models often fail to detect their own hallucinations and
+   library imports as hallucinated packages, and reduce this bias         may enter repetitive refinement loops [19]. Third, parameter-based
+   by augmenting registry-based validation with language-specific         methods modify the model itself. Supervised fine-tuning achieves
+   standard-library manifests.                                            strong reductions in package hallucination but requires training
+
+=== [PDF page 3] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                       ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+data, computational resources, and model-specific checkpoint main-                       4      Methodology
+tenance [34]. Lower-temperature decoding can also reduce hallu-                          We evaluated open-weight models across five families, seven strate-
+cination frequency, although sampling-parameter changes alone                            gies, and four programming languages: Python, JavaScript, Ruby,
+are insufficient [34]. In contrast, decoding-time mitigation remains                     and Rust. Hallucination detection uses enhanced ground-truth reg-
+comparatively underexplored. Our work addresses this gap by eval-                        istry snapshots to mitigate false-positive biases, with each strategy
+uating guided decoding as an inference-time defense that requires                        tested on the complete dataset Deval over three independent runs.
+no model retraining or external retrieval.
+Guided Decoding. Guided decoding modifies token selection at
+inference time without retraining the model. Standard approaches                         4.1      Dataset Construction
+include deterministic methods such as greedy and beam search,                            Following Spracklen et al. [34], we construct an evaluation dataset
+and stochastic methods such as top-𝑘 sampling, nucleus sampling,                         spanning four programming languages. Python and JavaScript
+and temperature scaling; their effectiveness depends on the task,                        are chosen for their popularity and the size of their package ecosys-
+model size, alignment, and quantization [33]. More recent methods                        tems (PyPI and npm, respectively). Ruby and Rust are chosen
+use model outputs or internal representations to improve factuality.                     as languages with smaller, more structured, and easily verifiable
+Contrastive Decoding contrasts an expert model with a smaller                            package namespaces (RubyGems and Crates.io, respectively). This
+amateur model [21] and has also been shown to improve reason-                            selection provides diversity in registry size, naming conventions,
+ing [26]. DoLa contrasts early and late transformer layers within a                      and ecosystem maturity. Our dataset construction pipeline consists
+single model [3], while Active Layer-Contrastive Decoding (ALCD)                         of three steps.
+learns when such contrasts should be applied [41]. Nudging instead                       Step 1: Package Sampling. For each language, we retrieved the
+uses a small aligned model to replace tokens when the base model                         top 1,000 most popular packages from the corresponding registries
+is uncertain [10]. In code generation, guided and constrained de-                        (PyPI, npm, RubyGems, and Crates.io) using the Libraries.io
+coding has been used to enforce syntax [12, 29], improve program                         API, which provides unified access to package metadata across
+structure through tree search [30], generate secure code through                         more than 36 package managers. Each retrieved record consists of
+supervised co-decoding [14], and adjust line-level logits to pro-                        a (package_name, description) pair, which serves as the seed
+mote essential control structures [22]. However, prior work has                          for prompt generation in Step 3.
+not systematically evaluated these techniques as defenses against                        Step 2: Ground-Truth Registry Snapshot. To enable reliable
+package hallucination. We address this gap by studying Contrastive                       hallucination detection, we collected the complete list of package
+Decoding, DoLa, ALCD, and Nudging in this setting.                                       names available in each registry as of March 4, 2026. We further aug-
+                                                                                         ment each registry snapshot with the standard-library module list
+3    Research Questions                                                                  for the corresponding language. This augmentation is critical to our
+To the best of our knowledge, this is the first study to systematically                  corrected evaluation methodology: without it, legitimate standard-
+evaluate guided decoding strategies as defenses against package                          library imports such as os, math, and json in Python would be erro-
+hallucination and to compare them against both pre-generation and                        neously flagged as hallucinated. The resulting ground-truth package
+post-generation baselines. Our evaluation spans four programming                         set Pℓ for each language ℓ ∈ {Python, JavaScript, Ruby, Rust} is
+languages (JavaScript, Python, Ruby, and Rust) across five model                         the union of registry packages and standard-library modules.
+families, enabling an analysis of how ecosystem characteristics                          Step 3: Prompt Generation. Starting from each (package_name,
+such as registry size, naming conventions, and package distribution                      description) pair, we used GPT-4o-mini to synthetically gener-
+interact with model behavior. We further assess the robustness of                        ate a natural-language coding instruction that reflects the package’s
+all mitigation strategies under adversarial prompts, where the user                      functionality. The system prompt used for this step was:
+explicitly steers the model toward non-existent packages. Our study                          System Prompt: Package Recommendation
+is organized around four research questions:                                                 You are a coding assistant that recommends packages useful to solve given prob-
+                                                                                             lems. Respond with only a list of <language> packages, separated by commas,
+RQ1 (Baseline Characterization). How does the package halluci-                               enclosed in square brackets, no additional text.
+                                                                                             Example output: [package1, package2]
+nation rate vary across model families and programming languages
+when evaluation accounts for standard-library imports?                                   This procedure yields a final evaluation dataset Deval of 4,000 in-
+                                                                                         structions, with |Dℓ | = 1,000 for each language ℓ.
+RQ2 (Defense Effectiveness). How effective are guided decod-
+ing strategies in reducing package hallucination compared with pre-
+generation (RAG) and post-generation (Self-Refine) baselines?                            4.2      Models
+                                                                                         We evaluate eight instruction-tuned, open-weight language models
+RQ3 (Mitigation–Utility Trade-off). What trade-offs arise be-                            from five families, spanning a range of parameter scales:
+tween the effectiveness of package-hallucination mitigation strategies
+and the utility of their generated package recommendations?                               • Gemma 3 (Google): gemma-1b, gemma-4b
+                                                                                          • DeepSeek-Coder (DeepSeek): deepseek-1.3b, deepseek-6.7b
+RQ4 (Adversarial Robustness). How robust are existing and pro-                            • Qwen 2.5 (Alibaba): qwen-1.5b, qwen-3b
+posed mitigation strategies when prompts are deliberately seeded with                     • Mistral (Mistral) : mistral-7b we used Instruct-v0.3.
+fabricated package names?                                                                 • Llama 3.1 (Meta) : llama-8b
+
+=== [PDF page 4] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                          Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+We focus on lightweight models (1b–8b parameters) for two rea-            them using an F1-style score:
+sons. First, prior work has shown that package hallucination rates
+decrease with model scale, with larger models generally exhibiting                                         PUP𝑖 × PUR𝑖
+                                                                                               PU𝑖 = 2 ×               .
+greater resistance to fabricated recommendations [17, 34]. Smaller                                         PUP𝑖 + PUR𝑖
+models are therefore a harder and more practically important test
+                                                                          We set PU𝑖 = 0 when 𝐺𝑖 = ∅ or both precision and recall are
+bed for mitigation strategies, since they are widely deployed on
+                                                                          zero. That is, an empty output avoids hallucination but provides
+resource-constrained hardware. Second, several of our guided de-
+                                                                          no package utility. Precision penalizes hallucinated or unrelated
+coding strategies (Contrastive Decoding, Nudging) require running
+                                                                          packages; recall penalizes output collapse. Because 𝑅𝑖 uses vetted
+two models simultaneously, and limiting parameter counts keeps
+                                                                          registry metadata, PU is reproducible and independent of LLM-
+inference within the memory budget of a single GPU.
+                                                                          generated reference labels, but remains a semantic proxy rather
+                                                                          than complete ground truth. To complement this, we also evaluate
+4.3     Hallucination Detection
+                                                                          recommendation utility through generated code. Specifically, after
+For each (model, language, strategy) triple, the model is                 removing hallucinated packages, we ask the same model to solve the
+queried on the full dataset Deval and asked to recommend packages.        original task using the recommended packages and count how many
+The raw outputs are parsed to extract the set of recommended pack-        are imported or otherwise used. This operationally complements
+age names. Each name is then checked against the ground-truth             description similarity.
+set Pℓ , which includes both registry packages and standard-library
+modules. A recommended name is classified as hallucinated if and
+only if it is absent from Pℓ .
+                                                                          4.5    Baselines and Decoding Strategies
+   We report the following metrics for each configuration                 We compare five guided decoding strategies against three baselines.
+                                                                          Baselines. Vanilla Decoding uses the model’s standard generation
+• Micro PHR (benchmark level). Computed over the full output
+                                                                          configuration, with temperature set to 1.0, top-𝑘 set to 50, and
+  of a given (model, language, strategy) configuration:
+                                                                          top-𝑝 set to 1.0, and serves as the non-deterministic reference set-
+                                            𝑁 hall                        ting. Self-Refine [24, 34] is a post-generation iterative correction
+                           micro-PHR =
+                                            𝑁 gen                         approach where the model critiques and revises its own output over
+• Macro PHR (sample level). Computed per prompt 𝑖 and then                multiple passes, included as a representative post-hoc mitigation
+  averaged:                                                               technique. RAG [20, 34] supplements the prompt with retrieved
+                                                                          package information from the registry, included as a representative
+              𝑛 hall,𝑖                 1 ∑︁
+       PHR𝑖 =          , macro-PHR =            PHR𝑖                      pre-generation grounding technique.
+              𝑛 gen,𝑖                |Deval | 𝑖
+                                                                          Guided Decoding Strategies. Greedy Decoding selects the highest-
+  where 𝑛 gen,𝑖 and 𝑛 hall,𝑖 are the number of generated and halluci-     probability token at each step, yielding a more deterministic al-
+  nated packages for prompt 𝑖, respectively. If 𝑛 gen,𝑖 = 0, the prompt   ternative. Contrastive Decoding (CD) [21, 26] generates tokens by
+  contributes 0 to the sum.                                               subtracting the log-probability distribution of a smaller amateur
+                                                                          model from that of the expert (target) model, penalizing tokens that
+4.4     Package Utility Score (PU)                                        are probable under both models and rewarding tokens specific to
+PHR measures the fraction of generated package names that are             the expert. DoLa [3] computes a contrastive distribution between an
+invalid but not their usefulness. A defense can lower PHR by pro-         early and a late transformer layer within the same model, amplify-
+ducing fewer packages or suppressing recommendations. We intro-           ing factual knowledge encoded in deeper layers while suppressing
+duce the Package Utility Score (PU), measuring whether generated          surface patterns from shallower ones. Active Layer-Contrastive De-
+packages are valid and task-relevant. For prompt 𝑖, let 𝐺𝑖 be the         coding (ALCD) [41] is built upon DoLa and consisted of a selection
+generated package set and Pℓ the language-specific universe of            of tokens where to apply the contrastive distribution decoding
+registry packages and standard-library modules. Since each prompt         based on predefined policy. Nudging [10] uses a small aligned sur-
+is derived from seed package 𝑠𝑖 and its description 𝑑 (𝑠𝑖 ) [34], we      rogate model to generate replacement tokens whenever the base
+construct a task-specific reference set 𝑅𝑖 ⊆ Pℓ by computing cosine       model’s confidence falls below a calibrated threshold, effectively
+similarity between 𝑑 (𝑠𝑖 ) and every verified same-language pack-         steering generation toward more grounded outputs at points of
+age description 𝑑 (𝑝) using text-embedding-3-small embedder,              high uncertainty.
+then selecting 𝑠𝑖 and the 𝑘 − 1 most similar packages. Therefore, 𝑅𝑖      Experimental Configuration. To ensure a fair comparison across
+contains only valid packages and approximates those functionally          strategies, we fix a single hyperparameter configuration per strategy
+related to the seed, crediting valid alternatives while excluding hal-    and apply it uniformly across all eight models and four languages
+lucinations. The useful generated set is 𝑈𝑖 = 𝐺𝑖 ∩ 𝑅𝑖 ∩ Pℓ = 𝐺𝑖 ∩ 𝑅𝑖 ,    considered. This choice trades a small amount of per-configuration
+where the explicit intersection with Pℓ emphasizes validity because       optimality for comparability: a strategy that wins under a shared
+𝑅𝑖 ⊆ Pℓ . Package precision and recall are defined as                     configuration is evidence of genuine robustness rather than an
+                                                                          artifact of grid search. Table 1 summarizes the configuration used
+                              |𝑈𝑖 |                  |𝑈𝑖 |                for each strategy. Our choice of decoding hyperparameters is based
+                    PUP𝑖 =          ,     PUR𝑖 =           .
+                              |𝐺𝑖 |                  |𝑅𝑖 |                on the previous study made by Shi et al. [33]. For RAG, we follow
+Precision is the fraction of generated dependencies in the reference      the retrieval configuration of Spracklen et al. [34], adopting their
+set, whereas recall is the fraction of that set recovered. We combine     top-𝑘 retrieval setup.
+
+=== [PDF page 5] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                 ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+      Table 1: Hyperparameter configuration per strategy.                                Table 2: Micro PHR with and without standard library (stdlib)
+                                                                                         correction, averaged over all models. Δ > 0 means overesti-
+       Strategy                    Hyperparameters                                       mation without the correction.
+       Baseline (Vanilla)          𝑇 =1.0, top-𝑘=50, top-𝑝=1.0
+       Greedy                      𝑇 =0                                                   Lang.    Strategy   𝑁 gen    PHRw/ stdlib (%)   PHRw/o stdlib (%)   Δ (pp)
+
+       Contrastive Decoding (CD)   𝛼=0.5; amateur/expert layer                                     Vanilla    79,965          24.7±0.67           32.3±0.53     +7.6
+                                   pairing (model-specific)                                        Greedy     47,796          19.3±0.00           27.4±0.00     +8.1
+                                                                                                   S-Ref      39,465          19.0±1.14           28.4±1.26     +9.4
+       DoLa                        mature_layer = final layer of                                   CD         24,489          26.7±0.55           32.6±0.50     +5.9
+                                                                                          Python
+                                   target model;                                                   DoLa       51,540          32.3±0.60           38.9±0.58     +6.6
+                                   early_exit_layers= {4, 8, 12, 16} ;                             Nudge      17,628          21.3±1.40           30.4±0.91     +9.1
+                                   𝛿=0.1; repetition_penalty= 1.2                                  RAG        59,910          11.5±0.04           14.3±0.02     +2.8
+                                                                                                   ALCD       49,257          27.6±0.71           34.8±0.79     +7.1
+       ALCD                        mature_layer = final layer of
+                                   target model;                                                   Vanilla    69,072          38.2±0.89           40.4±0.96     +2.2
+                                   early_exit_layers= {4, 8, 12, 16} ;                             Greedy     39,771          30.3±0.00           32.8±0.00     +2.5
+                                   𝛿=0.1; repetition_penalty= 1.2;                                 S-Ref      34,596          31.9±0.29           34.1±0.32     +2.2
+                                   active decision policy => 𝑒𝑛𝑡𝑟𝑜𝑝𝑦 ≥ 1                           CD         16,596          40.9±0.53           42.6±0.58     +1.7
+                                                                                          Ruby
+                                                                                                   DoLa       47,223          46.6±0.39           49.0±0.38     +2.4
+       Nudging                     surrogate_model = largest in
+                                                                                                   Nudge      19,446          38.0±0.87           40.3±1.09     +2.2
+                                   family; top_prob_threshold= 0.4
+                                                                                                   RAG        61,260          11.7±0.03           13.3±0.01     +1.6
+       RAG                         retrieval_𝑘=5; corpus =                                         ALCD       43,110          39.3±0.21           41.8±0.20     +2.5
+                                   per-language package registry
+       Self-Refine                 max_refinement_iterations= 5
+                                                                                         dataset Deval and extracting recommended package names, val-
+                                                                                         idated against ground-truth registry snapshots Pℓ . The result is
+5     Experiments and Results                                                            shown in Table 3.
+This section presents experimental results aligned with the four                         PHR varies across models and languages. Mistral-7b exhibits
+research questions from Section 3. We repeat each experiment three                       the lowest Overall micro PHR (16.1%), while Qwen-1.5b achieves
+times and report the mean and standard deviation across runs. For                        the highest (47.9%). Scaling from smaller to larger models correlates
+large tables where space is limited, we report the mean in the main                      with a reduction in average micro PHR: DeepSeek shows a decrease
+paper and provide the full per-run values and standard deviations in                     of 18.3 pp (39.2% to 20.9%), Gemma 19.8 pp (38.2% to 18.4%), and
+the artifact. We first quantify the impact of standard-library correc-                   Qwen 20.3 pp (47.9% to 27.6%). Among programming languages,
+tion on package hallucination measurement. We then characterize                          Rust has the highest micro PHR of 63.1% on Qwen-1.5b, followed by
+the baseline performance across multiple models and languages                            Ruby on Gemma-1b (53.9%), indicating that more than half of the
+(RQ1), compare inference-time defenses for package recommen-                             recommended packages are hallucinated. Javascript has the least
+dation and code generation (RQ2), evaluate package utility across                        micro PHR of 7.6%.
+different reference sets (RQ3), and assess the robustness of defenses                    Package-generation volume varies across models. The mean
+to adversarial prompts involving fabricated package names (RQ4).                         number of packages generated per prompt (macro) ranges from
+                                                                                         approximately 1 for DeepSeek-1.3b to 12 for Llama-8b. Overall,
+5.1     The Impact of Standard-Library Correction                                        Qwen-1.5b produces the most packages (100,896), including 48,330
+                                                                                         hallucinations, while DeepSeek-1.3b produces the fewest. Micro-
+Prior evaluations can overestimate package hallucination by treat-
+                                                                                         and macro-PHR capture complementary perspectives. Micro-PHR
+ing standard-library imports as invalid because they are absent from
+                                                                                         measures hallucination across all generated packages at the bench-
+centralized registries. For example, Python modules such as os and
+                                                                                         mark level and therefore gives greater weight to prompts producing
+math do not appear on PyPI despite being valid dependencies. To
+                                                                                         longer recommendation lists. Macro-PHR instead averages per-
+quantify this bias, we collected standard-library manifests for the
+                                                                                         prompt rates, reflecting hallucination for a typical prompt regard-
+two applicable languages and computed PHR with and without cor-
+                                                                                         less of output length. For most configurations, micro-PHR exceeds
+rection. Table 2 reports the overestimation Δ by language and strat-
+                                                                                         macro-PHR, indicating that high-volume prompts are also more
+egy. For Python, excluding standard-library modules inflates PHR
+                                                                                         hallucination-prone. The largest gaps occur for Qwen-1.5b on Rust
+by up to 9.4 pp, compared with 2.5 pp for Ruby, reflecting Python’s
+                                                                                         (+23.3 pp), DeepSeek-1.3b on Ruby (+23.2 pp), and Gemma-1b on
+larger and more frequently imported standard library. RAG shows
+                                                                                         Ruby (+22.7 pp). Reporting both metrics therefore distinguishes ag-
+the smallest overestimation in both languages, consistent with its
+                                                                                         gregate package-level exposure from typical prompt-level behavior.
+reliance on verified package information. Standard-library misclas-
+sification can also alter the relative ranking of mitigation strategies,
+affecting both measurement accuracy and comparative evaluation.                              RQ1 Summary
+We therefore apply standard-library correction throughout our
+evaluation.                                                                                  Package hallucination is pervasive across all eight models
+                                                                                             and four languages Rust and Ruby are challenging for the
+                                                                                             different studied models and scaling from smaller to larger
+5.2     Baseline Package Hallucination                                                       variants reduces hallucination by 16–21 pp within each
+We characterize the hallucination behavior of eight models un-                               family. Yet no model is hallucination-free.
+der vanilla conditions by querying them on the full evaluation
+
+=== [PDF page 6] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                            Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+Table 3: Vanilla decoding PHR per model and language. 𝑛¯ =                             29.7% under Vanilla decoding to 18.1%, the largest overall improve-
+mean per prompt. Overall is column aggregates of all lan-                              ment among the evaluated strategies. It lowers PHR by an average
+guages and for micro and macro PHR, it is the mean. Higher                             of 10.7 pp for Python, 23.4 pp for Ruby, and 24.9 pp for Rust, with-
+PHR per model is in bold.                                                              out increasing PHR for any model in these languages. In contrast,
+                                                                                       RAG increases PHR for 7 of 8 models on JavaScript, with an av-
+Model            Lang.         𝑁 gen    𝑁 hall micro   𝑛 gen 𝑛 hall macro              erage degradation of 12.7 pp. This suggests that the npm retrieval
+                                               PHR (%)              PHR (%)            index or retrieval configuration requires careful validation before
+              Python            3,024   1,077   35.6±1.16    2.02   0.72   20.7±1.64   deployment.
+              JavaScript        1,950     585   30.0±5.49    1.30   0.39   13.9±1.77
+deepseek-1.3b Ruby              1,470     600   40.8±3.35    0.98   0.40   17.6±1.20   DoLa performs poorly on DeepSeek but remains competitive
+              Rust              2,658   1,305   49.1±0.55    1.78   0.87   35.4±0.23   for some model families. DoLa has the highest average PHR
+                 Overall        9,102   3,567 39.2±0.55      4.55   1.78 21.9±0.23     among the guided decoding strategies, reaching 38.0% overall. Its
+              Python            5,013     630   12.6±1.77    3.34   0.42   10.6±0.77   performance deteriorates substantially on DeepSeek models, with
+              JavaScript        4,647     474   10.2±2.68    3.10   0.32   9.5±1.03    DeepSeek-1.3b producing PHR values between 83.5% and 91.2%.
+deepseek-6.7b Ruby              5,850   1,428   24.4±1.66    3.90   0.95   15.2±1.11   However, DoLa remains moderately effective for models such as
+              Rust              2,970   1,329   44.8±0.88    1.98   0.89   45.7±1.42
+                                                                                       Mistral-7b and Qwen-3b, demonstrating that its effectiveness is
+                 Overall       18,480   3,861 20.9±0.18      9.24   1.93 20.2±0.62
+                                                                                       architecture-dependent.
+                 Python         9,780   2,358   24.1±1.62    3.26   0.79   18.4±0.38   Self-Refine is most effective for Llama-8B. Self-Refine achieves
+                 JavaScript    12,948   4,362   33.7±0.82    4.32   1.45   18.9±1.10
+gemma-1b         Ruby          11,256   6,063   53.9±0.84    3.75   2.02   31.2±0.36   the lowest PHR across all four languages for Llama-8B, reducing
+                 Rust          11,130   4,443   39.9±0.99    3.71   1.48   28.5±1.49   PHR by 8–18 pp relative to Vanilla decoding. Its performance is
+                 Overall       45,114 17,226 38.2±0.42      11.28   4.31 24.2±0.71     less consistent for other models, where it frequently ranks among
+                 Python         9,894   1,200   12.1±0.87    3.30   0.40   12.3±0.68   the weaker strategies. This suggests that successful self-correction
+                 JavaScript    10,866   1,590   14.6±0.81    3.62   0.53   16.3±1.08   depends on the capabilities of the underlying model rather than on
+gemma-4b         Ruby          10,290   2,904   28.2±2.29    3.43   0.97   26.9±0.70
+                 Rust          10,908   2,022   18.5±0.29    3.64   0.67   17.0±0.85
+                                                                                       architecture alone.
+                                                                                       Nudging serves as the most dependable strategy for JavaScript.
+                 Overall       41,958   7,716 18.4±0.56     10.49   1.93 18.1±0.17
+                                                                                       Where RAG performs poorly on JavaScript, Nudging consistently
+                 Python        17,016   4,176   24.5±0.95 11.34     2.78   20.4±0.26
+                 JavaScript    17,796   4,362   24.5±0.40 11.86     2.91   23.0±0.62
+                                                                                       reduces PHR for Gemma-1b, Qwen-1.5b, Qwen-3b, and Llama-8b,
+llama-8b         Ruby          13,344   4,737   35.5±1.16  8.90     3.16   31.7±1.24   making it the strongest strategy for this language overall. However,
+                 Rust          12,378   4,674   37.8±0.19 8.25      3.12   30.8±1.14   it degrades performance on DeepSeek models, further demonstrat-
+                 Overall       60,534 17,949 29.7±0.40      30.27   8.97 26.5±0.36     ing that guided decoding strategies are not uniformly transferable
+                 Python         4,821     597   12.4±0.38    3.21   0.40   9.1±0.14    across model families.
+                 JavaScript     4,713     360   7.6±0.42     3.14   0.24   7.4±0.37    CD and ALCD provide limited gains, while Greedy decoding
+mistral-7b       Ruby           4,863   1,212   24.9±1.00    3.24   0.81   21.0±0.08
+                 Rust           5,742   1,071   18.6±3.70    3.83   0.71   16.3±0.75   is a strong fallback. CD fails to achieve the lowest PHR in any con-
+                 Overall       20,139   3,240 16.1±0.06     10.07   1.62 13.5±0.27
+                                                                                       figuration, while ALCD generally underperforms against Vanilla.
+                                                                                       In contrast, Greedy decoding matches Self-Refine’s average PHR
+                 Python        23,553 8,280 35.1±1.60   7.85        2.76   21.1±0.84
+                 JavaScript    28,320 11,454 40.4±3.33  9.44        3.82   23.8±0.98   (25.6%) and provides substantial reductions over Vanilla, making it
+qwen-1.5b        Ruby          16,686 8,181 49.0±3.25   5.56        2.73   35.3±0.94   a recommended fallback strategy.
+                 Rust          32,337 20,415 63.1±1.15 10.78        6.80   39.8±1.76
+                 Overall      100,896 48,330 47.9±1.65      25.22 12.08 30.0±0.97
+                 Python         6,864   1,458   21.2±2.36    2.29   0.49   20.6±0.23   5.4    Extension to Full Code Generation, Syntax
+qwen-3b
+                 JavaScript
+                 Ruby
+                                6,348
+                                5,313
+                                        1,662
+                                        1,284
+                                                26.2±2.28
+                                                24.2±2.15
+                                                             2.12
+                                                             1.77
+                                                                    0.55
+                                                                    0.43
+                                                                           25.4±0.52
+                                                                           23.6±0.63
+                                                                                              Validity and Code Smells
+                 Rust          11,676   3,936   33.7±1.96    3.89   1.31   25.6±0.63   In our previous experiments in Sections 5.1, 5.2, and 5.3, we prompted
+                 Overall       30,201   8,340 27.6±0.57      7.55   2.08 23.9±0.80     each LLM to recommend a set of useful packages for every instruc-
+                                                                                       tion in Deval . We extend this analysis to full code generation by
+                                                                                       prompting each model to produce complete, runnable code for the
+                                                                                       same instructions. All imported packages are validated against the
+5.3     Impact of Guided Decoding Defenses                                             same registry snapshots. The system prompt for this task was:
+Here, we evaluate the effect of five guided decoding strategies
+                                                                                         System Prompt: Code Generation
+(Greedy, Contrastive Decoding, DoLa, Nudging, and ALCD) and
+three baselines Vanilla decoding, RAG, and Self-Refine across all                        You are a helpful assistant that generates <language> code for a given task.
+                                                                                         Respond with code inside a “‘<language> ... “‘ block when appropriate.
+eight models and the four programming languages considered. Ta-
+ble 4 shows the results. We observe that no single strategy domi-                         We exclude RAG from this experiment because, in our setup, it
+nates uniformly, indicating that hallucination mitigation is multi-                    affects only package recommendation and does not modify the sub-
+factorial and strongly conditioned on both model family and lan-                       sequent code-generation process. Figures 1a and 1b show the results
+guage ecosystem.                                                                       of valid and hallucinated packages in generated code by language
+RAG performs well for Python, Ruby, and Rust but degrades                              and model. At the model level (Figure 1b), Self-Refine produces the
+performance for JavaScript. RAG achieves the lowest PHR in                             most package references but increases both valid and hallucinated
+19 of 32 configurations and reduces the cross-model average from                       counts, indicating that its gains in package recommendation do
+
+=== [PDF page 7] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 4: Micro PHR (%) per model, language, and strategy on                              syntax degradation, with DeepSeek-6.7b showing a 29% syntax er-
+the package recommendation task. Bold = lowest (best) per                                ror rate for Rust. In contrast, Gemma-4b stands out by producing
+row.                                                                                     0% syntax errors across all languages analyzed. For code smells,
+                                                                                         DoLa, Nudging, and CD yield nearly zero smell counts across most
+Model           Lang.        Vanilla Greedy Self-Refine CD DoLa Nudge RAG ALCD           model-language combinations, whereas Vanilla and Self-Refine are
+              Python          35.6   44.3    36.2    44.1 87.3   42.7   18.3   66.3      significant sources of anti-patterns. Vanilla decoding sees the high-
+              JavaScript      30.0   38.8    20.0    38.5 83.5   42.8   41.5   70.0      est smells in Rust models, while Self-Refine exacerbates these issues,
+deepseek-1.3b
+              Ruby            40.8   52.9    50.9    56.8 91.2   69.4   22.3   73.7
+              Rust            49.1   70.7    40.4    58.3 88.9   81.3   24.6   77.4      particularly in Gemma-4b for Ruby. Overall, these findings suggest
+                                                                                         that certain strategies can lead to both syntax errors and code smells,
+                Python        12.6   12.6    26.4    46.6 79.2   33.1   9.4    41.4
+                JavaScript    10.2   10.2    15.6    40.6 88.8   32.0   36.0   46.6      highlighting the importance of the modeling approach used.
+deepseek-6.7b
+                Ruby          24.4   24.4    29.2    49.6 87.7   63.7   6.9    52.6
+                Rust          44.8   44.8    39.2    49.7 54.1   74.3   7.3    49.6
+                Python        24.1   16.2    18.4    18.9 17.2   11.9   7.9    21.1
+                JavaScript    33.7   13.2    32.0    23.9 17.1   14.4   60.9   22.2            RQ2 Summary
+gemma-1b
+                Ruby          53.9   33.4    30.0    37.1 39.3   30.2   3.5    40.3
+                Rust          39.9   31.1    36.7    38.9 35.3   24.8   2.9    36.7
+                                                                                               No single strategy dominates across models, languages,
+                Python        12.1   12.5    10.8    11.6 16.9   11.9   6.7    16.7            and tasks. RAG achieves the lowest PHR in 19/32 package-
+                JavaScript    14.6   12.5    14.4    15.0 20.3   11.7   12.0   14.6
+gemma-4b
+                Ruby          28.2   24.4    23.6    20.1 42.4   23.9   8.7    29.2            recommendation configurations for Python, Ruby, and
+                Rust          18.5   17.8    18.6    19.2 22.7   14.5   8.6    17.0            Rust but degrades JavaScript by 12.7 pp on average; Self-
+                Python        24.5   24.5    10.8    21.6 20.9   11.4   18.9   21.9            Refine is strongest for Llama-8B. In code generation,
+                JavaScript    24.5   24.5     9.9    18.2 22.3   12.7   28.6   22.4            Vanilla and Greedy preserve syntax, whereas guided strate-
+llama-8b
+                Ruby          35.5   35.5    17.6    24.6 36.2   19.0   22.7   35.6
+                Rust          37.8   37.8    27.3    33.5 33.4   28.9   28.7   34.1            gies can introduce parsing errors but often reduce code
+                Python        12.4   14.6    10.3    13.4 10.1   11.7   11.3 9.9
+                                                                                               smells. Strategy selection must therefore consider the
+                JavaScript     7.6    7.6    9.4     12.3 7.0    10.4   19.9 7.6               model family, language, task, and broader code quality.
+mistral-7b
+                Ruby          24.9   24.6    25.4    18.4 20.2   17.2   16.5 20.3
+                Rust          18.6   23.4    20.0    17.2 15.9   19.2   20.8 14.4
+                Python        35.1   14.9    16.9    24.2 13.2   15.7   7.7    28.8
+                JavaScript    40.4   18.0    22.6    28.7 16.8   12.3   47.5   28.6
+qwen-1.5b
+                Ruby
+                Rust
+                              49.0
+                              63.1
+                                     28.5
+                                     31.7
+                                             46.5
+                                             48.2
+                                                     35.6 32.1
+                                                     46.3 34.3
+                                                                 20.5
+                                                                 23.8
+                                                                        7.4
+                                                                        5.1
+                                                                               40.1
+                                                                               55.4
+                                                                                         5.5     Package Utility of Guided Decoding
+                Python        21.2   15.3    22.3    14.9 13.5   12.5   11.5   15.0
+                                                                                         We assess whether model-recommended packages are useful for
+                JavaScript    26.2   21.1    20.9    20.8 24.4   12.0   42.5   22.7      the target task, rather than merely valid. We measure this using
+qwen-3b
+                Ruby          24.2   18.8    32.1    25.4 23.2   20.4    5.7   22.4      Package Utility (PU) (see Section 4.4), a precision–recall metric
+                Rust          33.7   19.9    36.8    28.9 20.3   18.9    8.1   27.3
+                                                                                         computed against a task-specific reference set 𝑅. We consider two
+                                                                                         reference-set constructions: ❶ the top-𝑘 packages whose descrip-
+                                                                                         tion is most similar to the seed package in terms of cosine similarity,
+not transfer reliably to code generation. Mistral-7b produces the                        where 𝑘 ∈ {1, 2, 5, 10}, and ❷ a code-based reference set containing
+fewest references while maintaining the most favorable valid-to-                         packages obtained in the code generation experiment in Section
+hallucinated ratio, reflecting more conservative dependency use.                         5.4. Figures 3a–3c report the micro-averaged precision (PUP ), recall
+Nudging preserves more valid references than Vanilla across mod-                         (PUR ), and overall (PU) scores.
+els, whereas CD reduces both valid and hallucinated references,                          Precision is insensitive to 𝑘 while recall is not. Across strategies
+suggesting output suppression. At the language level (Figure 1a),                        and models, micro PUP increases by marginally 1–2 percentage
+Rust exhibits the highest hallucination volume, nearly matching                          points from Top-1 to Top-10 (mean values from 13.1 to 14.8), despite
+its valid-reference count. For JavaScript, Self-Refine substantially                     the tenfold growth of the reference set. This suggests that models
+increases hallucinated references, while DoLa produces very few                          recommend a limited set of packages based on training distribution
+references overall. Python is the most controlled setting, with Nudg-                    rather than by valid reference coverage, indicating that precision
+ing maintaining a clearer separation between valid and hallucinated                      reflects generation selectivity. In contrast, micro PUR decreases
+references.                                                                              from a mean of 23.4 at Top-1 to only 2.7 at Top-10, an 8.6-fold
+Syntax Validity and Code Smells. Beyond package hallucination,                           reduction. This trend indicates that models capture a narrow scope
+we assess the structural quality of generated code using Semgrep,                        of semantically proximate packages, with no strategy achieving a
+measuring two complementary metrics: ❶ syntax error rate (frac-                          mean recall above 8 at Top-10.
+tion of programs that could not be parsed due to a syntax error)                         Reference based on generated code packages set enhances
+and ❷ code smell rate (fraction exhibiting Semgrep-detected anti-                        utility recovery. The generated code package reference results
+patterns). Results are reported in Figure 2a and 2b. We observe                          in significantly higher metric values, with mean PU rising to 21.0
+that Vanilla and Greedy decoding ensure nearly perfect syntactic                         from 4.3 at Top-10 and 15.5 at Top-1. This improvement reflects the
+validity across six models, while Self-Refine maintains clean syntax                     alignment between the packages obtained from the generated code
+despite being the least effective for code smells. Guided strategies,                    given a prompt sets and the recommended packages list provided
+however, consistently introduce syntax errors, particularly in Rust                      by the model given the same prompt, while establishing that this
+and JavaScript. Notably, Nudging exhibits the most heterogeneous                         approach provide informative operational definition of PU.
+
+=== [PDF page 8] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                                                                                                                                             Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+                                           Valid vs Hallucinated Packages by Language and
+                                                Mitigation Strategy (Code Generation)                                                                                                                                    Valid vs Hallucinated Packages by Model and
+                                                                                                                                                                                                                            Mitigation Strategy (Code Generation)
+                                                                                                                                                                                            12500
+                 15000
+
+
+
+
+ Package Count
+                                                                                                                                                                                            10000
+
+
+
+
+                                                                                                                                                                            Package Count
+                 10000                                                                                                                                                                       7500
+
+                                                                                                                                                                                             5000
+                  5000
+                                                                                                                                                                                             2500
+
+                                                                                                                                                                                                   0
+                       0
+                                            n                      pt                              y                                 st                                                                        3b             7b           1b              4b             8b               b               b            b
+                                      tho                       cri                               b                               Ru                                                                                                                                              is                   .5               -3
+                                    Py                       aS                                Ru                                                                                                         1.              6.               a-             a-             ma-        tral              -1            en
+                                                         Jav
+                                                                                                                                                                                                          k-             k-            m              m
+                                                                                                                                                                                                      se              se               m             m              lla                 -7          en             qw
+                                                                                                                                                                                                         e               e         ge            ge                               m            qw
+                                                                                                                                                                                                 ep                 ep
+                                                                                   Strategy                                                                                                  de                de                                                  Strategy
+                                       Vanilla (valid)                           S-Ref (hallucinated)                      CD (valid)                                                                               Vanilla (valid)                              S-Ref (hallucinated)                      CD (valid)
+                                       Vanilla (hallucinated)                    DoLa (valid)                              CD (hallucinated)                                                                        Vanilla (hallucinated)                       DoLa (valid)                              CD (hallucinated)
+                                       Greedy (valid)                            DoLa (hallucinated)                       ALCD (valid)                                                                             Greedy (valid)                               DoLa (hallucinated)                       ALCD (valid)
+                                       Greedy (hallucinated)                     Nudge (valid)                             ALCD (hallucinated)                                                                      Greedy (hallucinated)                        Nudge (valid)                             ALCD (hallucinated)
+                                       S-Ref (valid)                             Nudge (hallucinated)                                                                                                               S-Ref (valid)                                Nudge (hallucinated)
+
+
+(a) Distribution of valid vs. hallucinated packages by language and                                                                                                         (b) Distribution of valid vs. hallucinated packages by model and strat-
+strategy for full code generation.                                                                                                                                          egy for full code generation.
+
+Figure 1: Valid and hallucinated package references extracted from full code generation outputs, aggregated by language
+(left) and by model (right) across all seven strategies. Blue segments denote registry-validated packages; red segments denote
+hallucinated references.
+
+                                           Syntax Error Rate (%) by Model, Strategy, and Language                                                                                                                     Mean Code Smell Count by Model, Strategy, and Language
+
+
+                              deepseek-1.3b                           deepseek-6.7b                               gemma-1b                                                                                   deepseek-1.3b                            deepseek-6.7b                                 gemma-1b
+  Vanilla              0%      0%           0%     0%      0%          0%         0%     0%             0%        0%        0%       6%       100                            Vanilla             0.01        0.00      0.02    0.05         0.02      0.01        0.00    0.03        0.01      0.00       0.01     0.05
+Greedy                 0%      0%           0%     0%      0%          0%         0%     0%             0%        0%        0%       6%                                     Greedy               0.01        0.00      0.02    0.00         0.02      0.01        0.00    0.00        0.01      0.00       0.01     0.00
+      S-Ref            0%      0%           0%     0%      0%          0%         0%     0%             0%        0%        0%       0%                                          S-Ref           0.03        0.01      0.04    0.03         0.02      0.00        0.02    0.01        0.03      0.00       0.02     0.05     0.05
+
+       DoLa            0%     13%           0%    23%      0%          6%         0%    21%             5%        0%        0%       8%                                           DoLa           0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00
+                                                                                                                                              80
+  Nudge                0%      0%           0%    24%      0%          0%         0%    29%            16%        4%        0%       4%                                      Nudge               0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                    Mean Smell Count per Sample
+                 CD    0%      0%           0%    25%      3%         16%         0%    11%            13%        0%       15%       0%                                                     CD   0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00     0.04
+
+
+
+
+                                                                                                                                                    Syntax Error Rate (%)
+      ALCD             0%      5%           0%    11%      0%          5%         0%     8%             1%        0%        0%       3%                                          ALCD            0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00
+                                       t     y      t                       t      y      t                            t     y            t   60
+                        on         rip            Ru        on             rip          Ru              on         rip              Ru                                                                n        rip    Ru       Ru                n        rip    Ru       Ru               n        rip    Ru       Ru
+                       th                  Ru        s     th                    Ru        s           th                  Ru          s                                                          th              t      by       st         th              t      by       st        th              t      by       st
+                                  Sc          b                        Sc           b                             Sc          b                                                                      o       va                                 o    va                                   o    va                            0.03
+                      Py     va                           Py          va                              Py     va                                                                                  Py            Sc                           Py         Sc                             Py         Sc
+                             Ja                                   Ja                                         Ja                                                                                           Ja                                         Ja                                        Ja
+
+                                                                                                                                              40
+                                  gemma-4b                              qwen-1.5b                                  qwen-3b                                                                                     gemma-4b                                   qwen-1.5b                                 qwen-3b
+                                                                                                                                                                                                                                                                                                                             0.02
+  Vanilla              0%      0%           0%     0%      0%          0%         0%     0%            0%      0%           0%        0%                                     Vanilla             0.01        0.01      0.02    0.00         0.00      0.00        0.00    0.03        0.03      0.00       0.03     0.01
+Greedy                 0%      0%           0%     0%      0%          0%         0%     0%            0%      0%           0%        0%                                    Greedy               0.01        0.01      0.02    0.00         0.00      0.00        0.00    0.00        0.03      0.00       0.03     0.01
+      S-Ref            0%      0%           0%     0%      0%          0%         0%     0%            0%      0%           0%        0%      20                                 S-Ref           0.00        0.02      0.06    0.00         0.05      0.00        0.01    0.03        0.03      0.01       0.03     0.00
+                                                                                                                                                                                                                                                                                                                             0.01
+       DoLa            0%      0%           0%     0%      0%          1%         0%    17%            0%     10%          10%       18%                                          DoLa           0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.01     0.00
+  Nudge                9%     14%           0%     3%      0%          5%         0%    16%            0%      6%           9%       15%                                     Nudge               0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00
+                 CD    9%      2%           4%     0%      0%          0%         0%     0%            0%      0%           0%        0%                                                    CD   0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.00      0.00       0.00     0.00
+                                                                                                                                              0                                                                                                                                                                              0.00
+      ALCD             0%      0%           0%     0%      0%          0%         0%     4%            0%      2%           5%       13%                                         ALCD            0.00        0.00      0.00    0.00         0.00      0.00        0.00    0.00        0.01      0.00       0.01     0.00
+                        on             t     y      t       on              t      y      t             on             t     y            t                                                           n        rip    Ru       Ru                n        rip    Ru       Ru               n        rip    Ru       Ru
+                                  Sc       Ru     Ru                   Sc        Ru     Ru                        Sc       Ru       Ru                                                            th              t      by       st         th              t      by       st        th              t      by       st
+                       th           rip       b      s     th            rip        b      s           th           rip       b        s                                                             o       va                                 o    va                                   o    va
+                      Py     va                           Py          va                              Py     va                                                                                  Py            Sc                           Py         Sc                             Py         Sc
+                             Ja                                   Ja                                         Ja                                                                                           Ja                                         Ja                                        Ja
+
+
+
+                      (a) Syntax error rate (%) per model, strategy, and language.                                                                                                                (b) Code smell rate (%) per model, strategy, and language.
+
+Figure 2: Structural quality of generated code per model, strategy, and language. Left: syntax error rate (%); green cells denote
+error-free output, warmer colors indicate increasing parse failure rates. Right: mean Semgrep-detected code smell count per
+sample.
+
+
+DeepSeek utility collapse confirmed across all definitions.                                                                                                                                        RQ3 Summary
+Both DeepSeek variants show near-zero PU under all tested con-
+ditions, reinforcing previous findings of output suppression. Con-                                                                                                                                 Package utility depends strongly on reference-set construc-
+versely, Baseline and Greedy on DeepSeek-6.7b achieve a collective                                                                                                                                 tion. Expanding the similarity-based set from Top-1 to
+PU of 30.2, indicating retained latent utility.                                                                                                                                                    Top-10 leaves precision nearly unchanged but reduces re-
+Mitigation–utility trade-off. Among strategies evaluated on both                                                                                                                                   call drastically from 23.4 to 2.7 and mean PU from 15.5 to
+PHR and PU, Greedy provides the strongest average trade-off, re-                                                                                                                                   4.3. Code-derived references yield the highest mean PU,
+ducing mean PHR from 29.7% under Vanilla to 25.6% while attaining                                                                                                                                  providing a more operational measure of utility.
+the highest PU under all five reference-set definitions. Self-Refine
+ranks second followed by Nudging. CD, DoLa, and ALCD do not
+reduce average PHR relative to Vanilla and therefore provide an
+                                                                                                                                                                                    5.6                   Adversarial Robustness
+unfavorable overall trade-off.
+                                                                                                                                                                                   A defense that works only under benign instructions offers limited
+                                                                                                                                                                                   practical assurance [5, 7, 27, 32]. In this section we evaluate all
+                                                                                                                                                                                   mitigation strategies under adversarial prompts where the user
+                                                                                                                                                                                   explicitly directs the model to install and use fabricated packages.
+
+=== [PDF page 9] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                                                                  ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+                         Top-1 (seed only)                      Top-2 (seed + 1 similar)                 Top-5 (seed + 4 similar)                  Top-10 (seed + 9 similar)              With code generated packages
+            Vanilla 5.5 20.5 9.9 11.6 9.6 19.517.019.4        5.5 20.910.212.0 9.9 19.917.519.9        5.7 22.211.012.710.521.018.621.1          6.0 23.111.713.711.122.019.421.9         18.444.430.529.422.443.134.336.3
+                                                                                                                                                                                                                             40
+            Greedy 9.8 20.514.214.9 9.6 19.524.523.5          10.020.914.615.4 9.9 19.925.024.0        10.522.215.616.110.521.226.325.6          10.923.116.417.011.122.127.626.5         26.444.439.435.722.443.446.444.3
+
+
+
+
+                                                                                                                                                                                                                                 Precision (×100)
+             DoLA 0.1 1.1 12.710.1 7.0 19.523.221.5           0.1 1.1 13.110.4 7.2 19.923.622.0        0.1 1.2 13.711.0 7.6 21.124.723.4         0.1 1.3 14.611.6 8.0 22.125.824.2         0.5 2.732.923.116.144.044.440.1   30
+
+
+
+ Strategy
+               CD 0.1 1.3 12.113.710.019.513.819.0            0.1 1.3 12.314.110.419.914.119.3         0.2 1.4 13.214.811.121.214.820.1          0.2 1.5 13.915.611.622.215.320.6          0.8 3.032.734.322.043.130.037.7
+                                                                                                                                                                                                                             20
+            Nudge 2.5 2.3 15.014.7 8.2 19.817.520.8           2.6 2.4 15.415.1 8.5 20.217.921.1        2.8 2.6 16.515.8 9.1 21.419.122.5         2.9 2.7 17.316.8 9.6 22.419.823.3         8.9 8.041.136.119.645.239.141.6
+             S-Ref 4.6 10.911.213.814.319.618.319.7           4.6 11.011.414.114.720.018.720.0         5.0 11.612.115.015.521.119.921.0          5.2 12.112.715.816.322.120.521.8         14.924.335.232.532.941.935.239.6   10
+
+
+             ALCD 1.7 7.7 12.6 4.9 7.7 20.421.721.9           1.7 7.9 13.0 5.1 8.0 20.922.122.5        1.7 8.3 13.7 5.3 8.5 22.123.123.9         1.7 8.5 14.6 5.7 8.9 23.124.324.8         6.316.634.011.217.647.242.340.7
+                 ep  s
+               de 1 ee
+                 ep.3b k                                    ep  s
+                                                          de 1 ee
+                                                            ep.3b k                                  ep  s
+                                                                                                   de 1 ee
+                                                                                                     ep.3b k                                   ep  s
+                                                                                                                                             de 1 ee
+                                                                                                                                               ep.3b k                                  ep  s
+                                                                                                                                                                                      de 1 ee
+                                                                                                                                                                                        ep.3b k
+                     s
+                  6. eek
+                 ge 7
+                    mb m                                        s
+                                                             6 ee
+                                                            ge.7 k
+                                                               mb m                                      s
+                                                                                                      6. eek
+                                                                                                     ge 7
+                                                                                                        mb m                                       s
+                                                                                                                                                6 ee
+                                                                                                                                               ge.7 k
+                                                                                                                                                  mb m                                   6  se
+                                                                                                                                                                                        ge.7 k
+                                                                                                                                                                                           mb me
+                 ge 1 a
+                    mb
+                    4 am                                    ge 1 a
+                                                               mb m
+                                                               4b a                                  ge 1 a
+                                                                                                        mb
+                                                                                                        4 am                                   ge 1 a
+                                                                                                                                                  mb m
+                                                                                                                                                  4b a                                  ge 1 a
+                                                                                                                                                                                           mb
+                                                                                                                                                                                           4 am
+                   llabm
+                  m 8b a
+                    is                                        lla m
+                                                             m 8b a
+                                                               is                                      llabm
+                                                                                                      m 8b a
+                                                                                                        is                                       lla m
+                                                                                                                                                m 8b a
+                                                                                                                                                  is                                      llabm
+                                                                                                                                                                                         m 8b a
+                                                                                                                                                                                           is
+                    7 l
+                   qwb tra                                        tr
+                                                               7b l
+                                                              qw    a                                   7 l
+                                                                                                       qwb tra                                       tr
+                                                                                                                                                  7b l
+                                                                                                                                                 qw    a                                   7 l
+                                                                                                                                                                                           qwbtra
+              de  1. en
+                    5b
+                   qw
+                    3b ne                                de  1. en
+                                                               5
+                                                              qwb
+                                                               3b ne                              de  1. en
+                                                                                                        5b
+                                                                                                       qw
+                                                                                                        3b ne                               de  1. en
+                                                                                                                                                  5b
+                                                                                                                                                 qw
+                                                                                                                                                  3b ne                              de  1. en
+                                                                                                                                                                                           5b
+                                                                                                                                                                                           qw
+                                                                                                                                                                                           3b ne
+
+                                 Model                                      Model                                    Model                                    Model                                    Model
+
+
+                                                                                      (a) Package Utility Precision PUP (×100).
+                          Top-1 (seed only)                     Top-2 (seed + 1 similar)                 Top-5 (seed + 4 similar)                  Top-10 (seed + 9 similar)              With code generated packages
+            Vanilla 6.7 37.617.730.156.444.822.926.0          3.4 19.3 9.3 15.629.223.011.813.4        1.4 8.1 4.1 6.7 12.8 9.8 5.1 5.7          0.7 4.2 2.2 3.7 6.8 5.2 2.7 3.0           8.027.823.029.844.234.721.522.2
+                                                                                                                                                                                                                             50
+
+            Greedy 15.837.621.737.556.444.927.932.2           8.2 19.311.219.329.223.114.316.6         3.5 8.1 4.9 8.2 12.8 9.9 6.1 7.1          1.8 4.2 2.6 4.4 6.8 5.2 3.2 3.7          15.227.822.330.244.234.620.123.6
+                                                                                                                                                                                                                             40
+
+
+
+
+                                                                                                                                                                                                                                 Recall (×100)
+             DoLA 0.1 2.0 21.828.653.641.228.233.4            0.1 1.0 11.314.827.621.214.417.1         0.1 0.4 4.9 6.4 11.9 9.1 6.1 7.4          0.0 0.2 2.6 3.4 6.4 4.8 3.2 3.9           0.3 1.721.623.241.332.321.124.7
+
+ Strategy
+                                                                                                                                                                                                                             30
+               CD 0.5 4.4 20.538.353.444.127.935.4            0.3 2.2 10.519.827.622.714.418.1         0.2 0.9 4.6 8.5 12.0 9.7 6.1 7.5          0.1 0.5 2.4 4.5 6.4 5.1 3.2 3.9           0.6 3.120.633.340.733.823.827.6
+            Nudge 2.9 3.0 25.837.656.542.036.939.6            1.6 1.5 13.319.329.221.618.920.3         0.7 0.7 5.7 8.2 12.8 9.2 8.1 8.7          0.3 0.4 3.0 4.4 6.9 4.8 4.3 4.6           3.6 3.025.730.744.232.930.330.8   20
+
+
+             S-Ref 6.1 15.816.341.247.944.024.340.0           3.1 8.1 8.3 21.224.822.712.520.4         1.3 3.5 3.5 9.1 10.6 9.7 5.4 8.7          0.7 1.9 1.9 4.9 5.6 5.1 2.8 4.6           7.012.318.733.636.733.718.630.4   10
+
+             ALCD 2.1 13.922.113.454.839.627.533.0            1.0 7.1 11.5 7.0 28.220.414.116.9        0.4 3.0 4.9 3.0 12.2 8.7 5.9 7.3          0.2 1.5 2.7 1.6 6.6 4.6 3.1 3.8           2.910.622.310.042.231.721.324.3
+                                                                                                                                                                                                                             0
+                 ep  s
+               de 1 ee
+                 ep.3b k                                    ep  s
+                                                          de 1 ee
+                                                            ep.3b k                                  ep  s
+                                                                                                   de 1 ee
+                                                                                                     ep.3b k                                   ep  s
+                                                                                                                                             de 1 ee
+                                                                                                                                               ep.3b k                                  ep  s
+                                                                                                                                                                                      de 1 ee
+                                                                                                                                                                                        ep.3b k
+                     s
+                  6. eek
+                 ge 7
+                    mb m                                        s
+                                                             6 ee
+                                                            ge.7 k
+                                                               mb m                                      s
+                                                                                                      6. eek
+                                                                                                     ge 7
+                                                                                                        mb m                                       s
+                                                                                                                                                6 ee
+                                                                                                                                               ge.7 k
+                                                                                                                                                  mb m                                   6  se
+                                                                                                                                                                                        ge.7 k
+                                                                                                                                                                                           mb me
+                 ge 1 a
+                    mb
+                    4 am                                    ge 1 a
+                                                               mb m
+                                                               4b a                                  ge 1 a
+                                                                                                        mb
+                                                                                                        4 am                                   ge 1 a
+                                                                                                                                                  mb m
+                                                                                                                                                  4b a                                  ge 1 a
+                                                                                                                                                                                           mb
+                                                                                                                                                                                           4 am
+                   llabm
+                  m 8b a
+                    is                                        lla m
+                                                             m 8b a
+                                                               is                                      llabm
+                                                                                                      m 8b a
+                                                                                                        is                                       lla m
+                                                                                                                                                m 8b a
+                                                                                                                                                  is                                      llabm
+                                                                                                                                                                                         m 8b a
+                                                                                                                                                                                           is
+                    7 l
+                   qwb tr a                                       tr
+                                                               7b l
+                                                              qw     a                                  7 l
+                                                                                                       qwb tr a                                      tr
+                                                                                                                                                  7b l
+                                                                                                                                                 qw     a                                  7 l
+                                                                                                                                                                                           qwbtr a
+              de  1. en
+                    5b
+                   qw
+                    3b ne                                de  1. en
+                                                               5
+                                                              qwb
+                                                               3b ne                              de  1. en
+                                                                                                        5b
+                                                                                                       qw
+                                                                                                        3b ne                               de  1. en
+                                                                                                                                                  5b
+                                                                                                                                                 qw
+                                                                                                                                                  3b ne                              de  1. en
+                                                                                                                                                                                           5b
+                                                                                                                                                                                           qw
+                                                                                                                                                                                           3b ne
+
+                                 Model                                      Model                                    Model                                    Model                                    Model
+
+
+                                                                                        (b) Package Utility Recall PUR (×100).
+                         Top-1 (seed only)                      Top-2 (seed + 1 similar)                 Top-5 (seed + 4 similar)                  Top-10 (seed + 9 similar)              With code generated packages       35
+            Vanilla 5.8 24.111.716.315.025.517.921.1          4.1 17.9 8.8 13.013.119.912.615.1        2.2 10.7 5.4 8.4 10.012.6 7.0 8.5         1.3 6.6 3.4 5.6 7.4 8.0 4.1 5.1          10.230.223.127.125.634.921.924.6
+                                                                                                                                                                                                                             30
+            Greedy 10.824.116.220.615.025.625.425.7           7.8 17.911.916.413.120.017.718.4         4.4 10.7 7.0 10.510.012.7 9.6 10.5        2.7 6.6 4.3 6.7 7.4 8.0 5.6 6.3          16.430.225.629.925.634.925.727.6
+                                                                                                                                                                                                                             25
+             DoLA 0.1 1.3 15.014.310.325.224.624.4            0.1 1.0 11.311.6 8.8 19.417.217.8        0.1 0.6 6.7 7.6 6.8 12.1 9.4 10.5         0.0 0.4 4.2 5.0 5.3 7.6 5.5 6.3           0.3 1.823.521.017.834.126.027.0
+
+ Strategy                                                                                                                                                                                                                        F1 (×100)
+                                                                                                                                                                                                                             20
+               CD 0.2 1.8 14.219.614.825.516.722.5            0.2 1.5 10.515.812.619.812.816.8         0.2 1.0 6.3 10.3 9.3 12.5 7.8 9.9         0.1 0.7 3.9 6.7 6.8 7.9 4.9 6.1           0.6 2.622.731.023.434.323.428.0
+                                                                                                                                                                                                                             15
+            Nudge 2.6 2.5 17.720.513.125.621.625.0            1.9 1.8 13.216.311.519.716.518.8         1.0 1.0 8.0 10.4 9.0 12.310.411.5         0.6 0.6 4.9 6.8 6.8 7.7 6.6 7.2           4.6 4.028.230.323.134.929.531.0
+                                                                                                                                                                                                                             10
+             S-Ref 4.9 11.912.519.620.625.319.724.0           3.5 8.5 9.0 15.917.019.714.118.2         2.0 4.9 5.2 10.511.612.4 8.0 11.1         1.2 3.0 3.1 7.0 7.8 7.9 4.7 7.0           8.514.321.929.630.933.722.130.6
+                                                                                                                                                                                                                             5
+             ALCD 1.8 9.0 15.0 6.9 11.726.022.924.6           1.2 6.7 11.2 5.6 10.119.816.017.9        0.7 4.0 6.7 3.6 7.8 12.1 8.8 10.4         0.4 2.4 4.3 2.4 6.0 7.5 5.2 6.3           3.611.424.19.619.935.024.826.8
+                                                                                                                                                                                                                             0
+                 ep  s
+               de 1 ee
+                 ep.3b k                                    ep  s
+                                                          de 1 ee
+                                                            ep.3b k                                  ep  s
+                                                                                                   de 1 ee
+                                                                                                     ep.3b k                                   ep  s
+                                                                                                                                             de 1 ee
+                                                                                                                                               ep.3b k                                  ep  s
+                                                                                                                                                                                      de 1 ee
+                                                                                                                                                                                        ep.3b k
+                     s
+                  6. eek
+                 ge 7
+                    mb m                                        s
+                                                             6 ee
+                                                            ge.7 k
+                                                               mb m                                      s
+                                                                                                      6. eek
+                                                                                                     ge 7
+                                                                                                        mb m                                       s
+                                                                                                                                                6 ee
+                                                                                                                                               ge.7 k
+                                                                                                                                                  mb m                                   6  se
+                                                                                                                                                                                        ge.7 k
+                                                                                                                                                                                           mb me
+                 ge 1 a
+                    mb
+                    4 am                                    ge 1 a
+                                                               mb m
+                                                               4b a                                  ge 1 a
+                                                                                                        mb
+                                                                                                        4 am                                   ge 1 a
+                                                                                                                                                  mb m
+                                                                                                                                                  4b a                                  ge 1 a
+                                                                                                                                                                                           mb
+                                                                                                                                                                                           4 am
+                   llabm
+                  m 8b a
+                    is                                        lla m
+                                                             m 8b a
+                                                               is                                      llabm
+                                                                                                      m 8b a
+                                                                                                        is                                       lla m
+                                                                                                                                                m 8b a
+                                                                                                                                                  is                                      llabm
+                                                                                                                                                                                         m 8b a
+                                                                                                                                                                                           is
+                    7 l
+                   qwb tr a                                       tr
+                                                               7b l
+                                                              qw     a                                  7 l
+                                                                                                       qwb tr a                                      tr
+                                                                                                                                                  7b l
+                                                                                                                                                 qw     a                                  7 l
+                                                                                                                                                                                           qwbtr a
+              de  1. en
+                    5b
+                   qw
+                    3b ne                                de  1. en
+                                                               5
+                                                              qwb
+                                                               3b ne                              de  1. en
+                                                                                                        5b
+                                                                                                       qw
+                                                                                                        3b ne                               de  1. en
+                                                                                                                                                  5b
+                                                                                                                                                 qw
+                                                                                                                                                  3b ne                              de  1. en
+                                                                                                                                                                                           5b
+                                                                                                                                                                                           qw
+                                                                                                                                                                                           3b ne
+
+                                 Model                                      Model                                    Model                                    Model                                    Model
+
+
+                                                                                              (c) Package Utility PU (×100).
+
+
+Figure 3: Package Utility (PU) across five reference-set definitions for all seven strategies and eight models on the package
+recommendation task. Values are multiplied by 100 for readability. Rows: strategies; columns: models.
+
+
+Adversarial Prompt Construction. We collected 1,000 non-existent                                                             baselines. Averaged across the four languages, we observe an in-
+package names for each Python and JavaScript language produced                                                               crement ranging from 20.6 pp The effect is particularly severe for
+by both open-source (Meta-Llama, Alibaba families) and closed-                                                               models that perform well under benign prompts. Gemma-4b, whose
+source (OpenAI GPT family) LLMs when prompted on coding tasks.                                                               vanilla PHR ranges from 12.1% to 28.2%, reaches 49.7%–90.2% un-
+Each candidate was verified as absent from the npm and PyPI reg-                                                             der attack. Similarly, Mistral-7b, the strongest model under vanilla
+istries via direct lookup. These names cover a broad spectrum of                                                             decoding (7.6%–24.9%), rises to 46.6%–76.6%, an average increase of
+hallucination patterns including completely invented identifiers,                                                            47.8 pp. Thus, strong performance under benign prompts provides
+cross-ecosystem confusions, fuzzy variants of real names, standard-                                                          limited protection once the prompt itself is adversarially framed.
+library misattributions, and case or naming-convention mismatches.                                                           Qwen-1.5b shows the smallest increase. This can be attributed to
+To extend coverage to Ruby and Rust, we reused these npm- and                                                                its vanilla PHR already being the highest in the study (35.1–63.1%);
+PyPI-origin names as adversarial seeds. This choice is deliberate:                                                           on Rust, its adversarial PHR (51.4%) is in fact lower than its vanilla
+cross-ecosystem confusion is itself one of the most prevalent hal-                                                           rate (63.1%), the single case where adversarial framing does not
+lucination patterns, and a model asked to use a JavaScript-origin                                                            increase hallucination. Ruby is the most vulnerable language and
+name in a Ruby context may hallucinate a plausible gem rather                                                                Rust the most resistant in each of the eight models we test, with
+than refuse. Each name was inserted into a language-specific in-                                                             no exception. Adversarial PHR under vanilla decoding spans 46.6%
+struction template directing a coding assistant to install and use                                                           (Mistral-7b, Rust) to 92.5% (DeepSeek-1.3b, Ruby). This universality
+the corresponding package, yielding 1,000 adversarial prompts per                                                            suggests that Ruby’s smaller package ecosystem provides weaker
+language (4,000 total).                                                                                                      negative-evidence anchors in pre-training corpora regardless of
+Impact of Adversarial Prompting. Table 5 shows that adver-                                                                   model family or scale, while Rust’s strict compiler-enforced naming
+sarial prompts substantially increase PHR relative to the vanilla                                                            conventions consistently constrain fabrication.
+
+=== [PDF page 10] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                          Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+Effectiveness of Mitigation Strategies. Table 5 shows that no             (+9.4 pp) and from 76.8% to 84.8% for Gemma-1b on JavaScript
+single strategy dominates across all eight models, although a scale-      (+8.0 pp). These results confirm that Nudging remains model- and
+dependent pattern emerges. RAG performs best overall, achieving           language-dependent. CD does not achieve the lowest PHR in any
+the lowest PHR in 16 of 32 model-language combinations (50%).             configuration and consistently trails RAG and Self-Refine. Greedy
+It is particularly effective for lower-capacity models, producing         remains close to the Vanilla baseline in most cases, indicating that
+the lowest PHR on 3 of 4 languages for DeepSeek-1.3b (Python:             deterministic decoding alone provides limited adversarial robust-
+48.6%, JavaScript: 71.8%, Ruby: 87.2%) and Qwen-1.5b (Python: 24.5%,      ness.
+JavaScript: 46.9%, Ruby: 64.2%), on all 4 languages for DeepSeek-         Why decoding-only defenses fail under adversarial prompts.
+6.7b, and on 2 of 4 for Gemma-1B (Python: 39.0%, JavaScript: 49.2%).      Decoding-only methods operate on local token probabilities or in-
+Retrieved registry evidence therefore appears especially useful for       ternal representations, but they do not verify whether a package
+models with limited self-correction capacity. The JavaScript degra-       exists. When the prompt contains a fabricated package, the fake
+dation observed under benign prompts (Section 5.3) is absent under        name becomes a strong contextual anchor. Without external reg-
+attack, where RAG achieves the lowest JavaScript PHR for 5 of 8           istry evidence or explicit self-verification, guided decoding may
+models. Self-Refine performs more consistently on models with             preserve or even amplify plausible-looking package names rather
+stronger self-correction capabilities, yielding the lowest PHR in 13      than reject them. This explains why RAG and Self-Refine are more
+of 32 combinations. It ranks first across all four languages for Llama-   robust under adversarial prompts. Specifically, RAG introduces ex-
+8B, three of four for Mistral-7b, and for Gemma-4b on JavaScript          ternal registry grounding, while Self-Refine gives the model an
+(31.0%), Ruby (69.8%), and Rust (38.6%). It also performs best for        explicit opportunity to reconsider generated dependencies.
+Qwen-3b on Ruby (57.9%) and Rust (44.3%). The lowest PHR ob-
+served in the study is 11.4%, achieved by Gemma-4b on Python                  RQ4 Summary
+with RAG. This result indicates that retrieval grounding can pro-
+vide strong resistance to adversarial package injection even for a 4b         No defense is universal under adversarial prompting. Ad-
+model. Together, RAG and Self-Refine produce the lowest PHR in 29             versarial prompts substantially increase PHR. Ruby is
+of 32 combinations. Nudging performs best for DeepSeek-1.3b and               consistently the most vulnerable language, while Rust is
+Gemma-1b on Rust. For Gemma-1B on Ruby, no mitigation strategy                the most resistant. RAG and Self-Refine achieve the low-
+improves upon the baseline PHR of 83.7%. This result shows that,              est PHR in 29 of 32 configurations, with RAG favoring
+for small models operating in under-represented package ecosys-               lower-capacity models and Self-Refine stronger models.
+tems, the evaluated interventions may fail to reduce hallucination            Decoding-only defenses remain unreliable under adversar-
+and can instead increase it.                                                  ial prompting.
+Decoding-only strategies provide inconsistent protection
+under adversarial prompting. DoLa increases PHR relative to
+Greedy in 24 of 32 model–language configurations (75.0%). The
+                                                                          6   Limitations and Threats to Validity
+largest degradation occurs for DeepSeek-1.3B on Rust, where PHR           Benchmark realism and generalizability. We extended the eval-
+rises from 38.6% under Greedy to 94.1% under DoLa, an increase            uation dataset from [34] to Ruby and Rust synthetically, with cod-
+of 55.5 pp. Similar failures occur for Gemma-4b on Rust, with PHR         ing instructions generated by GPT-4o-mini from registry (pack-
+increasing from 49.5% to 87.1% (+37.6 pp), and for Mistral-7b on          age_name, description) pairs. However, no human validation or
+Rust, where it increases from 46.1% to 81.3% (+35.2 pp). DoLa under-      comparison against authentic developer queries such as those found
+performs Greedy across all four languages for Gemma-1b, Qwen-3b,          on Stack Overflow, GitHub Issues, or coding-assistant logs has been
+Llama-8b, and Mistral-7b. Most improvements are concentrated in           conducted. Nonetheless, we believe this controlled construction
+the DeepSeek family: both DeepSeek-1.3b and DeepSeek-6.7b out-            provides consistent coverage across languages and enables repro-
+perform Greedy in three of four languages, suggesting that DoLa’s         ducible comparisons.
+layer selection may be better aligned with DeepSeek’s internal rep-       Model and ecosystem coverage. Our evaluation covers eight
+resentations. ALCD mitigates some of these failures by applying           small open-weight models from five families and four programming-
+layer contrast selectively. It outperforms DoLa in 23 of 32 configu-      language ecosystems. This focus provides a challenging and practi-
+rations, including reductions from 81.6% to 51.0% for Llama-8b on         cally relevant setting, but the findings may not generalize to larger
+Rust and from 49.8% to 36.5% for Qwen-1.5b on Rust. ALCD also             models, other programming languages, or private registries.
+improves upon DoLa across all four languages for DeepSeek-6.7b,           Configuration sensitivity. We apply one fixed hyperparameter
+Qwen-1.5b, and Qwen-3b. However, it does not achieve the low-             configuration per strategy across all models and languages to sup-
+est PHR in any configuration and improves upon the unmitigated            port controlled comparison and do not perform optimization. Con-
+Vanilla baseline in only 6 of 32 cases, all involving DeepSeek-1.3b,      sequently, the reported rankings should be interpreted as results
+Gemma-4B, or Qwen-1.5b on Rust. Thus, ALCD reduces DoLa’s                 under the evaluated configurations rather than as upper bounds on
+degradation but remains an unreliable adversarial defense. Nudg-          each strategy’s performance.
+ing and CD also produce mixed results. Nudging improves upon
+Greedy across all four languages for DeepSeek-1.3b, including a re-       7   Conclusion
+duction from 38.6% to 26.6% on Rust (−12.0 pp). It also reduces PHR       This paper revisited package hallucination in LLM-generated code
+for Gemma-1b on Rust from 75.0% to 47.6% (−27.4 pp). In contrast,         from four angles: measurement, mitigation, utility, and adversarial
+PHR increases from 63.1% to 72.5% for Qwen-1.5b on JavaScript             robustness. Our corrected evaluation framework, which accounts
+
+=== [PDF page 11] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                                         ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+Table 5: Micro PHR (%) and raw counts (𝑁 hall /𝑁 gen ) in parentheses per model, language, and strategy under adversarial prompts.
+Lowest PHR per row in bold.
+
+   Model             Lang.            Vanilla             Greedy             Self-Refine              DoLa                 RAG                 Nudge                  CD                ALCD
+                     JavaScript    84.4 (320/379)       87.4 (340/389)       75.2 (194/258)       84.9 (253/298)       71.8 (492/685)       76.9 (230/299)       87.7 (193/220)      76.1 (242/318)
+                     Python        80.3 (392/488)       90.4 (339/375)       81.2 (234/288)       68.5 (204/298)       48.6 (470/968)       80.0 (419/524)       93.9 (845/900)      73.6 (245/333)
+   deepseek-1.3b
+                     Ruby          92.5 (368/398)       93.2 (449/482)       91.8 (180/196)       93.1 (244/262)       87.2 (429/492)       91.2 (466/511)      96.8 (987/1,020)     87.3 (207/237)
+                     Rust          72.4 (422/583)       38.6 (248/643)       91.2 (312/342)       94.1 (636/676)       79.3 (466/588)       26.6 (238/895)       91.9 (570/620)      86.0 (301/350)
+                     JavaScript    73.1 (425/581)       81.3 (231/284)        86.0 (505/587)      91.6 (164/179)      61.8 (777/1,257)      96.7 (205/212)       76.4 (292/382)      86.1 (167/194)
+                     Python        73.2 (423/578)       83.6 (316/378)       59.5 (601/1,010)     81.0 (111/137)      41.0 (1,156/2,819)    88.1 (244/277)       60.1 (196/326)      75.0 (165/220)
+   deepseek-6.7b
+                     Ruby          86.1 (353/410)       95.2 (479/503)        87.8 (360/410)      90.0 (199/221)      77.5 (1,418/1,829)    95.7 (485/507)       83.4 (151/181)      89.9 (249/277)
+                     Rust          66.9 (521/779)       85.2 (574/674)        81.1 (439/541)      74.3 (182/245)      58.9 (1,328/2,253)    94.3 (528/560)      96.3 (1,423/1,478)   67.0 (185/276)
+                     JavaScript   77.0 (1,151/1,494)    76.8 (994/1,295)      78.5 (707/901)      88.5 (571/645)      49.2 (883/1,793)     84.8 (1,180/1,391)   77.6 (1,303/1,680)    88.6 (658/743)
+                     Python       72.6 (1,224/1,685)   74.8 (1,265/1,691)    66.7 (873/1,309)     84.6 (737/871)      39.0 (640/1,640)     73.4 (1,144/1,558)   75.1 (1,383/1,841)   79.6 (930/1,168)
+   gemma-1b
+                     Ruby         83.7 (1,113/1,329)   86.3 (1,073/1,244)     88.4 (729/825)      86.4 (654/757)       86.1 (802/931)       87.4 (587/672)      86.3 (1,116/1,293)    86.6 (775/895)
+                     Rust         69.2 (1,162/1,679)   75.0 (1,134/1,511)     75.0 (496/661)      88.2 (464/526)       69.0 (459/665)      47.6 (1,068/2,243)    48.0 (828/1,726)     90.9 (680/748)
+                     JavaScript   88.6 (1,692/1,909)   89.4 (1,774/1,984)   31.0 (567/1,828)      82.6 (804/973)       71.1 (927/1,303)    88.1 (1,667/1,892)   86.2 (1,692/1,963)   84.1 (630/749)
+                     Python       77.2 (1,232/1,596)   79.1 (1,234/1,560)   37.7 (590/1,563)     89.1 (895/1,004)     11.4 (277/2,434)     75.3 (1,287/1,709)   73.5 (1,387/1,886)   86.9 (806/927)
+   gemma-4b
+                     Ruby         90.2 (1,161/1,287)   90.7 (1,180/1,301)   69.8 (981/1,405)      93.0 (745/801)      82.5 (1,053/1,276)   91.5 (1,355/1,481)   90.3 (1,058/1,172)   88.5 (711/803)
+                     Rust         49.7 (1,016/2,046)   49.5 (1,014/2,050)   38.6 (924/2,393)      87.1 (681/782)      55.9 (1,103/1,973)    47.9 (962/2,009)    51.3 (1,088/2,120)   88.5 (637/720)
+                     JavaScript   80.1 (1,328/1,657)   80.2 (1,235/1,539)   43.4 (836/1,925)      89.4 (680/761)        49.0 (95/194)      77.4 (1,125/1,454)   72.2 (1,324/1,833)    89.6 (600/670)
+                     Python       71.4 (1,275/1,785)   71.2 (1,300/1,826)   32.5 (1,069/3,288)    89.2 (815/914)       60.8 (818/1,345)    72.2 (1,212/1,678)   66.4 (1,515/2,283)    86.6 (720/831)
+   llama-8b
+                     Ruby         90.4 (1,746/1,931)   87.2 (1,487/1,705)   62.4 (1,163/1,864)   94.6 (955/1,009)     83.9 (1,108/1,321)   90.1 (1,755/1,947)   85.8 (1,855/2,163)    94.1 (604/642)
+                     Rust         49.1 (1,205/2,456)   48.5 (1,189/2,452)   32.2 (1,537/4,771)    81.6 (703/861)       71.4 (769/1,077)    48.4 (1,120/2,313)   49.7 (1,422/2,859)   51.0 (616/1,209)
+                     JavaScript    65.7 (992/1,509)     66.1 (979/1,482)    34.2 (465/1,359)      79.2 (449/567)       62.1 (958/1,542)     64.8 (991/1,529)    68.1 (1,173/1,723)   82.7 (335/405)
+                     Python       65.6 (1,553/2,367)   66.3 (1,573/2,374)   48.7 (696/1,429)      90.2 (826/916)      41.5 (832/2,006)     64.7 (1,505/2,327)   65.6 (1,575/2,402)   87.3 (738/845)
+   mistral-7b
+                     Ruby         76.6 (1,220/1,593)   80.9 (1,157/1,430)   55.0 (834/1,517)      86.8 (191/220)      79.2 (1,127/1,423)    82.3 (827/1,005)    85.0 (1,447/1,702)   93.7 (164/175)
+                     Rust         46.6 (1,361/2,920)   46.1 (1,363/2,957)   42.0 (939/2,238)      81.3 (655/806)      56.9 (2,157/3,792)   46.7 (1,364/2,918)   50.4 (1,303/2,586)   77.3 (559/723)
+                     JavaScript    65.4 (981/1,500)    63.1 (1,040/1,647)   55.6 (789/1,418)      79.6 (565/710)      46.9 (927/1,975)     72.5 (1,173/1,619)   75.9 (1,438/1,894)    75.9 (183/241)
+                     Python       71.6 (1,437/2,007)   74.9 (1,398/1,866)   62.6 (696/1,112)      85.1 (730/858)      24.5 (624/2,551)     81.0 (1,662/2,051)   76.3 (1,527/2,000)    77.1 (592/768)
+   qwen-1.5b
+                     Ruby         81.4 (1,265/1,554)   84.4 (1,488/1,763)   83.5 (988/1,183)      89.3 (507/568)      64.2 (1,688/2,629)   86.1 (1,112/1,291)   92.2 (1,921/2,084)    81.7 (384/470)
+                     Rust         51.4 (1,639/3,186)   51.1 (1,624/3,175)   29.8 (941/3,159)     49.8 (696/1,398)     53.7 (1,380/2,569)   45.6 (1,182/2,592)   48.9 (1,192/2,437)   36.5 (519/1,423)
+                     JavaScript   75.0 (1,227/1,636)   74.9 (1,199/1,600)   54.2 (623/1,150)      90.6 (903/997)      50.5 (963/1,908)     72.9 (1,193/1,636)   74.0 (1,321/1,785)   86.9 (637/733)
+                     Python       74.2 (1,309/1,765)   76.6 (1,197/1,562)    38.3 (362/944)       86.3 (816/945)      34.5 (688/1,994)     72.5 (1,182/1,630)   68.1 (1,519/2,232)   80.0 (427/534)
+   qwen-3b
+                     Ruby         89.2 (1,736/1,947)   91.8 (1,813/1,974)   57.9 (987/1,704)     94.7 (1,323/1,397)   65.9 (1,328/2,016)   89.8 (1,880/2,093)   87.3 (2,096/2,400)   94.0 (864/919)
+                     Rust         51.6 (1,424/2,758)   52.1 (1,461/2,803)   44.3 (947/2,139)      71.3 (536/752)       61.0 (904/1,483)    49.5 (1,188/2,401)   53.6 (1,546/2,886)   64.7 (389/601)
+
+
+
+for standard-library modules that prior pipelines misclassified as                                  under these conditions. RAG and Self-Refine performed best under
+hallucinated, reveals that Python hallucination rates have been                                     hostile prompts, indicating protection requires external grounding
+overstated by up to 9.4 percentage points in previous work. We                                      or iterative self-verification. Practitioners should match defenses to
+recommend per-language standard-library exclusion as a baseline                                     the threat model: guided decoding for standard (non-adversarial)
+requirement for any future evaluation of package hallucination.                                     usage and stronger interventions for adversarial settings. Future
+    On the mitigation side, our systematic evaluation of five guided                                work should evaluate more sophisticated attack vectors, such as in-
+decoding strategies across eight models and four programming                                        direct prompt injection or multi-turn manipulation, and combining
+languages demonstrates that inference-time intervention is a viable                                 guided decoding with lightweight registry verification at inference
+and practical defense. Contrastive Decoding reduced hallucination                                   time.
+in 19 of 32 configurations, while Nudging provided the best trade-off
+between hallucination reduction and output completeness, making                                     8       Acknowledgment
+it a promising lightweight strategy under standard, non-adversarial
+                                                                                                    This work was supported by the Luxembourg Ministry of Foreign
+prompts among the guided decoding strategies. These results show
+                                                                                                    and European Affairs through their Digital4Development (D4D)
+that package hallucination can be substantially reduced without
+                                                                                                    portfolio under the LuxWAyS project and the European Research
+model retraining and without external retrieval infrastructure. Our
+                                                                                                    Council (ERC) under the European Union’s Horizon 2020 research
+utility analysis further shows that hallucination reduction and rec-
+                                                                                                    and innovation program (Project NATURAL - Grant agreement N°
+ommendation usefulness are not equivalent. Among all evaluated
+                                                                                                    949014).
+strategies, Greedy decoding provides the strongest average trade-
+off, followed by Self-Refine and Nudging.
+    At the same time, our adversarial evaluation exposes clear limits.                              Data Availability
+Prompts seeded with fabricated package names amplify halluci-                                       The data used in this research are derived from publicly available
+nation rates significantly by up to 58.1 percentage points, and all                                 sources. To ensure transparency and reproducibility, the source
+five decoding-only strategies fail to provide consistent protection                                 code, datasets, and usage instructions are publicly accessible in our
+                                                                                                    anonymized repository at https://zenodo.org/records/21786704.
+
+=== [PDF page 12] ===
+
+ASE ’26, October 12–16, 2026, Munich, Germany                                                                                     Djire, Olatunji, Tessa, Barr, Klein and Bissyandé
+
+
+References                                                                                        et al. 2020. Retrieval-augmented generation for knowledge-intensive nlp tasks.
+ [1] Wadhah Al-Zofi. 2025. AI-Induced Supply-Chain Compromise: A Systematic                       Advances in neural information processing systems 33 (2020), 9459–9474.
+     Review of Package Hallucinations and Slopsquatting Attacks. doi:10.21203/rs.3.rs-       [21] Xiang Lisa Li, Ari Holtzman, Daniel Fried, Percy Liang, Jason Eisner, Tatsunori
+     8007192/v1                                                                                   Hashimoto, Luke Zettlemoyer, and Mike Lewis. 2023. Contrastive Decoding:
+ [2] Thomas E. Armstrong. 2025. Slopsquatting assurance: Auditing AI’s New Supply                 Open-ended Text Generation as Optimization. doi:10.48550/arXiv.2210.15097
+     Chain Threat. EDPACS 70, 12 (Dec. 2025), 1–9. doi:10.1080/07366981.2025.2510097              arXiv:2210.15097 [cs].
+     _eprint: 10.1080/07366981.2025.2510097.                                                 [22] Zike Li, Mingwei Liu, Anji Li, Kaifeng He, Yanlin Wang, Xin Peng, and Zibin
+ [3] Yung-Sung Chuang, Yujia Xie, Hongyin Luo, Yoon Kim, James Glass, and                         Zheng. 2025. A Preliminary Study on the Robustness of Code Generation by
+     Pengcheng He. 2024. DoLa: Decoding by Contrasting Layers Improves Factuality                 Large Language Models. doi:10.48550/arXiv.2503.20197 arXiv:2503.20197 [cs].
+     in Large Language Models. doi:10.48550/arXiv.2309.03883 arXiv:2309.03883 [cs].          [23] Fang Liu, Yang Liu, Lin Shi, Zhen Yang, Li Zhang, Xiaoli Lian, Zhongqi Li, and
+ [4] Hantian Ding, Varun Kumar, Yuchen Tian, Zijian Wang, Rob Kwiatkowski, Xi-                    Yuchi Ma. 2026. Beyond Functional Correctness: Exploring Hallucinations in
+     aopeng Li, Murali Krishna Ramanathan, Baishakhi Ray, Parminder Bhatia, and                   LLM-Generated Code. doi:10.48550/arXiv.2404.00971 arXiv:2404.00971 [cs].
+     Sudipta Sengupta. 2023. A Static Evaluation of Code Completion by Large Lan-            [24] Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah
+     guage Models. In Proceedings of the 61st Annual Meeting of the Association for               Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank
+     Computational Linguistics (Volume 5: Industry Track). Association for Computa-               Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir
+     tional Linguistics, 347–360. doi:10.18653/v1/2023.acl-industry.34                            Yazdanbakhsh, and Peter Clark. 2023. Self-Refine: Iterative Refinement with Self-
+ [5] Albérick Euraste Djiré, Abdoul Kader Kaboré, Iyiola E Olatunji, Earl T Barr,                 Feedback. In Advances in Neural Information Processing Systems 36 (NeurIPS 2023).
+     Jacques Klein, and Tegawendé F Bissyandé. 2025. Memorization or interpolation?               Neural Information Processing Systems Foundation, Inc. (NeurIPS), 46534–46594.
+     detecting llm memorization through input perturbation analysis. arXiv preprint               doi:10.52202/075280-2019
+     arXiv:2505.03019 (2025). doi:10.48550/arXiv.2505.03019                                  [25] Shradha Neupane, Grant Holmes, Elizabeth Wyss, Drew Davidson, and
+ [6] Greta Dolcetti, Vincenzo Arceri, Eleonora Iotti, Sergio Maffeis, Agostino Cortesi,           Lorenzo De Carli. 2023. Beyond Typosquatting: An In-depth Look at Package
+     and Enea Zaffanella. 2026. Helping LLMs improve code generation using feedback               Confusion. In 32nd USENIX Security Symposium (USENIX Security 23). USENIX
+     from testing and static analysis. Discover Artificial Intelligence 6, 1 (March 2026).        Association, Anaheim, CA, 3439–3456. https://www.usenix.org/conference/
+     doi:10.1007/s44163-026-01009-5                                                               usenixsecurity23/presentation/neupane
+ [7] Djiré Albérick Euraste, Kaboré Abdoul Kader, Jordan Samhi, Earl T Barr, Jacques         [26] Sean O’Brien and Mike Lewis. 2023. Contrastive decoding improves reasoning
+     Klein, and Tegawendé F Bissyandé. 2026. Learned or Memorized? Quantifying                    in large language models. arXiv preprint arXiv:2309.09117 (2023). doi:10.48550/
+     Memorization Advantage in Code LLMs. arXiv preprint arXiv:2604.13997 (2026).                 arXiv.2309.09117
+     doi:10.48550/arXiv.2604.13997                                                           [27] Iyiola E Olatunji, Franziska Boenisch, Jing Xu, and Adam Dziedzic. 2025. Adver-
+ [8] Sebastian Farquhar, Jannik Kossen, Lorenz Kuhn, and Yarin Gal. 2024. Detecting               sarial attacks and defenses on graph-aware large language models (llms). arXiv
+     hallucinations in large language models using semantic entropy. Nature 630,                  preprint arXiv:2508.04894 (2025). doi:10.48550/arXiv.2508.04894
+     8017 (2024), 625–630. doi:10.1038/s41586-024-07421-0                                    [28] Iyiola E Olatunji, Alberick Euraste Djire, Jacques Klein, and Tegawendé F Bis-
+ [9] Dren Fazlija, Iyiola E Olatunji, Daniel Kudenko, and Sandipan Sikdar. 2026. To-              syandé. 2026. Do Not Copy/Paste: Soft Barriers for Copying in AI-Assisted
+     wards Sensitivity-Aware Language Models. arXiv preprint arXiv:2601.20901 (2026).             Programming. In IEEE/ACM International Conference on Automated Software
+     doi:10.48550/arXiv.2601.20901                                                                Engineering (ASE). doi:10.1145/3832783.3834554
+[10] Yu Fei, Yasaman Razeghi, and Sameer Singh. 2025. Nudging: Inference-time Align-         [29] Gabriel Poesia, Oleksandr Polozov, Vu Le, Ashish Tiwari, Gustavo Soares,
+     ment of LLMs via Guided Decoding. In Proceedings of the 63rd Annual Meeting                  Christopher Meek, and Sumit Gulwani. 2022. Synchromesh: Reliable code
+     of the Association for Computational Linguistics (Volume 1: Long Papers), Wanx-              generation from pre-trained language models. doi:10.48550/arXiv.2201.11227
+     iang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar                      arXiv:2201.11227 [cs].
+     (Eds.). Association for Computational Linguistics, Vienna, Austria, 12702–12739.        [30] Henrijs Princis, Arindam Sharma, and Cristina David. 2025. TreeCoder: System-
+     doi:10.18653/v1/2025.acl-long.623                                                            atic Exploration and Optimisation of Decoding and Constraints for LLM Code
+[11] Yuyao Ge, Lingrui Mei, Zenghao Duan, Tianhao Li, Yujia Zheng, Yiwei Wang,                    Generation. doi:10.48550/arXiv.2511.22277 arXiv:2511.22277 [cs].
+     Lexin Wang, Jiayu Yao, Tianyu Liu, Yujun Cai, Baolong Bi, Fangda Guo, Jiafeng           [31] Prateek Kumar Rajput, Yewei Song, Abdoul Aziz Bonkoungou, Iyiola E. Olatunji,
+     Guo, Shenghua Liu, and Xueqi Cheng. 2025. A Survey of Vibe Coding with Large                 Abdoul Kader Kabore, Jacques Klein, and Tegawendé F. Bissyandé. 2026. Correct-
+     Language Models. doi:10.48550/arXiv.2510.12399 arXiv:2510.12399 [cs].                        ness isn’t Efficiency: Runtime Memory Divergence in LLM-Generated Code. In
+[12] Saibo Geng, Martin Josifoski, Maxime Peyrard, and Robert West. 2023. Grammar-                Proceedings of the IEEE/ACM 48th International Conference on Software Engineer-
+     Constrained Decoding for Structured NLP Tasks without Finetuning. In Proceed-                ing: Software Engineering in Practice (ICSE-SEIP ’26). ACM, 693–703. doi:10.1145/
+     ings of the 2023 Conference on Empirical Methods in Natural Language Processing,             3786583.3786908
+     Houda Bouamor, Juan Pino, and Kalika Bali (Eds.). Association for Computational         [32] Jens Rauch, Iyiola E Olatunji, and Megha Khosla. 2021. Achieving differential
+     Linguistics, Singapore, 10932–10952. doi:10.18653/v1/2023.emnlp-main.674                     privacy for 𝑘 -nearest neighbors based outlier detection by data partitioning.
+[13] Md Nazmul Haque, Elizabeth Lin, Lawrence Arkoh, Biruk Tadesse, and Bowen Xu.                 arXiv preprint arXiv:2104.07938 (2021). doi:10.48550/arXiv.2104.07938
+     2025. Secure or Suspect? Investigating Package Hallucinations of Shell Command          [33] Chufan Shi, Haoran Yang, Deng Cai, Zhisong Zhang, Yifan Wang, Yujiu Yang,
+     in Original and Quantized LLMs. doi:10.48550/arXiv.2512.08213 arXiv:2512.08213               and Wai Lam. 2024. A Thorough Examination of Decoding Methods in the
+     [cs].                                                                                        Era of LLMs. In Proceedings of the 2024 Conference on Empirical Methods in
+[14] Xuan He, Dong Li, Hao Wen, Yueheng Zhu, Chao Liu, Meng Yan, and Hongyu                       Natural Language Processing, Yaser Al-Onaizan, Mohit Bansal, and Yun-Nung
+     Zhang. 2025. CoSEFA: An LLM-Based Programming Assistant for Secure Code                      Chen (Eds.). Association for Computational Linguistics, Miami, Florida, USA,
+     Generation via Supervised Co-Decoding. In Proceedings of the 33rd ACM Inter-                 8601–8629. doi:10.18653/v1/2024.emnlp-main.489
+     national Conference on the Foundations of Software Engineering. ACM, Clarion            [34] Joseph Spracklen, Raveen Wijewickrama, A H M Nazmus Sakib, Anindya Maiti,
+     Hotel Trondheim Trondheim Norway, 1198–1202. doi:10.1145/3696630.3728609                     and Bimal Viswanath. 2025. We Have a Package for You! A Comprehensive
+[15] Wenxin Jiang, Berk Çakar, Mikola Lysenko, and James C. Davis. 2025. Confu-                   Analysis of Package Hallucinations by Code Generating LLMs. In 34th USENIX
+     Guard: Using Metadata to Detect Active and Stealthy Package Confusion Attacks                Security Symposium (USENIX Security 25). USENIX Association, Seattle, WA,
+     Accurately and at Scale. doi:10.48550/arXiv.2502.20528 arXiv:2502.20528 [cs].                3687–3706. https://www.usenix.org/conference/usenixsecurity25/presentation/
+[16] Jannik Kossen, Jiatong Han, Muhammed Razzak, Lisa Schut, Shreshth Malik,                     spracklen
+     and Yarin Gal. 2024. Semantic entropy probes: Robust and cheap hallucination            [35] Florian Tambon, Arghavan Moradi-Dakhel, Amin Nikanjam, Foutse Khomh,
+     detection in llms. arXiv preprint arXiv:2406.15927 (2024). doi:10.48550/arXiv.2406.          Michel C. Desmarais, and Giuliano Antoniol. 2025. Bugs in large language
+     15927                                                                                        models generated code: an empirical study. Empirical Software Engineering 30, 3
+[17] Arjun Krishna, Erick Galinkin, Leon Derczynski, and Jeffrey Martin. 2025.                    (Feb. 2025). doi:10.1007/s10664-025-10614-4
+     Importing Phantoms: Measuring LLM Package Hallucination Vulnerabilities.                [36] Melissa Tessa, Iyiola E. Olatunji, Jacques Klein, and Tegawendé F. Bissyande.
+     doi:10.48550/arXiv.2501.19012 arXiv:2501.19012 [cs].                                         2026. Position: The Iceberg of Pitfalls in LLM-Based Secure Code Generation.
+[18] Piergiorgio Ladisa, Serena Elisa Ponta, Antonino Sabetta, Matias Martinez, and               Proceedings of the AAAI Symposium Series 9, 1 (2026), 162–165. doi:10.1609/aaaiss.
+     Olivier Barais. 2023. Journey to the Center of Software Supply Chain Attacks.                v9i1.42920
+     IEEE Security & Privacy 21, 6 (2023), 34–49. doi:10.1109/MSEC.2023.3302066              [37] Melissa Tessa, Iyiola E Olatunji, Aicha War, Jacques Klein, and Tegawendé F
+[19] Yunseo Lee, John Youngeun Song, Dongsun Kim, Jindae Kim, Mijung Kim,                         Bissyandé. 2026. How Secure is Secure Code Generation? Adversarial Prompts
+     and Jaechang Nam. 2025. Hallucination by Code Generation LLMs: Taxon-                        Put LLM Defenses to the Test. arXiv preprint arXiv:2601.07084 (2026). doi:10.
+     omy, Benchmarks, Mitigation, and Challenges. doi:10.48550/arXiv.2504.20799                   48550/arXiv.2601.07084
+     arXiv:2504.20799 [cs].                                                                  [38] Haoye Tian, Weiqi Lu, Tsz On Li, Xunzhu Tang, Shing-Chi Cheung, Jacques
+[20] Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin,            Klein, and Tegawendé F Bissyandé. 2023. Is ChatGPT the ultimate programming
+     Naman Goyal, Heinrich Küttler, Mike Lewis, Wen-tau Yih, Tim Rocktäschel,                     assistant–how far is it? arXiv preprint arXiv:2304.11938 (2023). doi:10.48550/
+                                                                                                  arXiv.2304.11938
+
+=== [PDF page 13] ===
+
+Evaluating Inference-Time Defenses against Package Hallucination in LLM-Generated Code                                      ASE ’26, October 12–16, 2026, Munich, Germany
+
+
+[39] Lukas Twist, Jie M. Zhang, Mark Harman, and Helen Yannakoudakis. 2026. Li-               Generation. In Proceedings of the 2025 Conference on Empirical Methods in Nat-
+     brary Hallucinations in LLMs: Risk Analysis Grounded in Developer Queries.               ural Language Processing, Christos Christodoulopoulos, Tanmoy Chakraborty,
+     doi:10.48550/arXiv.2509.22202 arXiv:2509.22202 [cs].                                     Carolyn Rose, and Violet Peng (Eds.). Association for Computational Linguistics,
+[40] Laurie Williams, Giacomo Benedetti, Sivana Hamer, Ranindya Paramitha, Imra-              Suzhou, China, 3028–3046. doi:10.18653/v1/2025.emnlp-main.150
+     nur Rahman, Mahzabin Tamanna, Greg Tystahl, Nusrat Zahan, Patrick Morrison,         [42] Ziyao Zhang, Chong Wang, Yanlin Wang, Ensheng Shi, Yuchi Ma, Wanjun Zhong,
+     Yasemin Acar, Michel Cukier, Christian Kästner, Alexandros Kapravelos, Do-               Jiachi Chen, Mingzhi Mao, and Zibin Zheng. 2025. LLM Hallucinations in Practical
+     minik Wermke, and William Enck. 2025. Research Directions in Software Supply             Code Generation: Phenomena, Mechanism, and Mitigation. Proceedings of the
+     Chain Security. ACM Trans. Softw. Eng. Methodol. 34, 5 (May 2025), 146:1–146:38.         ACM on Software Engineering 2, ISSTA (June 2025), 481–503. doi:10.1145/3728894
+     doi:10.1145/3714464
+[41] Hongxiang Zhang, Hao Chen, Muhao Chen, and Tianyi Zhang. 2025. Active               Received 2026-03-26; accepted 2026-06-18
+     Layer-Contrastive Decoding Reduces Hallucination in Large Language Model

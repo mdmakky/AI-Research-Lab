@@ -1,8 +1,8 @@
 ---
 key: asdaque2026novice
-status: ready
+status: complete
 evidence_basis: full-text
-design: repository mining study comparing agentic pull requests of low- vs high-experience GitHub users (MSR short paper)
+design: repository mining study comparing agentic pull requests of low- vs high-experience GitHub users (MSR 2026, 5-page paper; track not stated)
 dataset: AIDev dataset subset (repos >100 stars) of AI-agent pull requests (Copilot, Codex, Claude Code, Cursor, Devin) on GitHub OSS
 sample_size: 22,953 PRs from 1,719 users (860 low-experience, 859 high-experience by commits/account-age quartiles)
 metrics: commits and files changed per PR, PR acceptance rate, PR resolution time (days to merge), review comments per PR
@@ -25,7 +25,7 @@ analysed: 2026-11-11
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
 
-Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 27 Feb 2026) carrying the MSR '26 ACM header and DOI. The PDF has **5 pages** (`pdfinfo`), but `fulltext.txt` has 7 page markers because the text extraction of Figure 2 inserted spurious breaks. Page refs below use the real PDF page index checked against `paper.pdf`: `fulltext.txt` markers "page 4", "page 5" and "page 6" are all PDF page 4, and marker "page 7" is PDF page 5 (references). `metadata.json` (`fulltext.pages: 7`) is also wrong on this point.
+Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905v1, 27 Feb 2026, stamp on p. 1) carrying the MSR '26 ACM header and DOI; it is not the ACM Digital Library copy, so page refs use arXiv pagination. The PDF has **5 pages**: the PDF page tree has 5 page objects (re-checked with `pdfinfo` on 2026-11-12, after poppler was installed), and the ACM reference line says "5 pages" (p. 1). But `fulltext.txt` has 7 page markers because the text extraction of Figure 2 inserted spurious breaks. Page refs below use the real PDF page index checked against `paper.pdf`: `fulltext.txt` markers "page 4", "page 5" and "page 6" are all PDF page 4, and marker "page 7" is PDF page 5 (references). `metadata.json` (`fulltext.pages: 7`) is also wrong on this point; the lead should repair it through `rlab`, not by hand-editing.
 
 ## 1. Research objective
 - [A] To test whether developer experience still matters in AI-assisted development, i.e. whether "vibe coders with less development experience [can] substitute for expert developers", by comparing agentic pull requests (PRs) of low- and high-experience GitHub users (p. 1).
@@ -72,7 +72,7 @@ Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 
 
 ## 9. Limitations we identified
 - [I] Confounding by repository and agent: ExpLow and ExpHigh users may contribute to different projects (with different review norms) and use different agents (Copilot vs Devin etc.). Neither is controlled or reported (p. 2). Category-level comparison (p. 4) does not control for these.
-- [I] Non-independence: 22,953 PRs from 1,719 users (about 13 PRs per user on average, p. 2) are tested as independent observations; prolific users or repositories can dominate. No mixed-effects or per-user aggregation.
+- [I] Unit of analysis / non-independence: the unit of the statistical tests is not stated clearly ("group-wise statistical test comparisons on mean values of each metric across PR categories", p. 2). If PR-level values were tested, the 22,953 PRs from 1,719 users (about 13 PRs per user on average, p. 2) are treated as independent and prolific users or repositories can dominate; no mixed-effects or per-user aggregation is reported. If category means were tested, n = 11 per group and power is very low.
 - [I] The experience score (commits per account-age, p. 2) is a rate of public activity, not skill; it can also be inflated by AI-agent commits themselves, which may make the split partly circular. Quartile split at the median discards information.
 - [I] Effect reporting: ratios of means are reported for skewed count/time data while tests are rank-based (Mann-Whitney) (p. 2, p. 3); no effect sizes or CIs. "31% lower acceptance rate" is not stated as relative or absolute, and overall acceptance rates are not given (p. 3).
 - [I] Resolution time is defined as creation-to-merge (p. 2), i.e. merged PRs only, yet the abstract says ExpLow PRs "remain open 5.16x longer before resolution" (p. 1). Unmerged PRs are not part of this measure.
@@ -80,10 +80,10 @@ Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 
 - [I] The friction categories rest on 15 PRs and two examples, without a coding protocol (p. 3, p. 4); treat as anecdotal.
 
 ## 10. Threats to validity
-- Internal (confounds, leakage, selection): [I] Repository, agent and task-difficulty confounds; non-independent PRs; bot filtering by username heuristic may leave automated accounts (p. 2).
+- Internal (confounds, leakage, selection): [I] Repository, agent and task-difficulty confounds; possibly non-independent PRs (test unit unclear, see §9); bot filtering by username heuristic may leave automated accounts (p. 2).
 - External (generalisability of sample/context): [I] OSS repositories with >100 stars only (p. 2); one dataset; agents of 2025. Does not cover single-developer app building or reconstruction.
 - Construct (do metrics measure the concept?): [A] Experience proxy conflates activity with skill (p. 4). [I] Review volume and acceptance are indirect measures of code quality.
-- Statistical conclusion (power, multiple comparisons, variance): [V] Benjamini-Hochberg correction applied (p. 4). [I] Very large N makes small differences significant; no effect sizes; clustering ignored.
+- Statistical conclusion (power, multiple comparisons, variance): [V] Benjamini-Hochberg correction applied (p. 4). [I] The unit of the tests is unclear (p. 2, see §9): if PR-level, very large N makes small differences significant and clustering by user is ignored; if category means, n = 11 per group gives very low power. No effect sizes either way.
 - Reproducibility (data/code/setup reported?): [V] Public dataset and replication package (p. 2, p. 5). [I] AIDev snapshot date and GitHub API retrieval date not reported; account statistics change over time.
 
 ## 11. Future research directions
@@ -92,7 +92,7 @@ Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 
 
 ## 12. Relevance to our research
 - Research questions addressed (RQ ids): RQ3 (indirect: review burden and acceptance of AI-agent code as quality proxies), RQ4 (proxy metrics, clustering, experience operationalisation), RQ5 (operator experience as a variable a reconstruction study should control).
-- How it informs our work [I]: shows that outcomes of AI-generated contributions differ with the human operator's experience, so a study of vibe-coded app reconstruction should fix or measure operator expertise. It does not evaluate application reconstruction, functional fidelity or code quality directly, hence relevance low. Peer-reviewed short paper (MSR 2026) with large N but weak construct validity.
+- How it informs our work [I]: shows that outcomes of AI-generated contributions differ with the human operator's experience, so a study of vibe-coded app reconstruction should fix or measure operator expertise. It does not evaluate application reconstruction, functional fidelity or code quality directly, hence relevance low. Peer-reviewed 5-page paper at MSR 2026 (track not stated in the PDF; a 5-page format suggests a short or challenge-track paper, which would be a lower tier than a technical-track paper, but this is unchecked) with large N but weak construct validity.
 
 ## 13. Evidence table (for the evidence matrix)
 | RQ | Claim | Page | Label | Strength |
@@ -100,7 +100,9 @@ Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 
 | RQ3 | Agentic PRs from low-experience users were accepted less often (31% lower; e.g. docs 93.06% vs 75.39%) and drew 4.52x more review comments than those from high-experience users | p. 3 | V | moderate |
 | RQ3 | Low-experience users' agentic PRs were larger (2.15x commits, 1.47x files per PR) and took 5.16x longer from creation to merge | p. 2, p. 3 | V | moderate |
 | RQ3 | Authors attribute friction to AI code that ignores build/CI constraints and lacks system context (from 15 inspected PRs) | p. 3, p. 4 | A | weak |
-| RQ4 | Experience operationalised as commits per GitHub account age, which authors admit conflates activity with skill; PRs treated as independent, no effect sizes reported | p. 2, p. 4 | V | moderate |
+| RQ4 | Experience = total commits / GitHub account age; quartile split Q1–2 vs Q3–4; group differences reported as ratios of means without effect sizes or CIs | p. 2, p. 3 | V | moderate |
+| RQ4 | Authors state the commit-based experience proxy "conflates activity with skill" | p. 4 | A | moderate |
+| RQ4 | Unit of analysis for the tests is unclear ("on mean values of each metric across PR categories", p. 2); if PR-level, observations are clustered by user (based on 22,953 PRs / 1,719 users, p. 2) | p. 2 | I | weak |
 | RQ5 | Authors call for industrial and longitudinal studies of how AI's role changes with developer experience | p. 4 | A | weak |
 
 ## 14. Key quotes
@@ -113,4 +115,5 @@ Note on the source and page numbers: our PDF is the arXiv v1 (arXiv:2602.23905, 
 ## Analyst notes
 - Reading coverage: whole paper read (5 PDF pages including references). Figures 1 and 2 read from the PDF images (pages 3 and 4) because the text layer garbles them. Replication package not opened.
 - Page-number caveat: `fulltext.txt` contains NUL bytes (use `grep -a`) and wrong page markers after page 4 (see note at top). Quotes on PDF page 4 appear in `fulltext.txt` under markers "page 4" to "page 6". Reported to the caller so the metadata/fulltext can be repaired by the lead.
-- Uncertainties: whether "31% lower" is relative or absolute; whether AIDev "agentic PRs" include PRs opened autonomously under a human account; the track of the MSR paper (likely a short/mining-challenge paper, not stated).
+- Uncertainties: whether "31% lower" is relative or absolute; whether AIDev "agentic PRs" include PRs opened autonomously under a human account; the track of the MSR paper (not stated in the PDF; check on the DOI landing page before asserting it, per critical review batch A, 2026-11-11).
+- Review fixes applied 2026-11-12 (critical-review-batch-a): split the RQ4 evidence row into [V]/[A]/[I]; reworded the non-independence point as an unclear test unit; restated the page-count source; removed the unsourced "short paper" label.

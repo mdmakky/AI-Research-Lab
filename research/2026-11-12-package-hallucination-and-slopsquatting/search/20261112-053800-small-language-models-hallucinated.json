@@ -1,0 +1,895 @@
+{
+  "query": "small language models hallucinated dependencies quantization",
+  "sources": [
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:38:00+06:00",
+  "raw_hits": 26,
+  "unique": 24,
+  "errors": {},
+  "results": [
+    {
+      "title": "Causal Engram Circuits for Factual and Hallucinated Memory in Large Language Models",
+      "authors": [
+        {
+          "family": "Bao",
+          "given": "Pengfei"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7447179",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7447179",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) produce fluent yet factually incorrect statements—a failure that mirrors false memory in biological systems. Whether such errors arise from causally identifiable and manipulable circuit elements has remained unknown. Here we adapt the engram framework from systems neuroscience and combine causal mediation analysis with a double-dissociation logic to localize, verify, and rewrite factual and false memory traces in GPT-style transformers. We discover that sparse sets of knowledge neurons—canonical ensembles of approximately 8–15 units—function as memory engrams: silencing them selectively erases target-fact retrieval while matched controls remain intact; exogenous activation forces the fact into output even under neutral prompts. Rigorous controls, including patterned activation and non-engram amplification, confirm identity-specific sufficiency. Critically, counterfactual fine-tuning creates false memory engrams that deviate geometrically toward lexical co-occurrence subspaces; formal mediation analysis reveals that this geometric corruption causally mediates 65% of the pathway from falsity to erroneous output. Exploiting this divergence, we construct an unsupervised Memory Credibility Score that predicts hallucination propensity without behavioural testing, generalizing across relations and model scales. The framework extends to multi-hop and temporal reasoning and enables reversible, context-dependent memory control unavailable to permanent weight-editing methods. Our findings establish a causal sufficiency-and-necessity account of factual retrieval, diagnose representational pathologies underlying hallucination, and deliver a precision toolkit for understanding and certifying knowledge in LLMs.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Chain-of-Thought Responses to Misleading Context Under Quantization in Small Language Models",
+      "authors": [
+        {
+          "family": "Naseer",
+          "given": "Danish"
+        },
+        {
+          "family": "Raheem",
+          "given": "Ebaad"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7215718",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7215718",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Post-training quantization reduces inference costs, but whether it changes how small language models respond to misleading context remains unclear. We study five instruction-tuned checkpoints under BF16, 8-bit, and 4-bit loading configurations. Each checkpoint receives the same 145 multiple-choice questions; whenever it answers an uncued question correctly, we generate three responses using fixed incorrect-cue templates. This procedure yields 3,078 cued responses. An automated evaluator flags responses whose reasoning strongly follows the cue or whose final answer conflicts with the rationale. We call this operational, text-based label rubric-positive; it is not a direct measure of internal reasoning. The matched analysis contains 192 checkpoint-question units answered correctly under all three configurations, yielding 1,728 cue-level judgments. Rubric-positive rates are 34.0% at BF16, 35.9% at 8-bit, and 36.5% at 4-bit. Relative to BF16, question-clustered odds ratios are 1.09 for 8-bit (95% CI 0.92-1.29) and 1.12 for 4-bit (0.91-1.37). The sycophancy rate exceeds the consistency rate by 9.8 pp in the frozen analysis and by 8.3 pp after excluding 40 units implicated by a full-text answer-field audit; the latter Holm-adjusted p is &lt; .001. Other pairwise cue contrasts do not survive this sensitivity analysis. Both authors independently coded a 360-response subset, achieving 86.9% three-class agreement; the automated labels agree with the two annotators at rates of 80.0% and 67.8%. Across the tested checkpoints, we find no detectable average association between quantization configuration and the rubric-positive outcome; the clearest robust contrast is between the sycophancy and consistency cue framings.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Discourse Structure as an Interpretable Signal for Detecting Hallucinated Chain-of-Thought Reasoning in Large Language Models",
+      "authors": [
+        {
+          "family": "Galitsky",
+          "given": "Boris"
+        }
+      ],
+      "year": 2026,
+      "venue": "AI",
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202606.1533.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202606.1533.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models (LLMs) frequently generate fluent chain-of-thought (CoT) reasoning that appears coherent while containing unsupported inferences, omitted alternatives, or logically invalid conclusions, creating significant challenges for trustworthy and explainable AI in high-stakes domains such as healthcare. While prior work has primarily focused on factual hallucinations, the structural characteristics of hallucinated reasoning remain insufficiently understood. This paper investigates diagnostic hallucinations through the lens of discourse structure and introduces a synthetic benchmark of ambiguous patient complaints paired with diagnoses, reasoning traces, discourse-tree representations, and hallucination labels. We hypothesize that hallucinated CoT differs from grounded reasoning not only in factual correctness but also in discourse organization. Our analysis shows that hallucinated reasoning tends to elevate weak or speculative clues into central discourse nuclei, suppress contradictory evidence, and use discourse satellites for post hoc reinterpretation rather than evidence integration. In contrast, grounded reasoning preserves alternative hypotheses, maintains explicit contrast and concession relations, and resolves evidential conflicts at higher discourse levels. Based on these observations, we formulate discourse-level indicators for hallucination detection and reasoning verification. The resulting framework provides interpretable structural explanations of reasoning failures and supports neuro-symbolic validation of LLM-generated reasoning traces, contributing to the development of more trustworthy, explainable, and verifiable language models.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Hcarepilot: Healthcare Copilot in the World of Hallucinated Large Language Models",
+      "authors": [
+        {
+          "family": "Sachdeva",
+          "given": "Shelly"
+        },
+        {
+          "family": "Shankar",
+          "given": "Saumil"
+        },
+        {
+          "family": "Soni",
+          "given": "Kanika"
+        },
+        {
+          "family": "Wroblewska",
+          "given": "Anna"
+        },
+        {
+          "family": "Paprzycki",
+          "given": "Marcin"
+        },
+        {
+          "family": "Ganzha",
+          "given": "Maria"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5195427",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5195427",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Revisiting Pruning vs Quantization for Small Language Models",
+      "authors": [
+        {
+          "family": "Zhou",
+          "given": "Zihan"
+        },
+        {
+          "family": "Kurz",
+          "given": "Simon"
+        },
+        {
+          "family": "Zhao",
+          "given": "Zhixue"
+        }
+      ],
+      "year": 2025,
+      "venue": "Findings of the Association for Computational Linguistics: EMNLP 2025",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2025.findings-emnlp.645",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2025.findings-emnlp.645",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Adaptive-PSGD: Distribution-Aware Adaptive Centroid Quantization for High-Fidelity INT4 Small Language Models",
+      "authors": [
+        {
+          "family": "Tarifa",
+          "given": "Amal"
+        },
+        {
+          "family": "Hamouda",
+          "given": "Ahmed"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Access",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2026.3752175",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/access.2026.3752175",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Hallucinated Monsters: Analogizing Epistemological and Phenomenological Indifference in Large Language Models",
+      "authors": [
+        {
+          "family": "Hann",
+          "given": "Jonathan"
+        }
+      ],
+      "year": 2026,
+      "venue": "Paragraph",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3366/para.2026.0525",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3366/para.2026.0525",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This article analogizes the ‘hallucinations’ of large language model generative artificial intelligence (AI) systems with the phenomenological representation of monsters in cultural production. In the language of AI ‘hallucination’ we find a correlate with our phenomenal recognition of the monster as a kind of morphological failure. The essay suggests that monsters remain an undertheorized topic in critical theory and suggests that they provide a model for explicating the emerging technological, sociopolitical and cultural problems which are menacing contemporary academic discourse. If AI chatbots are marked by what Johnan Fredrikzon calls epistemological indifference then does their visual output constitute a kind of phenomenological indifference that reaches an apotheosis in the figure of the monster?",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Pre-trained Language Models Return Distinguishable Probability Distributions to Unfaithfully Hallucinated Texts",
+      "authors": [
+        {
+          "family": "Cha",
+          "given": "Taehun"
+        },
+        {
+          "family": "Lee",
+          "given": "Donghun"
+        }
+      ],
+      "year": 2024,
+      "venue": "Findings of the Association for Computational Linguistics: EMNLP 2024",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2024.findings-emnlp.738",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2024.findings-emnlp.738",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Discourse-Aware Concept Whitening for Explainable Detection of Hallucinated Reasoning in Large Language Models",
+      "authors": [
+        {
+          "family": "Galitsky",
+          "given": "Boris"
+        },
+        {
+          "family": "Parakal",
+          "given": "Erik George"
+        },
+        {
+          "family": "Kuznetsov",
+          "given": "Sergei O."
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202606.2192.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202606.2192.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language models (LLMs) frequently generate coherent-looking reasoning traces that nevertheless contain unsupported inferences, contradiction suppression, premature closure, or structurally unstable explanations. Existing hallucination detection approaches largely focus on token-level uncertainty, factual verification, or post-hoc saliency analysis, while insufficiently modeling the discourse organization of reasoning itself. This paper proposes a discourse-aware extension of Concept Whitening (CW), originally developed for interpretable image recognition, to the problem of hallucination detection in chain-of-thought reasoning. We argue that hallucinations correspond to recurring structural distortions in discourse trees and rhetorical organization. Our framework aligns latent dimensions of neural reasoning representations with interpretable discourse concepts such as contradiction omission, unsupported nucleus promotion, defeater suppression, and abductive instability. By combining discourse parsing, rhetorical structure theory (RST), graph-based reasoning representations, and latent-space concept alignment, the proposed framework transforms hallucination detection into an interpretable geometric reasoning problem. We further analyze the computational properties of discourse-aware concept whitening and discuss its implications for neuro-symbolic reasoning verification.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "The Effects of Low-Bit Quantization on Confidence Calibration in Small Language Models",
+      "authors": [
+        {
+          "family": "Iddhant",
+          "given": "Gupta"
+        }
+      ],
+      "year": 2026,
+      "venue": "Indian Journal of Computer Science and Technology",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.59256/indjcst.20260502102",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.59256/indjcst.20260502102",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This study looks at how confidence patterns shift when cutting data precision to 4 bits using NF4, applied post-training on Phi-3.5-Mini-Instruct, a small-scale language model packing 3.8 billion parameters. Shrinking precision cuts down memory demands while speeding up output creation; however, what remains unclear is how such squeezing affects the way models rate their own sureness, measured via average prediction strength for each produced word unit. Rather than measuring correctness, the spotlight falls strictly on differences in how certain the system sounds across full-detail versus reduced-bit forms. Evaluation runs on ninety thoughtfully picked prompts split evenly among three kinds: factual assertions, fictional statements, and subjective stances. Hesitation creeps into quantized outputs across the board, their probability scores dipping five point seven six percent on average. Not every category bends the same way under pressure; made-up stories barely shift at all, while claims about reality sag a bit more. Opinions? Those take the hardest hit, certainty plummeting close to ten points lower. The same rules applied throughout, yet outcomes were split wide open based on what kind of knowledge was asked for. Oddly enough, false confidence shows up almost exclusively when facts are invented outright: the slimmed-down model gets things wrong but acts sure of itself, unlike its full-sized counterpart. This odd behavior earns the name “confident hallucination.” You might think shrinking models would show clear drops in accuracy or fluency, but standard metrics miss it completely. What matters instead is whether each guess lines up with the truth that matches how safely such systems can be used. Nowhere near steady, these dips shift with each kind of job. Shrinking a model can quietly erode reliability—something standard tests often miss. Where does it really show up? High-stakes areas rely on consistent results.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Are you hallucinated? Insights into large language models",
+      "authors": [
+        {
+          "family": "Singh",
+          "given": "Sarvagya"
+        },
+        {
+          "family": "Saha",
+          "given": "Rahul"
+        },
+        {
+          "family": "Kumar",
+          "given": "Gulshan"
+        },
+        {
+          "family": "Nayyar",
+          "given": "Anand"
+        },
+        {
+          "family": "Kim",
+          "given": "Tae-Kyung"
+        }
+      ],
+      "year": 2026,
+      "venue": "ICT Express",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.icte.2025.12.011",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.icte.2025.12.011",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "TurboQuant-Pro: Neural-Adaptive Online Vector Quantization for Large Language Models",
+      "authors": [
+        {
+          "family": "Liam",
+          "given": "Eric"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.22541/au.177584853.38478918/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.22541/au.177584853.38478918/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) exhibit heavytailed and highly non-Gaussian weight distributions, posing a major challenge for online vector quantization. While TurboQuant provides an efficient baseline via random orthogonal rotation and Lloyd-Max quantization, it fails under structural outliers and distributional shifts. In this paper, we present TurboQuant-Pro, a systematic evolution from heuristic-driven quantization toward a fully neural-adaptive framework. We demonstrate that only by fully parameterizing the quantization process can near-lossless compression be achieved. Our final model, TurboQuant-ProV3, reaches a cosine similarity of 0.9957, while the multi-codebook ProV4 further approaches theoretical limits.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Empirical Analysis of Small Language Model Quantization for CPU-Only Cloud Infrastructure",
+      "authors": [
+        {
+          "family": "Sciammarelli",
+          "given": "Jessica"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.36227/techrxiv.177220011.12966071/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.36227/techrxiv.177220011.12966071/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "As Large Language Models (LLMs) grow in complexity, the hardware required to serve them often exceeds the capabilities of standard cloud instances and edge devices. This article investigates the efficacy of Small Language Models (SLMs) specifically Llama 3.2 (1B) and Qwen 2.5 (1.5B) as cost-effective alternatives when paired with modern quantization techniques. By conducting empirical benchmarks on Google Colab's CPUonly infrastructure, we evaluate the trade-offs between 4-bit (Q4_K_M) and 8-bit (Q8_0) integer quantization against a highprecision baseline. Our results demonstrate that 4-bit quantization on a standard CPU provides up to a 120% increase in inference throughput for 1.5B parameter models compared to 8bit variants, while maintaining a negligible system RAM footprint (under 1GB). This study identifies the \"sweet spot\" for local and restricted-resource AI deployment, proving that aggressive quantization of SLMs enables real-time, scalable AI performance on general-purpose hardware without the necessity for dedicated GPU acceleration.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Quantization-Induced Accuracy Degradation in Small Language Models: A Parametric Scaling Analysis",
+      "authors": [
+        {
+          "family": "Tripathi",
+          "given": "Pushpendra"
+        },
+        {
+          "family": "Sharma",
+          "given": "Aditya"
+        },
+        {
+          "family": "Sharma",
+          "given": "Himani"
+        },
+        {
+          "family": "Singh",
+          "given": "Vyomika"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 16th International Conference on Advanced Computer Information Technologies (ACIT)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/acit69831.2026.11699951",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/acit69831.2026.11699951",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "A Survey on Quantization Techniques for Large Language Models",
+      "authors": [
+        {
+          "family": "Yusufi",
+          "given": "Abdurrahman M"
+        },
+        {
+          "family": "Khobragade",
+          "given": "Anish R"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7408278",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7408278",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models (LLMs) have achieved strong performance across modern language tasks, but their significant computational and memory demands make them difficult to deploy on limited hardware. To overcome this, quantization—reducing numerical precision from 32-bit to lower-bit formats such as 4-bit—has emerged as an effective compression method to minimize model size and enhance inference efficiency. The objective of this paper is to review recent advancements in LLM quantization, outline the key challenges involved, and examine how different techniques attempt to address them. This review is based on a focused analysis of recent peer-reviewed studies and introduces a high-level taxonomy of modern methods, complemented by a comparative performance summary to illustrate their practical impact. Comparative analysis across selected papers highlights that quantization effectively reduces model size and memory consumption while maintaining near-original accuracy and significant inference speedups. In conclusion, modern quantization techniques strike an optimal balance between accuracy, efficiency, and resource utilization, enabling scalable and affordable deployment of large-scale AI models across diverse computing platforms.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "On-Device Multimodal Small Language Models for Privacy- Preserving Edge Intelligence Through Quantization Pruning Distillation and Energy-Efficient Inference",
+      "authors": [
+        {
+          "family": "Nwakamma",
+          "given": "Stanley"
+        }
+      ],
+      "year": 2026,
+      "venue": "WORLD JOURNAL OF INNOVATION AND MODERN TECHNOLOGY",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.56201/wjimt.v9.no12.2025.pg271.302",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.56201/wjimt.v9.no12.2025.pg271.302",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "On-device multimodal small language models are emerging as a practical foundation for privacypreserving edge intelligence, enabling devices to interpret and generate language while processing images, audio, video, sensor streams, and contextual signals without continuous cloud dependence. Their deployment can reduce data exposure, network latency, connectivity costs, and centralized infrastructure demand; however, limited memory, compute capability, battery capacity, thermal headroom, and accelerator support constrain model design and inference. This review examines architectures, compression techniques, privacy mechanisms, and energy-efficient inference strategies for multimodal small language models operating on smartphones, wearables, vehicles, robots, cameras, and embedded Internet of Things platforms. It develops a deploymentcentric taxonomy covering weight, activation, cache, and modality-encoder quantization; structured, unstructured, token, channel, and modality-aware pruning; response, representation, cross-modal, and task-specific knowledge distillation; and hybrid compression pipelines. The review analyzes how these methods affect language quality, visual and acoustic understanding, cross-modal alignment, robustness, fairness, privacy leakage, memory consumption, latency, throughput, energy per inference, and thermal stability. Particular attention is given to local retrieval, adaptive modality selection, speculative decoding, cache management, early exiting, hardware-aware scheduling, and heterogeneous CPU, GPU, neural, and digital-signal processing. The paper also evaluates secure personalization, federated updates, trusted execution, encrypted storage, sensor permission controls, and data-minimizing telemetry. Comparative evidence is organized by device class, workload, compression target, and evaluation objective. The gap analysis identifies limited reproducibility, inconsistent energy measurement, weak lowresource language coverage, underdeveloped multimodal privacy benchmarks, and insufficient study of sustained inference under thermal throttling. It distinguishes theoretical compression savings from measurable device-level efficiency improvements. The review concludes with standardized reporting recommendations and research priorities for compact, private, reliable, and energy-efficient multimodal intelligence at the edge.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "Mitigating Hallucinated Translations in Large Language Models with Hallucination-focused Preference Optimization",
+      "authors": [
+        {
+          "family": "Tang",
+          "given": "Zilu"
+        },
+        {
+          "family": "Chatterjee",
+          "given": "Rajen"
+        },
+        {
+          "family": "Garg",
+          "given": "Sarthak"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2025.naacl-long.175",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2025.naacl-long.175",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Predictive Language Processing in Humans and Large Language Models: A Comparative Study of Contextual Dependencies",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Yifan"
+        },
+        {
+          "family": "Strelnikov",
+          "given": "Kuzma"
+        }
+      ],
+      "year": 2025,
+      "venue": "Informatics",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3390/informatics12030083",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3390/informatics12030083",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Human language comprehension relies on predictive processing; however, the computational mechanisms underlying this phenomenon remain unclear. This study investigates these mechanisms using large language models (LLMs), specifically GPT-3.5-turbo and GPT-4. We conducted a comparison of LLM and human performance on a phrase-completion task under varying levels of contextual cues (high, medium, and low) as defined using human performance, thereby enabling direct AI–human comparisons. Our findings indicate that LLMs significantly outperform humans, particularly in medium- and low-context conditions. While success in medium-context scenarios reflects the efficient utilization of contextual information, performance in low-context situations—where LLMs achieved approximately 25% accuracy compared to just 1% for humans—suggests that the models harness deep linguistic structures beyond mere surface context. This discovery implies that LLMs may elucidate previously unknown aspects of language architecture. The ability of LLMs to exploit deep structural regularities and statistical patterns in medium- and low-predictability contexts offers a novel perspective on the computational architecture of the human language system.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Sliced-Wasserstein Distribution Alignment Loss Improves the Ultra-Low-Bit Quantization of Large Language Models",
+      "authors": [
+        {
+          "family": "Cao",
+          "given": "Deyu"
+        },
+        {
+          "family": "Yin",
+          "given": "Yixin"
+        },
+        {
+          "family": "Aref",
+          "given": "Samin"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 18th International Conference on Agents and Artificial Intelligence",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0014431500004052",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0014431500004052",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "FP4-Quantization: Lossless 4bit Quantization for Large Language Models",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Jie"
+        },
+        {
+          "family": "Liu",
+          "given": "Huanxi"
+        },
+        {
+          "family": "Feng",
+          "given": "Dawei"
+        },
+        {
+          "family": "Ding",
+          "given": "Jie"
+        },
+        {
+          "family": "Ding",
+          "given": "Bo"
+        }
+      ],
+      "year": 2024,
+      "venue": "2024 IEEE International Conference on Joint Cloud Computing (JCC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/jcc62314.2024.00017",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/jcc62314.2024.00017",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 11,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "Accelerating Small Language Model via Quantization: A GPT-4 Guided Approach for Low-Resource Story Completion",
+      "authors": [
+        {
+          "family": "Dabral",
+          "given": "Rakshit"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-7914593/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-7914593/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract This paper introduces Story Completer, a sophisticated and efficient engine for real-time children's story completion, extending the foundational work of the TinyStories project. While TinyStories demonstrated that small models (< 10M parameters) can generate coherent narratives on simplified data, our work addresses the challenge of deploying high-quality, context-aware generative models on resource-constrained hardware. The core innovation is a hybrid architecture that synergizes the rich semantic knowledge of a large language model with the computational efficiency of a smaller one. We integrate pre-computed GPT-4 text-embedding-ada-002 vectors within a compact, 12-million-parameter decoder-only transformer, effectively distilling the contextual understanding of a massive model into a lightweight system. Our methodology involved training this custom model from scratch using a meticulous strategy designed to adapt the model specifically for storytelling.A key contribution of this project is the optimization of the trained model for practical deployment on consumer-grade hardware, including low-end PCs and CPUs. After initial training, we applied post-training quantization , converting the model's weights from 16-bit floating-point precision (FP16) to 8-bit unsigned integers (uint8). This optimization yielded significant performance gains without a noticeable degradation in narrative quality.Comparative analysis between the normal and quantized models demonstrates the effectiveness of this approach. The quantization process reduced the model size by 49.5% , from 1546.04 MB to 780.03 MB. Furthermore, it achieved a 55.4% speedup in average inference time , decreasing from 21.701 seconds to 9.671 seconds. This project provides strong evidence for an efficient paradigm in model design, where the distilled intelligence of larger models, combined with optimization techniques like quantization, can be leveraged to create smaller, faster, and highly capable specialized systems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "Generalizations across filler-gap dependencies in neural language models",
+      "authors": [
+        {
+          "family": "Howitt",
+          "given": "Katherine"
+        },
+        {
+          "family": "Nair",
+          "given": "Sathvik"
+        },
+        {
+          "family": "Dods",
+          "given": "Allison"
+        },
+        {
+          "family": "Hopkins",
+          "given": "Robert Melvin"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 28th Conference on Computational Natural Language Learning",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2024.conll-1.21",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2024.conll-1.21",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "AdaMIQ: Adaptive Mutual Information Quantization for Vision-Language Models",
+      "authors": [
+        {
+          "family": "Tan",
+          "given": "Min"
+        },
+        {
+          "family": "Tang",
+          "given": "Xuan"
+        },
+        {
+          "family": "Tao",
+          "given": "Yushun"
+        },
+        {
+          "family": "Xia",
+          "given": "Zeyang"
+        },
+        {
+          "family": "Xiong",
+          "given": "Jing"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7597212",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7597212",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Low-bit post-training quantization (PTQ) is essential for deploying vision-language models, but existing PTQ pipelines often allocate precision using uniform or local sensitivity rules that ignore cross-channel dependency. We propose AdaMIQ, an adaptive mutual-information quantization framework for compressing the language backbones of vision-language models without retraining. AdaMIQ estimates channel dependency from calibration activations, forms dependency-aware groups, assigns group-wise mixed precision with Hessian-guided importance, and compensates reconstruction error within each group; spectral clustering is used as a practical grouping refinement inside this pipeline rather than as the main source of gain. We evaluate AdaMIQ on the language backbones of LLaVA-1.6, Qwen3-VL-8B, and SmolVLM2-2.2B using perplexity benchmarks, downstream zero-shot tasks, cross-architecture transfer, ablations, calibration robustness, and time-memory analysis. The results show that AdaMIQ is strongest on LLaVA-1.6 and SmolVLM2-2.2B in the main 4-bit regime, with MI-guided grouping providing the largest component contribution and with no additional inference-time mechanism beyond the quantized weights. The method is therefore a practical dependency-aware PTQ strategy when an offline calibration pass is acceptable, while its mixed behavior on Qwen and its calibration sensitivity define clear boundaries for architecture-robust low-bit VLM compression.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "HypRQ-VAE: Hyperbolic Item Indexing for Long-Tail-Aware Generative Recommender Systems",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Longfeng"
+        },
+        {
+          "family": "Zeng",
+          "given": "Tong"
+        },
+        {
+          "family": "Seni",
+          "given": "Giovanni"
+        },
+        {
+          "family": "Peng",
+          "given": "Zhimin"
+        },
+        {
+          "family": "Rawat",
+          "given": "Bhanu Pratap Singh"
+        },
+        {
+          "family": "Zhang",
+          "given": "Si"
+        },
+        {
+          "family": "Zhou",
+          "given": "Yao"
+        },
+        {
+          "family": "Zheng",
+          "given": "Lecheng"
+        },
+        {
+          "family": "Ji",
+          "given": "Bo"
+        },
+        {
+          "family": "Yan",
+          "given": "Yujun"
+        },
+        {
+          "family": "Zhou",
+          "given": "Dawei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.03369",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.03369",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.03369",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Sequential recommender systems model user behavior as item ID sequences, while recent generative methods cast recommendation as a language modeling task using large language models (LLMs). While this paradigm incorporates rich textual semantics, it introduces a fundamental mismatch: LLMs operate on text tokens, whereas recommender systems depend on discrete item indices. This misalignment often leads to hallucinations in generative recommendations. Existing methods attempt to bridge this gap by learning item vocabularies in Euclidean space, but they struggle to model the inherent long-tail distribution of real-world catalogs, where a small number of head items dominate, and a vast number of tail items reflect users' niche preferences. To address this issue, we introduce Hyperbolic Residual-Quantized Variational AutoEncoder (HypRQ-VAE), the first framework to learn item indexing in hyperbolic space. HypRQ-VAE leverages the unique properties of hyperbolic geometry, whose exponential volume expansion naturally accommodates the power law structure of user-item interactions. This allows the model to encode rich textual semantics while preserving the representational fidelity of sparse, long-tail items. Experiments on three benchmark datasets show that HypRQ-VAE significantly improves the performance of recommendation, particularly in recommending tail items. Our analysis attributes these gains to the superior capacity of hyperbolic space to model item hierarchies and sparsity in generative recommendation. Our code and data are available at: https://github.com/wulongfeng/HypRQ-VAE.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 24,
+      "in_project": null
+    }
+  ]
+}

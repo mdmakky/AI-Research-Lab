@@ -1,0 +1,1039 @@
+{
+  "query": "typosquatting malicious packages PyPI npm",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": null,
+  "year_to": 2023,
+  "run_at": "2026-11-12T04:51:30+06:00",
+  "raw_hits": 32,
+  "unique": 25,
+  "errors": {},
+  "results": [
+    {
+      "title": "Defending Against Package Typosquatting",
+      "authors": [
+        {
+          "family": "Taylor",
+          "given": "Matthew"
+        },
+        {
+          "family": "Vaidya",
+          "given": "Ruturaj K."
+        },
+        {
+          "family": "Davidson",
+          "given": "Drew"
+        },
+        {
+          "family": "Carli",
+          "given": "Lorenzo De"
+        },
+        {
+          "family": "Rastogi",
+          "given": "Vaibhav"
+        }
+      ],
+      "year": 2020,
+      "venue": "Lecture notes in computer science",
+      "type": "conference-paper",
+      "venue_kind": "book",
+      "doi": "10.1007/978-3-030-65745-1_7",
+      "arxiv_id": "2003.03471",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3114916308",
+      "url": "https://doi.org/10.1007/978-3-030-65745-1_7",
+      "oa_pdf_url": "https://arxiv.org/pdf/2003.03471",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 83,
+      "abstract": "Package managers for software repositories based on a single programming language are very common. Examples include npm (JavaScript), and PyPI (Python). These tools encourage code reuse, making it trivial for developers to import external packages. Unfortunately, repositories' size and the ease with which packages can be published facilitates the practice of typosquatting: the uploading of a package with name similar to that of a highly popular package, typically with the aim of capturing some of the popular package's installs. Typosquatting has serious negative implications, resulting in developers importing malicious packages, or -- as we show -- code clones which do not incorporate recent security updates. In order to tackle this problem, we present SpellBound, a tool for identifying and reporting potentially erroneous imports to developers. SpellBound implements a novel typosquatting detection technique, based on an in-depth analysis of npm and PyPI. Our technique leverages a model of lexical similarity between names, and further incorporates the notion of package popularity. This approach flags cases where unknown/scarcely used packages would be installed in place of popular ones with similar names, before installation occurs. We evaluated SpellBound on both npm and PyPI, with encouraging results: SpellBound flags typosquatting cases while generating limited warnings (0.5% of total package installs), and low overhead (only 2.5% of package install time). Furthermore, SpellBound allowed us to confirm known cases of typosquatting and discover one high-profile, unknown case of typosquatting that resulted in a package takedown by the npm security team.",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "On the Feasibility of Cross-Language Detection of Malicious Packages in npm and PyPI",
+      "authors": [
+        {
+          "family": "Ladisa",
+          "given": "Piergiorgio"
+        },
+        {
+          "family": "Ponta",
+          "given": "Serena Elisa"
+        },
+        {
+          "family": "Ronzoni",
+          "given": "Nicola"
+        },
+        {
+          "family": "Martínez",
+          "given": "Matías"
+        },
+        {
+          "family": "Barais",
+          "given": "Olivier"
+        }
+      ],
+      "year": 2023,
+      "venue": "Annual Computer Security Applications Conference",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3627106.3627138",
+      "arxiv_id": "2310.09571",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4387723777",
+      "url": "https://doi.org/10.1145/3627106.3627138",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3627106.3627138",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 43,
+      "abstract": "Current software supply chains heavily rely on open-source packages hosted in public repositories. Given the popularity of ecosystems like npm and PyPI, malicious users started to spread malware by publishing open-source packages containing malicious code.",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "A Survey on Common Threats in npm and PyPi Registries",
+      "authors": [
+        {
+          "family": "Kaplan",
+          "given": "Berkay"
+        },
+        {
+          "family": "Qian",
+          "given": "Jingyu"
+        }
+      ],
+      "year": 2021,
+      "venue": "Communications in computer and information science",
+      "type": "conference-paper",
+      "venue_kind": "book",
+      "doi": "10.1007/978-3-030-87839-9_6",
+      "arxiv_id": "2108.09576",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3207355325",
+      "url": "https://doi.org/10.1007/978-3-030-87839-9_6",
+      "oa_pdf_url": "https://arxiv.org/pdf/2108.09576",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Software engineers regularly use JavaScript and Python for both front-end and back-end automation tasks. On top of JavaScript and Python, there are several frameworks to facilitate automation tasks further. Some of these frameworks are Node Manager Package (npm) and Python Package Index (PyPi), which are open source (OS) package libraries. The public registries npm and PyPi use to host packages allow any user with a verified email to publish code. The lack of a comprehensive scanning tool when publishing to the registry creates security concerns. Users can report malicious code on the registry; however, attackers can still cause damage until they remove their tool from the platform. Furthermore, several packages depend on each other, making them more vulnerable to a bad package in the dependency tree. The heavy code reuse creates security artifacts developers have to consider, such as the package reach. This project will illustrate a high-level overview of common risks associated with OS registries and the package dependency structure. There are several attack types, such as typosquatting and combosquatting, in the OS package registries. Outdated packages pose a security risk, and we will examine the extent of technical lag present in the npm environment. In this paper, our main contribution consists of a survey of common threats in OS registries. Afterward, we will offer countermeasures to mitigate the risks presented. These remedies will heavily focus on the applications of Machine Learning (ML) to detect suspicious activities. To the best of our knowledge, the ML-focused countermeasures are the first proposed possible solutions to the security problems listed. In addition, this project is the first survey of threats in npm and PyPi, although several studies focus on a subset of threats.",
+      "sources": [
+        "arxiv",
+        "crossref",
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Practical automated detection of malicious npm packages",
+      "authors": [
+        {
+          "family": "Sejfia",
+          "given": "Adriana"
+        },
+        {
+          "family": "Schäfer",
+          "given": "Max"
+        }
+      ],
+      "year": 2022,
+      "venue": "ACM/IEEE International Conference on Software Engineering: Companion Proceedings (ICSE-Companion)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3510003.3510104",
+      "arxiv_id": "2202.13953",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4226416841",
+      "url": "https://doi.org/10.1145/3510003.3510104",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3510003.3510104",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 114,
+      "abstract": "The npm registry is one of the pillars of the JavaScript and Type-Script ecosystems, hosting over 1.7 million packages ranging from simple utility libraries to complex frameworks and entire applications. Each day, developers publish tens of thousands of updates as well as hundreds of new packages. Due to the overwhelming popularity of npm, it has become a prime target for malicious actors, who publish new packages or compromise existing packages to introduce malware that tampers with or exfiltrates sensitive data from users who install either these packages or any package that (transitively) depends on them. Defending against such attacks is essential to maintaining the integrity of the software supply chain, but the sheer volume of package updates makes comprehensive manual review infeasible. We present Amalfi, a machine-learning based approach for automatically detecting potentially malicious packages comprised of three complementary techniques. We start with classifiers trained on known examples of malicious and benign packages. If a package is flagged as malicious by a classifier, we then check whether it includes metadata about its source repository, and if so whether the package can be reproduced from its source code. Packages that are reproducible from source are not usually malicious, so this step allows us to weed out false positives. Finally, we also employ a simple textual clone-detection technique to identify copies of malicious packages that may have been missed by the classifiers, reducing the number of false negatives. Amalfi improves on the state of the art in that it is lightweight, requiring only a few seconds per package to extract features and run the classifiers, and gives good results in practice: running it on 96287 package versions published over the course of one week, we were able to identify 95 previously unknown malware samples, with a manageable number of false positives.",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Typosquatting and Combosquatting Attacks on the Python Ecosystem",
+      "authors": [
+        {
+          "family": "Vu",
+          "given": "Duc‐Ly"
+        },
+        {
+          "family": "Николаевич",
+          "given": "Пащенко Иван"
+        },
+        {
+          "family": "Massacci",
+          "given": "Fabio"
+        },
+        {
+          "family": "Plate",
+          "given": "Henrik"
+        },
+        {
+          "family": "Sabetta",
+          "given": "Antonino"
+        }
+      ],
+      "year": 2020,
+      "venue": "IEEE European Symposium on Security and Privacy Workshops (EuroS&PW)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/eurospw51379.2020.00074",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3094525800",
+      "url": "https://doi.org/10.1109/eurospw51379.2020.00074",
+      "oa_pdf_url": "https://iris.unitn.it/bitstream/11572/282646/1/ly2020typosquatting.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 76,
+      "abstract": "Limited automated controls integrated into the Python Package Index (PyPI) package uploading process make PyPI an attractive target for attackers to trick developers into using malicious packages. Several times this goal has been achieved via the combosquatting and typosquatting attacks when attackers give malicious packages similar names to already existing legitimate ones. In this paper, we study the attacks, identify potential attack targets, and propose an approach to identify combosquatting and typosquatting package names automatically. The approach might serve as a basis for an automated system that ensures the security of the packages uploaded and distributed via PyPI.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "An Empirical Study of Malicious Code In PyPI Ecosystem",
+      "authors": [
+        {
+          "family": "Guo",
+          "given": "Wenbo"
+        },
+        {
+          "family": "Xu",
+          "given": "Zhengzi"
+        },
+        {
+          "family": "Liu",
+          "given": "Chengwei"
+        },
+        {
+          "family": "Huang",
+          "given": "Cheng"
+        },
+        {
+          "family": "Fang",
+          "given": "Yong"
+        },
+        {
+          "family": "Liu",
+          "given": "Yang"
+        }
+      ],
+      "year": 2023,
+      "venue": "IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/ase56229.2023.00135",
+      "arxiv_id": "2309.11021",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4388502419",
+      "url": "https://doi.org/10.1109/ase56229.2023.00135",
+      "oa_pdf_url": "https://arxiv.org/pdf/2309.11021",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 76,
+      "abstract": "PyPI provides a convenient and accessible package management platform to developers, enabling them to quickly implement specific functions and improve work efficiency. However, the rapid development of the PyPI ecosystem has led to a severe problem of malicious package propagation. Malicious developers disguise malicious packages as normal, posing a significant security risk to end-users. To this end, we conducted an empirical study to understand the characteristics and current state of the malicious code lifecycle in the PyPI ecosystem. We first built an automated data collection framework and collated a multi-source malicious code dataset containing 4,669 malicious package files. We preliminarily classified these malicious code into five categories based on malicious behaviour characteristics. Our research found that over 50 % of malicious code exhibits multiple malicious behaviours, with information stealing and command execution being particularly prevalent. In addition, we observed several novel attack vectors and anti-detection techniques. Our analysis revealed that 74.81 % of all malicious packages successfully entered end-user projects through source code installation, thereby increasing security risks. A real-world investigation showed that many reported malicious packages persist in PyPI mirror servers globally, with over 72 % remaining for an extended period after being discovered. Finally, we sketched a portrait of the malicious code lifecycle in the PyPI ecosystem, effectively reflecting the characteristics of malicious code at different stages. We also present some suggested mitigations to improve the security of the Python open-source ecosystem.",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "On the impact of security vulnerabilities in the npm package dependency network",
+      "authors": [
+        {
+          "family": "Decan",
+          "given": "Alexandre"
+        },
+        {
+          "family": "Mens",
+          "given": "Tom"
+        },
+        {
+          "family": "Constantinou",
+          "given": "Eleni"
+        }
+      ],
+      "year": 2018,
+      "venue": "International Conference on Mining Software Repositories (MSR)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3196398.3196401",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W2789570312",
+      "url": "https://doi.org/10.1145/3196398.3196401",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3196398.3196401",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 287,
+      "abstract": "Security vulnerabilities are among the most pressing problems in open source software package libraries. It may take a long time to discover and fix vulnerabilities in packages. In addition, vulnerabilities may propagate to dependent packages, making them vulnerable too. This paper presents an empirical study of nearly 400 security reports over a 6-year period in the npm dependency network containing over 610k JavaScript packages. Taking into account the severity of vulnerabilities, we analyse how and when these vulnerabilities are discovered and fixed, and to which extent they affect other packages in the packaging ecosystem in presence of dependency constraints. We report our findings and provide guidelines for package maintainers and tool developers to improve the process of dealing with security issues.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "The Hitchhiker's Guide to Malicious Third-Party Dependencies",
+      "authors": [
+        {
+          "family": "Ladisa",
+          "given": "Piergiorgio"
+        },
+        {
+          "family": "Şahin",
+          "given": "Merve"
+        },
+        {
+          "family": "Ponta",
+          "given": "Serena Elisa"
+        },
+        {
+          "family": "Rosa",
+          "given": "Marco"
+        },
+        {
+          "family": "Martínez",
+          "given": "Matías"
+        },
+        {
+          "family": "Barais",
+          "given": "Olivier"
+        }
+      ],
+      "year": 2023,
+      "venue": "ACM Workshop on Software Supply Chain Offensive Research and Ecosystem Defenses (SCORED)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3605770.3625212",
+      "arxiv_id": "2307.09087",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4384808064",
+      "url": "https://doi.org/10.1145/3605770.3625212",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3605770.3625212",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 28,
+      "abstract": "The increasing popularity of certain programming languages has spurred the creation of ecosystem-specific package repositories and package managers. Such repositories (e.g., npm, PyPI) serve as public databases that users can query to retrieve packages for various functionalities, whereas package managers automatically handle dependency resolution and package installation on the client side. These mechanisms enhance software modularization and accelerate implementation. However, they have become a target for malicious actors seeking to propagate malware on a large scale. In this work, we show how attackers can leverage capabilities of popular package managers and languages to achieve arbitrary code execution on victim machines, thereby realizing open-source software supply chain attacks. Based on the analysis of 7 ecosystems, we identify 3 install-time and 4 runtime techniques, and we provide recommendations describing how to reduce the risk when consuming third-party dependencies. We provide example implementations that demonstrate the identified techniques. Furthermore, we describe evasion strategies employed by attackers to circumvent detection mechanisms.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Differential Static Analysis for Detecting Malicious Updates to Open Source Packages",
+      "authors": [
+        {
+          "family": "Froh",
+          "given": "Fabian Niklas"
+        },
+        {
+          "family": "Gobbi",
+          "given": "Matías F."
+        },
+        {
+          "family": "Kinder",
+          "given": "Johannes"
+        }
+      ],
+      "year": 2023,
+      "venue": "ACM Workshop on Software Supply Chain Offensive Research and Ecosystem Defenses (SCORED)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3605770.3625211",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4388955103",
+      "url": "https://doi.org/10.1145/3605770.3625211",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3605770.3625211",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 19,
+      "abstract": "Modern software applications routinely integrate many third-party open source dependencies, with package managers delivering timely updates of the entire dependency tree. The downside is that malicious actors can inject malicious code into widely-used software packages, which is then distributed to potentially thousands of direct or indirect client applications. Such attacks on the software supply chain are no longer just theoretical curiosities, but a practical risk. To mitigate this risk, we propose a new approach using differential static analysis to flag malicious code modifications in package updates. We use specifications in the CodeQL query language to match suspicious behavior and compare results across package versions. Where we detect an anomalous change in behavior, we classify that package update as potentially malicious and requiring further analysis. We show that our approach successfully identifies all malicious versions on a dataset of packages with a history of malicious code; on a dataset of popular benign packages from the npm repository, we obtain on average 1.3% false alarms, demonstrating that our approach holds promise for practical deployment as a warning system on the open source software supply chain.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "On the impact of security vulnerabilities in the npm and RubyGems dependency networks",
+      "authors": [
+        {
+          "family": "Zerouali",
+          "given": "Ahmed"
+        },
+        {
+          "family": "Mens",
+          "given": "Tom"
+        },
+        {
+          "family": "Decan",
+          "given": "Alexandre"
+        },
+        {
+          "family": "Roover",
+          "given": "Coen De"
+        }
+      ],
+      "year": 2022,
+      "venue": "Empirical Software Engineering",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10664-022-10154-1",
+      "arxiv_id": "2106.06747",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3172189288",
+      "url": "https://doi.org/10.1007/s10664-022-10154-1",
+      "oa_pdf_url": "https://link.springer.com/content/pdf/10.1007/s10664-022-10154-1.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 86,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "LastPyMile: identifying the discrepancy between sources and packages",
+      "authors": [
+        {
+          "family": "Vu",
+          "given": "Duc‐Ly"
+        },
+        {
+          "family": "Massacci",
+          "given": "Fabio"
+        },
+        {
+          "family": "Николаевич",
+          "given": "Пащенко Иван"
+        },
+        {
+          "family": "Plate",
+          "given": "Henrik"
+        },
+        {
+          "family": "Sabetta",
+          "given": "Antonino"
+        }
+      ],
+      "year": 2021,
+      "venue": "ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3468264.3468592",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3196277935",
+      "url": "https://doi.org/10.1145/3468264.3468592",
+      "oa_pdf_url": "https://iris.unitn.it/bitstream/11572/323677/1/esecfse2021-4.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 69,
+      "abstract": "Open source packages have source code available on repositories for inspection (e.g. on GitHub) but developers use pre-built packages directly from the package repositories (such as npm for JavaScript, PyPI for Python, or RubyGems for Ruby). Such convenient practice assumes that there are no discrepancies between source code and packages. These differences pose both operational risks (e.g. making dependent projects unable to compile) and security risks (e.g. deploying malicious code during package installation) in the software supply chain. Our empirical assessment of 2438 popular packages in PyPI with an analysis of around 10M lines of code shows several differences in the wild: modifications cannot be just attributed to malicious injections. Yet, scanning again all and whole ‘most likely good but modified’ packages is hard to manage for FOSS downstream users. We propose a methodology, LastPyMile, for identifying the differences between build artifacts of software packages and the respective source code repository. We show how it can be used to extend current package scanning practices for malware injection (which only covers less than 1% of the code of deployed packages).",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Towards Measuring Supply Chain Attacks on Package Managers for Interpreted Languages",
+      "authors": [
+        {
+          "family": "Duan",
+          "given": "Ruian"
+        },
+        {
+          "family": "Alrawi",
+          "given": "Omar"
+        },
+        {
+          "family": "Kasturi",
+          "given": "Ranjita Pai"
+        },
+        {
+          "family": "Elder",
+          "given": "Ryan"
+        },
+        {
+          "family": "Saltaformaggio",
+          "given": "Brendan"
+        },
+        {
+          "family": "Lee",
+          "given": "Wenke"
+        }
+      ],
+      "year": 2021,
+      "venue": "Network and Distributed System Security Symposium",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.14722/ndss.2021.23055",
+      "arxiv_id": "2002.01139",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3138230581",
+      "url": "https://doi.org/10.14722/ndss.2021.23055",
+      "oa_pdf_url": "https://doi.org/10.14722/ndss.2021.23055",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 196,
+      "abstract": "organizations that rely on open-source interpreted programming languages for different internal and external applications.Attackers can infiltrate well-defended organization by simply subverting the software supply chain of registries.For example, eslint-scope [4], a package with millions of weekly downloads in Npm, was compromised to steal credentials from developers.Similarly, rest-client [5], which has over one hundred million downloads in RubyGems, was compromised to leave a Remote-Code-Execution (RCE) backdoor on web servers.These attacks demonstrate how miscreants can covertly gain access to a wide-range of organizations by carrying out a software supply chain attack.Security researchers [7] are aware of these attacks and have proposed several solutions to address the rise of malicious software in registries.Zimmermann et al. [8] systematically studied 609 known security issues and revealed a large attack surface in the Npm ecosystem.BreakApp [9], on the other hand, isolates untrusted packages, which addresses credential theft and prevents access to sensitive data, but does not stop cryptocurrency mining or backdoors.Additionally, many solutions [10]-[12] assume inherent trust and focus on finding bugs in packages rather than malicious packages.To make matters worse, some attacks are very sinister and use social engineering techniques [13], [14] to disguise themselves by first publishing a \"useful\" package, then waiting until it is used by their target to update it and include malicious payloads.Although, many security researchers are actively investigating attacks on registries and proposing solutions, these approaches seem to be ad-hoc and one-off solutions.A better approach is to understand the extent of the software supply chain abuse and how miscreants are taking advantage of them.The approach must be grounded to allow an objective comparison between the different registry ecosystem.To this end, we propose a framework that highlights key functionality, security mechanisms, stakeholders, and remediation techniques to comparatively analyze different registry ecosystems.We use our framework to look at what features registries provide, what security principles are enforced, how is trust delegated between different parties, and what remediation and contingency plans registries have in place for post-attack.We leverage our findings to provide practical action items that registry maintainers can enforce using pre-existing tools and security principles that will improve the security of the overall package management ecosystem.Using well-known program analysis techniques, we build MALOSS, a custom pipeline tailored for interpreted languages that we use to empirically study the security of package managers.We make this pipeline Abstract-Package managers have become a vital part of the modern software development process.They allow developers to reuse third-party code, share their own code, minimize their codebase, and simplify the build process.However, recent reports showed that package managers have been abused by attackers to distribute malware, posing significant security risks to developers and end-users.For example, eslint-scope, a package with millions of weekly downloads in Npm, was compromised to steal credentials from developers.To understand the security gaps and the misplaced trust that make recent supply chain attacks possible, we propose a comparative framework to qualitatively assess the functional and security features of package managers for interpreted languages.Based on qualitative assessment, we apply well-known program analysis techniques such as metadata, static, and dynamic analysis to study registry abuse.Our initial efforts found 339 new malicious packages that we reported to the registries for removal.The package manager maintainers confirmed 278 (82%) from the 339 reported packages where three of them had more than 100,000 downloads.For these packages we were issued official CVE numbers to help expedite the removal of these packages from infected victims.We outline the challenges of tailoring program analysis tools to interpreted languages and release our pipeline as a reference point for the community to build on and help in securing the software supply chain.The impact of this problem is not isolated to small one-off web apps, but large websites, enterprises, and even government Network and Distributed Systems Security (NDSS)",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Backstabber’s Knife Collection: A Review of Open Source Software Supply Chain Attacks",
+      "authors": [
+        {
+          "family": "Ohm",
+          "given": "Marc"
+        },
+        {
+          "family": "Plate",
+          "given": "Henrik"
+        },
+        {
+          "family": "Sykosch",
+          "given": "Arnold"
+        },
+        {
+          "family": "Meier",
+          "given": "Michael"
+        }
+      ],
+      "year": 2020,
+      "venue": "Lecture notes in computer science",
+      "type": "conference-paper",
+      "venue_kind": "book",
+      "doi": "10.1007/978-3-030-52683-2_2",
+      "arxiv_id": "2005.09535",
+      "pmid": null,
+      "pmcid": "7338168",
+      "openalex_id": "W3028285817",
+      "url": "https://doi.org/10.1007/978-3-030-52683-2_2",
+      "oa_pdf_url": "https://arxiv.org/pdf/2005.09535",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 342,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Towards Using Source Code Repositories to Identify Software Supply Chain Attacks",
+      "authors": [
+        {
+          "family": "Vu",
+          "given": "Duc‐Ly"
+        },
+        {
+          "family": "Николаевич",
+          "given": "Пащенко Иван"
+        },
+        {
+          "family": "Massacci",
+          "given": "Fabio"
+        },
+        {
+          "family": "Plate",
+          "given": "Henrik"
+        },
+        {
+          "family": "Sabetta",
+          "given": "Antonino"
+        }
+      ],
+      "year": 2020,
+      "venue": "ACM SIGSAC Conference on Computer and Communications Security (CCS)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3372297.3420015",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W3109094705",
+      "url": "https://doi.org/10.1145/3372297.3420015",
+      "oa_pdf_url": "https://iris.unitn.it/bitstream/11572/282636/1/ccs2020poster.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 68,
+      "abstract": "Increasing popularity of third-party package repositories, like NPM, PyPI, or RubyGems, makes them an attractive target for software supply chain attacks. By injecting malicious code into legitimate packages, attackers were known to gain more than 100,000 downloads of compromised packages. Current approaches for identifying malicious payloads are resource demanding. Therefore, they might not be applicable for the on-the-fly detection of suspicious artifacts being uploaded to the package repository. In this respect, we propose to use source code repositories (e.g., those in Github) for detecting injections into the distributed artifacts of a package. Our preliminary evaluation demonstrates that the proposed approach captures known attacks when malicious code was injected into PyPI packages. The analysis of the 2666 software artifacts (from all versions of the top ten most downloaded Python packages in PyPI) suggests that the technique is suitable for lightweight analysis of real-world packages.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Malicious source code detection using a translation model",
+      "authors": [
+        {
+          "family": "Tsfaty",
+          "given": "Chen"
+        },
+        {
+          "family": "Fire",
+          "given": "Michael"
+        }
+      ],
+      "year": 2023,
+      "venue": "Patterns",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.patter.2023.100773",
+      "arxiv_id": "2209.07957",
+      "pmid": "37521045",
+      "pmcid": "10382987",
+      "openalex_id": "W4379537790",
+      "url": "https://doi.org/10.1016/j.patter.2023.100773",
+      "oa_pdf_url": "http://www.cell.com/article/S2666389923001241/pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Modern software development often relies on open-source code sharing. Open-source code reuse, however, allows hackers to access wide developer communities, thereby potentially affecting many products. An increasing number of such \"supply chain attacks\" have occurred in recent years, taking advantage of open-source software development practices. Here, we introduce the Malicious Source code Detection using a Translation model (MSDT) algorithm. MSDT is a novel deep-learning-based analysis method that detects real-world code injections into source code packages. We have tested MSDT by embedding examples from a dataset of over 600,000 different functions and then applying a clustering algorithm to the resulting embedding vectors to identify malicious functions by detecting outliers. We evaluated MSDT's performance with extensive experiments and demonstrated that MSDT could detect malicious code injections with precision@k values of up to 0.909.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "On the impact of using trivial packages: an empirical case study on npm and PyPI",
+      "authors": [
+        {
+          "family": "Abdalkareem",
+          "given": "Rabe"
+        },
+        {
+          "family": "Oda",
+          "given": "Vinicius"
+        },
+        {
+          "family": "Mujahid",
+          "given": "Suhaib"
+        },
+        {
+          "family": "Shihab",
+          "given": "Emad"
+        }
+      ],
+      "year": 2020,
+      "venue": "Empirical Software Engineering",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10664-019-09792-9",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1007/s10664-019-09792-9",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 50,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "A Needle is an Outlier in a Haystack: Hunting Malicious PyPI Packages with Code Clustering",
+      "authors": [
+        {
+          "family": "Liang",
+          "given": "Wentao"
+        },
+        {
+          "family": "Ling",
+          "given": "Xiang"
+        },
+        {
+          "family": "Wu",
+          "given": "Jingzheng"
+        },
+        {
+          "family": "Luo",
+          "given": "Tianyue"
+        },
+        {
+          "family": "Wu",
+          "given": "Yanjun"
+        }
+      ],
+      "year": 2023,
+      "venue": "2023 38th IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ase56229.2023.00085",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ase56229.2023.00085",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 29,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "On the feasibility of detecting injections in malicious npm packages",
+      "authors": [
+        {
+          "family": "Scalco",
+          "given": "Simone"
+        },
+        {
+          "family": "Paramitha",
+          "given": "Ranindya"
+        },
+        {
+          "family": "Vu",
+          "given": "Duc-Ly"
+        },
+        {
+          "family": "Massacci",
+          "given": "Fabio"
+        }
+      ],
+      "year": 2022,
+      "venue": "Proceedings of the 17th International Conference on Availability, Reliability and Security",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3538969.3543815",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3538969.3543815",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 32,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "npm Packages as Ingredients: A Recipe-based Approach",
+      "authors": [
+        {
+          "family": "Chatzidimitriou",
+          "given": "Kyriakos"
+        },
+        {
+          "family": "Papamichail",
+          "given": "Michail"
+        },
+        {
+          "family": "Diamantopoulos",
+          "given": "Themistoklis"
+        },
+        {
+          "family": "Oikonomou",
+          "given": "Napoleon-Christos"
+        },
+        {
+          "family": "Symeonidis",
+          "given": "Andreas"
+        }
+      ],
+      "year": 2019,
+      "venue": "Proceedings of the 14th International Conference on Software Technologies",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0007966805440551",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0007966805440551",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "npm-filter",
+      "authors": [
+        {
+          "family": "Arteca",
+          "given": "Ellen"
+        },
+        {
+          "family": "Turcotte",
+          "given": "Alexi"
+        }
+      ],
+      "year": 2022,
+      "venue": "Proceedings of the 19th International Conference on Mining Software Repositories",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3524842.3528501",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3524842.3528501",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 6,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "License compatibility for Python packages: the FASTEN PyPI plugin",
+      "authors": [
+        {
+          "family": "Scarlato",
+          "given": "Michele"
+        },
+        {
+          "family": "Nöth",
+          "given": "Lisa"
+        }
+      ],
+      "year": 2023,
+      "venue": "2023 17th International Conference on Open Source Systems and Technologies (ICOSST)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icosst60641.2023.10414206",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icosst60641.2023.10414206",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "A Machine Learning Approach to Determine the Semantic Versioning Type of NPM Packages Releases",
+      "authors": [
+        {
+          "family": "Abdalkareem",
+          "given": "Rabe"
+        }
+      ],
+      "year": 2022,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.4082606",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.4082606",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "Semantic versioning policy is widely used to indicate the level of changes in a package release. Unfortunately, there are many cases where developers do not respect the semantic versioning policy, leading to the breakage of dependent applications. To reduce such cases, we proposed using ML techniques to effectively predict the new release type, i.e., patch, minor, major, in order to properly determine the semantic versioning type. To perform our prediction, we mined and used a number of features about a release, such as the complexity of the changed code, change types, and development activities. To evaluate the performance of the proposed ML classifiers, we conducted an empirical study on 31 packages containing a total of approximately 6,260 releases. We extracted 41 release-level features from historical data of packages’ source code and repositories. We used four ML classifiers. We found that the XGBoost classifiers performed the best. We also found that features related to the change types in a release are the best predictors group of features in determining the semantic versioning type. Finally, we studied the generalizability of determining the semantic versioning type by applying cross-package validation. Our results showed that the general classifier achieved a good performance.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "A Large-Scale Security-Oriented Static Analysis of Python Packages in PyPI",
+      "authors": [
+        {
+          "family": "Ruohonen",
+          "given": "Jukka"
+        },
+        {
+          "family": "Hjerppe",
+          "given": "Kalle"
+        },
+        {
+          "family": "Rindell",
+          "given": "Kalle"
+        }
+      ],
+      "year": 2021,
+      "venue": "2021 18th International Conference on Privacy, Security and Trust (PST)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/pst52912.2021.9647791",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/pst52912.2021.9647791",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 35,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "Qualitative Analysis of Security-Related Code Reviews in NPM Packages: An Empirical Study",
+      "authors": [
+        {
+          "family": "Alfadel",
+          "given": "Mahmoud"
+        },
+        {
+          "family": "Nagy",
+          "given": "Nicholas"
+        },
+        {
+          "family": "Costa",
+          "given": "Diego"
+        },
+        {
+          "family": "Abdalkareem",
+          "given": "Rabe"
+        },
+        {
+          "family": "Shihab",
+          "given": "Emad"
+        }
+      ],
+      "year": 2022,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.4161317",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.4161317",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Security issues are a major concern in software packages, and their impact can be detrimental if exploited. Prior work has shown that code review is a widely-used practice that project maintainers adopt to improve software quality. However, in-depth analyses on code review concerning security issues are limited. This paper explores the role of code review in finding and mitigating security issues. We investigate 10 active and popular npm packages to understand what types of security issues are raised during code review, and what kind of mitigation strategies are employed by package maintainers to address them. We analyze 171 pull-requests with raised security issues. We find that such issues are discussed at length by package maintainers. Moreover, we find that code review is effective at identifying certain types of issues, e.g., Race Condition and ReDOS, as dealing with such concerns requires in-depth knowledge of the project domain. When analysing how maintainers respond to the raised security issues, we find that most of the issues (55%) are addressed and mitigated. Still, some security concerns ended up not being fixed or are ignored by maintainers. Finally, we offer some implications to support the role of reviewing code in finding and fixing security concerns.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "Scavenging PyPi for VLSI Packages",
+      "authors": [
+        {
+          "family": "Kranas",
+          "given": "George K."
+        },
+        {
+          "family": "Dadaliaris",
+          "given": "Antonios N."
+        },
+        {
+          "family": "Oikonomou",
+          "given": "Panagiotis"
+        },
+        {
+          "family": "Dossis",
+          "given": "Michael"
+        }
+      ],
+      "year": 2022,
+      "venue": "2022 7th South-East Europe Design Automation, Computer Engineering, Computer Networks and Social Media Conference (SEEDA-CECNSM)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/seeda-cecnsm57760.2022.9932969",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/seeda-cecnsm57760.2022.9932969",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 25,
+      "in_project": null
+    }
+  ]
+}

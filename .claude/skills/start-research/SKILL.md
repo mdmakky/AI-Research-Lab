@@ -44,7 +44,7 @@ Done when: every paper's analysis is `ready`.
 Delegate to the `critical-reviewer` agent. Send each analysis with problems back to a `paper-analyst` with the review findings; repeat until clean. Then set each passed analysis to `status: complete`.
 
 ## 8. Synthesis, gaps, report
-Follow `compare-methods`, then `find-gaps`, then `research-report`, in that order.
+Follow `compare-methods`, then `find-gaps`, then `research-report`, then `reading-guide` (plain-language paper briefs + shareable Google Doc), in that order.
 
 ## 9. Close the run
-`rlab bib <id>`, `rlab index <id>`, `rlab validate <id>`. Final message to the user: what was found (3–5 bullets), strongest gaps, what is blocked on them, the report path, and how to resume ("Resume research <id>").
+`rlab bib <id>`, `rlab index <id>`, `rlab validate <id>`. Final message to the user: what was found (3–5 bullets), strongest gaps, what is blocked on them, the report path, the reading-guide Google Doc link, and how to resume ("Resume research <id>").

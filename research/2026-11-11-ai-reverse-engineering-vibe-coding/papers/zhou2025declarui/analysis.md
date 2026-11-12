@@ -1,6 +1,6 @@
 ---
 key: zhou2025declarui
-status: ready
+status: complete
 evidence_basis: full-text
 design: technique proposal + controlled comparison vs. raw MLLM baselines + ablation + developer user study
 dataset: 50 mobile app UI design sets (250 pages): 25 Figma mockups + 25 Google Play app screenshot sets, 10 categories
@@ -20,7 +20,7 @@ analysed: 2026-11-11
 - Authors: Zhou, Ting; Zhao, Yanjie; Hou, Xinyi; Sun, Xiaoyu; Chen, Kai; Wang, Haoyu
 - Year / venue: 2025, Proceedings of the ACM on Software Engineering (published)
 - DOI: 10.1145/3715726 · URL: https://doi.org/10.1145/3715726
-- Source text: `fulltext.txt` (page refs = PDF page index)
+- Source text: `fulltext.txt` (page refs = PDF page index), extracted from arXiv:2409.11667v1 (18 Sep 2024), the pre-publication preprint, not the PACMSE (FSE 2025) published version; numbers, especially ablation Table 2, may differ in the published version (not checked)
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -78,7 +78,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 ## 9. Limitations we identified
 - [I] Human in the loop vs "autonomous" claim: the PTG is reviewed and corrected by designers/developers (p. 4), while RQ1 is framed as operating "without human intervention" (p. 6). How often and how much the PTG was corrected is not reported.
 - [I] PCR is partly circular: DeclarUI receives the PTG as input and is checked against it during refinement, then scored against the same PTG (pp. 5–7); baselines never see the PTG. PCR also counts only edges, not correct behaviour on each screen, and is computed manually without reported agreement (p. 7).
-- [I] Ablation numbers are internally implausible: on 13 apps, CSR values of 98.0% and 80.0% (p. 10) cannot arise (possible values are k/13, e.g. 76.9%, 84.6%, 92.3%), and the "Full" PCR/CSR equal the 50-app values (pp. 9–10). The Table 2 "Full" row may mix 50-app and 13-app results.
+- [I] Ablation numbers are internally implausible: on 13 apps, CSR values of 98.0% and 80.0% (p. 10) cannot arise (possible values are k/13, e.g. 76.9%, 84.6%, 92.3%). In the ablation table the "Full" row's CLIP/SSIM (0.90/0.72, p. 10) differ from the 50-app values (0.88/0.68, p. 9), while PCR/ACIC/CSR are identical to the 50-app run (96.8 / 0.22 / 98.0, pp. 9–10). This strongly suggests the visual metrics were recomputed on the 13 apps but PCR/ACIC/CSR were copied from the 50-app run (based on pp. 9–10); the ablation's PCR/CSR deltas are therefore not like-for-like comparisons.
 - [I] User-study statistics treat 60 ratings per condition (5 developers × 12 apps) as independent; the tiny p-values (down to 2.57E-13, p. 10) overstate certainty (pseudo-replication). Blinding of participants to condition is not reported. Five participants is a small sample.
 - [I] Code quality and maintainability are measured only subjectively (Likert) and by modification time; no static analysis, complexity, duplication or code-smell metrics.
 - [I] Minor inconsistencies: Baseline Claude PCR 43.4% (p. 8) vs 43.3% (p. 9); ACIC defined as "number of compilation attempts" (max 3) yet reported as 0.22 (pp. 7, 9), implying it counts only repair iterations.

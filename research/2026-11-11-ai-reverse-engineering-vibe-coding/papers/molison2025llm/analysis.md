@@ -1,6 +1,6 @@
 ---
 key: molison2025llm
-status: ready
+status: complete
 evidence_basis: full-text
 design: Quantitative comparative study; one LLM (GPT-4o) under 3 configurations vs human solutions; SonarQube static analysis + small Pass@1 sample
 dataset: APPS (Python coding problems: introductory/interview/competition; human solutions from Codeforces, AtCoder, Kattis, Codewars)
@@ -20,7 +20,7 @@ analysed: 2026-11-11
 - Authors: Molison, Alfred Santa; Moraes, Marcia; Melo, Glaucia; Santos, Fabio; Assunção, Wesley K. G.
 - Year / venue: 2025, 2025 ACM/IEEE International Symposium on Empirical Software Engineering and Measurement (ESEM) (published)
 - DOI: 10.1109/esem64174.2025.00036 · URL: https://doi.org/10.1109/esem64174.2025.00036
-- Source text: `fulltext.txt` (page refs = PDF page index). The PDF is the arXiv version (arXiv:2508.00700v1); page numbers refer to our PDF, not the ESEM proceedings pagination.
+- Source text: `fulltext.txt` (page refs = PDF page index). The PDF analysed is the arXiv version, "arXiv:2508.00700v1 [cs.SE] 1 Aug 2025" (p. 1), from arxiv.org/pdf/2508.00700; page numbers refer to our PDF, not the ESEM proceedings pagination.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -108,7 +108,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [I] Pass@1 on 15 solutions per approach (p. 7–8) is too small to support the performance ranking (e.g. 0.87 vs 0.53).
 - [I] Internal inconsistencies:
   - Few-shot Pass@1 is 0.86 in the introduction (p. 1) and 0.87 in Table V (p. 8).
-  - Finding 7 says odds of bugs are "≤ 0.19%" (p. 9), but Table II includes 0.019, i.e. 1.9% (p. 8).
+  - An odds ratio is not a percentage, but the paper expresses ORs as percentages (OR 0.0005 written as "0.05% of the odds", p. 6). Under that convention, the largest bug OR in Table II (0.019, p. 8) is 1.9%, not "≤ 0.19%" as stated in Finding 7 (p. 9).
   - Several severity percentages in the text do not match Fig. 5. Examples: zero-shot introductory critical is 5.0% in the text (p. 5) but 6.6 in Fig. 5 (p. 7); few-shot introductory values (critical 9.8%, major 40.2%, p. 5) do not appear in Fig. 5, where that bar is empty (p. 7); fine-tuned competition minor is 30% in the text (p. 6) but Fig. 5 shows 40.0 (p. 7).
   - The code-smell paragraph says "a bug in a few-shot approach is half as likely as a bug in a human solution" (p. 7), mixing bugs with smells.
   - The limitations say "GPT-4" (p. 10) while the model is GPT-4o (p. 4).
@@ -146,7 +146,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 ## 13. Evidence table (for the evidence matrix)
 | RQ | Claim | Page | Label | Strength |
 |---|---|---|---|---|
-| RQ3 | GPT-4o solutions (zero-shot, few-shot, fine-tuned) had far lower odds of SonarQube-flagged bugs than APPS human solutions at all difficulty levels (OR 0.0005–0.019, p<0.001) | 8 | V | weak (single model and study; N per group not reported; few-shot prompt contains baseline solutions) |
+| RQ3 | GPT-4o solutions (zero-shot, few-shot, fine-tuned) had far lower odds of SonarQube-flagged bugs than APPS human solutions at all difficulty levels (OR 0.00–0.019, all p<0.001; the 0.00 implies a zero cell, so the minimum is not a real estimate) | 8 | V | weak (single model and study; N per group not reported; few-shot prompt contains baseline solutions) |
 | RQ3 | Code-smell (maintainability) differences were mixed: zero-shot had 3.57× the odds of a smell vs human on introductory tasks, while fine-tuned had fewer smells; several comparisons were not significant | 8 | V | weak |
 | RQ3 | SonarQube-estimated fix effort was lower for LLM code on introductory/interview tasks but not on competition tasks (human 6.95 min vs few-shot 7.33, fine-tuned 7.60) | 7 | V | weak |
 | RQ3 | On competition-level problems LLM outputs carried more critical-severity issues than human code | 6 | A | weak |

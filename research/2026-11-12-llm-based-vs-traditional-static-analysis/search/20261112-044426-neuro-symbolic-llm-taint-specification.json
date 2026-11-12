@@ -1,0 +1,1180 @@
+{
+  "query": "neuro-symbolic LLM taint specification inference static analysis vulnerability",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:44:26+06:00",
+  "raw_hits": 32,
+  "unique": 29,
+  "errors": {},
+  "results": [
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Ziyang"
+        },
+        {
+          "family": "Dutta",
+          "given": "Saikat"
+        },
+        {
+          "family": "Naik",
+          "given": "Mayur"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2405.17238",
+      "arxiv_id": "2405.17238",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4399115016",
+      "url": "http://arxiv.org/abs/2405.17238",
+      "oa_pdf_url": "https://arxiv.org/pdf/2405.17238",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 198,
+      "abstract": "Software is prone to security vulnerabilities. Program analysis tools to detect them have limited effectiveness in practice due to their reliance on human labeled specifications. Large language models (or LLMs) have shown impressive code generation capabilities but they cannot do complex reasoning over code to detect such vulnerabilities especially since this task requires whole-repository analysis. We propose IRIS, a neuro-symbolic approach that systematically combines LLMs with static analysis to perform whole-repository reasoning for security vulnerability detection. Specifically, IRIS leverages LLMs to infer taint specifications and perform contextual analysis, alleviating needs for human specifications and inspection. For evaluation, we curate a new dataset, CWE-Bench-Java, comprising 120 manually validated security vulnerabilities in real-world Java projects. A state-of-the-art static analysis tool CodeQL detects only 27 of these vulnerabilities whereas IRIS with GPT-4 detects 55 (+28) and improves upon CodeQL's average false discovery rate by 5% points. Furthermore, IRIS identifies 4 previously unknown vulnerabilities which cannot be found by existing tools. IRIS is available publicly at https://github.com/iris-sast/iris.",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Driven Adaptive Source–Sink Identification and False Positive Mitigation for Static Analysis",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Shiyin"
+        }
+      ],
+      "year": 2025,
+      "venue": "Preprints.org",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202509.0917.v1",
+      "arxiv_id": "2511.04023",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414105134",
+      "url": "https://doi.org/10.20944/preprints202509.0917.v1",
+      "oa_pdf_url": "https://www.preprints.org/frontend/manuscript/bf8ba8d12f4182f7003df2d3a9a3ab36/download_pub",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 11,
+      "abstract": "Static analysis is effective for discovering software vulnerabilities but notoriously suffers from incomplete source– sink specifications and excessive false positives (FPs). We present ADATAINT, an LLM-driven taint analysis framework that adap- tively infers source/sink specifications and filters spurious alerts through neuro-symbolic reasoning. Unlike LLM-only detectors, ADATAINT grounds model suggestions in program facts and con- straint validation, ensuring both adaptability and determinism. We evaluate ADATAINT on Juliet 1.3, SV-COMP-style C benchmarks, and three large real-world projects. Results show that ADATAINT reduces false positives by 43.7% on average and improves recall by 11.2% compared to state-of-the-art baselines (CodeQL, Joern, and LLM-only pipelines), while maintaining competitive runtime overhead. These findings demonstrate that combining LLM inference with symbolic validation offers a prac- tical path toward more accurate and reliable static vulnerability analysis",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "NESA: Relational Neuro-Symbolic Static Program Analysis",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Chengpeng"
+        },
+        {
+          "family": "Gao",
+          "given": "Yifei"
+        },
+        {
+          "family": "Zhang",
+          "given": "Wuqi"
+        },
+        {
+          "family": "Liu",
+          "given": "Xuwei"
+        },
+        {
+          "family": "Guo",
+          "given": "Jinyao"
+        },
+        {
+          "family": "Zheng",
+          "given": "Mingwei"
+        },
+        {
+          "family": "Shi",
+          "given": "Qingkai"
+        },
+        {
+          "family": "Zhang",
+          "given": "Xiangyu"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3808161",
+      "arxiv_id": "2412.14399",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4405627500",
+      "url": "https://doi.org/10.1145/3808161",
+      "oa_pdf_url": "https://arxiv.org/pdf/2412.14399",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 10,
+      "abstract": "Static program analysis plays an essential role in program optimization, bug detection, and debugging. However, reliance on compilation and limited customization hinder its adoption in the real world. This paper presents a compositional neuro-symbolic approach named NESA that facilitates compilation-free and customizable static program analysis using large language models (LLMs) with mitigated hallucinations. Specifically, we propose an analysis policy language, a restricted form of Datalog, to support users decomposing a static program analysis problem into several sub-problems that target simpler syntactic or semantic properties upon smaller code snippets. The problem decomposition enables the LLMs to target more manageable semantic-related sub-problems with reduced hallucinations, while the syntactic ones are resolved by parsing-based analysis without hallucinations. An analysis policy then is evaluated with lazy and incremental prompting, which significantly mitigates the hallucinations and improves the performance. We evaluate NESA for program slicing and bug detection upon benchmark and real-world programs. Evaluation results show that while NESA supports compilation-free and customizable analysis, it can still achieve comparable and even better performance than existing techniques. In a customized taint vulnerability detection upon TaintBench, for example, NESA achieves a precision of 66.27%, a recall of 78.57%, and an F1 score of 0.72, surpassing an industrial approach by 0.20 in F1 score. NESA also detects 13 real-world memory leak bugs, which have been fixed by developers.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "AgentSAST: A Knowledge-Driven Neuro-Symbolic Agent for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Xin"
+        },
+        {
+          "family": "Zhang",
+          "given": "Dekai"
+        },
+        {
+          "family": "Zhao",
+          "given": "Lei"
+        },
+        {
+          "family": "Tan",
+          "given": "Lizhuang"
+        },
+        {
+          "family": "Xu",
+          "given": "Lijuan"
+        },
+        {
+          "family": "Zhao",
+          "given": "Dawei"
+        }
+      ],
+      "year": 2026,
+      "venue": "SSRN Electronic Journal",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7442690",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7212135959",
+      "url": "https://doi.org/10.2139/ssrn.7442690",
+      "oa_pdf_url": "https://doi.org/10.2139/ssrn.7442690",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Neuro-Symbolic Reasoning for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Zhao",
+          "given": "Yanjie"
+        },
+        {
+          "family": "Chen",
+          "given": "Hongjie"
+        },
+        {
+          "family": "Lu",
+          "given": "Li"
+        },
+        {
+          "family": "Yang",
+          "given": "Zhou"
+        },
+        {
+          "family": "Cheng",
+          "given": "Xiao"
+        },
+        {
+          "family": "Wang",
+          "given": "Haoyu"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.03963",
+      "arxiv_id": "2607.03963",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7167622286",
+      "url": "https://arxiv.org/abs/2607.03963",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.03963",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Ask a large language model (LLM) whether a pointer dereference is safe, and it can often produce a plausible justification for ``yes''. The difficulty is that a fluent justification is not a proof. This gap is precisely where automated vulnerability detection lives: deciding, for a given operation in source code, whether a memory safety defect such as a null dereference, use-after-free, or double free can actually occur. We trace the unreliability of LLM-based vulnerability detection to a mechanism, the premature discharge of safety obligations, and argue that the remedy is not better prompting but a separation of roles: the component that interprets the code must not also be the one that decides a safety obligation is met. In this paper, we present LeanGuard, a neuro-symbolic framework that assigns each act to the side equipped for it. On the neural side, an LLM serves strictly as a semantic filter over candidate facts extracted from the abstract syntax tree (AST): it prunes spurious facts and keeps the real ones, but never discharges an obligation or decides the verdict on its own. On the symbolic side, the surviving facts are compiled into a verification model in Lean 4 (a formal proof assistant whose kernel accepts a conclusion only when it is formally proved), where every dangerous operation must be matched by a guard that provably covers it in scope; absent such a guard, the obligation stays open rather than being argued away. Because a function rarely arrives with full context, this symbolic model is necessarily partial: an unproved obligation is not yet a defect. An evidence-aware adjudicator therefore weighs the symbolic and neural verdicts by the quality of each. We instantiate the framework on five CWE classes to ask how far this division of labor can be pushed.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "CHAPTER 2. NEURO-SYMBOLIC CONSTRAINED REASONING: GROUNDING LLM-DRIVEN STATIC ANALYSIS IN DIFFERENTIABLE PROGRAM INVARIANTS FOR SECURE SDLC",
+      "authors": [
+        {
+          "family": "Shvets",
+          "given": "Maksym"
+        },
+        {
+          "family": "Dorohyi",
+          "given": "Iaroslav"
+        }
+      ],
+      "year": 2026,
+      "venue": "Publishing House \"Education and Science\" s.r.o. eBooks",
+      "type": "book-chapter",
+      "venue_kind": "book",
+      "doi": "10.65237/15-2026-2",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7167574011",
+      "url": "https://doi.org/10.65237/15-2026-2",
+      "oa_pdf_url": "https://doi.org/10.65237/15-2026-2",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The increasing sophistication of cyber threats has elevated secure software development lifecycle (Secure SDLC) practices from a compliance checklist to a critical operational imperative.Organizations now embed security activities across all phases of software development, from requirements elicitation to deployment and maintenance [1].A cornerstone of Secure SDLC operations is Static Application Security Testing (SAST), which analyzes source code without execution to identify vulnerabilities such as injection flaws, buffer overflows, and insecure data flows.Traditional SAST tools, however, are predominantly rule-based scanners that match syntactic patterns against predefined vulnerability databases [2].While these tools provide deterministic outputs, they suffer from well-documented limitations: high false positive rates, inability to generalize to novel vulnerability patterns, and brittle heuristics that require extensive manual tuning for each codebase.Recent advances in LLMs have opened new possibilities for autonomous security analysis.Pre-trained on vast corpora of code and security documentation, models like CodeBERT [3] and GPT-based architectures can generate vulnerability reports, suggest patches, and even reason about complex control flows.However, pure neural approaches introduce a different set of challenges.LLMs are inherently stochastic and prone to hallucinationproducing plausiblesounding but semantically incorrect outputs that result in false positives or, worse,",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "NeuroLog: Reasoning You Can Audit -- Neuro-Symbolic Vulnerability Discovery via LLM Facts, Datalog, and SMT",
+      "authors": [
+        {
+          "family": "Rawat",
+          "given": "Sanjay"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2606.00669",
+      "arxiv_id": "2606.00669",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7163188788",
+      "url": "https://arxiv.org/abs/2606.00669",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.00669",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Vulnerability discovery on C/C++ source asks the analyst to choose between heavyweight static analysers, which need a working build before a single query runs, and free-form LLMs, which read source readily but invent details and lose track of cross-function dataflow on real codebases. We present NeuroLog, an end-to-end build-free pipeline that assigns each layer the role it is uniquely good at: an LLM extracts typed dataflow facts one function at a time; a Souffle rule mesh composes those facts into cross-function findings; a Z3 post-pass filters infeasible findings and emits a SAT model for each survivor. To go beyond pure static reasoning we also fold in runtime evidence: likely range invariants from a handful of corpus seeds tighten the SMT problem at near-zero cost. A second LLM agent reads each SAT model and writes a Python program that produces a candidate crashing input, validated by an AddressSanitizer harness. Combining static-narrowing-SMT (Saturn, Pinpoint) and Datalog-with-SMT (Formulog) is prior art; new here are an LLM-derived fact base, a no-build pipeline, and the SAT model as an artifact (input to crash synthesis) rather than a yes/no verdict. Across stb, cJSON, libxml2, an FFmpeg demuxer slice, and curl 8.3.0, NeuroLog re-discovers eight CVE-class issues end-to-end, including the CVSS-9.8 SOCKS5 heap overflow CVE-2023-38545, each ASan-confirmed. On libarchive HEAD we surface five memory-safety bugs (four previously unreported) across the cpio reader and the XAR/WARC/7zip writers; all filed upstream, several fixes merged, with the cpio use-after-free acknowledged in seven hours. Extraction takes ~37 s and $0.005 on stb; crash synthesis turned a static finding into a 102-byte stb_vorbis crash in two LLM iterations (no fuzzer); a likely-invariant filter from three Matroska seeds eliminates 13.2% of the FFmpeg-demuxer feasible set.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "QRS: A Rule-Synthesizing Neuro-Symbolic Triad for Autonomous Vulnerability Discovery",
+      "authors": [
+        {
+          "family": "Tsigkourakos",
+          "given": "George"
+        },
+        {
+          "family": "Patsakis",
+          "given": "Constantinos"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2602.09774",
+      "arxiv_id": "2602.09774",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7128605298",
+      "url": "https://arxiv.org/abs/2602.09774",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.09774",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Static Application Security Testing (SAST) tools are integral to DevSecOps pipelines, yet tools like CodeQL, Semgrep, and SonarQube remain constrained: they require expert-crafted queries, generate excessive false positives, and detect only predefined patterns. Recent work augments SAST with Large Language Models (LLMs), but typically requires fine-tuning or uses LLMs only to triage outputs rather than reason directly about vulnerability semantics. We introduce QRS (Query, Review, Sanitize), a neuro-symbolic framework that inverts this paradigm by relocating the LLM to the pipeline's generative core. Rather than filtering static-rule results, QRS employs three autonomous agents that generate CodeQL queries from a structured schema and few-shot examples, then validate findings through semantic reasoning and minimal proof-of-concept exploits, manually verified. This lets QRS surface vulnerability classes beyond predefined patterns while reducing the code volume needing audit. We evaluate QRS on complete packages rather than isolated snippets, across Python and Java ecosystems and three datasets. On the 100 most-downloaded PyPI packages, QRS reaches up to 94.06\\% verdict accuracy and surfaces 41 medium-to-high vulnerabilities: 8 received new CVEs, 4 were acknowledged via documentation updates, and the remaining 29 were previously published CVEs rediscovered from source alone. To evaluate language portability and enable direct comparison with prior work, we extend QRS to Java and evaluate it on CWE-Bench-Java, detecting 58/90 in-scope CVEs (64.44\\%) at 87.60\\% accuracy, 98.79\\% recall, and 0.857 F1 (0.794 macro-averaged) in one scan. QRS achieves these results with low time overhead and manageable token costs while handling large codebases, showing that LLM-driven query synthesis and review can complement curated rule sets and surface patterns that evade existing industry tools.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "LLMs in Software Security: A Survey of Vulnerability Detection Techniques and Insights",
+      "authors": [
+        {
+          "family": "Sheng",
+          "given": "Ze"
+        },
+        {
+          "family": "Chen",
+          "given": "Z.G."
+        },
+        {
+          "family": "Gu",
+          "given": "Shuning"
+        },
+        {
+          "family": "Huang",
+          "given": "Heqing"
+        },
+        {
+          "family": "Gu",
+          "given": "Guofei"
+        },
+        {
+          "family": "Huang",
+          "given": "Jeff"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM Computing Surveys",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3769082",
+      "arxiv_id": "2502.07049",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414437166",
+      "url": "https://doi.org/10.1145/3769082",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3769082",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 164,
+      "abstract": "Large Language Models (LLMs) are emerging as transformative tools for software vulnerability detection. Traditional methods, including static and dynamic analysis, face limitations in efficiency, false-positive rates, and scalability with modern software complexity. Through code structure analysis, pattern identification, and repair suggestion generation, LLMs demonstrate a novel approach to vulnerability mitigation. This survey examines LLMs in vulnerability detection, analyzing problem formulation, model selection, application methodologies, datasets, and evaluation metrics. We investigate current research challenges, emphasizing cross-language detection, multimodal integration, and repository-level analysis. Based on our findings, we propose solutions addressing dataset scalability, model interpretability, and low-resource scenarios. Our contributions include: (1) a systematic analysis of LLM applications in vulnerability detection; (2) a unified framework examining patterns and variations across studies; and (3) identification of key challenges and research directions. This work advances the understanding of LLM-based vulnerability detection. The latest findings are maintained at https://github.com/OwenSanzas/LLM-For-Vulnerability-Detection",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Making Small Code LLMs More Efficient for Secure Code Review with Neuro-Symbolic Fine-Tuning",
+      "authors": [
+        {
+          "family": "Akhond",
+          "given": "Mostafijur Rahman"
+        },
+        {
+          "family": "Khatun",
+          "given": "Mahmuda"
+        },
+        {
+          "family": "Uddin",
+          "given": "Gias"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.35477",
+      "arxiv_id": "2610.35477",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223926036",
+      "url": "https://arxiv.org/abs/2610.35477",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.35477",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "As AI coding assistants generate more code, the need to review it for security flaws grows. Existing approaches leave a gap: static analyzers identify program sites but offer little explanation, while language-model explanations can be difficult to verify. Small open-weight code models could make security review available without sending proprietary code to a hosted service. We study whether fine-tuning helps these models turn security evidence into explanations that developers and tools can check. We present secSemScan, which pairs a static analyzer with a locally deployable model that writes a schema-constrained security monologue naming program sites, assigning a CWE, and giving a machine-parseable verdict. We also introduce OGSM (Oracle-Grounded Security Monologue), a dataset of 1,993 C/C\\texttt{++} functions covering 22 CWEs in the taint and lifetime families. Each record pairs a function with analyzer-derived or fix-diff-derived evidence and a monologue. We fine-tune three open-weight code models in two stages, first on the output format and then on the monologue content. Because evaluation prompts supply the verdict and evidence, our results measure how well models use that information, not whether they detect vulnerabilities independently. On 355 test records, fine-tuning raised Qwen2.5-Coder-7B's verdict accuracy from 4.8\\% to 96.6\\%; DeepSeek-Coder-6.7B reached 78.9\\%, and StarCoder2-7B reached 43.7\\%. Qwen2.5-Coder-7B cited 87.5\\% of Tier~1 oracle sites, and every line it cited belonged to the oracle evidence. The results suggest that fine-tuning helps small models produce more structured, evidence-linked security reasoning.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Finding Memory Leaks in C/C++ Programs via Neuro-Symbolic Augmented Static Analysis",
+      "authors": [
+        {
+          "family": "Huang",
+          "given": "Huihui"
+        },
+        {
+          "family": "Shi",
+          "given": "Jieke"
+        },
+        {
+          "family": "Wang",
+          "given": "Bo"
+        },
+        {
+          "family": "Yang",
+          "given": "Zhou"
+        },
+        {
+          "family": "Lo",
+          "given": "David"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2603.27224",
+      "arxiv_id": "2603.27224",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7147697345",
+      "url": "https://arxiv.org/abs/2603.27224",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.27224",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Memory leaks remain prevalent in real-world C/C++ software. Static analyzers such as CodeQL provide scalable program analysis but frequently miss such bugs because they cannot recognize project-specific custom memory-management functions and lack path-sensitive control-flow modeling. We present MemHint, a neuro-symbolic pipeline that addresses both limitations by combining LLMs' semantic understanding of code with Z3-based symbolic reasoning. MemHint parses the target codebase and applies an LLM to classify each function as a memory allocator, deallocator, or neither, producing function summaries that record which argument or return value carries memory ownership, extending the analyzer's built-in knowledge beyond standard primitives such as malloc and free. A Z3-based validation step checks each summary against the function's control-flow graph, discarding those whose claimed memory operation is unreachable on any feasible path. The validated summaries are injected into CodeQL and Infer via their respective extension mechanisms. Z3 path feasibility filtering then eliminates warnings on infeasible paths, and a final LLM-based validation step confirms whether each remaining warning is a genuine bug. On eight real-world C/C++ projects totaling over 3.6M lines of code, MemHint detects 54 unique memory leaks, all confirmed or fixed, at approximately $1.76 per detected bug, compared to 19 by vanilla CodeQL and 3 by vanilla Infer.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Neuro-Symbolic Indirect-Call Analysis under Opaque Pointers",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Kaixuan"
+        },
+        {
+          "family": "Wu",
+          "given": "Bozhi"
+        },
+        {
+          "family": "Zhang",
+          "given": "Jian"
+        },
+        {
+          "family": "Wang",
+          "given": "Peixin"
+        },
+        {
+          "family": "Su",
+          "given": "Ting"
+        },
+        {
+          "family": "Liu",
+          "given": "Yang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.33547",
+      "arxiv_id": "2609.33547",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214743701",
+      "url": "https://arxiv.org/abs/2609.33547",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.33547",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Resolving indirect calls is central to call-graph construction for C. Scalable type-based analyses such as MLTA use type information in LLVM IR to associate indirect calls with functions assigned to the corresponding structure fields. However, a single pointee type often misrepresents the memory a pointer addresses, and LLVM 17 removed pointee types in favor of opaque pointers. Therefore, field-sensitive analyses lose their matching key. Recovering the erased types restores the matching key but still misses the relation that the type encoded: which functions the program assigns to the field. We present Facet, to our knowledge the first analysis that reconstructs this dispatch relation over opaque IR. Facet identifies the structure field from which an indirect call loads its function pointer. It separately recovers the functions assigned to that field through initializers, stores, and aggregate copies. It then joins the two by field identity, without requiring an end-to-end value-flow path. Facet classifies proposed call-graph changes under distinct evidence rules for edge addition and removal and records the assumption behind each refinement. An LLM decides only the residual cases among symbolically bounded candidates. One analysis yields both a recall-preserving call graph and a refined call graph. On 14 C programs, Facet reduces the mean target-set size from 25.9 to 5.2 and raises observed recall from 0.79 to 0.99. Its recovered field identities agree with typed IR at 98.1% of jointly resolved sites. Applied to bug detection, the refined call graph found 17 deep bugs in C software from nginx to the Linux kernel, three of them latent for over a decade; 12 are confirmed.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Less Is More: Measuring How LLM Involvement Affects Chatbot Accuracy in Static Analysis",
+      "authors": [
+        {
+          "family": "Narasimhan",
+          "given": "Krishna"
+        }
+      ],
+      "year": 2026,
+      "venue": "ACM SIGPLAN International Conference on Generative Programming: Concepts and Experiences (GPCE)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3814885.3816409",
+      "arxiv_id": "2604.21746",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7165657886",
+      "url": "https://doi.org/10.1145/3814885.3816409",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.21746",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models are increasingly used to make static analysis tools accessible through natural language, yet existing systems differ in how much they delegate to the LLM without treating the degree of delegation as an independent variable. We compare three architectures along a spectrum of LLM involvement for translating natural language to Joern’s Code Property Graph Query Language (): direct query generation (1), generation of a schema-constrained JSON intermediate representation (2), and tool-augmented agentic generation (3). These are evaluated on a benchmark of 20 code analysis tasks across three complexity tiers, using four open-weight models in a 2×2 design (two model families × two scales), each with three repetitions. The structured intermediate representation (2) achieves the highest result match rates across all four models, outperforming direct generation by 15–25 percentage points on large models. The agentic approach (3) ranks last on every model despite substantially higher token cost. The benefit of structured intermediates is most pronounced for large models; for small models, schema compliance becomes the bottleneck. These findings suggest that in formally structured domains, constraining the LLM’s output to a well-typed intermediate representation and delegating query construction to deterministic code yields better results than either unconstrained generation or iterative tool use.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Finding Vulnerabilities via LLM-Augmented Semantics-Aware Type-Checking",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Ruizhe"
+        },
+        {
+          "family": "Xu",
+          "given": "Meng"
+        },
+        {
+          "family": "Asokan",
+          "given": "N."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.14533",
+      "arxiv_id": "2608.14533",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7203619377",
+      "url": "https://arxiv.org/abs/2608.14533",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.14533",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Vulnerability detection via static analysis traditionally relies on security experts encoding insecure coding patterns into algorithmic rules. However, this approach often focuses on syntactic patterns and overlooks deeper semantic information in the code, such as the meanings of variable and function names. As software systems grow more complex, modeling vulnerabilities using only syntactic rules becomes increasingly challenging. In this paper, we propose a semantics-aware approach to detecting software vulnerabilities. We present SETYPE, a semantics-aware type system that can be derived directly from source code based solely on the meanings of symbols and expressions in natural language. In the SETYPE type system, both type inference and checking are performed by Large Language Models (LLMs), and a failed type check indicates a potential vulnerability. We prototype PYSETYPE to demonstrate the feasibility of SETYPE for detecting vulnerabilities in Python web applications. Our evaluation on real-world applications achieves 87% detection precision and 88% detection accuracy. Using PYSETYPE, we identified 15 potential zero-day vulnerabilities, nine of which were confirmed by developers.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Securing the Dark Matter: A Semantic-Enhanced Neuro-Symbolic Framework for Supply Chain Analysis of Opaque Industrial Software",
+      "authors": [
+        {
+          "family": "Ning",
+          "given": "Bowei"
+        },
+        {
+          "family": "Zong",
+          "given": "Xuejun"
+        },
+        {
+          "family": "Lian",
+          "given": "Lian"
+        },
+        {
+          "family": "He",
+          "given": "Kan"
+        },
+        {
+          "family": "Sun",
+          "given": "Yifei"
+        },
+        {
+          "family": "Lei",
+          "given": "Yuxiang"
+        },
+        {
+          "family": "Vasilev",
+          "given": "Plamen"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.07737",
+      "arxiv_id": "2605.07737",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160828116",
+      "url": "https://arxiv.org/abs/2605.07737",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.07737",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Automated vulnerability detection in critical-infrastructure software confronts a fundamental barrier: industrial software is routinely deployed as stripped, symbol-free binaries that deprive conventional Software Composition Analysis of the source-level transparency it requires. Existing binary analysis techniques close this Semantic Gap only partially -- graph-based detectors preserve structural syntax but discard behavioral semantics, while large language models supply rich semantic cues at the cost of unstable, hallucination-prone inference. To address this gap, we present a semantic-enhanced neuro-symbolic framework that reconstructs behavioral semantics directly from opaque binaries and performs tractable global risk reasoning. Three tightly coupled mechanisms drive this capability: (1) abstract interpretation combined with a reflexive prompting pipeline that structurally constrains a local LLM agent, effectively suppressing hallucinations; (2) a surjective transformation that compresses raw Code Property Graphs into typed Software Supply Chain Knowledge Graphs amenable to scalable reasoning; and (3) a domain-adapted Graphormer that captures long-range vulnerability propagation, augmented by embedding-space subgraph matching to uncover zero-day and APT-style attack patterns. Evaluated across three benchmarks of increasing domain specificity, the framework consistently outperforms all baselines on detection accuracy, semantic lifting fidelity, and APT fingerprint matching. Deployment on a hybrid virtual-physical testbed incorporating production-grade hardware from five ICS vendors further confirms strong detection coverage of high-impact CVEs while substantially reducing false-positive rates relative to leading commercial tools.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Retrieval-Augmented Taint Specification Inference for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Baicheng"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 7th International Seminar on Artificial Intelligence, Networking and Information Technology (AINIT)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ainit70033.2026.11557646",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ainit70033.2026.11557646",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Assisted Static Taint Analysis for UEFI Management-Module Trust Boundaries",
+      "authors": [
+        {
+          "family": "Liu",
+          "given": "Yi"
+        },
+        {
+          "family": "Cui",
+          "given": "Baojiang"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 8th International Conference on Electronic Engineering and Informatics (EEI)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/eei70303.2026.11640588",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/eei70303.2026.11640588",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "CITA: Enhancing Multi-Binary Vulnerability Detection in IoT Firmware via Path-Aware Static Taint Analysis",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Huisiyao"
+        },
+        {
+          "family": "Qu",
+          "given": "Haipeng"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 5th International Conference on Intelligent Communications and Computing (ICICC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icicc66840.2025.11199548",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icicc66840.2025.11199548",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Interleaving static analysis and LLM prompting with applications to error specification inference",
+      "authors": [
+        {
+          "family": "Chapman",
+          "given": "Patrick J."
+        },
+        {
+          "family": "Rubio-González",
+          "given": "Cindy"
+        },
+        {
+          "family": "Thakur",
+          "given": "Aditya V."
+        }
+      ],
+      "year": 2025,
+      "venue": "International Journal on Software Tools for Technology Transfer",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10009-025-00780-7",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1007/s10009-025-00780-7",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 9,
+      "abstract": "Abstract This paper presents a new approach to improve static program analysis using Large Language Models (LLMs). The approach interleaves calls to the static analyzer and queries to the LLM. The query to the LLM is constructed based on intermediate results from the static analysis, and subsequent static analysis uses the results from the LLM query. We apply our approach to the problem of error-specification inference : given systems code written in C, infer the set of values that each function can return on error. Such error specifications aid in program understanding and can be used to find error-handling bugs. We implemented our approach by incorporating LLMs into EESI, the state-of-the-art static analysis for error-specification inference. Compared to EESI, our approach achieves higher recall (from an average of 52.55% to 77.83%) and higher F1-score (from an average of 0.612 to 0.804) while maintaining precision (from an average of 86.67% to 85.12%) on real-world benchmarks such as Apache HTTPD and MbedTLS. We also conducted experiments to understand the sources of imprecision in our LLM-assisted analysis as well as the impact of LLM nondeterminism on the analysis results.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "STaint: Detecting Second-Order Vulnerabilities in PHP Applications with LLM-Assisted Bi-Directional Static Taint Analysis",
+      "authors": [
+        {
+          "family": "Ji",
+          "given": "Yuchen"
+        },
+        {
+          "family": "Cao",
+          "given": "Hongchen"
+        },
+        {
+          "family": "He",
+          "given": "Jingzhu"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 40th IEEE/ACM International Conference on Automated Software Engineering (ASE)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ase63991.2025.00347",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ase63991.2025.00347",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "CPGHunter: LLM-guided semantic modeling for scalable vulnerability detection via taint analysis",
+      "authors": [
+        {
+          "family": "Hou",
+          "given": "Anran"
+        },
+        {
+          "family": "Su",
+          "given": "Bingjun"
+        },
+        {
+          "family": "Niu",
+          "given": "Weina"
+        },
+        {
+          "family": "Hou",
+          "given": "Qinsheng"
+        },
+        {
+          "family": "Wu",
+          "given": "Honghua"
+        },
+        {
+          "family": "Zhang",
+          "given": "Xiaosong"
+        }
+      ],
+      "year": 2026,
+      "venue": "Empirical Software Engineering",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10664-026-10842-2",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1007/s10664-026-10842-2",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "LLM Meets Bounded Model Checking: Neuro-symbolic Loop Invariant Inference",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Guangyuan"
+        },
+        {
+          "family": "Cao",
+          "given": "Weining"
+        },
+        {
+          "family": "Yao",
+          "given": "Yuan"
+        },
+        {
+          "family": "Wei",
+          "given": "Hengfeng"
+        },
+        {
+          "family": "Chen",
+          "given": "Taolue"
+        },
+        {
+          "family": "Ma",
+          "given": "Xiaoxing"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 39th IEEE/ACM International Conference on Automated Software Engineering",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3691620.3695014",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3691620.3695014",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 30,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "Neuro-Symbolic SQL Generation for Finance: Constraining LLM Outputs via Software Logic",
+      "authors": [
+        {
+          "family": "Cullen",
+          "given": "Margaret"
+        },
+        {
+          "family": "Carrington",
+          "given": "James"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7135898",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7135898",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The application of large language models (LLMs) to domain-specific text-to-SQL translation faces persistent challenges in accuracy, consistency, and rule adherence, particularly in highly regulated fields such as finance. While LLMs exhibit robust natural language understanding, their generative nature often produces syntactically valid but semantically incorrect or policyviolating queries, especially when confronted with complex financial schemas, temporal aggregates, and compliance-sensitive data. This paper introduces a neuro-symbolic framework for SQL generation that constrains LLM outputs through an integrated software logic layer. Our approach couples a fine-tuned decoder-only transformer with a symbolic validator that enforces schema dependencies, data-type correctness, and financial business rules-such as fiscal-period boundaries, accrual-based accounting logic, and regulatory reporting thresholds-via a deterministic intermediate representation. We implement a bidirectional feedback mechanism where symbolic runtime errors are translated into contextual prompts for iterative refinement, reducing hallucinated columns and join paths without retraining. Extensive experiments on a benchmark of over 5,000 natural-language financial queries, spanning income statements, cash-flow patterns, and risk exposure tables, demonstrate that our hybrid system improves execution accuracy by 22.7% over the base LLM and reduces compliance violations by 41.3%, while maintaining latency suitable for interactive analytical tools. We further show that the symbolic layer generalizes to unseen query templates and schema variations, offering a practical pathway for deploying trustworthy generative AI in production-grade financial databases.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "From Regulatory Text to Decision Intelligence: A Neuro-Symbolic LLM Framework for Maritime Decarbonization",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Jing"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7585197",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7585197",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Maritime regulations increasingly determine fuel choices, compliance costs, and operational decisions for ship operators, but they are written as legal text rather than executable rules. Using large language models (LLMs) to interpret these regulations does not solve this problem that a model may understand a provision correctly while missing a condition, exception, or dependency that changes the resulting compliance decision. This study develops a neuro-symbolic framework that converts maritime regulations into explicit, source-linked rules and executes them deterministically against vessel and voyage data. The framework is evaluated using 94 expert-audited clauses from the European Union Emission Trading System (EU ETS), FuelEU Maritime, and International Maritime Organization (IMO) decarbonization frameworks. Controlled experiments show that progressively adding regulatory context, structured schema guidance, and symbolic-rule guidance improves regulatory reconstruction accuracy by 15.08 percentage points relative to a clause-only LLM baseline. More importantly, a FuelEU Maritime decision experiment shows that reliable compliance decisions require both accurate rule construction and deterministic symbolic execution. Direct LLM execution failed even with correct regulatory rules, while incorrectly constructed rules propagated through the symbolic executor and changed the selected compliance mechanism, whereas deterministic execution removed these execution inconsistencies. By separating regulatory interpretation, rule construction, and execution, the neuro-symbolic framework makes such errors traceable to their regulatory source and allows targeted correction of an upstream error to restore the reference decision without modifying the downstream executor. The results show that reliable regulatory decision support requires separating what a regulation means from how it is executed. The proposed framework makes regulatory decisions computationally executable, traceable to their legal sources, and auditable when errors occur, providing a practical bridge between maritime regulation and operational compliance decision-making.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "Structural Preservation Assessment of LLM-Based Decompilation for Static Taint Analysis",
+      "authors": [
+        {
+          "family": "SUGIHARA",
+          "given": "Tasuku"
+        },
+        {
+          "family": "TAKITA",
+          "given": "Makoto"
+        },
+        {
+          "family": "SHITAMUKAI",
+          "given": "Mutsuki"
+        },
+        {
+          "family": "KUZUNO",
+          "given": "Hiroki"
+        },
+        {
+          "family": "KAKEI",
+          "given": "Shohei"
+        },
+        {
+          "family": "SHIRAISHI",
+          "given": "Yoshiaki"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEICE Transactions on Information and Systems",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1587/transinf.2025edt0001",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1587/transinf.2025edt0001",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "Augmenting Multi-technique Static Analysis with Large Language Models: A Neuro-symbolic Approach to Smart Contract Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Junxiang"
+        },
+        {
+          "family": "Song",
+          "given": "Fu"
+        },
+        {
+          "family": "Zhang",
+          "given": "Miaomiao"
+        },
+        {
+          "family": "Du",
+          "given": "Bowen"
+        },
+        {
+          "family": "Pei",
+          "given": "Rongcan"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on Software Engineering",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832222",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1145/3832222",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Smart contracts facilitate and enforce agreements between untrusted parties without trusted intermediaries, but vulnerabilities within contracts can cause severe damage once exploited. Various analysis techniques have been proposed for vulnerability detection, but they are typically limited to specific vulnerability types. While recent frameworks employ aggregation to broaden detection capacity, they often accumulate false positives due to loose integration that fails to resolve underlying conflicts. Meanwhile, the semantic reasoning capacity of large language models (LLMs) has shown promise in detecting vulnerabilities, despite inherent reasoning bottlenecks and hallucinations. Recognizing these challenges, in this work, we propose a novel neuro-symbolic approach, named Ensemble LLM-Assisted Static Analysis (ELSA). ELSA comprises two key modules, namely, LLM-assisted static analysis and analyzer ensemble (the ensemble of multiple LLM-assisted static analyzers), each incorporating two distinct strategies. The LLM-assisted static analysis augments individual analysis techniques with constraint-guided neural semantic reasoning, while the analyzer ensemble resolves conflicting outputs to distill a robust consensus. We evaluate ELSA on a comprehensive benchmark, including three open-source datasets and additional self-constructed Zero-Knowledge Proof-based smart contracts whose complexity poses unique challenges to static analysis. Experimental results demonstrate that our approach achieves an overall improvement of at least 17% over baselines and advanced mainstream approaches, effectively bridging semantic gaps and synergizing the complementary advantages of different analyzers. Furthermore, an ablation study and fine-grained analysis are conducted to investigate the key factors contributing to overall performance gains.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "SentinelCMS: Proactive Vulnerability Detection in CMS Plugins Using Static Taint Analysis and Bidirectional LSTM",
+      "authors": [
+        {
+          "family": "Tashenova",
+          "given": "Zhuldyz"
+        },
+        {
+          "family": "Aitmagambetuly",
+          "given": "Aisultan"
+        },
+        {
+          "family": "Bayegizova",
+          "given": "Aigulim"
+        },
+        {
+          "family": "Santeyeva",
+          "given": "Saya"
+        },
+        {
+          "family": "Abdugulova",
+          "given": "Zhanat"
+        },
+        {
+          "family": "Amanzholova",
+          "given": "Shirin"
+        },
+        {
+          "family": "Kerim",
+          "given": "Akerke"
+        }
+      ],
+      "year": 2026,
+      "venue": "Applied Sciences",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.3390/app16115471",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.3390/app16115471",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Content Management Systems (CMS) have fundamentally transformed the digital landscape, powering a substantial majority of the modern web. However, the ubiquity of platforms such as WordPress, Joomla, and Drupal has made them primary targets for cybercriminals. The central security weakness lies not within the core software but within the complex ecosystem of third-party extensions and themes, which account for the vast majority of reported vulnerabilities. This article presents a comprehensive analysis of the current CMS security landscape, synthesizing empirical data on the prevalence of outdated components and the efficacy of existing scanning tools. Based on a critical review of recent literature and an analysis of common attack vectors, the study identifies the fundamental limitations of traditional, reactive security paradigms that rely on signature-based detection. To address the critical gap in detecting zero-day threats, this research proposes and implements a proactive vulnerability detection system—SentinelCMS—combining static Taint Analysis with a Bidirectional LSTM neural network classifier. The system was validated on an augmented dataset of 600 PHP code samples using 5-fold cross-validation. An experimental proof of concept validates that static analysis of plugin source code can extract semantic features to accurately classify vulnerabilities into specific categories (SQL Injection, Cross-Site Scripting, Remote Code Execution) with an overall accuracy of 93%. The implementation of this system aims to shift the cybersecurity paradigm from incident response to threat prevention, thereby significantly enhancing the resilience of web resources.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "Ray-LLM: Suppressing Runge’s Phenomenon in Data-SparseFisheye Calibration via Neuro-Symbolic Synthetic Anchoring",
+      "authors": [
+        {
+          "family": "Park",
+          "given": "Inho Jake"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21203/rs.3.rs-8645116/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21203/rs.3.rs-8645116/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Standard fisheye calibration pipelines, utilizing the Kannala-Brandt model, rely on minimizing the Root-Mean-Square (RMS) reprojection error. While RMS is the statistically optimal estimator under Gaussian noise assumptions, its effectiveness is strictly conditional on the spatial distribution of observations. In practice, acquiring dense feature points at the lens periphery is notoriously labor-intensive, leading to unavoidable data sparsity. We demonstrate that applying the standard RMS objective to such sparse datasets induces a critical failure mode: the solver minimizes global error by overfitting the central region, resulting in unconstrained polynomial oscillations (Runge’s phenomenon) at the edges. To bridge this Data-Solver Gap, we propose Ray-LLM, a physics-informed active calibration framework. Crucially, we maintain the standard RMS optimization pipeline without modifying the solver. Instead, our method employs a Neuro-Symbolic Agent that diagnoses parameter instability and autonomously injects 'Physically-Anchored' synthetic data into sparse zones. This approach effectively acts as a dynamic geometric regularizer, constraining the polynomial coefficients to adhere to physical laws. Experimental results confirm that Ray-LLM enables the unmodified RMS solver to achieve superior geometric rectilinearity and stability in data-starved regimes, offering a labor-free alternative to exhaustive manual data collection.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 28,
+      "in_project": null
+    },
+    {
+      "title": "Usage of Static Taint Analysis and Auto Rule Generation for Smart Contract Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Son",
+          "given": "Ki Soo"
+        },
+        {
+          "family": "Shin",
+          "given": "Jinmyeong"
+        },
+        {
+          "family": "Hwang",
+          "given": "Seon-Jin"
+        },
+        {
+          "family": "Choi",
+          "given": "Yoon-Ho"
+        }
+      ],
+      "year": 2024,
+      "venue": "2024 15th International Conference on Information and Communication Technology Convergence (ICTC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ictc62082.2024.10827343",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ictc62082.2024.10827343",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 29,
+      "in_project": null
+    }
+  ]
+}

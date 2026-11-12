@@ -1,12 +1,12 @@
 ---
 key: tran2026vibe
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + comparative evaluation of 16 LLMs in one agent harness; browser-agent (LLM-judge) evaluation with human-alignment and variance studies
 dataset: Vibe Code Bench, 100 NL web-app specifications (50 validation, 50 test) with 964 browser workflows / 10,131 substeps
 sample_size: 50 test apps x 16 models (1 generation each); alignment panel 18 apps, 1,401 substeps, 3 human reviewers; variance panel 6 apps x 3 models x 5 runs
 metrics: workflow accuracy (workflow passes if >=90% substeps pass, LLM browser-agent judge), cost, latency, pairwise substep agreement
-main_finding: Best model (GPT-5.3-Codex) passes 61.8% of browser workflows for apps built from scratch; evaluator choice changes step-level agreement from 31.8% to 93.6%.
+main_finding: Best model (GPT-5.3-Codex) passes 61.8% of browser workflows for apps built from scratch; judge–human step agreement ranges 31.8–87.5% by evaluator model (mean 36.1% GPT-5.2 vs 86.4% Claude Sonnet 4.5).
 relevance: high
 analysed: 2026-11-11
 ---
@@ -21,6 +21,8 @@ analysed: 2026-11-11
 - Year / venue: 2026, Proceedings of the ACM Conference on AI and Agentic Systems (published)
 - DOI: 10.1145/3786335.3813180 · URL: https://doi.org/10.1145/3786335.3813180
 - Source text: `fulltext.txt` (page refs = PDF page index)
+
+Venue note: the metadata lists the ACM proceedings version, but the PDF analysed is **arXiv v3** (arXiv:2603.04601v3, 13 May 2026; p. 1), which carries no ACM header; all page refs are arXiv pages, and the ACM version was not compared. Version drift is visible: the `metadata.json` abstract says "50 public validation", whereas the arXiv v3 abstract says "50 private validation" (p. 1) — this bears on the private/public inconsistency noted in §4 and §9.
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -47,7 +49,7 @@ No formal RQs or hypotheses. Stated contributions (p. 1–2):
 - Data availability (public? link?): harness fork and all trajectories/generated apps released on GitHub (p. 11). [A] Whether the test-split specifications and workflows are public is not stated; the text calls validation "private" (p. 1, p. 3) while Table 3 labels it "Validation (public)" (p. 4). [V]
 
 ## 5. Experimental setup
-- Procedure, settings, hyper-parameters, tools: per-model temperature, top-p, reasoning level and vision flag listed (p. 15, Table 15); highest reasoning level and provider default temperature (p. 5); GLM-5, MiniMax M2.5 and DeepSeek V3.2 ran without usable browser vision (p. 5, p. 15). [V] Same retry policy for all runs (p. 15). [V] Evaluator hyper-parameters (timeouts, step caps, 90% threshold) in Table 16 (p. 15). [V] Main results use one generation per model per app (the variance study is the only multi-run experiment, p. 8). [V]
+- Procedure, settings, hyper-parameters, tools: per-model temperature, top-p, reasoning level and vision flag listed (p. 15, Table 15); highest reasoning level and provider default temperature (p. 5); GLM-5, MiniMax M2.5 and DeepSeek V3.2 ran without usable browser vision (p. 5, p. 15). [V] Same retry policy for all runs (p. 15). [V] Evaluator hyper-parameters (timeouts, step caps, 90% threshold) in Table 16 (p. 15). [V] Main results appear to use one generation per model per app [I]: the paper never states the number of generations; this is inferred from ± SE being defined across the 50 test apps (p. 5) and from the variance panel being the only experiment described with repeated generations (p. 8).
 - Code availability: harness and artifacts on GitHub (p. 11). [A] Full generation system prompt, an example spec and an example UI-test file are printed (p. 16–23). [V]
 - Evaluator-reliability design: (a) variance panel — 6 specs x 3 source models x 5 independent generations (90 generations), and the same frozen apps re-evaluated 5 times (90 evaluations) (p. 8); (b) human alignment — 6 tasks x 3 source models = 18 apps, 1,401 substeps; each app evaluated by two of three human evaluators who used only the browser, were calibrated on a practice question and were blind to model and to other evaluators' scores; four evaluator models each ran once per app; no adjudication (p. 8–9). [V]
 
@@ -76,12 +78,13 @@ No formal RQs or hypotheses. Stated contributions (p. 1–2):
 
 ## 9. Limitations we identified
 - [I] Functional fidelity is judged by an LLM browser agent, and the canonical evaluator (Claude Sonnet 4.5) belongs to the same family as several evaluated models (Claude Opus/Sonnet/Haiku). Self-preference or style-familiarity bias is not tested: alignment was measured only on apps from Gemini 3.1 Pro, GPT-5.2 and Claude Sonnet 4.6 (p. 8–9), and per-source-model agreement is not reported.
-- [I] Agreement is raw percent agreement with no chance correction (p. 9). If most substeps pass or most fail, high percent agreement can coexist with low kappa. The very low GPT-5.2 agreement (31.8–48.0% with every other evaluator) is unexplained; agreement this far below the 84–94% of the other pairs implies GPT-5.2 labels largely the opposite way (e.g. mostly "fail" where others say "pass"), which points to a systematic problem (such as runs without structured output counted as fails) rather than ordinary judgment disagreement. Based on Table 10 (p. 9) and failure semantics (p. 5).
+- [I] Agreement is raw percent agreement with no chance correction (p. 9). If most substeps pass or most fail, high percent agreement can coexist with low kappa. The very low GPT-5.2 agreement (31.8–48.0% with every other evaluator) is unexplained; agreement this far below the 84–94% of the other pairs may mean GPT-5.2 labels largely the opposite way, possibly through a systematic problem rather than ordinary judgment disagreement. One cue in the paper is consistent with this: GPT-5.2 evaluation costs $0.093 per workflow vs $1.48 for Sonnet 4.6 (p. 9), which would fit very short or terminated runs that are scored as fails when no structured output is returned (p. 5). The paper does not show this; it is speculation. Based on Table 10 (p. 9), costs (p. 9) and failure semantics (p. 5).
 - [I] The alignment panel is small (18 apps from 6 tasks) relative to 50 test apps x 16 models; agreement is reported at substep level, while the leaderboard uses workflow-level pass with a 90% threshold. Workflow-level human–model agreement is not reported (p. 5, p. 9).
-- [I] Main leaderboard numbers come from a single generation per model per app; ± SE reflects variation across apps, not across runs (p. 5, p. 8). Generation variance is large (SE up to 5 pp on the 6-app panel, p. 8), so adjacent ranks (e.g. GPT-5.2 vs Opus 4.6 Thinking, both 53.50) are not separable.
+- [I] Main leaderboard numbers apparently come from a single generation per model per app (not stated; inferred from the SE definition, p. 5, and the separate variance panel, p. 8); ± SE reflects variation across apps, not across runs (p. 5, p. 8). Generation variance is large (SE up to 5 pp on the 6-app panel, p. 8), so adjacent ranks (e.g. GPT-5.2 vs Opus 4.6 Thinking, both 53.50) are not separable.
 - [I] Specifications and workflows were drafted by GPT-5 (p. 3); a possible advantage for OpenAI models (top rank) is not examined.
 - [I] The self-testing correlation is across only 16 models and is observational; the system prompt itself demands browser testing (p. 16, p. 19), so browser-call counts may reflect instruction following as much as testing skill. Identical r and partial r (both 0.72, p. 7) are reported without explanation.
 - [I] Difficulty tiers are defined from the evaluated models' own pass rates (p. 6), so tier results are partly circular.
+- [I] Subgroup cells are too small for comparison: in the test split Hard = 8 apps, Email + Stripe = 7, Email only = 4, Stripe only = 2 (Tables 5–6, p. 6); per-tier and per-integration averages rest on a handful of apps each.
 - [I] The error taxonomy procedure (who labelled, how many failures) is not described (p. 8).
 - [I] Authors are mostly from Vals AI, a company (p. 1); funding and conflicts are not reported. Not a model vendor, so no direct ranking conflict is visible.
 - [I] The validation split is called "private" in the text (p. 1, p. 3) but "public" in Table 3 (p. 4); public availability of test tasks (and thus future contamination risk) is unclear.
@@ -91,7 +94,7 @@ No formal RQs or hypotheses. Stated contributions (p. 1–2):
 - External (generalisability of sample/context): 100 expert-written greenfield specs, one stack, web only (p. 3, p. 9) [V]. Tasks start from a text spec, not from an existing app's UI or behaviour, so results transfer to reconstruction only indirectly [I].
 - Construct (do metrics measure the concept?): browser workflows measure user-visible functional behaviour and are implementation-agnostic (p. 3–4) [V]; they do not capture code quality, security, visual fidelity or maintainability (p. 9) [V]. The 90% substep threshold is a design choice without sensitivity analysis [I] (p. 5).
 - Statistical conclusion (power, multiple comparisons, variance): SE across 50 apps reported; variance decomposition on 6 apps x 3 models (p. 5, p. 8) [V]; no significance tests; correlations with n = 16 [I].
-- Reproducibility (data/code/setup reported?): unusually complete — prompts, hyper-parameters, evaluator settings, harness and trajectories released (p. 11, p. 15–23) [V]; evaluator uses LLM sampling without fixed seed ("none set in evaluator code", p. 15) [V].
+- Reproducibility (data/code/setup reported?): unusually complete — prompts, hyper-parameters, evaluator settings, harness and trajectories released (p. 11, p. 15–23) [V]; evaluator uses provider-default sampling parameters, with no override set in the evaluator code (Table 16, p. 15) [V]; seeds are not reported.
 
 ## 11. Future research directions
 - Stated by authors [A]: extending "zero-to-one" evaluation to CLI, desktop and mobile apps; testing other harnesses and stacks; measuring readability, visual design and security (implied by the limitations list, p. 9). Treat evaluator choice as "a first-class reporting concern" (p. 9).
@@ -105,7 +108,7 @@ No formal RQs or hypotheses. Stated contributions (p. 1–2):
 | RQ | Claim | Page | Label | Strength |
 |---|---|---|---|---|
 | RQ2 | Best of 16 models (GPT-5.3-Codex) passes 61.77 ± 4.71% of browser workflows for web apps built from scratch from a text spec (50 test apps) | 6 | V | moderate |
-| RQ2 | Functional success drops with difficulty (avg 44.3% easy vs 6.0% hard) and with external services (34.2% none vs 13.5% email + Stripe) | 6 | V | moderate |
+| RQ2 | Functional success drops with difficulty (avg 44.3% easy, n = 23 apps, vs 6.0% hard, n = 8) and with external services (34.2% none, n = 37, vs 13.5% email + Stripe, n = 7); subgroups are tiny and tiers are defined from the models' own pass rates | 6 | V | weak |
 | RQ2 | Most failed workflows (apps that started) are missing features (46.7%) or authorization problems (20.4%) | 8 | V | weak |
 | RQ1 | Browser self-testing during generation correlates with accuracy across 16 models (r = 0.72), edit volume does not (r = 0.09) | 7 | V | weak |
 | RQ4 | Functional fidelity is scored by an LLM browser agent (Claude Sonnet 4.5) running pre-authored NL workflows; workflow passes at ≥90% substeps | 4 | V | moderate |

@@ -1,0 +1,1666 @@
+{
+  "query": "LLM hallucinated dependencies nonexistent library import",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:51:00+06:00",
+  "raw_hits": 50,
+  "unique": 42,
+  "errors": {},
+  "results": [
+    {
+      "title": "Correct Code, Vulnerable Dependencies: A Large Scale Measurement Study of LLM-Specified Library Versions",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Chengjie"
+        },
+        {
+          "family": "Wu",
+          "given": "Jingzheng"
+        },
+        {
+          "family": "Ling",
+          "given": "Xiang"
+        },
+        {
+          "family": "Luo",
+          "given": "Tianyue"
+        },
+        {
+          "family": "Zhao",
+          "given": "Chen"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.06279",
+      "arxiv_id": "2605.06279",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160631089",
+      "url": "https://arxiv.org/abs/2605.06279",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.06279",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models (LLMs) are now largely involved in software development workflows, and the code they generate routinely includes third-party library (TPL) imports annotated with specific version identifiers. These version choices can carry security and compatibility risks, yet they have not been systematically studied. We present the first large-scale measurement study of version-level risk in LLM-generated Python code, evaluating 10 LLMs on PinTrace, a curated benchmark of 1,000 Stack Overflow programming tasks. LLMs tend to specify version identifiers when directly prompted at 26.83%-95.18%, while down to 6.45%-59.19% in creating a manifest file directly. Among the specified versions, 36.70%-55.70% of tasks contain at least one known CVE, and 62.75%-74.51% of them carry Critical or High severity ratings. In 72.27%-91.37% of cases, the associated CVEs were publicly disclosed before the model's knowledge cutoff. The statistics show all models converge on the same small set of risky release versions, indicating a systemic bias rather than isolated model error. Static compatibility rates range from 19.70% to 63.20%, with installation failure as the dominant cause. The dynamic test cases confirm the pattern by 6.49%-48.62% pass rates. Further experiments confirm that these failures are attributable to version selection rather than code quality, and that externally anchored version constraints substantially reduce both vulnerability exposure and compatibility failures. Our findings reveal LLM version selection as a first-class, previously overlooked risk surface in LLM-based development. We disclosed these findings to the community of the evaluated models, and several confirmed the issue. All the code and dataset have been released for open science at https://github.com/dw763j/PinTrace.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "Understanding and Mitigating Library-Related Issues in LLM-Generated Code",
+      "authors": [
+        {
+          "family": "Majdoub",
+          "given": "Yacine"
+        },
+        {
+          "family": "Hamid",
+          "given": "Rinad"
+        },
+        {
+          "family": "Charrada",
+          "given": "Eya Ben"
+        },
+        {
+          "family": "Abdellatif",
+          "given": "Ahmad"
+        },
+        {
+          "family": "Touati",
+          "given": "Haifa"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.00622",
+      "arxiv_id": "2610.00622",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7216459436",
+      "url": "https://arxiv.org/abs/2610.00622",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.00622",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Software practitioners increasingly rely on Large Language Models (LLMs) to generate code that integrates external libraries. However, LLMs often produce incorrect library usage, such as invalid imports, outdated API calls, and hallucinated dependencies, leading to compilation or runtime failures that reduce the reliability of AI-assisted software development. In this paper, we propose an agentic approach to mitigate libraryrelated errors in LLM-generated code. More specifically, we first conduct an exploratory study to characterize the library-related issues produced by LLMs. Our analysis of 100 LLM-generated code files reveals that 84% of generated files contain at least one library-related error, with recurring patterns including incorrect import paths, missing imports, hallucinated libraries, deprecated library usage, and unused imports. Based on these findings, we design an agentic approach that integrates task analysis, documentation grounding, code generation, and automated validation to improve library usage during code synthesis. We evaluate our approach on 300 code generation tasks derived from realworld implementations of rapidly evolving Python frameworks, including LangChain and AutoGen, across five LLMs: GPT-5, DeepSeek-V3, Qwen3, Mistral, and Llama 3. The results show that our approach consistently improves code generation quality across all evaluated models, reducing library-related errors by 38.1% - 54.6% and increasing code correctness by up to 16%.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Code-Aware Prompting: A Study of Coverage-Guided Test Generation in Regression Setting using LLM",
+      "authors": [
+        {
+          "family": "Ryan",
+          "given": "Gabriel"
+        },
+        {
+          "family": "Jain",
+          "given": "Siddhartha"
+        },
+        {
+          "family": "Shang",
+          "given": "Mingyue"
+        },
+        {
+          "family": "Wang",
+          "given": "Shiqi"
+        },
+        {
+          "family": "Ma",
+          "given": "Xiaofei"
+        },
+        {
+          "family": "Ramanathan",
+          "given": "Murali Krishna"
+        },
+        {
+          "family": "Ray",
+          "given": "Baishakhi"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3643769",
+      "arxiv_id": "2402.00097",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4400582872",
+      "url": "https://doi.org/10.1145/3643769",
+      "oa_pdf_url": "https://arxiv.org/pdf/2402.00097",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 187,
+      "abstract": "Testing plays a pivotal role in ensuring software quality, yet conventional Search Based Software Testing (SBST) methods often struggle with complex software units, achieving suboptimal test coverage. Recent work using large language models (LLMs) for test generation have focused on improving generation quality through optimizing the test generation context and correcting errors in model outputs, but use fixed prompting strategies that prompt the model to generate tests without additional guidance. As a result LLM-generated testsuites still suffer from low coverage. In this paper, we present SymPrompt, a code-aware prompting strategy for LLMs in test generation. SymPrompt’s approach is based on recent work that demonstrates LLMs can solve more complex logical problems when prompted to reason about the problem in a multi-step fashion. We apply this methodology to test generation by deconstructing the testsuite generation process into a multi-stage sequence, each of which is driven by a specific prompt aligned with the execution paths of the method under test, and exposing relevant type and dependency focal context to the model. Our approach enables pretrained LLMs to generate more complete test cases without any additional training. We implement SymPrompt using the TreeSitter parsing framework and evaluate on a benchmark challenging methods from open source Python projects. SymPrompt enhances correct test generations by a factor of 5 and bolsters relative coverage by 26% for CodeGen2. Notably, when applied to GPT-4, SymPrompt improves coverage by over 2× compared to baseline prompting strategies.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Slopsquatting and package-hallucination in LLMS",
+      "authors": [
+        {
+          "family": "SINGH",
+          "given": "ANANYA PRATAP"
+        }
+      ],
+      "year": 2026,
+      "venue": "International Journal of Innovative Research in Technology",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.64643/ijirtv12i7-191660-459",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7126247798",
+      "url": "https://doi.org/10.64643/ijirtv12i7-191660-459",
+      "oa_pdf_url": "https://ijirt.org/publishedpaper/IJIRT191660_PAPER.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Explore the article titled Slopsquatting and package-hallucination in LLMS from IJIRT Volume 12, Issue no. This study evaluates the effectiveness of teaching programs on waste management knowledge among women.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "LLM-based Low-Level Integration Test Generation for Java",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Qinghua"
+        },
+        {
+          "family": "Wang",
+          "given": "Guancheng"
+        },
+        {
+          "family": "Briand",
+          "given": "Lionel"
+        },
+        {
+          "family": "Guo",
+          "given": "Zhaoqiang"
+        },
+        {
+          "family": "Liu",
+          "given": "Kui"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.26851",
+      "arxiv_id": "2605.26851",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7162520851",
+      "url": "https://arxiv.org/abs/2605.26851",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.26851",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Large language models (LLMs) show promise for automated test generation, but most approaches target unit tests with mocked dependencies. Low-level integration testing instead exercises a class with its real, in-project dependencies, exposing faults involving object construction, API call sequences, and component interactions. Generating such tests is challenging because LLMs may lack project-specific knowledge (not knowing) or violate provided constraints (not following). We present IntTestGen, an LLM-based approach that combines context-enriched generation with constraint-enforced fixing. It mines dependency usage patterns from project code to guide test generation, then applies symbol-, protocol-, and iteration-level constraints during repair using a ClassIndex, a Markov typestate model, and experience memory. We evaluate IntTestGen against the state-of-the-art LLM-based baseline PANTA and search-based baseline EvoSuite on Defects4J and Deps4J, a new post-cutoff benchmark of recent Java repositories. Across the two benchmarks, IntTestGen improves line coverage by 19.99 and 22.69 percentage points, branch coverage by 24.90 and 15.78 points, and mutation score by 13.67 and 0.17 points, respectively. It also covers 378 and 55 additional lines of dependency code. Ablation results confirm that all major components contribute to performance.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "StateMirror: Pre-Execution Detection of Hallucinated Tool Calls in Coding Agents",
+      "authors": [
+        {
+          "family": "Shan",
+          "given": "Shiwen"
+        },
+        {
+          "family": "Huo",
+          "given": "Yintong"
+        },
+        {
+          "family": "Wu",
+          "given": "Zhiying"
+        },
+        {
+          "family": "Su",
+          "given": "Yuxin"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.32648",
+      "arxiv_id": "2610.32648",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7223659238",
+      "url": "https://arxiv.org/abs/2610.32648",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.32648",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large language model (LLM)-based coding agents may propose invalid actions that are not applicable in the execution environment, such as accessing non-existent paths or missing packages. We term this mismatch hallucinated tool use. A preliminary study of 4,398 agent trajectories reveals that these hallucinations are pervasive and costly, requiring a median of 3 additional interaction steps and 22.4K tokens to recover. Existing frameworks rely on reactive, post-execution feedback, wasting runtime resources. Nevertheless, since an agent's execution environment is grounded in concrete codebase and harness components, many action prerequisites can be extracted and validated prior to execution. To this end, we introduce StateMirror, a lightweight pre-execution detector. StateMirror intercepts actions at the harness boundary, extracts state predicates via AST and command analysis, and deterministically validates them against the live repository. By pinpointing exact environment mismatches before execution, StateMirror preempts invalid actions and subsequent recovery cycles. Evaluation on 2,508 actions shows StateMirror achieves 0.940 precision and 0.817 F1 in detecting such hallucinations, surpassing the strongest LLM judge by 35.3% in F1 while reducing median detection latency from 17.73 s to 1.50 ms with zero token consumption. For practical mitigation, StateMirror's pre-execution feedback enables agents to rectify over 95% of hallucinated tool calls. During live mitigation on 79 tasks, StateMirror reduces agent execution time by 15.8% and token consumption by 11.8% while maintaining task resolution.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation",
+      "authors": [
+        {
+          "family": "Luo",
+          "given": "Qinyu"
+        },
+        {
+          "family": "Ye",
+          "given": "Yining"
+        },
+        {
+          "family": "Liang",
+          "given": "Shihao"
+        },
+        {
+          "family": "Zhang",
+          "given": "Zhong"
+        },
+        {
+          "family": "Qin",
+          "given": "Yujia"
+        },
+        {
+          "family": "Lu",
+          "given": "Yaxi"
+        },
+        {
+          "family": "Wu",
+          "given": "Yesai"
+        },
+        {
+          "family": "Cong",
+          "given": "Xin"
+        },
+        {
+          "family": "Lin",
+          "given": "Yankai"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yingli"
+        },
+        {
+          "family": "Che",
+          "given": "Xiaoyin"
+        },
+        {
+          "family": "Liu",
+          "given": "Zhiyuan"
+        },
+        {
+          "family": "Sun",
+          "given": "Maosong"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2402.16667",
+      "arxiv_id": "2402.16667",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4392222920",
+      "url": "http://arxiv.org/abs/2402.16667",
+      "oa_pdf_url": "https://arxiv.org/pdf/2402.16667",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 82,
+      "abstract": "Generative models have demonstrated considerable potential in software engineering, particularly in tasks such as code generation and debugging. However, their utilization in the domain of code documentation generation remains underexplored. To this end, we introduce RepoAgent, a large language model powered open-source framework aimed at proactively generating, maintaining, and updating code documentation. Through both qualitative and quantitative evaluations, we have validated the effectiveness of our approach, showing that RepoAgent excels in generating high-quality repository-level documentation. The code and results are publicly accessible at https://github.com/OpenBMB/RepoAgent.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "EmbodiedEval: Evaluate Multimodal LLMs as Embodied Agents",
+      "authors": [
+        {
+          "family": "Cheng",
+          "given": "Zhili"
+        },
+        {
+          "family": "Tu",
+          "given": "Yuge"
+        },
+        {
+          "family": "Li",
+          "given": "Ran"
+        },
+        {
+          "family": "Dai",
+          "given": "Shiqi"
+        },
+        {
+          "family": "Hu",
+          "given": "Jinyi"
+        },
+        {
+          "family": "Hu",
+          "given": "Shengding"
+        },
+        {
+          "family": "Li",
+          "given": "Jiahao"
+        },
+        {
+          "family": "Shi",
+          "given": "Yang"
+        },
+        {
+          "family": "Yu",
+          "given": "Tianyi"
+        },
+        {
+          "family": "Chen",
+          "given": "Weize"
+        },
+        {
+          "family": "Shi",
+          "given": "Lei"
+        },
+        {
+          "family": "Sun",
+          "given": "Maosong"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2501.11858",
+      "arxiv_id": "2501.11858",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4406745081",
+      "url": "http://arxiv.org/abs/2501.11858",
+      "oa_pdf_url": "https://arxiv.org/pdf/2501.11858",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 71,
+      "abstract": "Multimodal Large Language Models (MLLMs) have shown significant advancements, providing a promising future for embodied agents. Existing benchmarks for evaluating MLLMs primarily utilize static images or videos, limiting assessments to non-interactive scenarios. Meanwhile, existing embodied AI benchmarks are task-specific and not diverse enough, which do not adequately evaluate the embodied capabilities of MLLMs. To address this, we propose EmbodiedEval, a comprehensive and interactive evaluation benchmark for MLLMs with embodied tasks. EmbodiedEval features 328 distinct tasks within 125 varied 3D scenes, each of which is rigorously selected and annotated. It covers a broad spectrum of existing embodied AI tasks with significantly enhanced diversity, all within a unified simulation and evaluation framework tailored for MLLMs. The tasks are organized into five categories: navigation, object interaction, social interaction, attribute question answering, and spatial question answering to assess different capabilities of the agents. We evaluated the state-of-the-art MLLMs on EmbodiedEval and found that they have a significant shortfall compared to human level on embodied tasks. Our analysis demonstrates the limitations of existing MLLMs in embodied capabilities, providing insights for their future development. We open-source all evaluation data and simulation framework at https://github.com/thunlp/EmbodiedEval.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Understanding and Supporting Software Dependency Management Across the Lifecycle",
+      "authors": [
+        {
+          "family": "Latendresse",
+          "given": "Jasmine"
+        }
+      ],
+      "year": 2026,
+      "venue": "Spectrum Research Repository (Concordia University)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7221486359",
+      "url": "https://spectrum.library.concordia.ca/id/eprint/997961/1/Latendresse_PhD_S2026.pdf",
+      "oa_pdf_url": "https://spectrum.library.concordia.ca/id/eprint/997961/1/Latendresse_PhD_S2026.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Modern software systems rely extensively on third-party packages to accelerate development and reuse established functionality. However, this reliance makes dependency management a persistent challenge across development, production, and maintenance. Developers must determine which dependencies are relevant to deployed software, evaluate packages introduced during development, and update them reliably as projects and ecosystems evolve. These activities are further changing with the increasing use of large language models (LLMs), which can recommend packages, generate imports, and propose dependency-related changes. This thesis empirically investigates how dependencies are introduced, used, and maintained, and examines how existing and emerging development practices affect the reliability of these activities. We first establish how dependencies introduced through conventional software-development practices are reflected in production. Through an empirical study of 100 JavaScript projects from the npm ecosystem, we determine which installed dependencies are included in production releases. We find that less than 1% of installed dependencies reach production and that conventional runtime and development classifications do not reliably reflect production use. These findings show that manifest-level information alone is insufficient for understanding and prioritizing dependencies once software is deployed. We then examine LLMs as an emerging mechanism through which dependencies are introduced during development. We evaluate six proprietary and open-source LLMs using 112 real-world Python programming problems from Stack Overflow. The models generally recommend mature, popular, and permissively licensed libraries, but some generated imports cannot be mapped automatically to installable packages, and installation guidance is rarely provided. To support the integration of these dependencies, we introduce the Software Librarian, a Visual Studio Code extension that validates package identities and provides information about licensing, dependencies, deprecation, and package health. The tool correctly classifies 99 of 100 packages in its evaluation dataset. Finally, once a dependency has been selected and integrated, it must be maintained as the project and its packages evolve. We investigate whether LLMs can support this stage by generating dependency-update patches for JavaScript projects. We mine 9,908 dependency-update pull requests from 423 repositories and construct a benchmark of 56 updates from 46 repositories. Although the models frequently identify the intended dependency change, only 50.2% of manifest patches apply to the supplied project state, and 47.1% are both applicable and semantically correct. Providing additional source and test context further reduces manifest-level success, while applicable source-code adaptations remain rare. This thesis highlights that reliable dependency management requires context beyond manifests, import statements, and update requests. LLMs can support package selection and maintenance reasoning, but they do not eliminate the need for production-aware, ecosystem-aware, and repository-aware tooling. The findings motivate dependency-management workflows that combine LLM capabilities with structured validation, deterministic editing, and project-specific context.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Evaluating LLM-Based Test Generation Under Software Evolution",
+      "authors": [
+        {
+          "family": "Haroon",
+          "given": "Sabaat"
+        },
+        {
+          "family": "Khan",
+          "given": "Mohammad Taha"
+        },
+        {
+          "family": "Gulzar",
+          "given": "Muhammad Ali"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2603.23443",
+      "arxiv_id": "2603.23443",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7140313187",
+      "url": "http://arxiv.org/abs/2603.23443",
+      "oa_pdf_url": "https://arxiv.org/pdf/2603.23443",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Large Language Models (LLMs) are increasingly used for automated unit test generation. However, it remains unclear whether these tests reflect genuine reasoning about program behavior or simply reproduce superficial patterns learned during training. If the latter dominates, LLM-generated tests may exhibit weaknesses such as reduced coverage, missed regressions, and undetected faults. Understanding how LLMs generate tests and how those tests respond to code evolution is therefore essential. We present a large-scale empirical study of LLM-based test generation under program changes. Using an automated mutation-driven framework, we analyze how generated tests react to semantic-altering changes (SAC) and semantic-preserving changes (SPC) across eight LLMs and 22,374 program variants. LLMs achieve strong baseline results, reaching 79% line coverage and 76% branch coverage with fully passing test suites on the original programs. However, performance degrades as programs evolve. Under SACs, the pass rate of newly generated tests drops to 66%, and branch coverage declines to 60%. More than 99% of failing SAC tests pass on the original program while executing the modified region, indicating residual alignment with the original behavior rather than adaptation to updated semantics. Performance also declines under SPCs despite unchanged functionality: pass rates fall to 79% and branch coverage to 69%. Although SPC edits preserve semantics, they often introduce larger syntactic changes, leading to instability in generated test suites. Models generate more new tests while discarding many baseline tests, suggesting sensitivity to lexical changes rather than true semantic impact. Overall, our results indicate that current LLM-based test generation relies heavily on surface-level cues and struggles to maintain regression awareness as programs evolve.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "When LLMs Lag Behind: Knowledge Conflicts from Evolving APIs in Code Generation",
+      "authors": [
+        {
+          "family": "Ashik",
+          "given": "Ahmed Nusayer"
+        },
+        {
+          "family": "Wang",
+          "given": "Shaowei"
+        },
+        {
+          "family": "Chen",
+          "given": "Tse-Hsun"
+        },
+        {
+          "family": "Asaduzzaman",
+          "given": "Muhammad"
+        },
+        {
+          "family": "Tian",
+          "given": "Yuan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2604.09515",
+      "arxiv_id": "2604.09515",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7154177581",
+      "url": "https://arxiv.org/abs/2604.09515",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.09515",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "The rapid evolution of software libraries creates a significant challenge for Large Language Models (LLMs), whose static parametric knowledge often becomes stale post-training. While retrieval-augmented generation (RAG) is commonly used to provide up-to-date API specifications, \"context-memory conflict\" arises when external instructions contradict a model's internal parametric knowledge. This paper presents a systematic empirical study of LLM code generation under API evolution (e.g., API deprecation, API modification, and API addition), by constructing a benchmark of 270 real-world updates from eight Python libraries. We evaluate four LLM families of 11 models. Our results show that without comprehensive documentation, LLMs struggle to prioritize external context, averaging only 42.55% of generated code examples are executable in the target environment. While structured documentation and larger model scales improve LLMs' ability to update adoption, they do not fully resolve executability issues with a low 66.36% executable rate. In addition, reasoning-based strategies (e.g., Self-Reflection) significantly boost LLMs' performance with 11% improvement on executable rate. Our findings highlight the persistence of outdated patterns from LLMs, even when API update specifications are provided, and emphasize the need for evolution-aware benchmarks and techniques.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Security in LLM-Assisted Coding: A Systematic Literature Review",
+      "authors": [
+        {
+          "family": "Yuan",
+          "given": "Liang"
+        },
+        {
+          "family": "Najafabadi",
+          "given": "Maryam Khanian"
+        },
+        {
+          "family": "Rana",
+          "given": "Mashud"
+        },
+        {
+          "family": "Vetrova",
+          "given": "Varvara V."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "review",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2610.15482",
+      "arxiv_id": "2610.15482",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7221749344",
+      "url": "https://arxiv.org/abs/2610.15482",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.15482",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Large Language Models accelerate software development but introduce severe security vulnerabilities. This systematic review investigates security risks in automated coding, benchmark limitations, and the role of human developers. Findings indicate that models frequently generate insecure code and faulty patches due to training data biases. Additionally, the models themselves are susceptible to direct attacks. Current evaluation methods suffer from data contamination and lack robust security metrics. Consequently, human oversight remains essential. Safer integration of automation will require more security-aware model architectures, stronger security-specific benchmarks, and more effective human-AI collaboration frameworks to mitigate these systemic risks.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Based Automatic Assertion Generation for Software Tests",
+      "authors": [
+        {
+          "family": "Dvořák",
+          "given": "Radim"
+        }
+      ],
+      "year": 2026,
+      "venue": "Brno University of Technology Digital Library (Brno University of Technology)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7204152173",
+      "url": "http://hdl.handle.net/11012/260630",
+      "oa_pdf_url": "https://dspace.vut.cz/bitstreams/d0a5b637-6369-4216-8867-3cab2cec2acb/download",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Tato bakalářská práce představuje nástroj pro doplňování testovacích asercí z požadavků, popisu rozhraní systému a existujících testů. Velký jazykový model vytváří pomocí schémat Requirement IR, Interface IR, Test Trace IR a Assertion IR obsahující sémantiku aserce, informace o návaznosti a symbolický odkaz na místo vložení. Výstupy jsou validovány pomocí modelů Pydantic. Knihovny LibCST nebo Tree-sitter převedou odkaz na konkrétní pozici a aserce je následně vygenerována pro pytest, JUnit nebo Jest a vrácena jako jednotný diff. Neúspěšné kandidáty systém opakuje a poté přeskočí bez ovlivnění ostatních testů. Přesná správnost dosáhla 92,59\\,\\%, 86,67\\,\\% a 77,78\\,\\%. Hlavním omezením je konstrukce spustitelných cílových výrazů.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+      "authors": [
+        {
+          "family": "Churilov",
+          "given": "Aleksandr"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.17062",
+      "arxiv_id": "2605.17062",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7161692241",
+      "url": "https://arxiv.org/abs/2605.17062",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.17062",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Package hallucinations, LLM-generated references to packages that do not exist, enable slopsquatting: an attacker registers the hallucinated name. We replicate Spracklen et al. (USENIX Security '25) on five 2026 frontier models over 199,840 Python and JavaScript generations. This version reports a preregistered live revalidation that replaces the static package lists of earlier versions with two independent checks against the live PyPI and npm registries. Hallucination rates are 3.6-5.0% of package mentions (2.2-3.4% of generations): the 2026 frontier sits at the level of 2024's commercial models, and the open-weight gap seen in 2024 has disappeared. Python exceeds JavaScript for every model. The set of names hallucinated by all five models shrinks from the 127 reported earlier to 104; 26 earlier entries were correct import statements whose module name differs from the package name. Using the accidental six-month public exposure of our own list as a natural experiment, we find no detectable effect of publication: about 1% of hallucinated names were registered within six months, at the same rate for published and unpublished names, and the 95% interval excludes increases above 2.5 percentage points. Still, at least 23 package names that the models suggest had previously hosted malware later removed by the registries, and one hallucinated name was registered with malware after our runs.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Escaping Python Dependency Hell: A Hybrid Replay-and-Repair Pipeline for Python Dependency Resolution",
+      "authors": [
+        {
+          "family": "Poweska",
+          "given": "Veronica"
+        },
+        {
+          "family": "Oyanguren",
+          "given": "Ariana"
+        },
+        {
+          "family": "Pourleyli",
+          "given": "Jessica"
+        },
+        {
+          "family": "Khanzadeh",
+          "given": "Sourena"
+        },
+        {
+          "family": "Alalfi",
+          "given": "Manar H."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2609.26952",
+      "arxiv_id": "2609.26952",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7214186885",
+      "url": "https://arxiv.org/abs/2609.26952",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.26952",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Dependency conflicts in Python ecosystems arise from incompatible version constraints, missing packages, and undocumented compatibility relationships, causing many real-world code snippets to fail at execution. This paper presents PLLM+, a hybrid dependency-repair pipeline evaluated on the HG2.9K benchmark of 2,891 dependency-failing snippets. PLLM+ prioritizes inexpensive deterministic steps before invoking LLM-based repair: static AST-based interpreter inference, replay of historically successful dependency configurations from the competition-provided solutions database, and live PyPI validation of candidate package versions. When these steps do not resolve a case, the system falls back to a structured LLM-based repair loop with typed error classification and Proposer/Critic agents. On HG2.9K, PLLM+ solves 1,500 out of 2,891 snippets, compared with 1,169 solved by the PLLM baseline. It also reduces average runtime from 368.7 to 71.8 seconds per snippet. Most successful fixes come from replaying known configurations: 1,495 of the 1,500 successful fixes are produced by the solutions database, while the LLM fallback accounts for 5 additional fixes. These results suggest that, in this benchmark setting, deterministic reuse of previously validated dependency configurations is a simple and effective strategy, with LLM-based repair serving as a secondary fallback for cases not covered by prior solutions.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Program Comprehension for Human and LLM-Based Software Maintenance",
+      "authors": [
+        {
+          "family": "Haroon",
+          "given": "Sabaat"
+        }
+      ],
+      "year": 2026,
+      "venue": "VTechWorks (Virginia Tech)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7221239074",
+      "url": "https://hdl.handle.net/10919/143880",
+      "oa_pdf_url": "https://vtechworks.lib.vt.edu/bitstreams/2ef767b7-9a55-46f7-b826-6e17ce8c7045/download",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Modern software systems increasingly rely on abstractions, transformations, and automated tools that make it difficult to understand how source-level programs relate to their actual behavior. Effective debugging and testing therefore depend on accurate program comprehension by both human and automated agents that perform these tasks. This thesis investigates how program comprehension can be improved for developers and systematically assessed for Large Language Models (LLMs) used in software maintenance. The first part focuses on improving human program comprehension in distributed systems. This thesis develops an interactive debugging approach that connects developer-written SQL to its transformed distributed execution by mapping intermediate execution data back to corresponding parts of the original query. This allows developers to understand complex execution behavior using the same abstractions in which the program was originally expressed. As LLMs are increasingly used for coding tasks, program comprehension shifts from human developers to automated agents. The second part investigates LLM program comprehension in automated debugging. The evaluation examines fault localization under semantics-preserving code changes to determine whether LLMs consistently understand program behavior or are influenced by superficial properties of how code is written. The final part extends this investigation to LLM-based test generation under software evolution, evaluating whether generated tests remain reliable when program functionality is preserved and whether they appropriately reflect changes when program behavior is modified. Together, these contributions examine program comprehension from two complementary perspectives: improving developers' understanding of program behavior and evaluating whether LLMs possess the comprehension required for reliable automated debugging and testing.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "Repository-Aware File Path Retrieval via Fine-Tuned LLMs",
+      "authors": [
+        {
+          "family": "Yanuganti",
+          "given": "Vasudha"
+        },
+        {
+          "family": "Puri",
+          "given": "Ishaan"
+        },
+        {
+          "family": "Chhatre",
+          "given": "Swapnil"
+        },
+        {
+          "family": "Singh",
+          "given": "Mantinder"
+        },
+        {
+          "family": "Jallepalli",
+          "given": "Ashok"
+        },
+        {
+          "family": "Shrivastava",
+          "given": "Hritvik"
+        },
+        {
+          "family": "Sharma",
+          "given": "Pradeep"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2510.08850",
+      "arxiv_id": "2510.08850",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417117845",
+      "url": "http://arxiv.org/abs/2510.08850",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.08850",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Modern codebases make it hard for developers and AI coding assistants to find the right source files when answering questions like \"How does this feature work?\" or \"Where was the bug introduced?\" Traditional code search (keyword or IR based) often misses semantic context and cross file links, while large language models (LLMs) understand natural language but lack repository specific detail. We present a method for file path retrieval that fine tunes a strong LLM (Qwen3-8B) with QLoRA and Unsloth optimizations to predict relevant file paths directly from a natural language query. To build training data, we introduce six code aware strategies that use abstract syntax tree (AST) structure and repository content to generate realistic question-answer pairs, where answers are sets of file paths. The strategies range from single file prompts to hierarchical repository summaries, providing broad coverage. We fine tune on Python projects including Flask, Click, Jinja, FastAPI, and PyTorch, and obtain high retrieval accuracy: up to 91\\% exact match and 93\\% recall on held out queries, clearly beating single strategy training. On a large codebase like PyTorch (about 4,000 Python files), the model reaches 59\\% recall, showing scalability. We analyze how multi level code signals help the LLM reason over cross file context and discuss dataset design, limits (for example, context length in very large repos), and future integration of retrieval with LLM based code intelligence.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Finding Vulnerabilities via LLM-Augmented Semantics-Aware Type-Checking",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Ruizhe"
+        },
+        {
+          "family": "Xu",
+          "given": "Meng"
+        },
+        {
+          "family": "Asokan",
+          "given": "N."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2608.14533",
+      "arxiv_id": "2608.14533",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7203619377",
+      "url": "https://arxiv.org/abs/2608.14533",
+      "oa_pdf_url": "https://arxiv.org/pdf/2608.14533",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Vulnerability detection via static analysis traditionally relies on security experts encoding insecure coding patterns into algorithmic rules. However, this approach often focuses on syntactic patterns and overlooks deeper semantic information in the code, such as the meanings of variable and function names. As software systems grow more complex, modeling vulnerabilities using only syntactic rules becomes increasingly challenging. In this paper, we propose a semantics-aware approach to detecting software vulnerabilities. We present SETYPE, a semantics-aware type system that can be derived directly from source code based solely on the meanings of symbols and expressions in natural language. In the SETYPE type system, both type inference and checking are performed by Large Language Models (LLMs), and a failed type check indicates a potential vulnerability. We prototype PYSETYPE to demonstrate the feasibility of SETYPE for detecting vulnerabilities in Python web applications. Our evaluation on real-world applications achieves 87% detection precision and 88% detection accuracy. Using PYSETYPE, we identified 15 potential zero-day vulnerabilities, nine of which were confirmed by developers.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Implementation and Evaluation of Attack Modules for an LLM Red-Teaming Framework",
+      "authors": [
+        {
+          "family": "Tichý",
+          "given": "Tomáš"
+        }
+      ],
+      "year": 2026,
+      "venue": "Brno University of Technology Digital Library (Brno University of Technology)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7165503405",
+      "url": "http://hdl.handle.net/11012/258850",
+      "oa_pdf_url": "https://dspace.vut.cz/bitstreams/6a8ef23b-b31e-462a-9c03-e8aaedb15d7f/download",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Tato práce představuje útokové moduly pro red-teaming velkých jazykových modelů, které umožňují provádět široké spektrum útoků prostřednictvím jednotného a přehledného rozhraní. S rostoucím nasazováním těchto modelů v praktických aplikacích narůstá potřeba systematicky ověřovat jejich odolnost vůči útokům, jako jsou prompt injection, obcházení bezpečnostních filtrů nebo extrakce dat. Navržené řešení podporuje různorodé typy útoků, přičemž si zachovává konfigurovatelnost a rozšiřitelnost. Na základě tohoto návrhu bylo vytvořeno 28 útokových modulů adaptovaných z odborné literatury a referenčních implementací. Moduly byly experimentálně vyhodnoceny na vybraných velkých jazykových modelech a porovnány s původními studiemi a referenčními implementacemi. Výsledky evaluace ukazují, že implementované útoky za srovnatelných podmínek reprodukují očekávané chování svých zdrojových metod a poskytují znovupoužitelný základ pro jednotné testování bezpečnosti LLM.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "UniACE: A Unified Framework for Evaluating LLM Agentic Capabilities",
+      "authors": [
+        {
+          "family": "Zhu",
+          "given": "Pengyu"
+        },
+        {
+          "family": "Li",
+          "given": "Lijun"
+        },
+        {
+          "family": "Lyu",
+          "given": "Yaxing"
+        },
+        {
+          "family": "Luo",
+          "given": "Qianxin"
+        },
+        {
+          "family": "Yang",
+          "given": "Jingyi"
+        },
+        {
+          "family": "Liu",
+          "given": "Yi"
+        },
+        {
+          "family": "Hui",
+          "given": "Tingfeng"
+        },
+        {
+          "family": "Yuan",
+          "given": "Xinyu"
+        },
+        {
+          "family": "Sun",
+          "given": "Li"
+        },
+        {
+          "family": "Su",
+          "given": "Sen"
+        },
+        {
+          "family": "Shao",
+          "given": "Jing"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.27898",
+      "arxiv_id": "2605.27898",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7162694930",
+      "url": "https://arxiv.org/abs/2605.27898",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.27898",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 5,
+      "abstract": "Agent benchmarks are increasingly used to compare large language models (LLMs) across domains, yet a reported score reflects a complete model--harness--environment configuration rather than the model alone. Benchmark packages couple native tasks with specific prompts, tool protocols, orchestration logic, and sometimes dynamic external resources, making cross-benchmark comparisons sensitive to implementation and resource conditions. We present UniACE, a unified framework for model-centric evaluation under an explicit, common execution condition. UniACE represents each benchmark as an instruction--tool--environment triplet, executes LLMs through a shared, task-agnostic harness in isolated per-task runtimes, and preserves native success criteria. For tasks that rely on dynamic resources, an optional offline mode replaces live access with fixed, pre-collected snapshots. Its evaluation protocol further standardizes efficiency measurement, execution records, and trace-based failure attribution. We migrate 7 benchmarks spanning 24 domains and evaluate 15 models in more than 400K rollouts consuming 5B tokens. Comparisons with source implementations show large bidirectional score changes and model-ranking reversals, while matched online and offline runs reveal substantial sensitivity to accessible evidence and its representation. Under the shared UniACE configuration, efficiency and failure profiles expose task-dependent model behaviors hidden by task-success scores alone. These findings motivate reporting agent benchmark outcomes as properties of an explicit evaluation configuration, enabling more interpretable and reproducible cross-benchmark comparisons. Codes and benchmarks at are available at https://github.com/whfeLingYu/A-Unified-Framework-for-the-Evaluation-of-LLM-Agentic-Capabilities, https://huggingface.co/datasets/whfeLingYu/Unified_Agent_Framework.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "Knowledge boundary probing and demand-guided intervention for LLM-based power system code generation",
+      "authors": [
+        {
+          "family": "wu",
+          "given": "hui"
+        },
+        {
+          "family": "Wang",
+          "given": "Xiaoyang"
+        },
+        {
+          "family": "Fan",
+          "given": "Zhong"
+        }
+      ],
+      "year": 2026,
+      "venue": "Advanced Engineering Informatics",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.aei.2026.105328",
+      "arxiv_id": "2605.31478",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7163001058",
+      "url": "https://doi.org/10.1016/j.aei.2026.105328",
+      "oa_pdf_url": "https://www.sciencedirect.com/science/article/pii/S1474034626010207/pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large language models (LLMs) can turn grid-analysis requests into executable programs for power-system simulation, but utilities and research laboratories often require on-premise deployment. In this setting, first-pass failures frequently arise at an API-knowledge boundary , through hallucinated functions, misused parameters, and mishandled result tables. We present PowerCodeBench , a parameterised benchmark generator released as a frozen 2000-task suite for pandapower , and a deployment-time workflow that requires no weight updates. Documentation-driven L0–L3 probes produce per-model API profiles for diagnosis, model comparison, documentation allocation, and backend calibration. A query-side demand estimator selects layered API evidence before generation, while execution feedback routes targeted repair. Across ten open-weight LLMs (1.5B–480B) and four mid-tier APIs, the validation-enabled workflow raises scalar-match accuracy by 32–56 percentage points after up to three repair rounds relative to an unassisted first pass, for every model of at least 7B and every API. Open-weight models in the 70B–120B range reach the four-vendor mid-tier accuracy range under matched no-tool conditions. Selective injection approaches the full-layer reference using 41% of its prompt tokens. Among model–item pairs passing numerical checks under both workflows, engineering review confirms the requested analysis in 88% of full-workflow outputs versus 66% under plain repair. Round-0 pilots on OpenDSS and PyPSA motivate staged onboarding from broad retrieval at cold start to calibrated selective injection. Measured throughput, latency, energy, and allocated GPU memory establish a practical on-premise serving envelope.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "An Empirical Analysis of Static Analysis Methods for Detection and Mitigation of Code Library Hallucinations",
+      "authors": [
+        {
+          "family": "Miranda-Peña",
+          "given": "Clarissa"
+        },
+        {
+          "family": "Reeson",
+          "given": "Andrew F."
+        },
+        {
+          "family": "Paris",
+          "given": "Cecile"
+        },
+        {
+          "family": "Poon",
+          "given": "Josiah"
+        },
+        {
+          "family": "Kummerfeld",
+          "given": "Jonathan K."
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2604.07755",
+      "arxiv_id": "2604.07755",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7153091966",
+      "url": "https://arxiv.org/abs/2604.07755",
+      "oa_pdf_url": "https://arxiv.org/pdf/2604.07755",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Despite extensive research, Large Language Models continue to hallucinate when generating code, particularly when using libraries. On NL-to-code benchmarks that require library use, we find that LLMs generate code that uses non-existent library features in 8.1-40% of responses. One intuitive approach for detection and mitigation of hallucinations is static analysis. In this paper, we analyse the potential of static analysis tools, both in terms of what they can solve and what they cannot. We find that static analysis tools can detect 16-70% of all errors, and 14-85% of library hallucinations, with performance varying by LLM and dataset. Through manual analysis, we identify cases a static method could not plausibly catch, which gives an upper bound on their potential from 48.5% to 77%. Overall, we show that static analysis methods are cheap method for addressing some forms of hallucination, and we quantify how far short of solving the problem they will always be.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "What Do LLM-Based Software Architecture Recovery Methods Actually Do? A Diagnostic Study",
+      "authors": [
+        {
+          "family": "Quadri",
+          "given": "Syed Ameenuddin"
+        }
+      ],
+      "year": 2026,
+      "venue": "YorkSpace (York University)",
+      "type": "dissertation",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7225471065",
+      "url": "https://hdl.handle.net/10315/44298",
+      "oa_pdf_url": "https://yorkspace.library.yorku.ca/bitstreams/f396d2a5-502d-4033-bb28-e52f5f8340d6/download",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Software architecture recovery groups a system’s files into components. It has traditionally been performed by deterministic clustering algorithms; Large Language Models have recently entered the field, reporting single runs with no account of what the method does when it succeeds. This thesis asks what these methods do, running agent configurations from free file reading to knowledge-graph-only exploration, with repeated runs, directory flattening, and identity stripping. Two findings dominate. Recovered groupings mirror the folder tree: flatten the directories and recovery degrades in proportion to the reference architecture’s directory alignment. Component names are memorized: a name-only probe reproduces each system’s published architecture, and stripping every project name, filename, comment and header leaves that naming intact, down to a floor of code identifiers. The two channels substitute, since removing the folder tree raises recitation rather than suppressing it. The contribution is a measurement discipline: report distributions and directory alignment, and check for contamination.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "HeuriGym: An Agentic Benchmark for LLM-Crafted Heuristics in Combinatorial Optimization",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Hongzheng"
+        },
+        {
+          "family": "Wang",
+          "given": "Yingheng"
+        },
+        {
+          "family": "Cai",
+          "given": "Yaohui"
+        },
+        {
+          "family": "Hu",
+          "given": "Hins"
+        },
+        {
+          "family": "Li",
+          "given": "Jiajie"
+        },
+        {
+          "family": "Huang",
+          "given": "Shirley"
+        },
+        {
+          "family": "Deng",
+          "given": "Chenhui"
+        },
+        {
+          "family": "Liang",
+          "given": "Rongjian"
+        },
+        {
+          "family": "Kong",
+          "given": "Shufeng"
+        },
+        {
+          "family": "Ren",
+          "given": "Haoxing Mark"
+        },
+        {
+          "family": "Samaranayake",
+          "given": "Samitha"
+        },
+        {
+          "family": "Gomes",
+          "given": "Carla P."
+        },
+        {
+          "family": "Zhang",
+          "given": "Zhiru"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2506.07972",
+      "arxiv_id": "2506.07972",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417136581",
+      "url": "http://arxiv.org/abs/2506.07972",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.07972",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 23,
+      "abstract": "While Large Language Models (LLMs) have demonstrated significant advancements in reasoning and agent-based problem-solving, current evaluation methodologies fail to adequately assess their capabilities: existing benchmarks either rely on closed-ended questions prone to saturation and memorization, or subjective comparisons that lack consistency and rigor. In this work, we introduce HeuriGym, an agentic framework designed for evaluating heuristic algorithms generated by LLMs for combinatorial optimization problems, characterized by clearly defined objectives and expansive solution spaces. HeuriGym empowers LLMs to propose heuristics, receive evaluative feedback via code execution, and iteratively refine their solutions. We evaluate nine state-of-the-art models on nine problems across domains such as computer systems, logistics, and biology, exposing persistent limitations in tool use, planning, and adaptive reasoning. To quantify performance, we propose the Quality-Yield Index (QYI), a metric that captures both solution pass rate and quality. Even top models like GPT-o4-mini-high and Gemini-2.5-Pro attain QYI scores of only 0.6, well below the expert baseline of 1. Our open-source benchmark aims to guide the development of LLMs toward more effective and realistic problem-solving in scientific and engineering domains.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "Automated Semantic Fault Localization in SysML v2: A Human‐in‐the‐Loop Framework Using Knowledge‐Graph Augmented LLMs",
+      "authors": [
+        {
+          "family": "Al-Shami",
+          "given": "Haitham"
+        },
+        {
+          "family": "Malik",
+          "given": "Rohail"
+        },
+        {
+          "family": "Ala-Laurinaho",
+          "given": "Riku"
+        },
+        {
+          "family": "Vepsäläinen",
+          "given": "Jari"
+        },
+        {
+          "family": "Viitala",
+          "given": "Raine"
+        }
+      ],
+      "year": 2026,
+      "venue": "INCOSE International Symposium",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1002/iis2.70189",
+      "arxiv_id": "2606.23395",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7165627395",
+      "url": "https://doi.org/10.1002/iis2.70189",
+      "oa_pdf_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/iis2.70189",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Abstract Model‐Based Systems Engineering (MBSE) methods that support formally defined modeling languages can provide feedback when models violate syntactic rules. However, semantic faults that preserve syntactic validity while violating domain‐specific engineering constraints often remain undetected. SysML v2 introduces a textual syntax for MBSE models in addition to its graphical notation, and this enables compiler‐like validation of model structure and language conformance. However, because SysML v2 is a modeling language, syntactic validity alone does not guarantee that the modeled system is semantically valid; the represented engineering relationships, such as mechanical, electrical, fluid, or signal connections, must also be physically meaningful. These domain‐aware semantic errors can propagate through the design process and surface late as costly integration failures. This paper presents a human‐in‐the‐loop framework for automated fault localization and repair suggestion in SysML v2 models. This is done by combining a fine‐tuned small language model with a domain knowledge graph that encodes physical compatibility rules between system elements. The knowledge graph guides the generation of synthetic training data by systematically introducing plausible domain violations, and augments the model at inference time to ground repair suggestions in valid engineering constraints. We demonstrate the framework using the vehicle systems domain, where the knowledge graph captures the relationships between the mechanical, electrical, fluid, and signal interfaces. The fine‐tuned model is capable of capturing compiler‐detectable syntax errors and the more subtle semantic violations that pass validation but violate domain physics. The model outputs unified diff patches that localize faults and present candidate repairs for engineer review; this preserves human judgment in the design process. Evaluation of 1,184 test samples shows that fine‐tuning improves semantic fault repair from less than 3% to more than 91%, with patch‐based output reducing token length by 50%. The framework offers a practical path toward AI‐assisted model verification that complements existing MBSE tools.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "From Ambiguous Requirements to Hallucinated Tests: A Multi-Domain Study of the Mirror Effect in LLM-Assisted Software Testing",
+      "authors": [
+        {
+          "family": "Kanikaram",
+          "given": "Kiran Paul"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202608.1538.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202608.1538.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Although large language models (LLMs) have the capacity to produce test cases rapidly, the accuracy of the test cases relies heavily on the specification given to the model. In this paper, we present Mirror Effect: an LLM is likely to reflect any level of clarity or ambiguity in natural-language requirements in subsequent test artifacts. For a comparative within-subjects experiment with five expert QA engineers, three commercial LLMs, four core requirements cases, and a five-domain transfer learning test, for each of the four core requirements, vague and measurable cases were formulated without altering the function, and then the two sets of prompts were compared against their human-generated baselines. As a result, four vague requirement prompts produced 127 test cases, 68% of which contained assumptions not present in the requirement statement, while four clear requirements produced 42 test cases with a hallucination rate of 12%. Coverage completeness improved from 42% to 92%, and mean QA review time reduced from 240 min to 85 min. As for the cross-domain experiments, the vague-prompt hallucination rate ranged from 68% to 88%, while for clear-requirement prompts, it ranged from 8% to 22%. Our findings are descriptive in nature due to the small sample size but demonstrate a consistent trend across all models and domains. In our contribution, we provide a definition of test hallucination using traceability, empirical evidence of ambiguity propagation, and a pre-prompt requirement gate.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "Reducing Hallucinated False Positives in LLM-Based Vulnerability Detection via Multi-Signal Focused Verification",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Casper"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Access",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2026.3739345",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/access.2026.3739345",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "OctavianB at SemEval-2024 Task 6: An exploration of humanlike qualities of hallucinated LLM texts",
+      "authors": [
+        {
+          "family": "Brodoceanu",
+          "given": "Octavian"
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 18th International Workshop on Semantic Evaluation (SemEval-2024)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.18653/v1/2024.semeval-1.169",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.18653/v1/2024.semeval-1.169",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 28,
+      "in_project": null
+    },
+    {
+      "title": "Mapping Import Critical Dependencies: An Analysis of European Industrial Vulnerabilities",
+      "authors": [
+        {
+          "family": "Puccioni",
+          "given": "Chiara"
+        },
+        {
+          "family": "Pignatti",
+          "given": "Matteo"
+        }
+      ],
+      "year": 2024,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.4939055",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.4939055",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 29,
+      "in_project": null
+    },
+    {
+      "title": "consolidatePacks: Eliminate '@import' by Incorporating Dependencies Directly into the Package",
+      "authors": [
+        {
+          "family": "Zeeberg",
+          "given": "Barry"
+        }
+      ],
+      "year": 2026,
+      "venue": "CRAN: Contributed Packages",
+      "type": "dataset",
+      "venue_kind": "unknown",
+      "doi": "10.32614/cran.package.consolidatepacks",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.32614/cran.package.consolidatepacks",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 30,
+      "in_project": null
+    },
+    {
+      "title": "Detecting Hallucinated Legal Authorities in LLM-Generated AI-Law Writing: A Bilingual NLP Benchmark for China-U.S. Synthetic-Content Governance",
+      "authors": [
+        {
+          "family": "Xue",
+          "given": "Yaofu"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 7th World Symposium on Artificial Intelligence (WSAI)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/wsai70435.2026.11708627",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/wsai70435.2026.11708627",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 31,
+      "in_project": null
+    },
+    {
+      "title": "Sourcing all the Eggs from one Basket: Trade Dependencies and Import Prices",
+      "authors": [
+        {
+          "family": "Balteanu",
+          "given": "Irina"
+        },
+        {
+          "family": "Schmidt",
+          "given": "Katja"
+        },
+        {
+          "family": "Viani",
+          "given": "Francesca"
+        }
+      ],
+      "year": 2025,
+      "venue": "Documentos de Trabajo",
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.5147293",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.5147293",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Highly concentrated imports can be a source of vulnerability in an environment characterized by geopolitical tensions. In light of this concern, some recently adopted policies aim to dilute advanced economies’ import concentration for key products. Likewise, a tendency towards supplier diversification has been observed in firm surveys. In this paper, we study how countries’ import concentration in a few external providers affects import prices. Import concentration decreased in OECD countries in the last two decades, especially up to the global financial crisis, in the hyper-globalization period. For EU countries, integration in the single market was crucial to foster diversification also beyond the hyper-globalization years. Yet, for a number of strategic goods, imports tend to be more concentrated in geopolitically distant providers. Panel regression analysis based on granular trade data at the country-product level shows that high import concentration is associated with higher import prices, which supports the view that strongly concentrated markets correspond to low levels of competition. This effect tends to be more pronounced when a supplier country’s perceived market power is strong, i.e. for goods whose production is highly concentrated at the global level or for those that a country cannot (fully) produce by itself. The positive relationship between import concentration and import prices is less pronounced in high-technology industries, consistent with the notion that in these sectors a high concentration is also related to the presence of cost-efficiency effects owing to economies of scale. Exclusive trade relations, i.e. those in which the importer sources a product from one provider only, are associated with lower import prices and could therefore be costlier to break.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 32,
+      "in_project": null
+    },
+    {
+      "title": "Improving Language Model Quality through LLM-based Fine-Grained Hallucinated Summary Generation",
+      "authors": [
+        {
+          "family": "Oh",
+          "given": "Jihwan"
+        },
+        {
+          "family": "Choi",
+          "given": "Jeonghwan"
+        },
+        {
+          "family": "Kim",
+          "given": "Nicole Hee-Yeon"
+        },
+        {
+          "family": "Song",
+          "given": "Hwanjun"
+        }
+      ],
+      "year": 2025,
+      "venue": "KIISE Transactions on Computing Practices",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5626/ktcp.2025.31.2.91",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5626/ktcp.2025.31.2.91",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 33,
+      "in_project": null
+    },
+    {
+      "title": "Embracing the Moment - Reconceptualizing the Campus Library",
+      "authors": [
+        {
+          "family": "Meerovitch",
+          "given": "Gili"
+        }
+      ],
+      "year": 2023,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v37i2.7561",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v37i2.7561",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The article suggests that library leaders should view space as a valuable resource for their libraries and use it to create opportunities. With older library buildings often facing deficiencies and maintenance issues, it is important for leaders to think strategically about how to repurpose and utilize the space in a way that aligns with the institution's priorities. This may involve developing new partnerships and reframing the conversation around library services as a vital component of the institution's mission. It's also highlighted that library leaders should be proactive in leading the \"reconceptualizing\" of what the library is, based on the campus's specific needs and positioning the library's spaces as a proactive contributor to the institution's priorities.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 34,
+      "in_project": null
+    },
+    {
+      "title": "Assessing import dependencies in the accelerating energy transition: A structural gravity model analysis",
+      "authors": [
+        {
+          "family": "Eschmann",
+          "given": "Jonas"
+        },
+        {
+          "family": "Jochem",
+          "given": "Patrick"
+        }
+      ],
+      "year": 2025,
+      "venue": "Energy Policy",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1016/j.enpol.2025.114697",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1016/j.enpol.2025.114697",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 7,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 35,
+      "in_project": null
+    },
+    {
+      "title": "Emergent Strategy to Build Transformative Library Teams",
+      "authors": [
+        {
+          "family": "Stoll Farrell",
+          "given": "Karen"
+        }
+      ],
+      "year": 2025,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v39i1.7696",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v39i1.7696",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This article explores the emergent strategy elements developed by adrienne maree brown in her book Emergent Strategy: Shaping Change, Changing Worlds (2017) and their connection to library middle management. Built on a social justice framework, the six elements of emergent strategy can be used in many settings. The elements are ideal for middle managers working with library teams to help them adapt to change and become more sustainable and productive. The article provides grounded ideas to incorporate emergent strategy into middle management team-building work. The six elements are described in detail alongside their connections to library work specifically, exploring both successes and potential obstacles.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 36,
+      "in_project": null
+    },
+    {
+      "title": "Replication of the Climbing Post on Mount Arjuno Using Augmented Reality (AR) With the Open Asset Import Library Method",
+      "authors": [
+        {
+          "family": "Fachruddin",
+          "given": "Muhammad"
+        },
+        {
+          "family": "Dijaya",
+          "given": "Rohman"
+        }
+      ],
+      "year": 2023,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.21070/ups.587",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.21070/ups.587",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 37,
+      "in_project": null
+    },
+    {
+      "title": "THE ROLE OF JHARKHAND’S COAL IN POWERING INDIA’S ECONOMY: NAVIGATING IMPORT DEPENDENCIES",
+      "authors": [
+        {
+          "family": "Honey Choudhary",
+          "given": ""
+        }
+      ],
+      "year": 2025,
+      "venue": "EPRA International Journal of Economics, Business and Management Studies",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.36713/epra19810",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.36713/epra19810",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Coal continues to be a vital component of India's industrial and energy sectors, supporting important sectors like cement and steel and producing more than 70% of the country's electricity. With its plentiful coal deposits, Jharkhand has continuously increased the country's coal production, which increased from 131.76 million tonnes in 2019–20 to 191.16 million tonnes in 2023–24. However, because of quality differences and the need for high-grade coal from nations like South Africa, Russia, and Indonesia, India still depends largely on coal imports, which increased to 264.9 million tons in 2023–24. The contribution of Jharkhand to the coal economy is examined in this paper, with particular attention paid to production trends, the causes of coal imports, and the effects of these trends on India's energy security. In addition, it looks at problems including land acquisition and environmental concerns, as well as how renewable energy can eventually lessen the need on coal. This paper sheds light on the opportunities and difficulties faced by Jharkhand's coal sector, which plays a crucial role in India's energy landscape, by providing a five-year review of production and import trends. KEYWORDS: Jharkhand coal production, India’s coal imports, coal and economic growth, coal mining sustainability, energy transition in India.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 38,
+      "in_project": null
+    },
+    {
+      "title": "Role of Librarians Combatting Cultural Violence in the Library Environment",
+      "authors": [
+        {
+          "family": "Laksmi",
+          "given": "Laksmi"
+        }
+      ],
+      "year": 2025,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v38i3.7609",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v38i3.7609",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This research examines the role of librarians and the educational institutions of libraries in responding to cultural violence in Indonesian society. The research was conducted as a form of cultural analysis, using qualitative research methods, and applying snowball sampling to recruit a range of different library professionals. The data was obtained online by means of the FGD technique and follow-up interviews over the period 10–25 September 2021. The findings show: 1) ignorant and aggressive users; 2) unfair pressure from leadership; 3) discrimination based on professional and personal stereotyping; 4) the belief that a higher status (in terms of job position, age, or as the party being served) entails the right to special privileges. In conclusion, the cultural violence experienced by the nine librarians involved issues relating to intimidation, intolerance, and inequality. They are aware of being victims, even though they have a position serving a n important role within their organizations. They generally responded by reflecting or discussing with others, and trying to eliminate stereotypes by applying an institutional motto. Recommended responses for the librarians are: emphasizing social values; discussion and dialogue; improving the learning climate; and strengthening the role of leaders in implementing regulations.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 39,
+      "in_project": null
+    },
+    {
+      "title": "Editor's Message",
+      "authors": [
+        {
+          "family": "Nelson",
+          "given": "Elizabeth"
+        }
+      ],
+      "year": 2024,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v38i2.7660",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v38i2.7660",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 40,
+      "in_project": null
+    },
+    {
+      "title": "Improving Library Organizational Communication through Intentional Knowledge Management",
+      "authors": [
+        {
+          "family": "Chan",
+          "given": "Ian"
+        },
+        {
+          "family": "Fabbi",
+          "given": "Jennifer"
+        }
+      ],
+      "year": 2023,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v37i1.7540",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v37i1.7540",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 3,
+      "abstract": "Communication is one of the most important elements affecting productivity and work climate in any organization. Effective organizational communication can contribute to organizational success in many ways including building employee morale, satisfaction, and engagement; giving employees a voice; reducing the chances for misunderstandings; and improving processes and procedures that ultimately create greater efficiencies. Toward that goal, creating a single internal communications hub can drastically reduce the volume of “noise” employees must wade through to access important information. CSU San Marcos Library has documented its seven-year transformation from decentralized and ineffective communication outlets to a single hub of organizational communication using a knowledge management initiative. Knowledge management is defined broadly as “the conscious process of defining, structuring, retaining, and sharing the knowledge and experience of employees within an organization” (What is knowledge management?, n.d.).",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 41,
+      "in_project": null
+    },
+    {
+      "title": "Louisiana Academic Library Workers and Workplace Bullying",
+      "authors": [
+        {
+          "family": "Baird",
+          "given": "Catherine"
+        },
+        {
+          "family": "Hebert",
+          "given": "Andrea"
+        },
+        {
+          "family": "Savage",
+          "given": "Justin"
+        }
+      ],
+      "year": 2023,
+      "venue": "Library Leadership &amp; Management",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.5860/llm.v37i1.7553",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5860/llm.v37i1.7553",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Workplace bullying is a problem in many work environments and can take different forms, including spreading gossip, criticism of work, unreasonable workloads, and being excluded. It can cause physical, psychological, and emotional stress, manifesting as depression, anxiety, self-esteem issues, exhaustion, feelings of rage/despair, and in some cases, post-traumatic stress disorder or suicide. Little is known, however, about the prevalence of bullying amongst library workers in academic libraries. This comprehensive state-wide study provides a replicable model to explore workplace bullying in a systematic manner amongst all academic library workers, not just librarians.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 42,
+      "in_project": null
+    }
+  ]
+}

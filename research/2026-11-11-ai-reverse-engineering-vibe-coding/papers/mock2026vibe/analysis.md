@@ -1,6 +1,6 @@
 ---
 key: mock2026vibe
-status: ready
+status: complete
 evidence_basis: full-text
 design: pre-experimental static-group comparison (solo vs collaborative TDD with professionals) plus exploratory repeated runs of fully-automated and agentic workflows
 dataset: 2 small Python TDD tasks (TextFormatter string centring); baseline test suite of 12 assertions derived by category-partition testing
@@ -25,7 +25,7 @@ analysed: 2026-11-11
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
 
-Note on the source: our PDF is the Springer open-access version (Empirical Software Engineering (2027) 32:40, accepted 4 August 2026; 48 pages). Metadata gives year 2026 (online publication); the printed volume year is 2027 (p. 1).
+Note on the source: the PDF analysed is the published Springer open-access version of record (link.springer.com, DOI above; not the arXiv preprint 2607.22406) (Empirical Software Engineering (2027) 32:40, accepted 4 August 2026; 48 pages). Metadata gives year 2026 (online publication); the printed volume year is 2027 (p. 1).
 
 ## 1. Research objective
 - [A] To investigate how humans and conversational LLMs (CLLMs) can collaborate "as peers through vibe coding", by comparing four interaction models (solo, collaborative, fully automated, agentic) within a Test-Driven Development (TDD) process (p. 1, p. 2).
@@ -36,7 +36,7 @@ Note on the source: our PDF is the Springer open-access version (Empirical Softw
 - [V] RQ1: How does the quality of production code vary across interaction models? Sub-questions: RQ1.1 syntactic similarity, RQ1.2 functional correctness, RQ1.3 complexity (p. 11, p. 12).
 - [V] RQ2: How does the quality of the tests vary? RQ2.1 structural complexity of tests, RQ2.2 coverage (p. 13).
 - [V] RQ3: How does TDD process efficiency vary? (p. 13)
-- [V] Statistical null hypotheses per pairwise comparison are one-tailed (H0: A <= B, per Tables 9-13) (p. 25, p. 27); no substantive directional hypotheses stated up front.
+- [V] Statistical null hypotheses per pairwise comparison are one-tailed (H0: A <= B, per Tables 9-13) (p. 25, p. 27); no substantive directional hypotheses stated up front. [I] The reported test directions are not reliable row by row; see §9.
 
 ## 3. Methodology
 - Research design: [V] Two complementary settings: (i) a "controlled pre-experimental study" using a Static-Group Comparison design with a control group (solo-coding, CG) and an experimental group (collaborative, EG) of professionals; (ii) "repeated exploratory executions" of fully-automated and agentic workflows on the same tasks (p. 1, p. 14, p. 15). A *pre-experimental design* is a weak experimental design (Campbell & Stanley) without pre-tests and, in the classical form, without random assignment.
@@ -91,12 +91,18 @@ Note on the source: our PDF is the Springer open-access version (Empirical Softw
 - [I] The paper's "vibe coding" condition forbids prompt modification (p. 15) and uses scripted prompts, so it does not represent free-form vibe coding. Conclusions about "vibe coding" should be read as conclusions about this structured TDD workflow.
 - [I] Some claims go beyond the data: the claim that humans "can reach the same level of correctness in collaborative settings" (p. 26) rests on single participants (P13: 100%) while the collaborative mean is 60.8% (p. 41). The Related Work states "the agentic workflow statistically produces higher-quality code" (p. 40), which conflicts with the higher complexity and lower coverage reported (p. 27, p. 35).
 - [I] MCC is the only maintainability proxy; no code smells, readability or static-analysis measures.
+- [I] Test direction is reported inconsistently. Under H0: A <= B, a negative Cliff's δ should give a large one-tailed p-value, yet several such rows carry small p-values:
+  - "collaborative > agentic": δ −0.65, p = 8.55e-03 (Table 9, p. 25);
+  - "fully-automated > agentic": δ −1.00, p = 3.79e-03 (Table 9, p. 25);
+  - "collaborative > agentic": δ −0.77, p = 3.13e-03 (Table 10, p. 27).
+
+  "collaborative > solo-coding" (δ −0.16, p = 0.314, p. 25) is also below 0.5. Other rows are consistent, e.g. "fully-automated > solo-coding" δ −0.15, p = 0.685 (p. 27). This suggests that, for some rows, the reverse alternative was tested and the labels were not updated. The substantive conclusions (agentic has higher TPR and higher MCC) agree with the group means (p. 41, p. 42). Individual p-values should not be quoted without this caveat.
 
 ## 10. Threats to validity
 - Internal (confounds, leakage, selection): [I] Model generation confounded with workflow (see section 9); session (preliminary vs main) and experience imbalance; self-reported vs measured time. [A] Possible hidden AI use (p. 15).
 - External (generalisability of sample/context): [A] Simple tasks, single CLLM for human workflows (p. 37). [I] Python-only, function-level tasks, one agentic platform; results do not transfer to multi-file applications or UI work.
 - Construct (do metrics measure the concept?): [I] TPR against a 12-assertion spec-derived suite is a reasonable small-scale functional-correctness oracle; MCC alone is a thin proxy for maintainability; lower baseline coverage of agentic code partly reflects added validation/logging rather than lower quality.
-- Statistical conclusion (power, multiple comparisons, variance): [V] Holm-Bonferroni correction and effect sizes reported (p. 10, p. 11). [A] Low power acknowledged (p. 36). [I] Non-independent repeated runs pooled as samples; no confidence intervals; one-tailed tests chosen for every direction.
+- Statistical conclusion (power, multiple comparisons, variance): [V] Holm-Bonferroni correction and effect sizes reported (p. 10, p. 11). [A] Low power acknowledged (p. 36). [I] Non-independent repeated runs pooled as samples; no confidence intervals; one-tailed tests chosen for every direction; reported test directions are inconsistent with the sign of Cliff's δ in several rows (see §9, p. 25, p. 27).
 - Reproducibility (data/code/setup reported?): [V] Prompts (Table 7, p. 20), metrics definitions (p. 14), per-participant data (p. 41, p. 42) and GitHub package (p. 43). [I] Agentic runs via a web interface of a commercial platform are hard to reproduce; model parameters not reported.
 
 ## 11. Future research directions

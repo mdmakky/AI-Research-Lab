@@ -1,0 +1,1057 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                        Benchmarking LLMs and LLM-based Agents
+                  in Practical Vulnerability Detection for Code Repositories
+
+  Alperen Yildiz1 , Sin G. Teo2 , Yiling Lou3 , Yebo Feng4 , Chong Wang4 * , Dinil Mon Divakaran2
+                               1
+                                 National University of Singapore, Singapore
+                     2
+                       Institute for Infocomm Research (I2 R), A*STAR, Singapore
+                                          3
+                                            Fudan University, China
+                              4
+                                Nanyang Technological University, Singapore
+
+
+                           Abstract                                 Benchmark # CVEs # CWEs Pairwise Agents Eval
+                                                                    ReposVul         6,134 236 ✗         ✗
+         Large Language Models (LLMs) have shown                    VulEval          4,196  5  ✗         ✗
+         promise in software vulnerability detection,               Lomio et al.       27  11  ✓         ✗
+         particularly on function-level benchmarks like             J IT V UL (ours) 879   91  ✓         ✓
+         Devign and BigVul. However, real-world de-                Table 1: Comparison of J IT V UL with existing bench-
+         tection requires interprocedural analysis, as             marks for repository-level vulnerability detection.
+         vulnerabilities often emerge through multi-
+         hop function calls rather than isolated func-
+                                                                      However, a significant gap exists between these
+         tions. While repository-level benchmarks like
+         ReposVul and VulEval introduce interproce-                widely used benchmarks and the requirements for
+         dural context, they remain computationally ex-            real-world vulnerability detection in code repos-
+         pensive, lack pairwise evaluation of vulner-              itories (Wang et al., 2024; Wen et al., 2024b).
+         ability fixes, and explore limited context re-            These benchmarks primarily focus on function-
+         trieval, limiting their practicality.                     level vulnerability detection, where a single func-
+         We introduce J IT V UL, a JIT vulnerability de-           tion is input to a detector for label prediction
+         tection benchmark linking each function to                without considering the broader repository con-
+         its vulnerability-introducing and fixing com-             text. In contrast, real-world vulnerabilities—such
+         mits. Built from 879 CVEs spanning 91                     as null pointer dereference (NPD)—often arise
+         vulnerability types, J IT V UL enables compre-            within multi-hop function call chains, and not in
+         hensive evaluation of detection capabilities.
+                                                                   isolated functions. Detecting such vulnerabilities
+         Our results show that ReAct Agents, leverag-
+         ing thought-action-observation and interproce-            requires tracing interprocedural call relationships
+         dural context, perform better than LLMs in                and understanding the relevant code elements like
+         distinguishing vulnerable from benign code.               branch conditions (Risse and Böhme, 2024a).
+         While prompting strategies like Chain-of-                    To address these limitations, recent studies
+         Thought help LLMs, ReAct Agents require
+                                                                   have shifted towards repository-level detection
+         further refinement. Both methods show in-
+         consistencies, either misidentifying vulnera-
+                                                                   scenarios, enabling more realistic benchmark-
+         bilities or over-analyzing security guards, in-           ing of LLMs for vulnerability detection. Re-
+         dicating significant room for improvement.                posVul (Wang et al., 2024) and VulEval (Wen
+                                                                   et al., 2024b) are two benchmarks that enhance the
+    1    Introduction                                              detection process by extracting callers and callees
+                                                                   for a target function from the code repository,
+    Given the success of large language models                     providing interprocedural context. These callers
+    (LLMs) across various application domains, re-                 (functions that call the target function) and callees
+    searchers have begun exploring their effective-                (functions called by the target function) are selec-
+    ness in software vulnerability detection. On well-             tively fed into LLMs to assess the vulnerability of
+    known vulnerability detection benchmarks such                  the target function. Findings from these bench-
+    as Devign (Zhou et al., 2019) and BigVul (Fan                  marks show that while LLMs benefit from the ad-
+    et al., 2020), LLMs—particularly those fine-tuned              ditional interprocedural context, they still exhibit
+    on code—have shown promising results, suggest-                 low effectiveness in real-world scenarios, particu-
+    ing their potential for real-world applications.               larly when fine-tuning is not applied.
+        * Chong Wang is the corresponding author.                     Although existing works have provided valu-
+                                                             30848
+Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 30848–30865
+                             July 27 - August 1, 2025 ©2025 Association for Computational Linguistics
+
+=== [PDF page 2] ===
+
+able insights into the effectiveness of LLMs            els to assess their effectiveness in JIT vulnerabil-
+for repository-level vulnerability detection, sev-      ity detection. Our evaluation on J IT V UL uncovers
+eral key limitations remain in achieving more           several key findings. A higher F1 score doesn’t
+comprehensive benchmarking. First, in exist-            always reflect a method’s ability to capture vul-
+ing repository-level vulnerability detection ap-        nerability characteristics, highlighting the need for
+proaches, all functions within a code repository        pairwise evaluation. ReAct Agents, using their
+are treated as target functions for vulnerability de-   thought-action-observation framework and inter-
+tection. This approach becomes computationally          procedural context, better differentiate between
+expensive and impractical, particularly for large       vulnerable and benign versions. While strategies
+repositories like the Linux kernel. Second, the         like CoT and few-shot examples boost LLMs’ per-
+benchmarks do not effectively assess the capabil-       formance, ReAct Agents need more tailored de-
+ity of LLMs in distinguishing between vulnera-          signs. Both LLMs and ReAct Agents often ex-
+ble functions and those where the vulnerability         hibit inconsistent analysis patterns between the
+has been patched. As highlighted by a recent            vulnerable and benign versions, indicating a lack
+study (Risse and Böhme, 2024b), this is a critical     of robustness in vulnerability analysis. These find-
+limitation of machine learning-based vulnerability      ings highlight key areas for future research in vul-
+detection methods. Finally, the integration of in-      nerability detection: (i) developing more com-
+terprocedural context (i.e., callers and callees) has   prehensive evaluation guidelines for benchmark-
+mostly been limited to retrieval-based strategies,      ing LLMs and LLM-based agents in JIT vulner-
+leaving many potential approaches underexplored.        ability detection, (ii) exploring advanced prompt-
+LLM-based agentic methods, such as ReAct (Yao           ing strategies for improving LLM-based agents in
+et al., 2022), offer the potential for on-demand, it-   vulnerability detection, and (iii) designing robust
+erative acquisition of interprocedural context, en-     reasoning models tailored to vulnerability analy-
+abling more adaptive analysis.                          sis that capture the true essence of vulnerabilities,
+   To bridge the gap, we target the task of just-in-    rather than relying on speculation.
+time (JIT) vulnerability detection (Lomio et al.,          This paper makes the following contributions:
+2022), a more practical approach for identifying            • We introduce J IT V UL, a benchmark for just-
+vulnerabilities in code repositories. Unlike prior            in-time (JIT) vulnerability detection in code
+methods that analyze all functions in a reposi-               repositories, consisting of 1,758 pairwise com-
+tory, JIT vulnerability detection is triggered only           mits spanning 91 vulnerability types.
+for functions modified in a commit, with inter-             • We implement ReAct agents with various
+procedural context provided. Inspired by prior re-            prompting strategies and foundation models
+search (Risse and Böhme, 2024b), we construct a              and evaluate their effectiveness in leveraging
+pairwise benchmark called J IT V UL for JIT vul-              interprocedural context for JIT detection.
+nerability detection, where each target function            • Our experimental results provide valuable in-
+is linked to both a vulnerability-introducing com-            sights into the application of LLMs and LLM-
+mit and a vulnerability-fixing commit. To achieve             based agents for real-world vulnerability de-
+this, we first select 879 Common Vulnerabili-                 tection. We explore the necessity of pairwise
+ties and Exposures (CVE) entries, each repre-                 evaluation, the advantages and disadvantages
+senting a unique vulnerability, from PrimeVul, a              of LLMs and ReAct agents, and the impact of
+high-quality function-level detection dataset (Ding           prompting designs and foundation models.
+et al., 2024). We then extract target functions from        • We release all code and data at this repository.
+the vulnerability-fixing commits explicitly refer-
+enced in the CVE entries, obtaining both their vul-     2     Related Work
+nerable and patched versions. Finally, we ana-
+lyze the commit history of each vulnerable func-        2.1     Vulnerability Detection Benchmarks
+tion to identify the corresponding vulnerability-       Several benchmarks have been proposed
+introducing commit. The resulting J IT V UL com-        for function-level vulnerability detection.
+prises 1,758 paired commits spanning 91 Common          BigVul (Fan et al., 2020) collects C/C++
+Weakness Enumerations (CWEs).                           vulnerabilities from the CVE database, filtering
+   We implement LLMs and ReAct Agents with              out entries without public Git repositories, and
+various prompting strategies and foundation mod-        labels functions as vulnerable or non-vulnerable
+                                                    30849
+
+=== [PDF page 3] ===
+
+based on commit fixes. MegaVul (Ni et al., 2024)        thought (CoT) prompting (Wei et al., 2022) is one
+improves upon existing benchmarks by using code         of the most widely used techniques, where in-
+parsing tools for accurate function extraction and      structions like “Let’s think step by step” guide the
+de-duplicating functions referenced by multiple         model to break problems into sub-problems. Few-
+CVEs. DiverseVul (Chen et al., 2023) ensures            shot prompting (Brown et al., 2020) is another
+data quality by filtering vulnerability-introducing     common method, providing example traces to en-
+commits with specific keywords and dedupli-             able in-context learning without modifying model
+cating function bodies with hash functions.             weights. Both CoT and few-shot prompting are
+PrimeVul (Ding et al., 2024) addresses data             frequently employed in LLM-based vulnerability
+quality challenges by proposing filtering rules to      detection (Zhou et al., 2024b; Wen et al., 2024a).
+handle noise labels and duplicated functions.              Agentic architectures are among the most
+    For repository-level vulnerability detection, Re-   promising state-of-the-art technologies but remain
+posVul (Wang et al., 2024) addresses issues with        underexplored in vulnerability detection (Zhou
+tangled and outdated patches, using trace-based         et al., 2024a). (Yao et al., 2022) introduce Rea-
+filtering to ensure data quality and integrating        soning and Acting (ReAct) agents, which gener-
+repository-level features to provide richer con-        ate reasoning and action traces in an interleaved
+text for detection. VulEval (Wen et al., 2024b)         manner to interact with their environment and an-
+provides a framework that collects high-quality         alyze resulting observations. This iterative pro-
+data from sources like Mend.io Vulnerability            cess continues until the agent determines a final
+Database (Mend.io, 2025) and National Vulnera-          answer. Reflexion agents (Shinn et al., 2023)
+bility Database (NIST, 2025), including contex-         are similar to ReAct agents however they focus
+tual information like caller-callee relationships.      on self-reflection and dynamic memory updates
+                                                        alongside with reinforcement learning. Self-refine
+2.2 LLM-based Vulnerability Detection                   agents (Madaan et al.) are another type of agents
+Recent studies have explored the use of LLMs for        where the same language model is instructed to
+vulnerability detection, highlighting their ability     provide feedback based on the output. There have
+to enhance both the identification and explanation      also been several multi-agent systems, such as
+of software vulnerabilities. InferROI (Wang et al.,     Alpha-Codium (Ridnik et al.), where the agents
+2025) enhances static resource leak detection with      are represented as nodes on graphs.
+LLM-inferred resource operation oriented inten-
+tions. LLM4SA (Wen et al., 2024a) integrates lan-       3     J IT V UL: Just-in-Time Vulnerability
+guage models with SAST tools, leveraging LLMs                 Detection for Code Repositories
+to inspect static analysis warnings and signifi-
+                                                        In this section, we outline the requirements for
+cantly reduce false positives. LLM4Vuln (Sun
+                                                        just-in-time (JIT) vulnerability detection in the
+et al., 2024) enhances LLM execution by incorpo-
+                                                        context of benchmarking LLMs and LLM-based
+rating more context through a retrieval-augmented
+                                                        agents, and introduce a benchmark derived from
+generation (RAG) pipeline and static analysis.
+                                                        real-world vulnerabilities.
+LSAST (Keltek et al., 2024) further explores
+context augmentation, comparing multiple RAG            3.1     Problem Statement
+pipelines using static analysis outputs, vulnera-
+bility reports, and code abstraction. Similarly,        Benchmarking vulnerability detection in real-
+Vul-RAG (Du et al., 2024) constructs a vector           world code repositories requires considering three
+database of vulnerability reports alongside an lan-     key practicality requirements:
+guage model engine. (Zhou et al., 2024b) intro-             • Interprocedural Context. Many vulnerabil-
+duce a voting mechanism that combines SAST                    ities originate from interprocedural interac-
+tools and LLMs for vulnerability detection.                   tions, even though their manifestation and re-
+                                                              quired fixes often occur within individual func-
+2.3 LLMs and LLM-based Agents                                 tions (Wang et al., 2024). For instance, a
+Various methods have been explored to enhance                 null pointer dereference (NPD) vulnerability
+LLM performance, with prompt augmentation be-                 may arise when a pointer initialized as null in
+ing a key approach that enriches prompts to im-               one function is improperly dereferenced in an-
+prove the model’s reasoning process. Chain-of-                other function along the execution path. Identi-
+                                                    30850
+
+=== [PDF page 4] ===
+
+   fying such vulnerabilities necessitates analyz-           CVE Entry           Vulnerable    Vul-intro Vul-fix
+                                                                                  Version
+   ing interprocedural dependencies, as examin-              Repository
+                                                                                  Benign
+                                                                                                                      JITVul
+
+   ing functions in isolation is insufficient. A re-         Fix Commit           Version       Commit History       A Pairwise
+                                                             Step 1:             Step 2:            Step 3:        Benchmark for
+   cent study (Li et al., 2024) reports that approx-   Vulnerability Entry   Target Function   Pairwise Commits    JIT Detection
+   imately 24.3% of vulnerabilities in real-world           Selection          Extraction        Identification     (879 CVEs)
+
+   C/C++ projects are interprocedural, typically               Figure 1: Construction process of J IT V UL.
+   requiring an average of 2.8 levels of call rela-
+   tionships.                                          is formulated as:
+ • Scalability. A straightforward application of             J IT D ETECT : (R, f ) → {vul, ben},
+   learning-based methods to vulnerability de-         where f is classified as either vulnerable (vul) or
+   tection for code repositories entails scanning      benign (ben) based on the (interprocedural) con-
+   each function individually and predicting a         text within R. Building on this, we propose a
+   binary label. However, in the context of            pairwise benchmark to evaluate LLMs and LLM-
+   LLMs and LLM-based agents, this approach            based agents.
+   becomes computationally infeasible for large-
+   scale repositories due to the high processing       3.3     Benchmark Construction
+   costs and resource constraints associated with      We construct a benchmark called J IT V UL for
+   analyzing extensive codebases. A more practi-       practical Just-In-Time (JIT) vulnerability de-
+   cal strategy is to focus on a limited set of can-   tection for code repositories, building on the
+   didate functions. Just-in-time vulnerability de-    function-level detection dataset PrimeVul (Ding
+   tection (Lomio et al., 2022) exemplify this by      et al., 2024). As presented in Figure 1, the con-
+   prioritizing functions that have been newly in-     struction process involves three key steps: Vul-
+   troduced or modified in commits.                    nerability Entry Selection, Target Function Extrac-
+ • Pairwise Comparison. Traditional evalua-            tion, and Pairwise Commit Identification. Note
+   tion methods for machine learning-based vul-        that we did not use the JIT detection dataset cu-
+   nerability detection present models with la-        rated by (Lomio et al., 2022) for the following
+   beled vulnerable code alongside other func-         reasons. First, it includes only 27 CVE entries
+   tions in the repository. However, recent find-      across 11 CWEs in 9 Java projects, which is rela-
+   ings (Risse and Böhme, 2024b) suggest that         tively small for effectively benchmarking the per-
+   models struggle to distinguish between vul-         formance of LLMs and LLM-based agents. Sec-
+   nerable code and its patched, benign version,       ond, as discussed in (Ding et al., 2024), the quality
+   indicating an over-reliance on superficial pat-     of the dataset should be ensured to avoid introduc-
+   terns rather than meaningful vulnerability in-      ing noise into the evaluation.
+   dicators. This highlights the necessity of pair-       Step 1: Vulnerability Entry Selection. We
+   wise benchmarking to ensure reliable evalua-        begin by selecting CVE entries that meet three
+   tion of vulnerability detection methods.            key criteria: (i) the selected CVEs should cover a
+   Although recent works address some of these         broad range of CWEs, representing different cat-
+requirements, to the best of our knowledge, no         egories of vulnerabilities, (ii) each CVE should
+study fully satisfies all three. For example, Prime-   have an associated GitHub repository with a com-
+Vul (Ding et al., 2024) is a high-quality pairwise     plete commit history, and (iii) each CVE should
+dataset, but it focuses on function-level detection.   correspond to a commit that fixes the vulnerability.
+On the other hand, VulEval (Wen et al., 2024b) is a    To satisfy these criteria, we leverage the Prime-
+repository-level detection benchmark, but it lacks     Vul dataset as our foundation. PrimeVul ensures
+pairwise evaluation and considers only callers and     high data quality by including only CVEs that
+callees modified in the same commit when extract-      were fixed in a single commit modifying a single
+ing interprocedural dependencies.                      function. From PrimeVul, we randomly select 879
+                                                       CVE entries, ensuring coverage across 91 CWEs,
+                                                       with a maximum of ten CVEs per CWE.
+3.2 Task Definition
+                                                          Step 2: Target Function Extraction. For each
+We define the task of just-in-time vulnerability de-   selected CVE, we retrieve the target function and
+tection as follows. Given a code repository R and      the commit that fixes the vulnerability directly
+a target function f modified in a commit, the task     from the PrimeVul dataset. The versions before
+                                                   30851
+
+=== [PDF page 5] ===
+
+and after the fix correspond to the vulnerable and      4     Experimental Setup
+benign versions of the target function, denoted as
+fvul and fben , respectively.                           4.1     Studied Methods
+                                                        We investigate three categories of detection meth-
+   Step 3: Pairwise Commits Identification. Un-         ods: Plain LLM, Dependency-Augmented (Dep-
+like function-level vulnerability detection studies     Aug) LLM, and ReAct Agent. We choose the Re-
+like PrimeVul, our JIT detection requires identi-       Act agent over alternatives because its thought-
+fying the commits that trigger vulnerability detec-     action-observation workflow aligns well with the
+tion for both fvul and fben , and obtaining the cor-    need for on-demand interprocedural analysis in
+responding repository versions to provide neces-        JIT vulnerability detection.
+sary context like callers and callees. To achieve
+this, we extract the two commits responsible for            • Plain LLM employs a single LLM with a
+introducing and fixing the vulnerability, referred to         prompt for vulnerability detection, resembling
+as the vul-intro and vul-fix commits, respectively.           a function-level detection approach. The LLM
+                                                              is given only the target function to determine
+   The vul-fix commit can be directly obtained                whether it is vulnerable. The detailed prompts
+from the data retrieved in the previous step, and             can be found in Appendix A.1.
+the repository version corresponding to it is de-           • Dep-Aug LLM extends the Plain LLM by in-
+noted as Rf ix . Identifying the precise vul-intro            corporating Top-5 similar callers and callees of
+commit is more challenging, as pinpointing the ex-            the target function into the prompt through a
+act code change that introduces the vulnerability             lexical retrieval approach, such as Jaccard Sim-
+requires considering the complex interactions be-             ilarity. This method, proposed and evaluated in
+tween functions. Following the methodology from               VulEval (Wen et al., 2024b), is reproduced in
+prior JIT detection work (Lomio et al., 2022), we             our work based on the original paper. We use
+trace the change history of the target function to            it as a baseline that integrates interprocedural
+approximate the vul-intro commit. Specifically,               context into LLMs in a deterministic manner.
+we traverse the commit history backward, exam-              • ReAct Agent performs an iterative thought-
+ining each commit until we identify the commit                action-observation process as illustrated in Ap-
+where the target function was last modified to be-            pendix Figure 4, which is equipped with three
+come the fvul version. This commit is then desig-             tools for on-demand interprocedural context
+nated as the vul-intro commit, and the correspond-            acquisition: (i) get callers returns the function
+ing repository is denoted as Rintro .                         names and line numbers of callers for the in-
+                                                              put function; (ii) get callees returns the func-
+   In the vul-intro and vul-fix commits, the target           tion names and line numbers of callees for the
+function is modified into the fvul and fben ver-              input function; (iii) get definition retrieves the
+sions, respectively, thereby triggering the JIT de-           complete function definition based on the input
+tection process.                                              function name and line number. Using these
+                                                              three tools, our ReAct agent for JIT detection
+   Resulting Benchmark. After completing the
+                                                              follows the workflow outlined below. In each
+above steps, J IT V UL includes 1,758 pairwise data
+                                                              iteration, the agent first reasons based on the
+samples, with 879 labeled as vulnerable and 879
+                                                              current context and the observations from the
+as benign. Each sample consists of a specific code
+                                                              previous iteration. It then decides whether to
+repository version, a target function, and a ground-
+                                                              call the tools for interprocedural context or to
+truth label (i.e., vul or ben). These samples
+                                                              stop the iteration and make a prediction. After
+are derived from 879 CVE entries, spanning 91
+                                                              observing the tool outputs, the agent proceeds
+CWEs. Regarding the code repositories, the aver-
+                                                              to the next iteration.
+age number of code files per repository is 2,955.9.
+Approximately 9% of the repositories primarily            For each category, besides the vanilla version
+use C++, while 91% utilize C. The mean number           with a basic prompt, we also design three variants
+of thousands of lines of code (KLoC) per reposi-        based on different prompting strategies: chain-of-
+tory is 988.8, with a median of 297.6 and a stan-       thought (CoT), few-shot examples (FS), and com-
+dard deviation of 1,991.2. For the target function,     bination of both CoT and FS.
+the average number of lines of code is 696.4.               • CoT: We use a basic CoT approach by adding
+                                                    30852
+
+=== [PDF page 6] ===
+
+   the instruction “Solve this problem step by            Method          GPT-4o-mini        GPT-4o
+   step...” to prompt the LLM and ReAct agent                              F1 pAcc          F1 pAcc
+   to break down the reasoning tasks. We avoid            Plain LLM
+   more complex CoT instructions, as summa-               - vanilla       56.00    3.36    65.96    1.02
+   rizing reasoning patterns for vulnerabilities in       - w/ CoT        65.10    3.36    62.22   15.02
+                                                          - w/ FS         48.74    7.56    62.77    4.44
+   advance is challenging, particularly given the         - w/ CoT+FS     64.65   11.76    64.44   17.63
+   wide variety of vulnerability types (CWEs).
+                                                          Dep-Aug LLM
+ • FS: We provide several pairwise examples,              - vanilla       52.68    2.05    63.30    1.03
+   each consisting of a vulnerable code snippet           - w/ CoT        66.05    4.86    62.60   18.66
+   with a detailed explanation of the vulnerability       - w/ FS         48.23    7.27    62.03    2.39
+   and its patched benign version with an explana-        - w/ CoT+FS     65.01    4.68    61.12   18.79
+   tion of the applied safeguard. These few-shot          ReAct Agent
+   examples are expected to offer context for the         - vanilla       56.63   12.61    57.77   17.63
+                                                          - w/ CoT        56.93   16.81    58.07   19.13
+   LLM and ReAct agent to distinguish between             - w/ FS         56.81   20.17    56.42   18.91
+   vulnerable and benign code, helping them fo-           - w/ CoT+FS     51.06   14.29    52.61   18.89
+   cus on the actual vulnerability features.
+                                                      Table 2: Results of studied methods on J IT V UL. The
+  For each variant, we further employ two differ-     best and second-best results are highlighted.
+ent foundation models: GPT-4o-mini and GPT-4o.
+                                                      vulnerability manifests, often accompanied by de-
+4.2 Metrics
+                                                      tailed explanations. We use the original example
+For each vul-intro and vul-fix commit pair, we ap-    as the vulnerable code, making minor edits to the
+ply detection methods to the corresponding repos-     explanation for normalization (e.g., merging two
+itory (Rintro or Rf ix ) and target function (fvul    paragraphs before and after the code into a single
+or fben ), then compare predictions with ground       cohesive text). Subsequently, we manually mod-
+truth. In addition to the commonly used F1            ify the code snippet to address the vulnerability,
+score, we also assess effectiveness using pairwise    drafting an explanation of why the modified code
+accuracy (pAcc), inspired by PrimeVul (Ding           is benign, referencing the original explanation of
+et al., 2024). This metric reflects the proportion    the vulnerable code. In this manner, we create
+of pairs where both functions are correctly la-       ten pairs of vulnerable and benign examples, each
+beled, i.e., J IT D ETECT(Rintro , fvul ) = vul and   accompanied by its respective explanation. Ap-
+J IT D ETECT(Rf ix , fben ) = ben.                    pendix Figure 6 provides an illustrative example.
+                          2 × TP                         Caller and Callee Extraction. Given a code
+            F1 =                          ,
+                   2 × TP + FP + FN                   repository and a function, we extract its callers
+                 # of Correctly Labeled Pairs         and callees using CFlow (GNU, 2025), a widely
+        pAcc =                                ,
+                       # of Total Pairs               used tool for on-demand call graph construction.
+where TP is the number of true positives, FN is the   For each caller or callee identified by CFlow, we
+number of false negatives, and FP is the number of    then use CTags (universal ctags, 2025) to extract
+false positives.                                      its complete function body from its definition in
+                                                      the code repository. These are implemented as
+4.3 Implementation                                    Python functions using LangChain’s tool decora-
+Few-shot Example Creation. To support few-            tor for integration into the ReAct workflow.
+shot variants, we manually create ten example            LLMs and Agents. We use two commercial,
+pairs for both the LLM and the agent. Each pair       general-purpose LLMs, GPT-4o-mini and GPT-
+consists of a vulnerable example and a benign ex-     4o with the temperature set to 0. The pipeline
+ample, sourced from the 2024 CWE Top 25 Most          is constructed using Transformers (v4.52.0) and
+Dangerous Software Weaknesses list1 on the CWE        LangChain (v0.3.14).
+website. For each weakness in the Top 25 list, we
+review its corresponding web page to identify a
+                                                      5    Results and Analyses
+relevant C/C++ code snippet. These snippets typ-
+ically serve as illustrative examples of how the
+                                                      Table 2 presents the results of the studied detection
+  1
+      https://cwe.mitre.org/top25/index.html          methods on J IT V UL.
+                                                  30853
+
+=== [PDF page 7] ===
+
+5.1 Detection Method Comparison                                     Prompting Method          F1
+
+We compare the three categories of detection                        - vanilla               9.20
+                                                                    - w/ CoT                5.41
+methods based on both F1 and pAcc scores.                           - w/ FS                12.21
+   Results. The results indicate that ReAct Agents                  - w/ CoT+FS             5.86
+achieve higher pAcc scores than other LLM-
+                                                        Table 3: F1 Score of GPT-4o-mini on a non-pair dataset
+based methods across all prompting strategies,          with 695 vulnerable and 25,216 benign functions.
+with improvements ranging from 0.1% to 16.61%,
+with the largest gain occurring with GPT-4o and         on J IT V UL. This also highlights F1 ’s sensitivity
+the vanilla prompting. However, Plain LLMs              to the data distribution, emphasizing the need for
+and Dep-Aug LLMs generally achieve higher F1            pairwise evaluation to better capture core vulner-
+scores than ReAct under most settings, with im-         ability characteristics (Risse and Böhme, 2024b).
+provements of 4.15%-13.95%, except when using           We include an additional non-paired dataset to
+GPT-4o-mini with the CoT and CoT+FS prompt-             further demonstrate F1 ’s sensitivity. Specifically,
+ing strategies. Additionally, Dep-Aug LLMs              we evaluate the performance of GPT-4o-mini us-
+do not show consistent improvements over Plain          ing the original PrimeVul (Ding et al., 2024) test
+LLMs and even exhibit performance degradation           set, which contains 695 vulnerable and 25,216 be-
+with certain prompting strategies.                      nign functions. As shown in Table 3, the shift
+   The LLM-based vulnerability detection meth-          in data distribution significantly impacts the F1
+ods often over-classify both vulnerable and be-         score, underscoring the importance of pairwise de-
+nign instances as vulnerable, leading to pairwise       tection for more reliable benchmarking of LLMs
+accuracy that can fall below the level of random        and LLM-based agents in vulnerability analysis.
+guessing, a well-documented issue. For example,            The thought-action-observation framework of
+GPT-4 achieves only 5.14% accuracy with two-            ReAct Agents, combined with their effective use
+shot prompting and 12.94% with chain-of-thought         of interprocedural context, enhances their abil-
+reasoning, compared to 22.70% for random guess-         ity to capture vulnerability characteristics. Re-
+ing (Ding et al., 2024). Interestingly, larger mod-     Act Agents conduct in-depth, fine-grained analy-
+els tend to perform worse than smaller ones, as         sis by iteratively and adaptively retrieving addi-
+they are more susceptible to over-predicting vul-       tional context, such as callers and callees, rather
+nerabilities (Ding et al., 2024; Zhou et al., 2024b).   than relying on superficial analysis or speculation.
+These challenges highlight the intrinsic difficulty     This allows them to differentiate between code
+of vulnerability detection, which demands deep          versions before and after vulnerability fix, lead-
+comprehension of function semantics, interproce-        ing to consistent improvements in pAcc. In con-
+dural relationships, execution logic, vulnerability     trast, while Dep-Aug LLMs incorporate interpro-
+patterns, and complex reasoning. Although our           cedural context, they rely on mechanical retrieval
+evaluation shows that agent-based methods offer         based on similarity metrics (e.g., Jaccard Similar-
+measurable improvements, substantial progress is        ity), feeding retrieved Top-5 callers and callees all
+still needed. We share several insights to guide fu-    at once, which may introduce noise. This could
+ture development of more effective approaches.          explain why Dep-Aug LLMs sometimes show a
+   Findings. Two findings emerge from results.          lower pAcc than Plain LLMs. In comparison, Re-
+   A higher F1 score does not necessarily indicate      Act agents demonstrate average improvements in
+a detection method’s superior ability to capture        pAcc of 9.46% over Dep-Aug LLMs with GPT-
+vulnerability characteristics. Vulnerability detec-     4o-mini and 8.42% with GPT-4o, across various
+tion methods exhibit an inconsistent relationship       prompting strategies. To demonstrate the adaptive
+between pAcc (pairwise accuracy) and F1 (iso-           use of interprocedural context of ReAct Agent, we
+lated metric). LLM-based methods predict signif-        present the distribution of tool invocations for Re-
+icantly more vul labels—exceeding 90% in cer-           Act with GPT-4o and vanilla prompting in Ap-
+tain settings—compared to ReAct Agents, leading         pendix 2. It shows that ReAct Agent dynamically
+to higher recall. However, precision remains sim-       invokes the tools one to three times to retrieve the
+ilar across methods, around 50%, as observed on         necessary callers or callees for most cases, in con-
+our label-balanced benchmark.. These factors ex-        trast to Dep-Aug LLM, which feeds a fixed num-
+plain the higher F1 scores of LLM-based methods         ber of callers and callees.
+                                                    30854
+
+=== [PDF page 8] ===
+
+                                                       8B and DeepSeek-Coder-V2-16B (a code specific
+                                                       model), for further comparison. Their results pre-
+                                                       sented in Appendix B.
+                                                          Results. GPT-4o outperforms GPT-4o-mini on
+                                                       average, while Llama-3.1-8B frequently fails to
+                                                       complete the analysis process and defaults to the
+                                                       ben label when integrated into ReAct Agents.
+                                                          Findings. Two key findings are identified.
+                                                          Different foundation models are sensitive to dif-
+        0   1   2   3   4   5   6   7   8   9
+                                                       ferent prompting strategies. The results show
+Figure 2: Distribution of tool invocations for ReAct
+                                                       that GPT-4o-mini and GPT-4o exhibit distinct im-
+Agent with GPT-4o and vanilla prompting.               provement patterns with CoT and FS examples.
+                                                       This highlights the need to customize prompting
+5.2 Prompting Strategy Comparison                      strategies based on the selected foundation mod-
+We also compare the three prompting strategies         els. Moreover, larger models do not always out-
+and perform a detailed analysis.                       perform smaller models, emphasizing the impor-
+   Results. When applying different prompting          tance of carefully designing methods that consider
+strategies, such as CoT and FS, detection meth-        the characteristics of specific foundation models.
+ods show varying degrees of improvement in pAcc           The execution of ReAct Agents depends on
+scores, ranging from 1.26% to 17.76%. However,         the instruction-following capability of foundation
+these prompting strategies do not consistently lead    models. Inspection of the outputs reveals that the
+to F1 improvements in the pairwise evaluation.         failures of Llama-3.1-8B in ReAct Agents are due
+   Findings. We find two key findings.                 to the model’s frequent inability to follow out-
+   Popular prompting strategies like CoT and FS        put format requirements. This prevents the agents
+examples can enhance LLMs’ performance in              from linking outputs and inputs across compo-
+pairwise JIT evaluation. While these strategies        nents, thus failing to perform the thought-action-
+sometimes reduce F1 scores, the pairwise metric        observation iterative framework. This is a known
+pAcc shows that LLMs can significantly benefit         issue with some foundation models, which strug-
+from CoT instructions (even something as sim-          gle to follow instructions effectively (Verma et al.,
+ple as “Solve this problem step by step...”) and       2024), reducing their effectiveness when used in
+pairwise FS examples. This improvement is often        agentic architectures.
+overlooked when focusing solely on F1 and should
+be considered when designing methods.                  5.4   Pairwise Comparison
+   ReAct Agents require further design improve-        The failures in pairwise evaluation can be cate-
+ments when using prompting strategies. The cur-        gorized into three types: pairwise vulnerable,
+rent prompts are straightforward and align bet-        where both versions are labeled as vulnerable;
+ter with the inference process of LLMs, meaning        pairwise benign, where both versions are labeled
+the improvements from these strategies for ReAct       as benign; and pairwise reversed, where both ver-
+Agents are relatively smaller than for LLM-based       sions are mislabeled. We conduct a more detailed
+methods. For instance, the FS examples con-            pairwise comparison based on these types.
+sist of singleton code snippets that do not require       Results. The most prevalent pairwise inaccu-
+interprocedural analysis, which limits the bene-       racy is pairwise vulnerable, ranging from approx-
+fit for ReAct Agents that rely on interprocedu-        imately 40% to 95% for LLMs and from around
+ral context. This suggests a research opportunity      35% to 50% for ReAct Agents (except those with
+in developing agent-oriented prompting strategies      Llama-3.1-8B). Typically, the occurrence of pair-
+specifically for vulnerability detection.              wise reversed increases as pAcc improves.
+                                                          Findings. We identify the following insights.
+5.3 Foundation Model Comparison                           ReAct Agents are more effective at distinguish-
+To evaluate the effectiveness of different foun-       ing between pairwise target functions. ReAct
+dation models across various detection methods,        Agents demonstrate a stronger ability to differen-
+we conduct a comparative analysis. Additionally,       tiate between a vulnerable function and its patched
+we include two open-source models, LLaMA 3.1-          benign version. This is because they leverage
+                                                   30855
+
+=== [PDF page 9] ===
+
+the thought-action-observation framework to iter-      enables a comprehensive, pairwise evaluation of
+atively and adaptively retrieve additional context,    LLMs and LLM-based agents. Our results show
+such as callers and callees, which allows them to      that ReAct Agents, leveraging thought-action-
+capture differences between the two versions. A        observation and interprocedural context, demon-
+related case study can be found in Appendix C.1.       strate better reasoning but require further refine-
+   LLMs and ReAct Agents sometimes fail to iden-       ment, particularly in utilizing advanced prompting
+tify the causes in the vulnerable version, while       strategies. Additionally, LLMs and ReAct agents
+tending to over-analyze the benign version after       often misinterpret flaws by either overlooking crit-
+the vulnerability fix. LLMs and ReAct Agents           ical issues or over-analyzing benign fixes. These
+often struggle to pinpoint the root causes (e.g.,      findings highlight the need for improving agentic
+insufficient input sanitization) of vulnerabilities    architectures, prompting techniques, dynamic in-
+in the vulnerable version. After the vulnerabil-       terprocedural analysis, and robust reasoning mod-
+ity is fixed, however, the detection methods tend      els tailored to vulnerability analysis to enhance au-
+to over-analyze the patched guards (e.g., newly        tomated vulnerability detection.
+added sanitization statements) in the benign ver-
+sion, speculating about results and often misiden-     7   Limitations
+tifying non-issues. This discrepancy arises be-
+                                                       As the early work benchmarking LLM-based
+cause LLMs rely on broad, general patterns with-
+                                                       agents for JIT vulnerability detection in code
+out the accurate reasoning capability needed for
+                                                       repositories, we acknowledge several limitations.
+complex contexts. This highlights the need for
+                                                       First, the construction of J IT V UL may not per-
+more fine-grained analysis capabilities, such as re-
+                                                       fectly trace the vul-intro commit due to the com-
+liable constraint solving, which should be inte-
+                                                       plexity of code evolution and function interac-
+grated with LLMs or enhanced through program
+                                                       tions. To mitigate this, we followed existing
+analysis techniques. A detailed case study can be
+                                                       methodologies (Lomio et al., 2022) and manually
+found in Appendix C.2.
+                                                       inspected selected instances to ensure reliability.
+   LLMs and ReAct Agents often exhibit incon-          Second, while we emphasize pairwise evaluation
+sistent analysis patterns when analyzing pairwise      for JIT detection, the label-balanced dataset may
+target functions. When analyzing pairwise target       introduce bias in F1 comparisons. In the future,
+functions ( vulnerable and benign version) LLMs        we plan to incorporate more benign commits to
+display significant inconsistencies in their evalua-   improve the evaluation in F1 metric. Third, some
+tion patterns. For some pairs, they may provide        important statistics, such as the ratio of interpro-
+thorough analysis for the vulnerable version but       cedural vulnerabilities, are missing. Although we
+neglect important details in the benign version, or    attempted manual annotation, it is labor-intensive
+vice versa. In other cases, they may exhibit con-      and difficult to scale. We plan to leverage com-
+trasting reasoning or focus on irrelevant aspects,     mercial annotation platforms to achieve the anno-
+leading to discrepancies in how they interpret the     tation and provide more fine-grained evaluations
+two versions. A clear example of this inconsis-        in future work.
+tency is the significant difference in the average
+number of tool invocations by the ReAct Agent          Acknowledgment
+for the vulnerable and benign versions (e.g., 5.85
+vs. 1.79 when using GPT-4o-mini with vanilla           This research/project is supported by the Na-
+prompting). These inconsistencies highlight the        tional Research Foundation, Singapore, and the
+challenges LLMs face in handling the complex-          Cyber Security Agency of Singapore under the
+ities of code analysis, where the differences be-      National Cybersecurity R&D Programme and the
+tween a vulnerable and benign version can be sub-      CyberSG R&D Programme Office (Award CRPO-
+tle and require more nuanced evaluation. A de-         GC2-ASTAR-001). Any opinions, findings, con-
+tailed case study can be found in Appendix C.1.        clusions, or recommendations expressed in these
+                                                       materials are those of the author(s) and do not
+6   Conclusion                                         reflect the views of the National Research Foun-
+                                                       dation, Singapore, the Cyber Security Agency of
+In this work, we introduced J IT V UL, a benchmark     Singapore, or the CyberSG R&D Programme Of-
+for just-in-time (JIT) vulnerability detection that    fice.
+                                                   30856
+
+=== [PDF page 10] ===
+
+References                                                  Mend.io. 2025. Mend.io vulnerability database: The
+                                                             largest open source vulnerability database.
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie
+  Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind        Chao Ni, Liyu Shen, Xiaohu Yang, Yan Zhu, and Shao-
+  Neelakantan, Pranav Shyam, Girish Sastry, Amanda            hua Wang. 2024. MegaVul: A C/C++ Vulnerability
+  Askell, et al. 2020. Language models are few-shot           Dataset with Comprehensive Code Representations.
+  learners. Advances in neural information processing         In 2024 IEEE/ACM 21st International Conference
+  systems, 33:1877–1901.                                      on Mining Software Repositories (MSR), pages 738–
+                                                              742. ISSN: 2574-3864.
+Yizheng Chen, Zhoujie Ding, Lamya Alowain, Xinyun
+  Chen, and David Wagner. 2023. DiverseVul: A New           NIST. 2025. National vulnerability database: Dash-
+  Vulnerable Source Code Dataset for Deep Learn-              board.
+  ing Based Vulnerability Detection. In Proceed-
+  ings of the 26th International Symposium on Re-           Ted Ridnik, Dedy Kredo, and Itamar Friedman. Code
+  search in Attacks, Intrusions and Defenses, RAID            Generation with AlphaCodium: From Prompt Engi-
+  ’23, pages 654–668, New York, NY, USA. Associa-             neering to Flow Engineering.
+  tion for Computing Machinery.                             Niklas Risse and Marcel Böhme. 2024a. Top score
+                                                              on the wrong exam: On benchmarking in machine
+Yangruibo Ding, Yanjun Fu, Omniyyah Ibrahim,
+                                                              learning for vulnerability detection. arXiv preprint
+  Chawin Sitawarin, Xinyun Chen, Basel Alomair,
+                                                              arXiv:2408.12986.
+  David Wagner, Baishakhi Ray, and Yizheng Chen.
+  2024. Vulnerability detection with code language          Niklas Risse and Marcel Böhme. 2024b. Uncovering
+  models: How far are we?           arXiv preprint            the limits of machine learning for automatic vulner-
+  arXiv:2403.18624.                                           ability detection. In 33rd USENIX Security Sympo-
+                                                              sium (USENIX Security 24), pages 4247–4264.
+Xueying Du, Geng Zheng, Kaixin Wang, Jiayi Feng,
+  Wentai Deng, Mingwei Liu, Bihuan Chen, Xin                Noah Shinn, Federico Cassano, Edward Berman, Ash-
+  Peng, Tao Ma, and Yiling Lou. 2024.       Vul-              win Gopinath, Karthik Narasimhan, and Shunyu
+  rag: Enhancing llm-based vulnerability detec-               Yao. 2023. Reflexion: Language Agents with
+  tion via knowledge-level rag.  arXiv preprint               Verbal Reinforcement Learning. arXiv preprint.
+  arXiv:2406.11147.                                           ArXiv:2303.11366 [cs].
+
+Jiahao Fan, Yi Li, Shaohua Wang, and Tien N Nguyen.         Yuqiang Sun, Daoyuan Wu, Yue Xue, Han Liu, Wei
+   2020. Ac/c++ code vulnerability dataset with code          Ma, Lyuye Zhang, Yang Liu, and Yingjiu Li. 2024.
+   changes and cve summaries. In Proceedings of the           LLM4Vuln: A Unified Evaluation Framework for
+   17th International Conference on Mining Software           Decoupling and Enhancing LLMs’ Vulnerability
+   Repositories, pages 508–512.                               Reasoning. arXiv preprint. ArXiv:2401.16185.
+
+GNU. 2025. Gnu cflow: analyzing a collection of c           universal ctags. 2025. Universal ctags: A maintained
+  source files, charting control flow within the pro-         ctags implementation.
+  gram.
+                                                            Mudit Verma, Siddhant Bhambri, and Subbarao Kamb-
+                                                             hampati. 2024. On the brittle foundations of re-
+Mete Keltek, Rong Hu, Mohammadreza Fani Sani,
+                                                             act prompting for agentic large language models.
+ and Ziyue Li. 2024. Lsast–enhancing cybersecu-
+                                                             Preprint, arXiv:2405.13966.
+ rity through llm-supported static application security
+ testing. arXiv preprint arXiv:2409.15735.                  Chong Wang, Jianan Liu, Xin Peng, Yang Liu, and Yil-
+                                                              ing Lou. 2025. Boosting static resource leak detec-
+Zhen Li, Ning Wang, Deqing Zou, Yating Li, Ruqian             tion via llm-based resource-oriented intention infer-
+  Zhang, Shouhuai Xu, Chao Zhang, and Hai Jin.                ence. In 2025 IEEE/ACM 47th International Con-
+  2024. On the effectiveness of function-level vulner-        ference on Software Engineering (ICSE), pages 668–
+  ability detectors for inter-procedural vulnerabilities.     668. IEEE Computer Society.
+Francesco Lomio, Emanuele Iannone, Andrea De Lu-            Xinchen Wang, Ruida Hu, Cuiyun Gao, Xin-Cheng
+  cia, Fabio Palomba, and Valentina Lenarduzzi. 2022.         Wen, Yujia Chen, and Qing Liao. 2024. Reposvul:
+  Just-in-time software vulnerability detection: Are          A repository-level high-quality vulnerability dataset.
+  we there yet? Journal of Systems and Software,              In Proceedings of the 2024 IEEE/ACM 46th Interna-
+  188:111283.                                                 tional Conference on Software Engineering: Com-
+                                                              panion Proceedings, pages 472–483.
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+ Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,             Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+ Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,                 Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+ Shashank Gupta, Bodhisattwa Prasad Majumder,                  et al. 2022. Chain-of-thought prompting elicits
+ Katherine Hermann, Sean Welleck, Amir Yazdan-                 reasoning in large language models. Advances in
+ bakhsh, and Peter Clark. SELF-REFINE: Iterative               neural information processing systems, 35:24824–
+ Refinement with Self-Feedback.                                24837.
+                                                       30857
+
+=== [PDF page 11] ===
+
+Cheng Wen, Yuandao Cai, Bin Zhang, Jie Su, Zhiwu            2024a. Large language model for vulnerability de-
+  Xu, Dugang Liu, Shengchao Qin, Zhong Ming, and            tection and repair: Literature review and the road
+  Tian Cong. 2024a. Automatically inspecting thou-          ahead. ACM Transactions on Software Engineering
+  sands of static bug warnings with large language          and Methodology.
+  model: How far are we? ACM Transactions on
+  Knowledge Discovery from Data, 18(7):1–34.            Xin Zhou, Duc-Manh Tran, Thanh Le-Cong, Ting
+                                                          Zhang, Ivana Clairine Irsan, Joshua Sumarlin, Bach
+Xin-Cheng Wen, Xinchen Wang, Yujia Chen, Ruida            Le, and David Lo. 2024b. Comparison of static ap-
+  Hu, David Lo, and Cuiyun Gao. 2024b. Vule-              plication security testing tools and large language
+  val: Towards repository-level evaluation of soft-       models for repo-level vulnerability detection. arXiv
+  ware vulnerability detection.     arXiv preprint        preprint arXiv:2407.16235.
+  arXiv:2404.15596.
+                                                        Yaqin Zhou, Shangqing Liu, Jingkai Siow, Xiaoning
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak          Du, and Yang Liu. 2019. Devign: Effective vul-
+  Shafran, Karthik Narasimhan, and Yuan Cao. 2022.        nerability identification by learning comprehensive
+  React: Synergizing reasoning and acting in language     program semantics via graph neural networks. Ad-
+  models. arXiv preprint arXiv:2210.03629.                vances in neural information processing systems, 32.
+Xin Zhou, Sicong Cao, Xiaobing Sun, and David Lo.
+
+
+
+
+                                                    30858
+
+=== [PDF page 12] ===
+
+A   Studied Methods
+A.1 Prompt Templates in Plain LLM
+Figure 3 illustrates the various prompting strategies used with Plain LLM. The Vanilla Prompt serves as
+the base prompt included in all variants, while FS Examples and CoT Instruction are selectively applied
+according to the specific strategies. In the template, “{target function}” acts as a placeholder for the
+target function to be detected.
+
+      You are a security researcher tasked with identifying vulnerabilities in a codebase. You have been given a function to analyze.
+      The function may or may not be vulnerable.
+
+      If you think it is vulnerable reply with @@VULNERABLE@@, otherwise reply with @@NOT VULNERABLE@@
+
+      If you think the function is vulnerable, please provide the CWE number that you think is most relevant to the vulnerability in
+      the form of @@CWE: <CWE_NUMBER>@@
+      For example:
+      @@VULNERABLE@@
+      @@CWE: CWE-1234@@
+
+      Here is the function:
+      ```c
+                                                                                                              Vanilla Prompt
+      {target_function}
+      ```
+
+      Example Detections:
+      - Vulnerable Example 1
+      - Benign Example 1
+      …
+                                                                                                              FS Examples
+      - Vulnerable Example 10
+      - Benign Example 10
+
+      Solve this problem step by step. Carefully break down the reasoning process to arrive at the correct solution. Explain your
+      reasoning at each step before providing the final answer.                                                CoT Instruction
+
+                                     Figure 3: Prompt templates used with Plain LLM.
+
+
+
+
+                                                                 30859
+
+=== [PDF page 13] ===
+
+A.2 ReAct Agent
+Figure 4 illustrates the overall workflow of the ReAct Agent for JIT vulnerability detection. Figure 5 dis-
+plays the prompt used with the ReAct Agent, implemented with the default LangChain framework. The
+“{agent scratchpad}” is a one-time execution memory that holds tool descriptions, along with previous
+observations and reasoning traces. The “{input}” variable is used for the user prompt and can be further
+enhanced using prompt augmentation techniques.
+
+                                                            Observation
+                                                          “The callers of X are Y”
+
+
+
+               Target Function                                                                            Prediction
+                                           Thought                                    Action
+                                     “I need to look into callers”              “Invoke get_callers(X)”
+
+
+
+                                                                                      get_callers
+                                                                                      get_callees
+                                                                                     get_definition
+                                              Code Repository                        Action Tools
+
+
+                      Figure 4: Workflow of ReAct Agent for JIT vulnerability detection.
+
+
+
+                 Answer the following questions as best you can. You have access to the following tools:
+                 - get_callers: Get callers for a function, function names are returned
+                 - get_callees: Get callees for a function, function names are returned
+                 - get_definition: Get definition code of a function based on the function name.
+
+                 Use the following format:
+                 - Question: the input question you must answer.
+                 - Thought: you should always think about what to do
+                 - Action: the action to take, should be one of get_callers, get_callees, and get_definition
+                     - Action Input: the input to the action
+                     - Observation: the result of the action
+                 ... (this Thought/Action/Action Input/Observation can repeat N times)
+                 - Thought: I now know the final answer
+                 - Final Answer: the final answer to the original input question
+
+                 Begin!
+
+                 Question: {input}
+                 Thought:{agent_scratchpad}
+
+
+                                 Figure 5: Prompt template used with ReAct Agent.
+
+
+
+
+                                                                     30860
+
+=== [PDF page 14] ===
+
+A.3 Few-shot Example
+Figure 6 presents a few-shot example based on the webpage for “CWE-787: Out-of-bounds Write”. It
+highlights the key differences between the vulnerable and benign versions.
+
+    # Code                                                                                # Code
+    char* trimTrailingWhitespace(char *strMessage, int length) {                          char* trimTrailingWhitespace(char *strMessage, int length) {
+      char *retMessage;                                                                     char *retMessage;
+      char *message = malloc(sizeof(char)*(length+1));                                      char *message = malloc(sizeof(char)*(length+1));
+      // copy input string to a temporary string                                            // copy input string to a temporary string
+      char message[length+1];                                                               char message[length+1];
+      int index;                                                                            int index;
+      for (index = 0; index < length; index++) {                                            for (index = 0; index < length; index++) {
+          message[index] = strMessage[index];                                                   message[index] = strMessage[index];
+      }                                                                                     }
+      message[index] = '\\0’;                                                               message[index] = '\\0’;
+      // trim trailing whitespace                                                           // trim trailing whitespace
+      int len = index-1;                                                                    int len = index-1;
+      while (isspace(message[len])) {                                                       while (len >= 0 && isspace(message[len])) {
+          message[len] = '\\0’;                                                                 message[len] = '\\0’;
+          len--;                                                                                len--;
+      }                                                                                     }
+      // return string without trailing whitespace                                          // return string without trailing whitespace
+      retMessage = message;                                                                 retMessage = message;
+      return retMessage;                                                                    return retMessage;
+    }                                                                                     }
+
+    # Explanation                                                                         # Explanation
+    In the code, a utility function is used to trim trailing whitespace from a            In the code, a utility function is used to trim trailing whitespace from a
+    character string. The function copies the input string to a local character           character string. The function copies the input string to a local character
+    string and uses a while statement to remove the trailing whitespace by                string and uses a while statement to remove the trailing whitespace by
+    moving backward through the string and overwriting whitespace with a                  moving backward through the string and overwriting whitespace with a
+    NULL character. However, this function can cause a buffer underwrite                  NULL character. This function avoids a buffer underwrite by
+    if the input character string contains all whitespace. On some systems                incorporating the boundary check `len >= 0` in the while loop
+    the while statement will move backwards past the beginning of a                       condition. This ensures that the loop does not move past the beginning
+    character string and will call the `isspace()` function on an address                 of the character string or call the `isspace()` function on an address
+    outside of the bounds of the local buffer.                                            outside the bounds of the buffer.
+
+                         (a) Vulnerable Version                                                                   (b) Benign Version
+
+Figure 6: A FS example of “CWE-787: Out-of-bounds Write”, including both vulnerable version and benign
+version.
+
+
+
+
+                                                                                  30861
+
+=== [PDF page 15] ===
+
+B   Results of Llama-3.1 and DeepSeek-Coder-V2
+Table 4 shows the results of LLaMA 3.1-8B and DeepSeek-Coder-V2-16B on J IT V UL. ReAct Agents
+using these models exhibit significantly lower performance, with execution frequently failing due to for-
+matting and parsing issues. As a result, the agents often default to the ben label. Notably, the results with
+DeepSeek-Coder suggest that code-specific fine-tuning enhances vulnerability detection performance,
+particularly in capturing inter-procedural context in Dep-Aug settings. This highlights a promising di-
+rection for future work: developing code-specific LLMs optimized for agent-based architectures.
+
+                          Method               Llama-3.1       DeepSeek-Coder-V2
+                                               F1   pAcc        F1         pAcc
+                          Plain LLM
+                          - vanilla          58.05     0.84     60.04        15.94
+                          - w/ CoT           49.79    10.92     59.74        12.41
+                          - w/ FS            54.48     1.68     48.26         8.30
+                          - w/ CoT+FS        29.55    14.29     50.46        10.93
+                          Dep-Aug LLM
+                          - vanilla          40.48    15.17    46.41        29.05
+                          - w/ CoT           21.18     8.39    70.61        52.16
+                          - w/ FS            27.37    10.88    59.06        41.72
+                          - w/ CoT+FS        16.46     7.42    82.09        69.24
+                          ReAct Agent
+                          - vanilla           9.09     4.20     19.40         8.39
+                          - w/ CoT           14.67     3.36     30.00        16.81
+                          - w/ FS             3.28     0.84      1.96         1.00
+                          - w/ CoT+FS         3.28     1.68     31.97        21.39
+
+Table 4: Results of studied methods on J IT V UL with Llama3.1-8B and DeepSeek-Coder-V2-16B. The best and
+second-best results are highlighted.
+
+
+
+
+                                                     30862
+
+=== [PDF page 16] ===
+
+C   Case Study
+ We provide several examples to illustrate the inputs and outputs of the detection methods for a better
+understanding of the analysis.
+
+C.1 CVE-2019-15164
+Figure 7 illustrates the case study derived from CVE-2019-15164 (details at
+https://nvd.nist.gov/vuln/detail/CVE-2019-15164), with the left side showing the vulnerable code
+and the detection methods’ responses, and the right side depicting the benign version and its corre-
+sponding responses. The vulnerable version of the function daemon msg open req is susceptible
+to a “CWE-918: Server-Side Request Forgery (SSRF)” vulnerability due to the lack of validation
+for source before opening the device, which is read from the network socket. The benign version
+addresses this vulnerability by adding an if-condition to validate whether source is a valid URL, as
+highlighted in the figure.
+   Label Predictions. When using Plain LLM with GPT-4o and vanilla prompting, the analyses of
+both the vulnerable and benign versions focus on buffer operations and misclassify the benign as
+vulnerable. In contrast, when using the ReAct Agent, the predictions for both versions are correct.
+The agent is able to retrieve and analyze additional context, such as understanding its caller function
+daemon serviceloop and surrounding function bodies. This contextual information enables the
+agent to better comprehend how the daemon msg open req function is used within the broader code-
+base and recognize the risk introduced by the unvalidated URL input. Key points in the analysis process
+are highlighted to show the improved detection capability provided by the ReAct Agent.
+   CWE Predictions. However, upon examining the specific vulnerability categories predicted by Plain
+LLM and ReAct Agent, some fine-grained issues emerge. Plain LLM incorrectly predicts “CWE-120:
+Buffer Copy without Checking Size of Input” for both the vulnerable and benign versions, which is
+entirely inaccurate. On the other hand, ReAct Agent predicts “CWE-20: Improper Input Validation”
+for the vulnerable version. While this is not the correct classification, it is somewhat related to the
+ground-truth vulnerability of Server-Side Request Forgery (SSRF). The SSRF vulnerability arises from
+the improper validation of the source parameter before opening device, which the ReAct Agent’s
+prediction partially captures, indicating a closer alignment to the actual issue.
+   Analysis Patterns. When delving into the detailed analysis processes, we observe that the ReAct
+Agent does not maintain consistent analysis patterns across both versions. For the vulnerable version,
+the agent focuses on buffer operation and input validation, while for the benign version, it conducts a
+more comprehensive check. However, in this case, the analysis patterns should be more similar, suggest-
+ing that the LLM behind the ReAct Agent lacks sufficient robustness to capture the actual vulnerability
+characteristics. This indicates a deficiency in its reasoning capabilities for accurate vulnerability reason-
+ing.
+
+C.2 CVE-2019-3877
+Figure 8 illustrates the case study derived from CVE-2019-3877 (details at
+https://nvd.nist.gov/vuln/detail/CVE-2019-3877), with the left side showing the vulnerable code
+and the detection methods’ responses, and the right side depicting the benign version and its correspond-
+ing responses. The vulnerable version of the function am check url is susceptible to a “CWE-601:
+URL Redirection to Untrusted Site” vulnerability due to the insufficient validation for url. The benign
+version addresses this vulnerability by adding an if-condition to validate whether backslash exists in
+url.
+   Label Predictions. Plain LLM with GPT-4o and vanilla prompting produces incorrect predictions,
+often reversing the labels.
+   Analysis Patterns. A closer look at the analysis process reveals that Plain LLM fails to identify the
+insufficient validation for the url in the vulnerable version, where an assert is highlighted. In contrast,
+it over-analyzes the validation requirements for the benign version. These lead to incorrect predictions
+for both versions.
+
+                                                   30863
+
+=== [PDF page 17] ===
+
+                              Vulnerable Version                                                                             Benign Version
+static int daemon_msg_open_req(uint8 ver, struct daemon_slpars *pars, uint32                 static int daemon_msg_open_req(uint8 ver, …, char *source, size_t sourcelen) {
+plen, char *source, size_t sourcelen) {                                                        …
+  …                                                                                            nread = sock_recv(pars->sockctrl, source, plen,…);
+  nread = sock_recv(pars->sockctrl, source, plen,…);                                           …
+  …                                                                                            source[nread] = '\0’;
+  source[nread] = '\0’;                                                                        plen -= nread;
+  plen -= nread;                                                                               …
+  …                                                                                            if (is_url(source)){
+  // Open the selected device                                                                     pcap_snprintf(errmsgbuf, PCAP_ERRBUF_SIZE, "Source …");
+  …                                                                                               goto error;
+}                                                                                              }
+                                                                                               // Open the selected device
+                                                                                               …
+             CWE-918: Server-Side Request Forgery (SSRF)                                     }
+
+
+@@VULNERABLE@@                              Plain LLM Response                               @@VULNERABLE@@                             Plain LLM Response
+CWE-120: Buffer Copy without Checking Size of Input                                          CWE-120: Buffer Copy without Checking Size of Input
+
+The function daemon_msg_open_req is vulnerable to a buffer overflow due to                   The function daemon_msg_open_req has a buffer overflow vulnerability due to
+improper handling of the source buffer. The issue arises because the function reads          improper handling of the source buffer. The issue arises because the function reads
+data into source using sock_recv without ensuring that the buffer is large enough to         data into source using sock_recv without ensuring that the buffer is large enough to
+accommodate the incoming data. Although the function includes a check at the                 store the incoming data. While there is a check to ensure that plen is not greater than
+beginning to ensure that plen is not greater than sourcelen - 1, this does not fully         sourcelen - 1, this does not fully prevent an overflow when sock_recv writes to source.
+prevent an overflow when sock_recv writes to source.                                         If plen exceeds sourcelen, the function could still write beyond the buffer’s limits,
+…                                                                                            causing a buffer overflow.
+                                                                                             …
+
+
+…                                                ReAct Agent Response                                                                         ReAct Agent Response
+To determine if daemon_msg_open_req is vulnerable, I need to analyze its behavior            The function daemon_msg_open_req is given, and I need to determine if it is
+and interactions with other functions in the codebase. Specifically, I should check for      vulnerable. I should first analyze the function body to identify any potential
+common vulnerabilities such as buffer overflows, improper input validation, and              vulnerabilities. Then, I can use the tools to get more context by examining the callers
+misuse of functions. Since the function body is already available, I will examine the        and callees of this function.
+functions that call daemon_msg_open_req and those that it calls. This will help me
+understand its execution context and identify potential vulnerabilities.                     Let’s start by examining the function body for potential vulnerabilities.
+
+Action: get_callers                                                                          Buffer Overflow Risk: …
+Action Input: “daemon_msg_open_req”                                                          Source Length Check: …
+Observation: {‘callers’: [‘daemon_serviceloop’]}                                             Socket Operations: …
+                                                                                             Device Opening: …
+Thought: The function daemon_msg_open_req is called by the function                          Error Handling: …
+daemon_serviceloop. …
+                                                                                             Now, let’s use the tools to get more context by examining the callers and callees of this
+Action: get_definition                                                                       function.
+Action Input: “daemon_serviceloop”
+Observation: <-Function Body->                                                               Action: get_callers
+                                                                                             Action Input: daemon_msg_open_req
+Thought: The daemon_msg_open_req function is called within the                               Observation: {‘callers’: [‘daemon_serviceloop’]}
+daemon_serviceloop function. …
+…                                                                                            Thought: The function         daemon_msg_open_req        is   called   by   the   function
+To further analyze potential vulnerabilities, I will check the functions that                daemon_serviceloop. …
+daemon_msg_open_req calls. This will help me identify if any of those functions
+might introduce vulnerabilities.                                                             Action: get_definition
+                                                                                             Action Input: daemon_serviceloop
+Action: get_callees                                                                          Observation: <-function body->
+Action Input: “daemon_msg_open_req”
+Observation:      {‘callees’:     [‘pcap_snprintf’,    ‘sock_recv’,     ‘rpcapd_log’,        Thought: The daemon_msg_open_req function is called by daemon_serviceloop. By
+‘pcap_open_live’,     ‘sock_bufferize’,    ‘rpcap_createhdr’,    ‘memset’,    ‘htonl’,       examining the daemon_serviceloop function, ...
+‘pcap_datalink’, ‘pcap_close’, ‘sock_send’, ‘rpcap_senderror’, ‘rpcapd_discard’]}
+                                                                                             The daemon_serviceloop function appears to perform several checks and handles
+Thought: The daemon_msg_open_req function calls several functions, including                 different message types, including authentication and error handling. However, the key
+pcap_snprintf, .                                                                             point of concern is how the source string is handled in daemon_msg_open_req.
+
+pcap_snprintf: …                                                                             Potential Vulnerabilities:
+…                                                                                            - Buffer Overflow: ... This is a good practice.
+rpcapd_discard: …                                                                            - URL Injection: The function checks if source is a URL using is_url(source) and
+                                                                                             rejects it if true. This is a security measure to prevent URL injection.
+The main concern in daemon_msg_open_req is the handling of network data and                  - Error Handling: …, which helps prevent buffer overflow.
+ensuring that all inputs are properly validated. The function does perform some bounds       - Use of External Functions: ...
+checking, but it is crucial to ensure that all external data is sanitized and validated to
+prevent vulnerabilities such as buffer overflows or improper resource access.                Conclusion: The function daemon_msg_open_req seems to handle input validation and
+                                                                                             error handling appropriately. The primary concerns would be the security of the
+Given the analysis, the function appears to have potential vulnerabilities related to        external functions it calls and ensuring that the buffers are always managed correctly.
+improper input validation and buffer management, particularly with network data.
+Therefore, I would classify this function as potentially vulnerable.                         Given the information available, the function does not exhibit any obvious
+                                                                                             vulnerabilities directly in its implementation. Therefore, based on the current analysis:
+Final Answer: @@VULNERABLE@@
+CWE-20: Improper Input Validation                                                            Final Answer: @@NOT VULNERABLE@@
+
+
+
+                                                        Figure 7: Case study for CVE-2019-15164.
+
+
+
+
+                                                                                        30864
+
+=== [PDF page 18] ===
+
+                          Vulnerable Version                                                                            Benign Version
+int am_check_url(request_rec *r, const char *url) {                                         int am_check_url(request_rec *r, const char *url) {
+  const char *i;                                                                              const char *i;
+  for (i = url; *i; i++) {                                                                     for (i = url; *i; i++) {
+     if (*i >= 0 && *i < ' ') {                                                                  …
+        /* Deny all control-characters. */                                                       if (*i == '\\') {
+        AM_LOG_RERROR(APLOG_MARK, APLOG_ERR, HTTP_BAD_REQUEST, r,                                    /* Reject backslash character, as it can be used to bypass
+                "Control character detected in URL.");                                               * redirect URL validation. */
+         return HTTP_BAD_REQUEST;                                                                   …
+      }                                                                                             return HTTP_BAD_REQUEST;
+   }                                                                                             }
+                                                                                              }
+    return OK;   CWE-601: URL Redirection to Untrusted Site
+}                                                                                               return OK;
+                                                                                            }
+
+
+@@NOT VULNERABLE@@                                   Plain LLM Response                                                                       Plain LLM Response
+                                                                                            @@VULNERABLE@@
+                                                                                            CWE-20: Improper Input Validation
+The function am_check_url is designed to check a URL for control characters, which
+are generally considered invalid in URLs. The function iterates through each character
+                                                                                            The function am_check_url is designed to validate a URL by checking for control
+in the provided URL and checks if it falls within the range of control characters
+                                                                                            characters and backslashes. However, it does not adequately validate the URL against
+(ASCII values 0 to 31). If it detects any control character, it logs an error and returns
+                                                                                            other potential vulnerabilities, such as:
+an HTTP_BAD_REQUEST status.
+                                                                                            - Injection Attacks: The function does not check for other potentially dangerous
+                                                                                            characters or patterns that could lead to injection attacks (e.g., SQL injection,
+The function appears to be handling input validation correctly by explicitly denying
+                                                                                            command injection, etc.). While it checks for control characters and backslashes, it
+control characters, which is a good practice for security. It does not seem to have any
+                                                                                            does not account for other characters that could be harmful.
+obvious vulnerabilities such as buffer overflows, injection flaws, or improper input
+                                                                                            - Improper Input Validation: The function only checks for control characters and
+validation that would lead to security issues.
+                                                                                            backslashes, which may not be sufficient for a robust URL validation. There are
+                                                                                            many other characters and patterns that could be problematic in a URL context.
+While there are always potential edge cases in any code, based on the provided
+                                                                                            - Lack of Comprehensive Validation: The function does not implement a
+implementation, it does not exhibit any vulnerabilities that would warrant a
+                                                                                            comprehensive validation mechanism for URLs, which could lead to various security
+classification as vulnerable. Therefore, I conclude that the function is not vulnerable.
+                                                                                            issues, including but not limited to open redirects or other forms of URL
+                                                                                            manipulation.
+
+                                                                                            Given these points, the function is vulnerable due to insufficient input validation,
+                                                                                            which aligns with CWE-20 (Improper Input Validation).
+
+
+
+                                                         Figure 8: Case study for CVE-2019-3877.
+
+
+
+
+                                                                                       30865

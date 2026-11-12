@@ -1,6 +1,6 @@
 ---
 key: fawzy2026vibe
-status: ready
+status: complete
 evidence_basis: full-text
 design: systematic grey literature review with thematic analysis (Garousi guidelines)
 dataset: 101 practitioner grey-literature sources (blogs, forums, media) found via Google + snowballing, 2022-2025
@@ -25,7 +25,7 @@ analysed: 2026-11-11
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
 
-Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328, 30 Sep 2025) with an ACM template placeholder header ("Conference'17"); the published ICSE-SEIP 2026 version may differ in wording and pagination. Page refs are to our 12-page PDF.
+Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328v1, 30 Sep 2025, stamp on p. 1), a pre-acceptance version with an ACM template placeholder header ("Conference'17", every page); the published ICSE-SEIP 2026 version may differ in wording and pagination. Page refs are to our 12-page PDF.
 
 ## 1. Research objective
 - [A] To systematically investigate why users engage in vibe coding, what they experience while doing so, how they perceive the quality of AI-generated code, and which quality assurance (QA) practices they apply, using firsthand accounts in grey literature (p. 1, p. 2).
@@ -50,7 +50,7 @@ Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328, 30 Sep 2025) with
 - Data availability (public? link?): [V] Replication package on Zenodo, doi 10.5281/zenodo.17188020 (p. 10, p. 11). We did not open it.
 
 ## 5. Experimental setup
-- Procedure, settings, hyper-parameters, tools: [V] Search with Google; the quasi-gold-standard set comprised posts by Karpathy, Willison, Najim and Shields (p. 4). Quality assessment and unit extraction "mainly conducted by the first author", with "a subset" cross-validated by another co-author (p. 4, p. 5). Exact search date: not reported (reference access dates fall in May-July 2025, p. 11). Size of the cross-validated subset: not reported. Inter-rater agreement statistic: not reported. Breakdown of included sources by type: not reported in the text.
+- Procedure, settings, hyper-parameters, tools: [V] Search with Google; the quasi-gold-standard set comprised posts by Karpathy, Willison, Najim and Shields (p. 4). Quality assessment and unit extraction "mainly conducted by the first author", with "a subset" cross-validated by another co-author (p. 4, p. 5). Exact search date: not reported (reference access dates range from 1 May to 11 August 2025, DD/MM format, p. 11–12). Size of the cross-validated subset: not reported. Inter-rater agreement statistic: not reported. Breakdown of included sources by type: not reported in the text.
 - Code availability: not applicable (no software); data and analysis in the replication package (p. 10).
 
 ## 6. Evaluation metrics
@@ -75,8 +75,8 @@ Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328, 30 Sep 2025) with
 - [A] Coding mainly by the first author with subset cross-validation; this "reduced, but did not eliminate" subjective bias (p. 10).
 
 ## 9. Limitations we identified
-- [I] Percentages are shares of coded quotes, not of sources or people, yet the Discussion reads them as people: "29% reported that they usually make some manual adjustments" and "19% admitting their code is 'fragile or error-prone'" (p. 9). One source can contribute several units, so prolific sources may dominate. Based on the unit definition (p. 5) vs the Discussion wording (p. 9).
-- [I] Excluding "Experienced developers applying critical oversight without skipping QA" (p. 4) removes careful-practice accounts by design, which likely inflates the share of skipped/uncritical QA themes. The 36% Skipped QA figure is partly a product of the definition and selection.
+- [I] Percentages are shares of coded quotes, not of sources or people, yet the Discussion reads them as people: "29% reported that they usually make some manual adjustments" and "19% admitting their code is 'fragile or error-prone'" (p. 9), and "About 14% of vibe coders are motivated" (p. 9), which is 20/140 motivation units (p. 6). One source can contribute several units, so prolific sources may dominate. Based on the unit definition (p. 5) vs the Discussion wording (p. 9).
+- [I] Excluding "Experienced developers applying critical oversight without skipping QA" (p. 4) removes careful-practice accounts by design, which likely inflates the share of skipped/uncritical QA themes. Inclusion additionally required behavioural evidence such as "AI-generated code used as-is or with light edits, prompting and reprompting, minimal or no testing, review, or improvement" (p. 4), so low-QA behaviour is partly a selection criterion rather than only a finding. The 36% Skipped QA figure is partly a product of the definition and selection.
 - [I] No code was inspected: all quality and maintainability statements are practitioner perceptions. "Sloppy or Low Maintainability" is only 5 units (4%) (p. 8), so the paper gives little direct evidence on maintainability despite its headline claim (p. 1).
 - [I] No inter-rater reliability statistic and unknown size of the cross-checked subset (p. 4, p. 5) limit confidence in theme assignment.
 - [I] Grey-literature authors (bloggers, journalists, vendor staff) may over-report dramatic successes or failures; the source-type mix is not reported in the text.
@@ -117,3 +117,4 @@ Note on the source: our PDF is the arXiv v1 (arXiv:2510.00328, 30 Sep 2025) with
 ## Analyst notes
 - Reading coverage: whole paper read (pp. 1-10); reference list (pp. 11-12) skimmed for the replication-package entry. Figures 1-3 are images not rendered in the text; their content is covered by text and tables. Replication package not opened.
 - Uncertainties: the published ICSE-SEIP version may have revised numbers or wording; our PDF is arXiv v1. Strength "weak" for perception rows reflects grey-literature sources, quote-level counting and mainly single-coder design, not a judgement on the venue.
+- Review fixes applied 2026-11-12 (critical-review-batch-a): corrected the access-date range (to 11 Aug 2025); added the third units-read-as-people instance (14%); added that the inclusion criteria themselves require low-QA behaviour.

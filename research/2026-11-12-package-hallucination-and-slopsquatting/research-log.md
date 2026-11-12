@@ -1,0 +1,114 @@
+# Research log — Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+
+Chronological record of every action and decision. Append only (`python3 scripts/rlab.py log <project> <phase> "<message>"`).
+
+- 2026-11-12 04:49 · setup · Project created. Topic: Package Hallucination and Slopsquatting in LLM Coding Assistants: Measuring Hallucinated Dependencies, Their Exploitability on PyPI/npm, and Lightweight Defences
+- 2026-11-12 04:49 · discovery · search `package hallucination large language model code generation` on openalex,crossref,arxiv: 30 hits, 24 unique -> search/20261112-044949-package-hallucination-large-language.json
+- 2026-11-12 04:50 · scoping · Scope set (2023-2026, <=20 papers, preprints flagged). 4 objectives, 5 RQs, 5 search facets. Pilot search: 24 candidates incl. Spracklen 2024, HFuzzer (ASE 2025), Importing Phantoms, model-editing and unlearning mitigations.
+- 2026-11-12 04:50 · discovery · search `slopsquatting` on openalex,crossref,arxiv: 30 hits, 21 unique -> search/20261112-045054-slopsquatting.json
+- 2026-11-12 04:50 · discovery · search `mitigating package hallucination` on openalex,crossref,arxiv: 55 hits, 45 unique -> search/20261112-045058-mitigating-package-hallucination.json
+- 2026-11-12 04:51 · discovery · search `LLM hallucinated dependencies nonexistent library import` on openalex,crossref,arxiv: 50 hits, 42 unique -> search/20261112-045100-llm-hallucinated-dependencies.json
+- 2026-11-12 04:51 · discovery · search `LLM package confusion supply chain attack PyPI npm` on openalex,crossref,arxiv: 40 hits, 39 unique -> search/20261112-045102-llm-package-confusion-supply-chain.json
+- 2026-11-12 04:51 · discovery · search `AI coding assistant dependency security vulnerable outdated` on openalex,crossref,arxiv: 40 hits, 40 unique -> search/20261112-045106-ai-coding-assistant-dependency-security.json
+- 2026-11-12 04:51 · discovery · search `package hallucination unlearning model editing` on openalex,crossref,arxiv: 40 hits, 40 unique -> search/20261112-045106-package-hallucination-unlearning-model.json
+- 2026-11-12 04:51 · discovery · search `code hallucination benchmark taxonomy` on openalex,crossref,arxiv: 75 hits, 55 unique -> search/20261112-045110-code-hallucination-benchmark-taxonomy.json
+- 2026-11-12 04:51 · discovery · search `coding agent dependency installation malicious package` on openalex,crossref,arxiv: 43 hits, 38 unique -> search/20261112-045111-coding-agent-dependency-installation.json
+- 2026-11-12 04:51 · discovery · search `API hallucination mitigation retrieval documentation code generation` on openalex,crossref,arxiv: 43 hits, 41 unique -> search/20261112-045112-api-hallucination-mitigation-retrieval.json
+- 2026-11-12 04:51 · discovery · search `fuzzing LLM package hallucination` on openalex,crossref,arxiv: 51 hits, 48 unique -> search/20261112-045114-fuzzing-llm-package-hallucination.json
+- 2026-11-12 04:51 · discovery · search `detecting hallucinated library imports nonexistent API code LLM` on openalex,crossref,arxiv: 40 hits, 38 unique -> search/20261112-045116-detecting-hallucinated-library-imports.json
+- 2026-11-12 04:51 · discovery · search `API hallucination code LLM` on openalex,crossref,arxiv: 75 hits, 60 unique -> search/20261112-045119-api-hallucination-code-llm.json
+- 2026-11-12 04:51 · discovery · search `slopsquatting package hallucination coding agent` on openalex,crossref,arxiv: 51 hits, 46 unique -> search/20261112-045124-slopsquatting-package-hallucination.json
+- 2026-11-12 04:51 · discovery · search `typosquatting malicious packages PyPI npm` on openalex,crossref,arxiv: 32 hits, 25 unique -> search/20261112-045130-typosquatting-malicious-packages-pypi.json
+- 2026-11-12 04:51 · discovery · search `Beyond Passive Slopsquatting dependency steering hallucinated package` on openalex,crossref,arxiv: 10 hits, 9 unique -> search/20261112-045132-beyond-passive-slopsquatting-dependency.json
+- 2026-11-12 04:51 · discovery · search `LLM library recommendation deprecated outdated third-party library suggestion` on openalex,crossref,arxiv: 30 hits, 29 unique -> search/20261112-045137-llm-library-recommendation-deprecated.json
+- 2026-11-12 04:53 · discovery · search `hallucinated package detection existence check registry defense LLM` on openalex,crossref,arxiv: 20 hits, 19 unique -> search/20261112-045315-hallucinated-package-detection-existence.json
+- 2026-11-12 04:53 · discovery · search `hallucinated package names LLM install command agent` on arxiv,crossref: 27 hits, 22 unique -> search/20261112-045356-hallucinated-package-names-llm-install.json
+- 2026-11-12 04:55 · screening · included spracklen2024we (arXiv:2406.10279): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included churilov2026range (10.48550/arxiv.2605.17062): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included zhao2025hfuzzer (10.1109/ase63991.2025.00225): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included krishna2025importing (10.48550/arxiv.2501.19012): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included haque2025secure (10.48550/arxiv.2512.08213): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included zheng2026when (10.48550/arxiv.2606.08444): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included mirandapena2026empirical (10.48550/arxiv.2604.07755): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included dasu2026refusing (10.48550/arxiv.2609.03267): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included zhang2025llm (10.1145/3728894): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included twist2026library (10.18653/2026.emnlp-main.78): F1/F5 measurement of package/library hallucination (RQ1, RQ2, RQ4)
+- 2026-11-12 04:55 · screening · included wang2026package (arXiv:2610.09264): F2/F4 exploitation of hallucinated packages and agent-side attacks (RQ2, RQ5)
+- 2026-11-12 04:55 · screening · included hsu2026harmless (10.18653/2026.findings-emnlp.1274): F2/F4 exploitation of hallucinated packages and agent-side attacks (RQ2, RQ5)
+- 2026-11-12 04:55 · screening · included liu2026trust (arXiv:2605.09594): F2/F4 exploitation of hallucinated packages and agent-side attacks (RQ2, RQ5)
+- 2026-11-12 04:55 · screening · included okwor2026hallucination (10.5281/zenodo.21199426): F2/F4 exploitation of hallucinated packages and agent-side attacks (RQ2, RQ5)
+- 2026-11-12 04:55 · screening · included ohm2020backstabbers (10.1007/978-3-030-52683-2_2): Background: seminal taxonomy of npm/PyPI supply-chain attacks grounding the slopsquatting attack model (RQ2)
+- 2026-11-12 04:55 · screening · included liu2026packmonitor (10.1145/3832118): F3 defences against package hallucination (RQ3, RQ5)
+- 2026-11-12 04:55 · screening · included djire2026evaluating (10.1145/3832783.3837555): F3 defences against package hallucination (RQ3, RQ5)
+- 2026-11-12 04:55 · screening · included liu2026mitigating (arXiv:2607.02052): F3 defences against package hallucination (RQ3, RQ5)
+- 2026-11-12 04:55 · screening · included spracklen2026llm (arXiv:2605.01047): F3 defences against package hallucination (RQ3, RQ5)
+- 2026-11-12 04:55 · screening · included raj2026names (arXiv:2608.23897): F3 defences against package hallucination (RQ3, RQ5)
+- 2026-11-12 04:56 · screening · 3 scouts (F1+F5, F2+F4, F3) done; saturation high. 20 papers included (10 measurement, 4 attack/agent + 1 background, 5 defence); 7 published, rest preprints/grey flagged. Dedup clean. OpenAlex daily quota exhausted during scouting.
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for churilov2026range from https://arxiv.org/pdf/2605.17062
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for dasu2026refusing from https://arxiv.org/pdf/2609.03267
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for djire2026evaluating from https://arxiv.org/pdf/2608.22652
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for haque2025secure from https://arxiv.org/pdf/2512.08213
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for hsu2026harmless from https://aclanthology.org/2026.findings-emnlp.1274.pdf
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for krishna2025importing from https://arxiv.org/pdf/2501.19012
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for liu2026mitigating from https://arxiv.org/pdf/2607.02052
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for liu2026packmonitor from https://arxiv.org/pdf/2602.20717
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for liu2026trust from https://arxiv.org/pdf/2605.09594
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for mirandapena2026empirical from https://arxiv.org/pdf/2604.07755
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for ohm2020backstabbers from https://arxiv.org/pdf/2005.09535
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for raj2026names from https://arxiv.org/pdf/2608.23897
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for spracklen2024we from https://arxiv.org/pdf/2406.10279
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for spracklen2026llm from https://arxiv.org/pdf/2605.01047
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for twist2026library from https://aclanthology.org/2026.emnlp-main.78.pdf
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for wang2026package from https://arxiv.org/pdf/2610.09264
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for zhang2025llm from https://arxiv.org/pdf/2409.20550
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for zhao2025hfuzzer from https://arxiv.org/pdf/2509.23835
+- 2026-11-12 04:56 · acquisition · downloaded OA PDF for zheng2026when from https://arxiv.org/pdf/2606.08444
+- 2026-11-12 04:57 · acquisition · user-supplied PDF attached to okwor2026hallucination (okwor.pdf)
+- 2026-11-12 04:57 · acquisition · rlab fetch: 19/20 OA PDFs (arXiv/ACL Anthology). okwor2026hallucination: CC-BY PDF downloaded from its Zenodo record and attached. All 20 full text.
+- 2026-11-12 04:58 · analysis · Scaffolded 20 analyses; dispatched 5 paper-analyst agents (groups A-E by facet).
+- 2026-11-12 05:07 · analysis · Group D (defences) analyses returned as text (harness blocks subagent report-file writes); orchestrator saved liu2026packmonitor, djire2026evaluating, liu2026mitigating, spracklen2026llm verbatim; cite-check OK. Group C (wang2026package, hsu2026harmless, liu2026trust) produced nothing: write refused, then a safety classifier stopped the output; not regenerated, decision referred to user.
+- 2026-11-12 05:08 · analysis · Group E analyses (raj2026names, mirandapena2026empirical, twist2026library, ohm2020backstabbers) returned as text; saved verbatim by orchestrator; cite-check OK.
+- 2026-11-12 05:12 · analysis · Group A analyses (spracklen2024we, churilov2026range, okwor2026hallucination, krishna2025importing) returned as text on request; saved verbatim; cite-check OK.
+- 2026-11-12 05:15 · analysis · Group B analyses (zhao2025hfuzzer, haque2025secure, zheng2026when, dasu2026refusing, zhang2025llm) saved verbatim; cite-check OK. 17/20 ready; 3 attack papers blocked on user decision.
+- 2026-11-12 05:24 · critical-review · Batch 1 (9 measurement analyses): 8 minor fixes, okwor fail on provenance only. Okwor DOI resolved: 10.5281/zenodo.21199426 = concept DOI, ...427 = version DOI of the same deposit (Zenodo API, 2026-11-12). Decision: spracklen2024we treated as tier 1 (USENIX Security '25, no DOI; venue supported by churilov2026range p.1/16, okwor p.9), analysed from arXiv v3; metadata stays arXiv. Report: reports/critical-review-measurement.md
+- 2026-11-12 05:26 · critical-review · Batch 2 (8 defence/tool/background analyses): 7 minor, mirandapena2026empirical fail (RIF claim contradicts Table 5). Decision: mirandapena2026empirical stays preprint tier (TMLR acceptance unverified). Report: reports/critical-review-defences-tools.md
+- 2026-11-12 05:30 · critical-review · Batch 1 fixes applied for spracklen2024we, churilov2026range, okwor2026hallucination, krishna2025importing (25 fixes; spot-checked; cite-check OK) -> status complete.
+- 2026-11-12 05:31 · critical-review · Batch 2 fixes applied for liu2026packmonitor, djire2026evaluating, liu2026mitigating, spracklen2026llm (all verified by analyst; spot-checked; cite-check OK) -> complete.
+- 2026-11-12 05:32 · critical-review · Batch 2 fixes applied for raj2026names, mirandapena2026empirical (fail resolved: RIF claim corrected per Table 5), twist2026library, ohm2020backstabbers. Two review fixes rejected by analyst and confirmed by orchestrator in fulltext: twist 'one response per task' is stated on p. 20; mirandapena underspecification 36.9%/34.1% on p. 9. cite-check OK -> complete.
+- 2026-11-12 05:32 · critical-review · Batch 1 fixes applied for zhao2025hfuzzer, haque2025secure, zheng2026when, dasu2026refusing, zhang2025llm (labels bracketed; spot-checked; cite-check OK) -> complete. Critical review finished for all 17 analysable papers.
+- 2026-11-12 05:34 · synthesis · Evidence matrix consolidated: 172 rows from 17 complete analyses (preprint strengths downgraded one step), 7 contradictions, 5 agreements; cited pages spot-checked in fulltext; cite-check OK. Methodology comparison (academic-writer) and gap report + novelty checks (gap-analyst, candidates G-a..G-e) dispatched.
+- 2026-11-12 05:35 · discovery · search `coding agent installs hallucinated package pip npm` on openalex,crossref,arxiv: 25 hits, 25 unique -> search/20261112-053531-coding-agent-installs-hallucinated.json
+- 2026-11-12 05:35 · discovery · search `coding agent hallucinated package` on crossref,arxiv: 38 hits, 37 unique -> search/20261112-053553-coding-agent-hallucinated-package.json
+- 2026-11-12 05:35 · discovery · search `slopsquatting agent` on crossref,arxiv: 26 hits, 26 unique -> search/20261112-053559-slopsquatting-agent.json
+- 2026-11-12 05:36 · discovery · search `agent trajectories pip install dependency` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053614-agent-trajectories-pip-install.json
+- 2026-11-12 05:36 · discovery · search `AI coding agent supply chain security dependencies` on crossref,arxiv: 33 hits, 32 unique -> search/20261112-053619-ai-coding-agent-supply-chain-security.json
+- 2026-11-12 05:36 · discovery · search `software engineering agent package installation security` on crossref,arxiv: 32 hits, 31 unique -> search/20261112-053623-software-engineering-agent-package.json
+- 2026-11-12 05:36 · discovery · search `hallucinated tool calls coding agents` on crossref,arxiv: 45 hits, 44 unique -> search/20261112-053628-hallucinated-tool-calls-coding-agents.json
+- 2026-11-12 05:36 · discovery · search `import name distribution name mapping Python package` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053655-import-name-distribution-name-mapping.json
+- 2026-11-12 05:37 · discovery · search `package hallucination measurement methodology registry snapshot` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053701-package-hallucination-measurement.json
+- 2026-11-12 05:37 · discovery · search `package hallucination benchmark standardized evaluation` on crossref,arxiv: 26 hits, 18 unique -> search/20261112-053705-package-hallucination-benchmark.json
+- 2026-11-12 05:37 · discovery · search `package hallucination` on arxiv,crossref: 91 hits, 84 unique -> search/20261112-053716-package-hallucination.json
+- 2026-11-12 05:37 · discovery · search `slopsquatting` on arxiv,crossref: 10 hits, 10 unique -> search/20261112-053718-slopsquatting.json
+- 2026-11-12 05:37 · discovery · search `hallucinated packages` on arxiv,crossref: 91 hits, 90 unique -> search/20261112-053725-hallucinated-packages.json
+- 2026-11-12 05:37 · discovery · search `pre-install check malicious dependency verification` on crossref,arxiv: 26 hits, 25 unique -> search/20261112-053736-pre-install-check-malicious-dependency.json
+- 2026-11-12 05:37 · discovery · search `dependency confusion typosquatting detection tool evaluation false positives` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053741-dependency-confusion-typosquatting.json
+- 2026-11-12 05:37 · discovery · search `package name squatting detection PyPI npm 2025` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053747-package-name-squatting-detection-pypi.json
+- 2026-11-12 05:37 · discovery · search `quantized local LLM package hallucination` on crossref,arxiv: 25 hits, 20 unique -> search/20261112-053750-quantized-local-llm-package.json
+- 2026-11-12 05:37 · discovery · search `Ollama code generation security` on crossref,arxiv: 30 hits, 26 unique -> search/20261112-053756-ollama-code-generation-security.json
+- 2026-11-12 05:38 · discovery · search `small language models hallucinated dependencies quantization` on crossref,arxiv: 26 hits, 24 unique -> search/20261112-053800-small-language-models-hallucinated.json
+- 2026-11-12 05:38 · discovery · search `hallucinated package names registered registry monitoring` on crossref,arxiv: 25 hits, 23 unique -> search/20261112-053804-hallucinated-package-names-registered.json
+- 2026-11-12 05:38 · discovery · search `longitudinal registration hallucinated package names` on crossref,arxiv: 25 hits, 20 unique -> search/20261112-053807-longitudinal-registration-hallucinated.json
+- 2026-11-12 05:38 · discovery · search `newly registered packages PyPI malicious monitoring` on crossref,arxiv: 25 hits, 24 unique -> search/20261112-053815-newly-registered-packages-pypi-malicious.json
+- 2026-11-12 05:41 · discovery · search `hallucinated imports registry` on arxiv: 3 hits, 3 unique -> search/20261112-054127-hallucinated-imports-registry.json
+- 2026-11-12 05:41 · discovery · search `quantization package hallucination` on arxiv: 1 hits, 1 unique -> search/20261112-054131-quantization-package-hallucination.json
+- 2026-11-12 05:41 · discovery · search `quantized code models hallucination` on arxiv: 19 hits, 19 unique -> search/20261112-054147-quantized-code-models-hallucination.json
+- 2026-11-12 05:41 · discovery · search `package hallucination registration` on arxiv: 0 hits, 0 unique -> search/20261112-054148-package-hallucination-registration.json
+- 2026-11-12 05:41 · discovery · search `malicious package registration npm PyPI` on arxiv: 0 hits, 0 unique -> search/20261112-054150-malicious-package-registration-npm-pypi.json
+- 2026-11-12 05:44 · synthesis · reports/methodology-comparison.md saved (academic-writer, 17 papers, 6 sections); RQ1-RQ5 current answers written to RESEARCH-QUESTIONS.md; cite-check OK. Synthesis ticked.
+- 2026-11-12 05:47 · gaps · gap-report.md saved (gap-analyst). 5 gaps with novelty checks on 2026-11-12 (27 rlab searches, Crossref+arXiv; OpenAlex 429; WebSearch): G1 natural agent install attempts (medium), G2 independent client-side guard benchmark (medium), G3 shared measurement protocol (medium-high), G4 GGUF quantization (medium-low), G5 long-horizon registration (low; narrowed by Huang et al. TOSEM 2026). Recommendation: G3 -> G1 -> G2 combined laptop study (~9 weeks, ~$100-150 API). 13 papers recommended for inclusion (4 high priority).
+- 2026-11-12 05:54 · writing · report generated: reports/research-report-2026-11-12.md (academic-writer; acquisition line corrected by orchestrator; cite-check OK). rlab bib 20 entries; validate: 3 known MISMATCHes (explained). Run closed pending user decision on 3 attack papers.
+- 2026-11-12 13:16 · writing · Reading guide started (4 academic-writer agents); interrupted by 5-hour usage limit at ~06:00, resumed 13:15.
+- 2026-11-12 13:23 · writing · Citation fix: Ohm 56% install-time figure is on p. 11 (not p. 8) — corrected in RESEARCH-QUESTIONS, gap-report, methodology-comparison, research report and reading-guide files (found by reading-guide writer, verified in fulltext).
+- 2026-11-12 13:24 · writing · Reading guide complete locally: 00-front, 10-papers, 17 briefs, 99-back; combined reports/reading-guide-2026-11-12.md. Google Doc publishing (--share anyone) blocked by permission check; awaiting user.
+- 2026-11-12 17:51 · writing · reading guide published (anyone with link can view): https://docs.google.com/document/d/1oJbn82gvNLHmlYboGnjklQo5bK8n-oXWhFOXoe7KsYc/edit ; local copies reports/reading-guide-2026-11-12.md/.pdf; user added permission rule Bash(python3 scripts/md2gdoc.py:*) in .claude/settings.local.json
+- 2026-11-12 17:54 · analysis · 3 agent-attack papers (wang2026package, hsu2026harmless, liu2026trust) analysed in full by orchestrator at user's request; critical review found 13 fixes, all applied (reports/critical-review-attack-papers.md); status complete; 23 evidence rows + contradictions 8-9 + 1 agreement added; gap-report revision: G1 narrowed to medium-low (hsu2026harmless reports benign-Skill agent executed-install rates), G2 strengthened

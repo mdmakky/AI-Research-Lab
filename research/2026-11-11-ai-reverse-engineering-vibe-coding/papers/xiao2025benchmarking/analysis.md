@@ -1,6 +1,6 @@
 ---
 key: xiao2025benchmarking
-status: ready
+status: complete
 evidence_basis: full-text
 design: benchmark construction + empirical study of MLLMs and prompting strategies, automatic metrics + human evaluation + failure taxonomy + small user study
 dataset: Interaction2Code: 127 real webpages (100 from C4 validation set, 27 from popular GitHub projects) with 374 annotated interactions
@@ -17,10 +17,10 @@ analysed: 2026-11-11
 
 # Interaction2Code: Benchmarking MLLM-based Interactive Webpage Code Generation from Interactive Prototyping
 
-- Authors: Xiao, Jingyu; Wan, Yuxuan; Huo, Yintong; Wang, Zixin; Xu, Xinyi; Wang, Wenxuan
+- Authors: Xiao, Jingyu; Wan, Yuxuan; Huo, Yintong; Wang, Zixin; Xu, Xinyi; Wang, Wenxuan; Xu, Zhiyao; Wang, Yuhang; Lyu, Michael R.
 - Year / venue: 2025, 2025 40th IEEE/ACM International Conference on Automated Software Engineering (ASE) (published)
 - DOI: 10.1109/ase63991.2025.00028 · URL: https://doi.org/10.1109/ase63991.2025.00028
-- Source text: `fulltext.txt` (page refs = PDF page index)
+- Source text: `fulltext.txt` (page refs = PDF page index), extracted from arXiv:2411.03292v3 (1 Mar 2026), not the ASE proceedings PDF
 
 Labels: **[V]** verified in the paper's own data/tables/results · **[A]** author claim · **[I]** our interpretation.
 Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the paper does not say.
@@ -61,7 +61,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 4. Ten failure types in two groups (interactive element: missing, no interaction, wrong element, wrong type, wrong position; interaction effects: wrong position, wrong type, effect on wrong element, partial implementation, wrong function) [V] (pp. 7–8). Failures (a) missing element, (b) no interaction and (j) wrong function have usability <10% (0%, 6.93%, 0%) [V] (pp. 7–8). Main failure modes are "No interaction", "Partial implementation", "Interactive element missing" and "Wrong function" [A] (p. 8).
 5. Failures cluster into spatial (a, c, e, f), type (d, g) and behavioural (b, h, i, j) failures [A] (p. 8).
 6. Low visual saliency (small interaction area) lowers SSIM and position similarity; cropping to enlarge the area (1.2–3×) recovers interactions on 10 failure pages [V] (pp. 9–10).
-7. On 10 failure pages, combining visual and human-written text descriptions beats either modality alone for GPT-4o (Direct: Position 0.7157 V+T vs 0.3951 V) [V] (p. 10). All four enhancements combined give the best ablation result (GPT-4o interaction CLIP 0.6937 vs 0.5700) [V] (p. 11).
+7. Authors state that combined visual + text input "consistently outperforms single-modality inputs across all prompt types" [A] (p. 10). On 10 failure pages with GPT-4o, V+T is best on most cells (e.g. Direct: Position 0.7157 V+T vs 0.3951 V) [V] (p. 10), but not all: under the Mark prompt, SSIM for V+T is 0.4336, below V (0.4520) and T (0.4454) [V] (p. 10). All four enhancements combined give the best ablation result (GPT-4o interaction CLIP 0.6937 vs 0.5700) [V] (p. 11).
 8. FAP: authors claim it improves "all models" [A] (p. 8), but Table VI shows Qwen2.5-VL-3B drops on 7 of 8 metrics and Qwen-7B on 5 of 8 [V] (p. 9).
 9. User study: with the tool, 4 tasks took 279 s vs 413 s on average and expert similarity rating 4.5 vs 3.875 (two participants per condition, two raters) [V] (p. 11).
 10. Code quality or maintainability of the generated HTML/CSS/JS is not measured; the only code-level measure is BLEU against the original HTML, used as a contamination check [V] (pp. 4–5).
@@ -78,6 +78,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 - [I] Interaction fidelity is judged on screenshots of state changes, not on behavioural traces or DOM/state assertions; non-visual effects (data, network, storage) are out of scope (based on pp. 3–4, 11).
 - [I] Several sub-experiments use only 10 pages (pp. 9–10) and the user study has 2 participants per condition (p. 11); these results are anecdotal.
 - [I] The FAP claim ("improve ... on all models", p. 8) contradicts the paper's own Table VI (p. 9) for the two smaller Qwen models.
+- [I] Similarly, the modality claim that V+T "consistently outperforms" single modalities "across all prompt types" (p. 10) is contradicted by Table VIII for SSIM under the Mark prompt (V+T 0.4336 < V 0.4520 and T 0.4454, p. 10), and rests on only 10 pages.
 - [I] The FAP test uses failure types derived from 2/3 of the same dataset (p. 8); split procedure and whether it is by page or by interaction is not stated.
 - [I] Fig. 9 "No failure" shares (about 36% for GPT-4o, about 40% for Claude, read from the figure, p. 9) look hard to reconcile with Usability Rates of 73–81% (p. 6); the denominators/definitions are not explained.
 - [I] The contamination argument (C4 has only text; BLEU 0.12–0.14, p. 5) is weak: C4 URLs' HTML is widely crawled elsewhere, and low BLEU does not rule out memorised layout.
@@ -103,7 +104,7 @@ Every [V]/[A] item ends with a page ref `(p. N)`. Write "not reported" when the 
 |---|---|---|---|---|
 | RQ1 | Interaction-to-Code: MLLM generates one HTML/CSS/JS file from before/after interaction screenshots; Direct, CoT, Mark, FAP prompts | p. 2–5 | V | moderate |
 | RQ2 | Interaction fidelity measured by interaction-part CLIP/SSIM/Text/Position, Implement Rate (webdriver), and human Usability Rate | p. 4 | V | moderate |
-| RQ2 | Best human Usability Rate 81% (GPT-4o Mark); Claude 66–77%; Qwen-3B 17–19% on 374 interactions | p. 6 | V | moderate |
+| RQ2 | Best human Usability Rate 81% (GPT-4o Mark); Claude 66–77%; Qwen-3B 17–19% (number of evaluated items not reported, p. 6) | p. 6 | V | moderate |
 | RQ2 | Interactive parts scored lower than full pages for all six models | p. 6 | V | moderate |
 | RQ2 | Ten failure types; missing element, no interaction, wrong function yield <10% usability | p. 7–8 | V | moderate |
 | RQ3 | No code quality or maintainability measured; code compared to original only via BLEU 0.12–0.14 for contamination | p. 5 | V | moderate |

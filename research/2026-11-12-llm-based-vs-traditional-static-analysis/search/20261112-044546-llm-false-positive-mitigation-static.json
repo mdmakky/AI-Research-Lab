@@ -1,0 +1,739 @@
+{
+  "query": "LLM false positive mitigation static analysis warnings code context",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:45:46+06:00",
+  "raw_hits": 21,
+  "unique": 17,
+  "errors": {},
+  "results": [
+    {
+      "title": "Utilizing Precise and Complete Code Context to Guide LLM in Automatic False Positive Mitigation",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Jinbao"
+        },
+        {
+          "family": "Xiang",
+          "given": "Hongjing"
+        },
+        {
+          "family": "Zhao",
+          "given": "Zuohong"
+        },
+        {
+          "family": "Li",
+          "given": "Luhao"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yu"
+        },
+        {
+          "family": "Ding",
+          "given": "Boyao"
+        },
+        {
+          "family": "Li",
+          "given": "Qingwei"
+        },
+        {
+          "family": "Xiong",
+          "given": "Songyuan"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2411.03079",
+      "arxiv_id": "2411.03079",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4404395962",
+      "url": "http://arxiv.org/abs/2411.03079",
+      "oa_pdf_url": "https://arxiv.org/pdf/2411.03079",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 14,
+      "abstract": "Static Application Security Testing (SAST) tools are critical to software quality, identifying potential code issues early in development. However, they often produce false positive warnings that require manual review, slowing down development. Thus, automating false positive mitigation (FPM) is essential. The advent of Large Language Models (LLMs), with their strong abilities in natural language and code understanding, offers promising avenues for FPM. Yet current LLM-based FPM method faces two major limitations: 1. The warning-related code snippets extracted are overly broad and cluttered with irrelevant control/data flows, reducing precision; 2. Critical code contexts are missing, leading to incomplete representations that can mislead LLMs and cause inaccurate assessments. To overcome these limitations, we propose LLM4FPM , a lightweight and efficient false positive mitigation framework. It features eCPG-Slicer, which builds an extended code property graph (eCPG) to extract precise line-level code contexts for warnings. Furthermore, the integrated FARF algorithm builds a file reference graph to identify all files that are relevant to warnings in linear time. This enables eCPG-Slicer to obtain rich contextual information without resorting to expensive whole-program analysis. LLM4FPM outperforms the existing method on the Juliet dataset (F1 > 99% across various Common Weakness Enumerations) and improves label accuracy on the D2A dataset to 86%. By leveraging a lightweight open-source LLM, LLM4FPM can significantly save inspection costs up to \\$2758 per run (\\$0.384 per warning) on Juliet with an average inspection time of 4.7s per warning. Moreover, real-world tests on popular C/C++ projects demonstrate its practicality.",
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Driven Adaptive Source–Sink Identification and False Positive Mitigation for Static Analysis",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Shiyin"
+        }
+      ],
+      "year": 2025,
+      "venue": "Preprints.org",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202509.0917.v1",
+      "arxiv_id": "2511.04023",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414105134",
+      "url": "https://doi.org/10.20944/preprints202509.0917.v1",
+      "oa_pdf_url": "https://www.preprints.org/frontend/manuscript/bf8ba8d12f4182f7003df2d3a9a3ab36/download_pub",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 11,
+      "abstract": "Static analysis is effective for discovering software vulnerabilities but notoriously suffers from incomplete source– sink specifications and excessive false positives (FPs). We present ADATAINT, an LLM-driven taint analysis framework that adap- tively infers source/sink specifications and filters spurious alerts through neuro-symbolic reasoning. Unlike LLM-only detectors, ADATAINT grounds model suggestions in program facts and con- straint validation, ensuring both adaptability and determinism. We evaluate ADATAINT on Juliet 1.3, SV-COMP-style C benchmarks, and three large real-world projects. Results show that ADATAINT reduces false positives by 43.7% on average and improves recall by 11.2% compared to state-of-the-art baselines (CodeQL, Joern, and LLM-only pipelines), while maintaining competitive runtime overhead. These findings demonstrate that combining LLM inference with symbolic validation offers a prac- tical path toward more accurate and reliable static vulnerability analysis",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Ziyang"
+        },
+        {
+          "family": "Dutta",
+          "given": "Saikat"
+        },
+        {
+          "family": "Naik",
+          "given": "Mayur"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2405.17238",
+      "arxiv_id": "2405.17238",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4399115016",
+      "url": "http://arxiv.org/abs/2405.17238",
+      "oa_pdf_url": "https://arxiv.org/pdf/2405.17238",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 198,
+      "abstract": "Software is prone to security vulnerabilities. Program analysis tools to detect them have limited effectiveness in practice due to their reliance on human labeled specifications. Large language models (or LLMs) have shown impressive code generation capabilities but they cannot do complex reasoning over code to detect such vulnerabilities especially since this task requires whole-repository analysis. We propose IRIS, a neuro-symbolic approach that systematically combines LLMs with static analysis to perform whole-repository reasoning for security vulnerability detection. Specifically, IRIS leverages LLMs to infer taint specifications and perform contextual analysis, alleviating needs for human specifications and inspection. For evaluation, we curate a new dataset, CWE-Bench-Java, comprising 120 manually validated security vulnerabilities in real-world Java projects. A state-of-the-art static analysis tool CodeQL detects only 27 of these vulnerabilities whereas IRIS with GPT-4 detects 55 (+28) and improves upon CodeQL's average false discovery rate by 5% points. Furthermore, IRIS identifies 4 previously unknown vulnerabilities which cannot be found by existing tools. IRIS is available publicly at https://github.com/iris-sast/iris.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry",
+      "authors": [
+        {
+          "family": "Du",
+          "given": "Xueying"
+        },
+        {
+          "family": "Feng",
+          "given": "Jiayi"
+        },
+        {
+          "family": "Zou",
+          "given": "Yi"
+        },
+        {
+          "family": "Xu",
+          "given": "Wei"
+        },
+        {
+          "family": "Ma",
+          "given": "Jie"
+        },
+        {
+          "family": "Zhang",
+          "given": "Wei"
+        },
+        {
+          "family": "Liu",
+          "given": "Sisi"
+        },
+        {
+          "family": "Peng",
+          "given": "Xin"
+        },
+        {
+          "family": "Lou",
+          "given": "Yiling"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE/ACM International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3786583.3786910",
+      "arxiv_id": "2601.18844",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7168020525",
+      "url": "https://doi.org/10.1145/3786583.3786910",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.18844",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Static analysis tools (SATs) are widely adopted in both academia and industry for improving software quality, yet their practical use is often hindered by high false positive rates, especially in large-scale enterprise systems. These false alarms demand substantial manual inspection, creating severe inefficiencies in industrial code review. While recent work has demonstrated the potential of large language models (LLMs) for false alarm reduction on open-source benchmarks, their effectiveness in real-world enterprise settings remains unclear. To bridge this gap, we conduct the first comprehensive empirical study of diverse LLM-based false alarm reduction techniques in an industrial context at Tencent, one of the largest IT companies in China. Using data from Tencent’s enterprise-customized SAT on its large-scale Advertising and Marketing Services software, we construct a dataset of 433 alarms (328 false positives, 105 true positives) covering three common bug types. Through interviewing developers and analyzing the data, our results highlight the prevalence of false positives, which wastes substantial manual effort (e.g., 10 - 20 minutes of manual inspection per alarm). Meanwhile, our results show the huge potential of LLMs for reducing false alarms in industrial settings (e.g., hybrid techniques of LLM and static analysis eliminate 94–98% of false positives with high recall). Furthermore, LLM-based techniques are cost-effective, with per-alarm costs as low as 2.1–109.5 seconds and $0.0011–$0.12, representing orders-of-magnitude savings compared to manual review. Finally, our case analysis further identifies key limitations of LLM-based false alarm reduction in industrial settings.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Do code LLMs do static analysis?",
+      "authors": [
+        {
+          "family": "Su",
+          "given": "Chia‐Yi"
+        },
+        {
+          "family": "McMillan",
+          "given": "Collin"
+        }
+      ],
+      "year": 2026,
+      "venue": "Empirical Software Engineering",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s10664-026-10853-z",
+      "arxiv_id": "2505.12118",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4417300481",
+      "url": "https://doi.org/10.1007/s10664-026-10853-z",
+      "oa_pdf_url": "https://arxiv.org/pdf/2505.12118",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": null,
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "ZeroFalse: Improving Precision in Static Analysis with LLMs",
+      "authors": [
+        {
+          "family": "Iranmanesh",
+          "given": "Mohsen"
+        },
+        {
+          "family": "Sabet",
+          "given": "Sina Moradi"
+        },
+        {
+          "family": "Marefat",
+          "given": "Sina"
+        },
+        {
+          "family": "Ghasr",
+          "given": "Ali Javidi"
+        },
+        {
+          "family": "Wilson",
+          "given": "Allison"
+        },
+        {
+          "family": "Sharafaldin",
+          "given": "Iman"
+        },
+        {
+          "family": "Tayebi",
+          "given": "Mohammad A."
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2510.02534",
+      "arxiv_id": "2510.02534",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416368800",
+      "url": "http://arxiv.org/abs/2510.02534",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.02534",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "Static Application Security Testing (SAST) tools are integral to modern software development, yet their adoption is undermined by excessive false positives that weaken developer trust and demand costly manual triage. We present ZeroFalse, a framework that integrates static analysis with large language models (LLMs) to reduce false positives while preserving coverage. ZeroFalse treats static analyzer outputs as structured contracts, enriching them with flow-sensitive traces, contextual evidence, and CWE-specific knowledge before adjudication by an LLM. This design preserves the systematic reach of static analysis while leveraging the reasoning capabilities of LLMs. We evaluate ZeroFalse across both benchmarks and real-world projects using ten state-of-the-art LLMs. Our best-performing models achieve F1-scores of 0.912 on the OWASP Java Benchmark and 0.955 on the OpenVuln dataset, maintaining recall and precision above 90%. Results further show that CWE-specialized prompting consistently outperforms generic prompts, and reasoning-oriented LLMs provide the most reliable precision-recall balance. These findings position ZeroFalse as a practical and scalable approach for enhancing the reliability of SAST and supporting its integration into real-world CI/CD pipelines.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Mitigating False Positives in Static Memory Safety Analysis of Rust Programs via Reinforcement Learning",
+      "authors": [
+        {
+          "family": "P",
+          "given": "Akilesh"
+        },
+        {
+          "family": "Silva",
+          "given": "Leuson Da"
+        },
+        {
+          "family": "Khomh",
+          "given": "Foutse"
+        },
+        {
+          "family": "Chimalakonda",
+          "given": "Sridhar"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2605.04000",
+      "arxiv_id": "2605.04000",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7160447370",
+      "url": "https://arxiv.org/abs/2605.04000",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.04000",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Static analysis tools are essential for ensuring memory safety in Rust programs, particularly as Rust gains adoption in safety-critical domains. However, existing tools such as Rudra and MirChecker suffer from high false positive rates, which diminish developer trust, increase manual review effort, and may obscure genuine vulnerabilities. This paper presents a novel reinforcement learning (RL)-based approach for automatically classifying and suppressing spurious warnings in static memory safety analysis for Rust. To achieve this, we design an RL agent that learns a warning suppression policy by extracting contextual features from Rust's Mid-level Intermediate Representation (MIR) and optimizing its decisions through interaction with static analysis outputs. To improve decision quality, we integrate dynamic validation via cargo-fuzz as an auxiliary feedback mechanism, allowing the agent to selectively validate suspicious warnings through targeted fuzz testing. Our evaluation shows that the proposed approach significantly outperforms state-of-the-art LLM-based baselines, achieving 65.2% accuracy and an F1 score of 0.659, an improvement of 17.1% over the best LLM baseline. With a recall of 74.6%, our method successfully identifies nearly three-quarters of true bugs while substantially reducing false positives, improving precision from 25.6% in raw Rudra output to 59.0%. Incorporating dynamic fuzzing further boosts performance, yielding additional improvements of 10.7 percentage points in accuracy and 8.6 percentage points in F1 score over the RL-only variant. Overall, our work demonstrates that combining reinforcement learning with hybrid static-dynamic analysis can substantially reduce false positives and improve the practical usability of memory safety verification tools for Rust.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "CORE: Resolving Code Quality Issues using LLMs",
+      "authors": [
+        {
+          "family": "Wadhwa",
+          "given": "Nalin"
+        },
+        {
+          "family": "Pradhan",
+          "given": "Jui"
+        },
+        {
+          "family": "Sonwane",
+          "given": "Atharv"
+        },
+        {
+          "family": "Sahu",
+          "given": "Surya Prakash"
+        },
+        {
+          "family": "Natarajan",
+          "given": "Nagarajan"
+        },
+        {
+          "family": "Kanade",
+          "given": "Aditya"
+        },
+        {
+          "family": "Parthasarathy",
+          "given": "Suresh"
+        },
+        {
+          "family": "Rajamani",
+          "given": "Sriram K."
+        }
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3643762",
+      "arxiv_id": "2309.12938",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4400583006",
+      "url": "https://doi.org/10.1145/3643762",
+      "oa_pdf_url": "https://arxiv.org/pdf/2309.12938",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 96,
+      "abstract": "As software projects progress, quality of code assumes paramount importance as it affects reliability, maintainability and security of software. For this reason, static analysis tools are used in developer workflows to flag code quality issues. However, developers need to spend extra efforts to revise their code to improve code quality based on the tool findings. In this work, we investigate the use of (instruction-following) large language models (LLMs) to assist developers in revising code to resolve code quality issues. We present a tool, CORE (short for COde REvisions), architected using a pair of LLMs organized as a duo comprised of a proposer and a ranker. Providers of static analysis tools recommend ways to mitigate the tool warnings and developers follow them to revise their code. The proposer LLM of CORE takes the same set of recommendations and applies them to generate candidate code revisions. The candidates which pass the static quality checks are retained. However, the LLM may introduce subtle, unintended functionality changes which may go un-detected by the static analysis. The ranker LLM evaluates the changes made by the proposer using a rubric that closely follows the acceptance criteria that a developer would enforce. CORE uses the scores assigned by the ranker LLM to rank the candidate revisions before presenting them to the developer. We conduct a variety of experiments on two public benchmarks to show the ability of CORE: (1) to generate code revisions acceptable to both static analysis tools and human reviewers (the latter evaluated with user study on a subset of the Python benchmark), (2) to reduce human review efforts by detecting and eliminating revisions with unintended changes, (3) to readily work across multiple languages (Python and Java), static analysis tools (CodeQL and SonarQube) and quality checks (52 and 10 checks, respectively), and (4) to achieve fix rate comparable to a rule-based automated program repair tool but with much smaller engineering efforts (on the Java benchmark). CORE could revise 59.2% Python files (across 52 quality checks) so that they pass scrutiny by both a tool and a human reviewer. The ranker LLM reduced false positives by 25.8% in these cases. CORE produced revisions that passed the static analysis tool in 76.8% Java files (across 10 quality checks) comparable to 78.3% of a specialized program repair tool, with significantly much less engineering efforts. We release code, data, and supplementary material publicly at http://aka.ms/COREMSRI .",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "Helping LLMs improve code generation using feedback from testing and static analysis",
+      "authors": [
+        {
+          "family": "Dolcetti",
+          "given": "Greta"
+        },
+        {
+          "family": "Arceri",
+          "given": "Vincenzo"
+        },
+        {
+          "family": "Iotti",
+          "given": "Eleonora"
+        },
+        {
+          "family": "Maffeis",
+          "given": "Sergio"
+        },
+        {
+          "family": "Cortesi",
+          "given": "Agostino"
+        },
+        {
+          "family": "A",
+          "given": "Enea Zaffanella"
+        }
+      ],
+      "year": 2026,
+      "venue": "Discover Artificial Intelligence",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1007/s44163-026-01009-5",
+      "arxiv_id": "2412.14841",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4405634796",
+      "url": "https://doi.org/10.1007/s44163-026-01009-5",
+      "oa_pdf_url": "https://arxiv.org/pdf/2412.14841",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Large Language Models (LLMs) are one of the most promising developments in the field of artificial intelligence, and the software engineering community has readily noticed their potential role in the software development life-cycle. Developers routinely ask LLMs to generate code snippets, increasing productivity but also potentially introducing ownership, privacy, correctness, and security issues. Previous work highlighted how code generated by mainstream commercial LLMs is often not safe, containing vulnerabilities, bugs, and code smells. In this paper, we present a framework that leverages testing and static analysis to assess the quality, and guide the self-improvement, of code generated by general-purpose, open-source LLMs. First, we ask LLMs to generate C code to solve a number of programming tasks. Then we employ ground-truth tests to assess the (in)correctness of the generated code, and a static analysis tool to detect potential safety vulnerabilities. Next, we assess the models ability to evaluate the generated code, by asking them to detect errors and vulnerabilities. Finally, we test the models ability to fix the generated code, providing the reports produced during the static analysis and incorrectness evaluation phases as feedback. Our results show that models often produce incorrect code, and that the generated code can include safety issues. Moreover, they perform very poorly at detecting either issue. On the positive side, we observe a substantial ability to fix flawed code when provided with information about failed tests or potential vulnerabilities, indicating a promising avenue for improving the safety of LLM-based code generation tools.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Static Analysis as a Feedback Loop: Enhancing LLM-Generated Code Beyond Correctness",
+      "authors": [
+        {
+          "family": "Blyth",
+          "given": "Scott"
+        },
+        {
+          "family": "Licorish",
+          "given": "Sherlock A."
+        },
+        {
+          "family": "Treude",
+          "given": "Christoph"
+        },
+        {
+          "family": "Wagner",
+          "given": "Markus"
+        }
+      ],
+      "year": 2025,
+      "venue": "IEEE International Working Conference on Source Code Analysis and Manipulation (SCAM)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/scam67354.2025.00017",
+      "arxiv_id": "2508.14419",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415034349",
+      "url": "https://doi.org/10.1109/scam67354.2025.00017",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.14419",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 14,
+      "abstract": "Large language models (LLMs) have demonstrated impressive capabilities in code generation, achieving high scores on benchmarks such as HumanEval and MBPP. However, these benchmarks primarily assess functional correctness and neglect broader dimensions of code quality, including security, reliability, readability, and maintainability. In this work, we systematically evaluate the ability of LLMs to generate high-quality code across multiple dimensions using the PythonSecurityEval benchmark. We introduce an iterative static analysis-driven prompting algorithm that leverages Bandit and Pylint to identify and resolve code quality issues. Our experiments with GPT-4o show substantial improvements: security issues reduced from >40% to 13%, readability violations from >80% to 11%, and reliability warnings from >50% to 11% within ten iterations. These results demonstrate that LLMs, when guided by static analysis feedback, can significantly enhance code quality beyond functional correctness.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "An Empirical Evaluation of LLM-Augmented SAST for False Positive Mitigation in Financial Core-Banking Systems",
+      "authors": [
+        {
+          "family": "Gunner",
+          "given": "Martin"
+        },
+        {
+          "family": "Curtis",
+          "given": "Mckenzie"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.7180420",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.7180420",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Static Application Security Testing (SAST) tools in financial core-banking systems generate excessive false positives, overwhelming security teams and undermining DevSecOps efficiency. This paper empirically evaluates Large Language Model augmentation for false positive mitigation in this high-stakes domain. Drawing on experiments conducted throughout 2024, we assess proprietary and open-source LLMs-including GPT-4o, GPT-3.5 Turbo, and Llama 3.1 70B-as post-processing triage layers for SAST findings across benchmark datasets and real-world banking codebases. Our results show that hybrid LLM-SAST approaches achieve F1 scores of 0.91-0.95, significantly outperforming standalone SAST (0.10-0.55) and independent LLM analysis (0.61-0.68). GPT-4o demonstrates the strongest performance, correctly identifying 80 of 128 false positives while preserving 100% true positive detection. Effectiveness depends critically on the precision of provided code context, with performance degrading substantially when context is incomplete. We propose a practical architectural framework for deployment in regulated financial environments, addressing compliance, data sovereignty, and human-in-the-loop validation requirements. This work provides empirical guidance for financial institutions seeking to reduce alert fatigue while maintaining rigorous security standards in core-banking systems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Dual-use ambiguity in static ransomware detection: false positive analysis and confidence-gated mitigation",
+      "authors": [
+        {
+          "family": "Reddy",
+          "given": "Ch Ram Mohan"
+        },
+        {
+          "family": "Rao",
+          "given": "R. V. Raghavendra"
+        },
+        {
+          "family": "Vishnuprasad",
+          "given": ""
+        },
+        {
+          "family": "Kumar",
+          "given": "K. Sailaja"
+        }
+      ],
+      "year": 2026,
+      "venue": "Scientific Reports",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/s41598-026-67921-z",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/s41598-026-67921-z",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "FPDetection: False Positives Detection in Static Code Analysis with Deep Learning and LLM",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Yang"
+        },
+        {
+          "family": "Lv",
+          "given": "Jinming"
+        },
+        {
+          "family": "Nai",
+          "given": "Hang"
+        },
+        {
+          "family": "Li",
+          "given": "Yong"
+        },
+        {
+          "family": "Xie",
+          "given": "Qiaoluan"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 25th International Conference on Software Quality, Reliability, and Security Companion (QRS-C)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/qrs-c65679.2025.00110",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/qrs-c65679.2025.00110",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "Static Analysis-Guided Patch Synthesis for Correcting LLM-Generated Insecure Code Authors",
+      "authors": [
+        {
+          "family": "Koch",
+          "given": "Miriam"
+        },
+        {
+          "family": "Weber",
+          "given": "Daniel"
+        },
+        {
+          "family": "Schneider",
+          "given": "Lukas"
+        }
+      ],
+      "year": 2026,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.2139/ssrn.6143706",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.2139/ssrn.6143706",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "LLMs often miss subtle security conditions such as boundary checks and authentication flows. We introduce a static-analysis-driven patch synthesizer that transforms insecure LLM output into correct and safe code. The pipeline uses abstract interpretation to detect violations, followed by SMT-guided repair rules. On 3,200 vulnerable code snippets across five vulnerability categories, our system achieves 74% full automatic repair and 92% partial repair, outperforming Codex and GPT-4 post-processing by a large margin. Developer usability evaluation shows 58% reduction in manual fix time. The method highlights how program analysis can systematically strengthen LLM-based secure coding.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Actionable Static Analysis Code Warnings Identification with SMOTE-based Classification",
+      "authors": [
+        {
+          "family": "Win",
+          "given": "Yu Yu"
+        },
+        {
+          "family": "Wah",
+          "given": "Naw Lay"
+        }
+      ],
+      "year": 2023,
+      "venue": "2023 IEEE Conference on Computer Applications (ICCA)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/icca51723.2023.10181854",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/icca51723.2023.10181854",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Securing LLM-Generated Code with Iterative Static Analysis and LLM Review",
+      "authors": [
+        {
+          "family": "Jain",
+          "given": "Anshul"
+        },
+        {
+          "family": "Pandya",
+          "given": "Varun Samir"
+        },
+        {
+          "family": "S",
+          "given": "Ebenezer Juliet"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 International Conference on Computing, Intelligence, and Applications (CIACON)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ciacon70148.2026.11688692",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ciacon70148.2026.11688692",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "A Systematic Literature Review of Traditional and LLM Approaches to Static Code Analysis for Bug Detection",
+      "authors": [
+        {
+          "family": "Mamirov",
+          "given": "Akhmadillo"
+        },
+        {
+          "family": "Mwindaare",
+          "given": "Torence"
+        },
+        {
+          "family": "Johnson",
+          "given": "Walker"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.36227/techrxiv.175976382.24840067/v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.36227/techrxiv.175976382.24840067/v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "Static bug detection plays an important role in software development, serving to preemptively identify potential coding errors and vulnerabilities before running the program. In this sense, static bug detection provides the advantage of not requiring a programmer to execute their code constantly to discover errors. As such, the vast majority of software ecosystems utilized for software development employ static bug detection techniques. This paper evaluates multiple static bug detection tools across various software ecosystems, seeking to explore the differences and effectiveness of such tools. More specifically, within the realm of static bug detection, we consider two main approaches: traditional (non-machine learning) methods, and Large Language Model (LLM) based methods. We evaluate multiple static bug detection tools within each of these two categories by performing a literature review of relevant works, focusing on a sample of 11 relevant literature that explores tools and approaches from the traditional category and the LLM category.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    }
+  ]
+}

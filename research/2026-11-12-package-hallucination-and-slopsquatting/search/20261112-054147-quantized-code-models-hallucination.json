@@ -1,0 +1,802 @@
+{
+  "query": "quantized code models hallucination",
+  "sources": [
+    "arxiv"
+  ],
+  "year_from": 2024,
+  "year_to": null,
+  "run_at": "2026-11-12T05:41:47+06:00",
+  "raw_hits": 19,
+  "unique": 19,
+  "errors": {},
+  "results": [
+    {
+      "title": "Secure or Suspect? Investigating Package Hallucinations of Shell Command in Original and Quantized LLMs",
+      "authors": [
+        {
+          "family": "Haque",
+          "given": "Md Nazmul"
+        },
+        {
+          "family": "Lin",
+          "given": "Elizabeth"
+        },
+        {
+          "family": "Arkoh",
+          "given": "Lawrence"
+        },
+        {
+          "family": "Tadesse",
+          "given": "Biruk"
+        },
+        {
+          "family": "Xu",
+          "given": "Bowen"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2512.08213",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2512.08213",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.08213",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models for code (LLMs4Code) are increasingly used to generate software artifacts, including library and package recommendations in languages such as Go. However, recent evidence shows that LLMs frequently hallucinate package names or generate dependencies containing known security vulnerabilities, posing significant risks to developers and downstream software supply chains. At the same time, quantization has become a widely adopted technique to reduce inference cost and enable deployment of LLMs on resource-constrained environments. Despite its popularity, little is known about how quantization affects the correctness and security of LLM-generated software dependencies while generating shell commands for package installation. In this work, we conduct the first systematic empirical study of the impact of quantization on package hallucination and vulnerability risks in LLM-generated Go packages. We evaluate five Qwen model sizes under full-precision, 8-bit, and 4-bit quantization across three datasets (SO, MBPP, and paraphrase). Our results show that quantization substantially increases the package hallucination rate (PHR), with 4-bit models exhibiting the most severe degradation. We further find that even among the correctly generated packages, the vulnerability presence rate (VPR) rises as precision decreases, indicating elevated security risk in lower-precision models. Finally, our analysis of hallucinated outputs reveals that most fabricated packages resemble realistic URL-based Go module paths, such as most commonly malformed or non-existent GitHub and golang.org repositories, highlighting a systematic pattern in how LLMs hallucinate dependencies. Overall, our findings provide actionable insights into the reliability and security implications of deploying quantized LLMs for code generation and dependency recommendation.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 1,
+      "in_project": "haque2025secure"
+    },
+    {
+      "title": "Hallucination Is Linearly Decodable from Mid-Layer Hidden States in Quantized LLMs",
+      "authors": [
+        {
+          "family": "Aiersilan",
+          "given": "Aizierjiang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.02628",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.02628",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.02628",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We investigate whether open-source LLMs encode a linearly separable truthfulness signal in their hidden states, and at which network depth this signal is strongest. Across three $7$B--$8$B instruction-tuned models (Llama-3.1-8B, Mistral-7B, Qwen2.5-7B) loaded in $4$-bit NF4 quantization, we extract per-layer hidden states on four hallucination benchmarks (TruthfulQA, HaluEval-QA, FEVER, and a controlled synthetic set) and compare four detection approaches: linear and MLP probes, INSIDE EigenScore, self-consistency, and attention entropy. A linear probe on a single mid-network layer achieves $0.904$--$1.000$ AUROC on held-out splits, while sampling-based detectors do not exceed $0.541$ AUROC under the same protocol. The truthfulness signal is approximately linear: MLP probes rarely surpass linear probes by more than $0.01$ AUROC. Peak probing layers fall in a consistent band across model families on natural-language benchmarks -- blocks~$13$--$18$ of~$32$ for Llama and Mistral, and blocks~$19$--$25$ of~$28$ for Qwen. First-block attention entropy provides a complementary signal in knowledge-grounded settings ($0.866$--$0.941$ AUROC on HaluEval-QA) at no additional inference cost. The low discriminability of sampling methods under this protocol reflects a structural mismatch between paired-label evaluation and the information these methods access, rather than an inherent limitation of those methods. Code and data are released for full reproducibility on a single $8$\\,GB GPU.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Improving Quantized Model Performance in Qualitative Analysis with Multi-Pass Prompt Verification",
+      "authors": [
+        {
+          "family": "Adeseye",
+          "given": "Aisvarya"
+        },
+        {
+          "family": "Isoaho",
+          "given": "Jouni"
+        },
+        {
+          "family": "Adeseye",
+          "given": "Adeyemi"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.20193",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.20193",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.20193",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Quantized Large Language Models (LLMs) are used more often in qualitative analysis because they run fast and need fewer computing resources. This study examines how different lower bits quantization levels (8-bit, 4-bit, 3-bit, and 2-bit) and quantization types affect the performance of LLaMA-3.1 (8B) on qualitative analysis. The study uses expert and non-expert responses from 82 interview transcripts. Low-bit models often produce higher levels of hallucinations and unstable results, especially when reading non-expert language with unclear terms. To improve performance, we propose a quantization-aware multi-pass prompt verification method. This method guides the model through controlled steps that reduce hallucinations. It removes unreliable content and passes the results to the next transcript after verification, improving accuracy. To validate performance, human coders analyzed transcripts using NVivo and BF16 LLaMA. BF16 LLaMA-3.1 produced high-precision output but had semantic drift and hallucination. These errors were corrected manually. The corrected BF16 output and NVivo human coding were combined to create a gold-standard ground truth (GSGT) for thematic extraction and frequency analysis. The results show that 8-bit models stay closest to the GSGT. The 4-bit models lose accuracy but become stable when the proposed method is applied. The 3-bit and 2-bit models drop in performance because of heavy compression, but they improve with the proposed prompt design and verification. The study also finds that models at the same bit level behave differently depending on quantization type. Overall, the method helps low-resource LLMs become more stable, accurate, and suitable for qualitative research at lower cost.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Exploring the Trade-Offs: Quantization Methods, Task Difficulty, and Model Size in Large Language Models From Edge to Giant",
+      "authors": [
+        {
+          "family": "Lee",
+          "given": "Jemin"
+        },
+        {
+          "family": "Park",
+          "given": "Sihyeong"
+        },
+        {
+          "family": "Kwon",
+          "given": "Jinse"
+        },
+        {
+          "family": "Oh",
+          "given": "Jihun"
+        },
+        {
+          "family": "Kwon",
+          "given": "Yongin"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2409.11055",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2409.11055",
+      "oa_pdf_url": "https://arxiv.org/pdf/2409.11055",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Quantization has gained attention as a promising solution for the cost-effective deployment of large and small language models. However, most prior work has been limited to perplexity or basic knowledge tasks and lacks a comprehensive evaluation of recent models like Llama-3.3. In this paper, we conduct a comprehensive evaluation of instruction-tuned models spanning 1B to 405B parameters, applying four quantization methods across 13 datasets. Our findings reveal that (1) quantized models generally surpass smaller FP16 baselines, yet they often struggle with instruction-following and hallucination detection; (2) FP8 consistently emerges as the most robust option across tasks, and AWQ tends to outperform GPTQ in weight-only quantization; (3) smaller models can suffer severe accuracy drops at 4-bit quantization, while 70B-scale models maintain stable performance; (4) notably, \\textit{hard} tasks do not always experience the largest accuracy losses, indicating that quantization magnifies a model's inherent weaknesses rather than simply correlating with task difficulty; and (5) an LLM-based judge (MT-Bench) highlights significant performance declines in Coding and STEM tasks, though it occasionally reports improvements in reasoning.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "Quantization for OpenAI's Whisper Models: A Comparative Analysis",
+      "authors": [
+        {
+          "family": "Andreyev",
+          "given": "Allison"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2503.09905",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2503.09905",
+      "oa_pdf_url": "https://arxiv.org/pdf/2503.09905",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Automated speech recognition (ASR) models have gained prominence for applications such as captioning, speech translation, and live transcription. This paper studies Whisper and two model variants: one optimized for live speech streaming and another for offline transcription. Notably, these models have been found to generate hallucinated content, reducing transcription reliability. Furthermore, larger model variants exhibit increased latency and pose challenges for deployment on resource-constrained devices. This study analyzes the similarities and differences between three Whisper models, qualitatively examining their distinct capabilities. Next, this study quantifies the impact of model quantization on latency and evaluates its viability for edge deployment. Using the open source LibriSpeech dataset, this paper evaluates the word error rate (WER) along with latency analysis of whispercpp using 3 quantization methods (INT4, INT5, INT8). Results show that quantization reduces latency by 19\\% and model size by 45\\%, while preserving transcription accuracy. These findings provide insights into the optimal use cases of different Whisper models and edge device deployment possibilities. All code, datasets, and implementation details are available in a public GitHub repository: https://github.com/allisonandreyev/WhisperQuantization.git",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Token-Set Choice Confounds POPE: A Systematic Audit of Yes/No Extraction in VLM Hallucination Evaluation",
+      "authors": [
+        {
+          "family": "Jayakumar",
+          "given": "Kesav Kumar"
+        },
+        {
+          "family": "Thilak",
+          "given": "Karthigeyan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2610.25964",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2610.25964",
+      "oa_pdf_url": "https://arxiv.org/pdf/2610.25964",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "We set out to reproduce a recent hallucination-mitigation result on the POPE benchmark. The LLaVA-1.5-7B baseline we measured, 82.21 F1 on the adversarial split, sat 1.21 to 8.67 points above the adversarial baselines we planned to compare against (81.00, 79.30, and 73.54). We looked at the evaluation code and found a readout choice that moves F1 on its own. A two-token logit readout decides yes versus no by comparing two vocabulary IDs, 3582 (\"yes\") and 1217 (\"no\"). Across 9,000 greedy-decode questions spanning all three splits, neither ID is generated even once. The model emits \" Yes\" (token 3869) and \" No\" (token 1939), because SentencePiece prepends a space byte after the prompt suffix \"ASSISTANT:\". Read with an eight-token lookup that covers the space-prefixed surface forms, LLaVA-1.5-7B scores F1 0.8221, 0.8498, and 0.8713 on the adversarial, popular, and random splits. That 6.13-point adversarial shift exceeds the adversarial gain reported by five of the six papers we surveyed. None of them states its readout, and our reference ran under 4-bit NF4 quantization, so we cannot say how much of any reported gain a matched evaluation would keep. That comparison stays unresolved until readout and precision are matched. On the fixed baseline we run nine inference-time corrections of our own (none beat it) and dissect why the adversarial split resists logit-level intervention. In a 3,000-question probe, wrong predictions draw more image attention than correct ones (Cohen's $d=-0.46$, $p=1.4\\times10^{-24}$), the opposite of what grounding-based corrections assume. A four-readout audit across four further VLMs from three tokenizer families confirms the confound is protocol-level, not model-specific: porting the LLaVA-1.5 IDs verbatim drops F1 to 0.00 on the two disjoint-vocabulary models, whereas a tokenizer-derived readout holds between 0.80 and 0.92.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Grounded AI for Code Review: Resource-Efficient Large-Model Serving in Enterprise Pipelines",
+      "authors": [
+        {
+          "family": "Mandal",
+          "given": "Sayan"
+        },
+        {
+          "family": "Jiang",
+          "given": "Hua"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2510.10290",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2510.10290",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.10290",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Automated code review adoption lags in compliance-heavy settings, where static analyzers produce high-volume, low-rationale outputs, and naive LLM use risks hallucination and incurring cost overhead. We present a production system for grounded, PR-native review that pairs static-analysis findings with AST-guided context extraction and a single-GPU, on-demand serving stack (quantized open-weight model, multi-tier caching) to deliver concise explanations and remediation guidance. Evaluated on safety-oriented C/C++ standards, the approach achieves sub-minute median first-feedback (offline p50 build+LLM 59.8s) while maintaining competitive violation reduction and lower violation rates versus larger proprietary models. The architecture is decoupled: teams can adopt the grounding/prompting layer or the serving layer independently. A small internal survey (n=8) provides directional signals of reduced triage effort and moderate perceived grounding, with participants reporting fewer human review iterations. We outline operational lessons and limitations, emphasizing reproducibility, auditability, and pathways to broader standards and assisted patching.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "4bit-Quantization in Vector-Embedding for RAG",
+      "authors": [
+        {
+          "family": "Jeong",
+          "given": "Taehee"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2501.10534",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2501.10534",
+      "oa_pdf_url": "https://arxiv.org/pdf/2501.10534",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Retrieval-augmented generation (RAG) is a promising technique that has shown great potential in addressing some of the limitations of large language models (LLMs). LLMs have two major limitations: they can contain outdated information due to their training data, and they can generate factually inaccurate responses, a phenomenon known as hallucinations. RAG aims to mitigate these issues by leveraging a database of relevant documents, which are stored as embedding vectors in a high-dimensional space. However, one of the challenges of using high-dimensional embeddings is that they require a significant amount of memory to store. This can be a major issue, especially when dealing with large databases of documents. To alleviate this problem, we propose the use of 4-bit quantization to store the embedding vectors. This involves reducing the precision of the vectors from 32-bit floating-point numbers to 4-bit integers, which can significantly reduce the memory requirements. Our approach has several benefits. Firstly, it significantly reduces the memory storage requirements of the high-dimensional vector database, making it more feasible to deploy RAG systems in resource-constrained environments. Secondly, it speeds up the searching process, as the reduced precision of the vectors allows for faster computation. Our code is available at https://github.com/taeheej/4bit-Quantization-in-Vector-Embedding-for-RAG",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "iCLP: Large Language Model Reasoning with Implicit Cognition Latent Planning",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Sijia"
+        },
+        {
+          "family": "Niu",
+          "given": "Di"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2512.24014",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2512.24014",
+      "oa_pdf_url": "https://arxiv.org/pdf/2512.24014",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language models (LLMs), when guided by explicit textual plans, can perform reliable step-by-step reasoning during problem-solving. However, generating accurate and effective textual plans remains challenging due to LLM hallucinations and the high diversity of task-specific questions. To address this, we draw inspiration from human Implicit Cognition (IC), the subconscious process by which decisions are guided by compact, generalized patterns learned from past experiences without requiring explicit verbalization. We propose iCLP, a novel framework that enables LLMs to adaptively generate latent plans (LPs), which are compact encodings of effective reasoning instructions. iCLP first distills explicit plans from existing step-by-step reasoning trajectories. It then learns discrete representations of these plans via a vector-quantized autoencoder coupled with a codebook. Finally, by fine-tuning LLMs on paired latent plans and corresponding reasoning steps, the models learn to perform implicit planning during reasoning. Experimental results on mathematical reasoning and code generation tasks demonstrate that, with iCLP, LLMs can plan in latent space while reasoning in language space. This approach yields significant improvements in both accuracy and efficiency and, crucially, demonstrates strong cross-domain generalization while preserving the interpretability of chain-of-thought reasoning.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "Hierarchical Patch Compression for ColPali: Efficient Multi-Vector Document Retrieval with Dynamic Pruning and Quantization",
+      "authors": [
+        {
+          "family": "Bach",
+          "given": "Duong"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2506.21601",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2506.21601",
+      "oa_pdf_url": "https://arxiv.org/pdf/2506.21601",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Multi-vector document retrieval systems, such as ColPali, excel in fine-grained matching for complex queries but incur significant storage and computational costs due to their reliance on high-dimensional patch embeddings and late-interaction scoring. To address these challenges, we propose HPC-ColPali, a Hierarchical Patch Compression framework that enhances the efficiency of ColPali while preserving its retrieval accuracy. Our approach integrates three innovative techniques: (1) K-Means quantization, which compresses patch embeddings into 1-byte centroid indices, achieving up to 32$\\times$ storage reduction; (2) attention-guided dynamic pruning, utilizing Vision-Language Model attention weights to retain only the top-$p\\%$ most salient patches, reducing late-interaction computation by up to 60\\% with less than 2\\% nDCG@10 loss; and (3) optional binary encoding of centroid indices into $b$-bit strings ($b=\\lceil\\log_2 K\\rceil$), enabling rapid Hamming distance-based similarity search for resource-constrained environments. Evaluated on the ViDoRe and SEC-Filings datasets, HPC-ColPali achieves 30--50\\% lower query latency under HNSW indexing while maintaining high retrieval precision. When integrated into a Retrieval-Augmented Generation pipeline for legal summarization, it reduces hallucination rates by 30\\% and halves end-to-end latency. These advancements establish HPC-ColPali as a scalable and efficient solution for multi-vector document retrieval across diverse applications. Code is available at https://github.com/DngBack/HPC-ColPali.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "DecompressionLM: Deterministic, Diagnostic, and Zero-Shot Concept Graph Extraction from Language Models",
+      "authors": [
+        {
+          "family": "Hong",
+          "given": "Zhaochen"
+        },
+        {
+          "family": "You",
+          "given": "Jiaxuan"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2602.00377",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2602.00377",
+      "oa_pdf_url": "https://arxiv.org/pdf/2602.00377",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Existing knowledge probing methods rely on pre-defined queries, limiting extraction to known concepts. We introduce DecompressionLM, a stateless framework for zero-shot concept graph extraction that discovers what language models encode without pre-specified queries or shared cross-sequence state. Our method targets three limitations of common decoding-based probing approaches: (i) cross-sequence coupling that concentrates probability mass on high-frequency prefixes, (ii) competitive decoding effects that suppress long-tail concepts, and (iii) scalability constraints arising from sequential exploration. Using Van der Corput low-discrepancy sequences with arithmetic decoding, DecompressionLM enables deterministic, embarrassingly parallel generation without shared state across sequences. Across two model families and five quantization variants, we find that activation-aware quantization (AWQ-4bit) expands concept coverage by 30-170%, while uniform quantization (GPTQ-Int4) induces 71-86% coverage collapse - divergent behaviors not reliably reflected by explanation-level perplexity. Corpus-based verification further reveals a 19.6-point hallucination gap between top- and bottom-ranked MMLU-Pro Law models. DecompressionLM establishes concept coverage as a complementary evaluation dimension for assessing knowledge breadth and factual grounding in compressed models intended for deployment. Code is available at https://github.com/ulab-uiuc/decompressionlm.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "The Shape of Addition: Geometric Structures of Arithmetic in Large Language Models",
+      "authors": [
+        {
+          "family": "Wen",
+          "given": "Liuyuan"
+        },
+        {
+          "family": "Zhu",
+          "given": "Xun"
+        },
+        {
+          "family": "Huang",
+          "given": "Lihao"
+        },
+        {
+          "family": "Li",
+          "given": "Wenbin"
+        },
+        {
+          "family": "Gao",
+          "given": "Yang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2606.03645",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.03645",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.03645",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large Language Models exhibit paradoxical fragility in fundamental arithmetic, implying a disconnect between internal computation and discrete output. By analyzing the residual stream geometry during multi-operand addition, we identify the Iso-Raw-Sum Trajectory (IRST), a geometric structure where representations are anchored by semantic digits and modulated by continuous carry fibers. We propose the Noisy Quantization Model to explain this geometry, framing arithmetic errors as Geometric Slippages caused by internal neural noise pushing a continuous, latent Carry Potential across quantization thresholds. This geometric framework further elucidates Probe Versatility, explaining how lightweight probes can disentangle coexisting latent signals (such as ground truth versus hallucination) from a single activation vector. Finally, we validate these insights through a geometric consistency check method that effectively detects and corrects these quantization failures during inference. Our code is available at https://github.com/RL-MIND/Shape-of-Addition.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Automating structural reliability analysis with a multi-agent large language model framework",
+      "authors": [
+        {
+          "family": "Jeon",
+          "given": "Jaehwan"
+        },
+        {
+          "family": "Lee",
+          "given": "Chang Hee"
+        },
+        {
+          "family": "Choo",
+          "given": "Jinhyun"
+        },
+        {
+          "family": "Kim",
+          "given": "Taeyong"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2607.16580",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2607.16580",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.16580",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Structural reliability analysis supports the design and safety assessment of buildings and civil infrastructure but requires specialized expertise throughout the workflow. This study presents a multi-agent large language model (LLM) framework that automates component-level reliability analysis from a natural-language problem statement to interpreted estimates of the reliability index and failure probability. Specialized agents handle problem formulation, method planning, code generation, execution, and result interpretation, with human confirmation at key decision points. Numerical reliability estimates are not generated by an LLM; instead, they are obtained solely through deterministic execution of validated solvers. This design mitigates the risk of hallucinated numerical outputs and supports reproducibility. The Method Planner is fine-tuned using quantized low-rank adaptation (QLoRA) for a priori reliability-method category selection. The framework uses open-weight models and supports local execution without closed APIs. Results show that it lowers the expertise barrier to structural reliability assessment while preserving computational trustworthiness.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "LVLM-Compress-Bench: Benchmarking the Broader Impact of Large Vision-Language Model Compression",
+      "authors": [
+        {
+          "family": "Kundu",
+          "given": "Souvik"
+        },
+        {
+          "family": "Bhiwandiwalla",
+          "given": "Anahita"
+        },
+        {
+          "family": "Yu",
+          "given": "Sungduk"
+        },
+        {
+          "family": "Howard",
+          "given": "Phillip"
+        },
+        {
+          "family": "Le",
+          "given": "Tiep"
+        },
+        {
+          "family": "Sridhar",
+          "given": "Sharath Nittur"
+        },
+        {
+          "family": "Cobbley",
+          "given": "David"
+        },
+        {
+          "family": "Kang",
+          "given": "Hao"
+        },
+        {
+          "family": "Lal",
+          "given": "Vasudev"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2503.04982",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2503.04982",
+      "oa_pdf_url": "https://arxiv.org/pdf/2503.04982",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Despite recent efforts in understanding the compression impact on large language models (LLMs) in terms of their downstream task performance and trustworthiness on relatively simpler uni-modal benchmarks (for example, question answering, common sense reasoning), their detailed study on multi-modal Large Vision-Language Models (LVLMs) is yet to be unveiled. Towards mitigating this gap, we present LVLM-Compress-Bench, a framework to first thoroughly study the broad impact of compression on the generative performance of LVLMs with multi-modal input driven tasks. In specific, we consider two major classes of compression for autoregressive models, namely KV cache and weight compression, for the dynamically growing intermediate cache and static weights, respectively. We use four LVLM variants of the popular LLaVA framework to present our analysis via integrating various state-of-the-art KV and weight compression methods including uniform, outlier-reduced, and group quantization for the KV cache and weights. With this framework we demonstrate on ten different multi-modal datasets with different capabilities including recognition, knowledge, language generation, spatial awareness, visual reasoning, hallucination and visual illusion identification, toxicity, stereotypes and bias. In specific, our framework demonstrates the compression impact on both general and ethically critical metrics leveraging a combination of real world and synthetic datasets to encompass diverse societal intersectional attributes. Extensive experimental evaluations yield diverse and intriguing observations on the behavior of LVLMs at different quantization budget of KV and weights, in both maintaining and losing performance as compared to the baseline model with FP16 data format. Code will be open-sourced at https://github.com/opengear-project/LVLM-compress-bench.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Sparse Model Inversion: Efficient Inversion of Vision Transformers for Data-Free Applications",
+      "authors": [
+        {
+          "family": "Hu",
+          "given": "Zixuan"
+        },
+        {
+          "family": "Wei",
+          "given": "Yongxian"
+        },
+        {
+          "family": "Shen",
+          "given": "Li"
+        },
+        {
+          "family": "Wang",
+          "given": "Zhenyi"
+        },
+        {
+          "family": "Li",
+          "given": "Lei"
+        },
+        {
+          "family": "Yuan",
+          "given": "Chun"
+        },
+        {
+          "family": "Tao",
+          "given": "Dacheng"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2510.27186",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2510.27186",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.27186",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Model inversion, which aims to reconstruct the original training data from pre-trained discriminative models, is especially useful when the original training data is unavailable due to privacy, usage rights, or size constraints. However, existing dense inversion methods attempt to reconstruct the entire image area, making them extremely inefficient when inverting high-resolution images from large-scale Vision Transformers (ViTs). We further identify two underlying causes of this inefficiency: the redundant inversion of noisy backgrounds and the unintended inversion of spurious correlations--a phenomenon we term \"hallucination\" in model inversion. To address these limitations, we propose a novel sparse model inversion strategy, as a plug-and-play extension to speed up existing dense inversion methods with no need for modifying their original loss functions. Specifically, we selectively invert semantic foregrounds while stopping the inversion of noisy backgrounds and potential spurious correlations. Through both theoretical and empirical studies, we validate the efficacy of our approach in achieving significant inversion acceleration (up to 3.79 faster) while maintaining comparable or even enhanced downstream performance in data-free model quantization and data-free knowledge transfer. Code is available at https://github.com/Egg-Hu/SMI.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "Grounded Decoding for Autoregressive Speech Enhancement via Adaptive Code-Space Grounding and Local LLM Refinement",
+      "authors": [
+        {
+          "family": "Shi",
+          "given": "Hao"
+        },
+        {
+          "family": "Gao",
+          "given": "Yuan"
+        },
+        {
+          "family": "Ni",
+          "given": "Zhaoheng"
+        },
+        {
+          "family": "Peng",
+          "given": "Junyi"
+        },
+        {
+          "family": "Huang",
+          "given": "Gongping"
+        },
+        {
+          "family": "Tsao",
+          "given": "Yu"
+        },
+        {
+          "family": "Lu",
+          "given": "Xugang"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.04245",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.04245",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.04245",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Large language model (LLM)-based autoregressive speech enhancement (SE) produces natural speech using learned clean-speech priors, but may hallucinate content unsupported by the input. Deterministic SE better preserves observation-coupled evidence, yet often retains residual noise or local distortion. We propose an evidence-grounded generative SE framework that uses a deterministic estimate as imperfect evidence. A Whisper-guided DPRNN produces an enhanced waveform, which is blended with the observation and tokenized into a discrete evidence sequence. The evidence conditions an autoregressive clean-speech token generator and is reused during decoding through Code-Space Grounding (CSG), which penalizes candidates according to their Hamming distance in the factorized finite-scalar-quantized (FSQ) space. Because the appropriate grounding strength depends on acoustic difficulty, we introduce SNR-Conditioned CSG (SNR-CSG), which maps a calibrated residual-SNR estimate to an utterance-level strength and constructs an adaptive grounded anchor. Although grounding improves content fidelity, the anchor may retain local acoustic defects inherited from the evidence. Since such defects are predominantly local in the FSQ space, nearby tokens may provide better acoustic realizations without large departures from the observation-supported trajectory. We therefore propose Grounded Neighborhood Refinement with LLM ranking (GNR-LLM). It performs one additional teacher-forced pass conditioned on the grounded-anchor history, intersects the LLM top-$K$ candidates with a local FSQ Hamming neighborhood. Experiments on in-domain, controlled-SNR, and DNS no-reverb conditions show that SNR-CSG provides robust automatic grounding, while GNR-LLM substantially improves low-SNR perceptual quality without sacrificing content fidelity.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "HypRQ-VAE: Hyperbolic Item Indexing for Long-Tail-Aware Generative Recommender Systems",
+      "authors": [
+        {
+          "family": "Wu",
+          "given": "Longfeng"
+        },
+        {
+          "family": "Zeng",
+          "given": "Tong"
+        },
+        {
+          "family": "Seni",
+          "given": "Giovanni"
+        },
+        {
+          "family": "Peng",
+          "given": "Zhimin"
+        },
+        {
+          "family": "Rawat",
+          "given": "Bhanu Pratap Singh"
+        },
+        {
+          "family": "Zhang",
+          "given": "Si"
+        },
+        {
+          "family": "Zhou",
+          "given": "Yao"
+        },
+        {
+          "family": "Zheng",
+          "given": "Lecheng"
+        },
+        {
+          "family": "Ji",
+          "given": "Bo"
+        },
+        {
+          "family": "Yan",
+          "given": "Yujun"
+        },
+        {
+          "family": "Zhou",
+          "given": "Dawei"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2609.03369",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2609.03369",
+      "oa_pdf_url": "https://arxiv.org/pdf/2609.03369",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Sequential recommender systems model user behavior as item ID sequences, while recent generative methods cast recommendation as a language modeling task using large language models (LLMs). While this paradigm incorporates rich textual semantics, it introduces a fundamental mismatch: LLMs operate on text tokens, whereas recommender systems depend on discrete item indices. This misalignment often leads to hallucinations in generative recommendations. Existing methods attempt to bridge this gap by learning item vocabularies in Euclidean space, but they struggle to model the inherent long-tail distribution of real-world catalogs, where a small number of head items dominate, and a vast number of tail items reflect users' niche preferences. To address this issue, we introduce Hyperbolic Residual-Quantized Variational AutoEncoder (HypRQ-VAE), the first framework to learn item indexing in hyperbolic space. HypRQ-VAE leverages the unique properties of hyperbolic geometry, whose exponential volume expansion naturally accommodates the power law structure of user-item interactions. This allows the model to encode rich textual semantics while preserving the representational fidelity of sparse, long-tail items. Experiments on three benchmark datasets show that HypRQ-VAE significantly improves the performance of recommendation, particularly in recommending tail items. Our analysis attributes these gains to the superior capacity of hyperbolic space to model item hierarchies and sparsity in generative recommendation. Our code and data are available at: https://github.com/wulongfeng/HypRQ-VAE.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "Measuring and Mitigating the Distributional Gap Between Real and Simulated User Behaviors",
+      "authors": [
+        {
+          "family": "Mehri",
+          "given": "Shuhaib"
+        },
+        {
+          "family": "Laban",
+          "given": "Philippe"
+        },
+        {
+          "family": "Shashidhar",
+          "given": "Sumuk"
+        },
+        {
+          "family": "Abdulhai",
+          "given": "Marwa"
+        },
+        {
+          "family": "Levine",
+          "given": "Sergey"
+        },
+        {
+          "family": "Galley",
+          "given": "Michel"
+        },
+        {
+          "family": "Hakkani-Tür",
+          "given": "Dilek"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": "2605.07847",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2605.07847",
+      "oa_pdf_url": "https://arxiv.org/pdf/2605.07847",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "As user simulators are increasingly used for interactive training and evaluation of AI assistants, it is essential that they represent the diverse behaviors of real users. While existing works train user simulators to generate human-like responses, whether they capture the broad and heterogeneous distribution of real user behaviors remains an open question. In this work, we introduce a method to measure the distributional gap between real and simulated user behaviors, validated through a human study and ablations. Given a dataset of real and simulated conversations, our method extracts representations of user behavior from each conversation, quantizes them into discrete distributions via clustering, then computes divergence metrics. We provide the first systematic evaluation of 24 LLM-based user simulators on coding and writing tasks, and reveal a large distributional gap from real users that varies across model families, scales, and behavioral facets. Pairwise comparisons show that most simulators behave similarly, while a few stand apart. Combining behaviorally complementary simulators brings the resulting distribution closer to real users compared to either simulator on its own. Finally, a TF-IDF analysis of the clusters surfaces interpretable patterns of behaviors that simulators capture, miss, and hallucinate.",
+      "sources": [
+        "arxiv"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "SCOPE: Real-Time Natural Language Camera Agent at the Edge",
+      "authors": [
+        {
+          "family": "Hindsbo",
+          "given": "Nikolaj"
+        },
+        {
+          "family": "Ehsani",
+          "given": "Sina"
+        },
+        {
+          "family": "Mishra",
+          "given": "Pragyana"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.1145/3757279.3785641",
+      "arxiv_id": "2606.02951",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://arxiv.org/abs/2606.02951",
+      "oa_pdf_url": "https://arxiv.org/pdf/2606.02951",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": null,
+      "abstract": "Deploying language-driven agents in robotics requires evaluations that reflect real-world task demands: natural-language instructions with reproducible outcomes. Such agents must connect language models to callable perception and control tools, and be assessed using deployment-critical metrics including latency, accuracy, and error modes. We present SCOPE (Simulation and Camera Operations for Perception and Evaluation), a modular agent for natural-language, open-vocabulary pan-tilt-zoom (PTZ) camera control and visual scene understanding, designed explicitly for edge deployment. SCOPE operates both in a Blender-based simulation environment and on a physical PTZ camera, executing all perception, planning, and control locally at the deployment site using edge-accessible compute. We release a 536-task benchmark spanning QA, single- and multi-step commands, counting, spatial reasoning, descriptions, and optical character recognition in a Blender-based simulation environment that exposes realistic PTZ control affordances. Execution traces are combined with an LM-as-Judge to evaluate latency, accuracy, and error modes. We evaluate 19 planner-perception model combinations pairing Qwen3 small language models (SLMs) with Moondream and Qwen vision-language models (VLMs). Stronger SLMs substantially reduce hallucinations and improve tool routing, leading to more reliable closed-loop behavior. Once a sufficiently capable SLM is used, perception becomes the dominant performance bottleneck. Mixture-of-Experts models on both the planning and perception side consistently match or exceed dense alternatives at latencies and memory footprints comparable to much smaller networks. Quantization provides additional efficiency gains with minimal accuracy degradation, identifying a practical, sim-to-real validated design point for real-time, edge-feasible language-driven PTZ control.",
+      "sources": [
+        "arxiv"
+      ],
+      "journal_ref": "Proceedings of the 21st ACM/IEEE International Conference on Human-Robot Interaction (HRI '26), ACM, 2026",
+      "idx": 19,
+      "in_project": null
+    }
+  ]
+}

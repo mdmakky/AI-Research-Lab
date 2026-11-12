@@ -1,0 +1,1141 @@
+{
+  "query": "LLM static analysis combined vulnerability detection false positive reduction CodeQL",
+  "sources": [
+    "openalex",
+    "crossref",
+    "arxiv"
+  ],
+  "year_from": 2023,
+  "year_to": null,
+  "run_at": "2026-11-12T04:44:21+06:00",
+  "raw_hits": 30,
+  "unique": 28,
+  "errors": {},
+  "results": [
+    {
+      "title": "VulnDetect AI: reducing false positives in static vulnerability detection through LLM-enhanced multi-agent analysis",
+      "authors": [
+        {
+          "family": "Tan",
+          "given": "Yoong Ken"
+        }
+      ],
+      "year": 2026,
+      "venue": "DR-NTU (Nanyang Technological University)",
+      "type": "report",
+      "venue_kind": "preprint",
+      "doi": null,
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7155248805",
+      "url": "https://hdl.handle.net/10356/214005",
+      "oa_pdf_url": null,
+      "is_oa": false,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "The growing scale and complexity of modern software systems have increased the prevalence and impact of security vulnerabilities in low-level code. Static analysis tools such as CodeQL offer comprehensive and systematic vulnerability detection, but their practical adoption is limited by high false positive rates that burden developers and impede efficient remediation. This paper presents VulnDetect AI, a hybrid vulnerability detection framework that integrates static analysis with the contextual reasoning capabilities of Large Language Models (LLMs) to improve detection precision. The proposed system combines CodeQL-based vulnerability discovery with a knowledge augmentation mechanism that supplies function-level documentation and real-time web-searched CWE context to enrich semantic understanding. A structured six-stage LangGraph workflow orchestrates context extraction, documentation retrieval, return value pattern analysis, CWE web search, LLM-based verification, and evidence-driven decision making, explicitly guiding and constraining LLM reasoning. VulnDetect AI is implemented as an end-to-end system with a FastAPI backend, with results stored in a PostgreSQL database. Evaluation is conducted on the CASTLE benchmark, 250 C micro-benchmarks across 25 CWEs, to assess the effectiveness of LLM-guided false positive reduction while preserving vulnerability coverage. Experiments across five LLM configurations (Qwen3:14b, Llama3.1:70b, DeepSeek- R1:70b, gpt-oss:20b, and Magistral:24b) demonstrate that full-file context delivery and chain-of- thought reasoning consistently improve precision beyond the CodeQL baseline and the CASTLE paper reference. This work demonstrates a practical architecture for combining deterministic static analysis with guided LLM reasoning, advancing the reliability and usability of software vulnerability detection.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 1,
+      "in_project": null
+    },
+    {
+      "title": "IRIS: LLM-Assisted Static Analysis for Detecting Security Vulnerabilities",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Ziyang"
+        },
+        {
+          "family": "Dutta",
+          "given": "Saikat"
+        },
+        {
+          "family": "Naik",
+          "given": "Mayur"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2405.17238",
+      "arxiv_id": "2405.17238",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4399115016",
+      "url": "http://arxiv.org/abs/2405.17238",
+      "oa_pdf_url": "https://arxiv.org/pdf/2405.17238",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 198,
+      "abstract": "Software is prone to security vulnerabilities. Program analysis tools to detect them have limited effectiveness in practice due to their reliance on human labeled specifications. Large language models (or LLMs) have shown impressive code generation capabilities but they cannot do complex reasoning over code to detect such vulnerabilities especially since this task requires whole-repository analysis. We propose IRIS, a neuro-symbolic approach that systematically combines LLMs with static analysis to perform whole-repository reasoning for security vulnerability detection. Specifically, IRIS leverages LLMs to infer taint specifications and perform contextual analysis, alleviating needs for human specifications and inspection. For evaluation, we curate a new dataset, CWE-Bench-Java, comprising 120 manually validated security vulnerabilities in real-world Java projects. A state-of-the-art static analysis tool CodeQL detects only 27 of these vulnerabilities whereas IRIS with GPT-4 detects 55 (+28) and improves upon CodeQL's average false discovery rate by 5% points. Furthermore, IRIS identifies 4 previously unknown vulnerabilities which cannot be found by existing tools. IRIS is available publicly at https://github.com/iris-sast/iris.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 2,
+      "in_project": null
+    },
+    {
+      "title": "Reducing False Positives in Static Bug Detection with LLMs: An Empirical Study in Industry",
+      "authors": [
+        {
+          "family": "Du",
+          "given": "Xueying"
+        },
+        {
+          "family": "Feng",
+          "given": "Jiayi"
+        },
+        {
+          "family": "Zou",
+          "given": "Yi"
+        },
+        {
+          "family": "Xu",
+          "given": "Wei"
+        },
+        {
+          "family": "Ma",
+          "given": "Jie"
+        },
+        {
+          "family": "Zhang",
+          "given": "Wei"
+        },
+        {
+          "family": "Liu",
+          "given": "Sisi"
+        },
+        {
+          "family": "Peng",
+          "given": "Xin"
+        },
+        {
+          "family": "Lou",
+          "given": "Yiling"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE/ACM International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3786583.3786910",
+      "arxiv_id": "2601.18844",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7168020525",
+      "url": "https://doi.org/10.1145/3786583.3786910",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.18844",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 21,
+      "abstract": "Static analysis tools (SATs) are widely adopted in both academia and industry for improving software quality, yet their practical use is often hindered by high false positive rates, especially in large-scale enterprise systems. These false alarms demand substantial manual inspection, creating severe inefficiencies in industrial code review. While recent work has demonstrated the potential of large language models (LLMs) for false alarm reduction on open-source benchmarks, their effectiveness in real-world enterprise settings remains unclear. To bridge this gap, we conduct the first comprehensive empirical study of diverse LLM-based false alarm reduction techniques in an industrial context at Tencent, one of the largest IT companies in China. Using data from Tencent’s enterprise-customized SAT on its large-scale Advertising and Marketing Services software, we construct a dataset of 433 alarms (328 false positives, 105 true positives) covering three common bug types. Through interviewing developers and analyzing the data, our results highlight the prevalence of false positives, which wastes substantial manual effort (e.g., 10 - 20 minutes of manual inspection per alarm). Meanwhile, our results show the huge potential of LLMs for reducing false alarms in industrial settings (e.g., hybrid techniques of LLM and static analysis eliminate 94–98% of false positives with high recall). Furthermore, LLM-based techniques are cost-effective, with per-alarm costs as low as 2.1–109.5 seconds and $0.0011–$0.12, representing orders-of-magnitude savings compared to manual review. Finally, our case analysis further identifies key limitations of LLM-based false alarm reduction in industrial settings.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 3,
+      "in_project": null
+    },
+    {
+      "title": "Can LLM Prompting Serve as a Proxy for Static Analysis in Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Ceka",
+          "given": "Ira"
+        },
+        {
+          "family": "Qiao",
+          "given": "Feitong"
+        },
+        {
+          "family": "Dey",
+          "given": "Anik"
+        },
+        {
+          "family": "Valecha",
+          "given": "Aastha"
+        },
+        {
+          "family": "Kaiser",
+          "given": "Gail E."
+        },
+        {
+          "family": "Ray",
+          "given": "Baishakhi"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2412.12039",
+      "arxiv_id": "2412.12039",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4405561617",
+      "url": "http://arxiv.org/abs/2412.12039",
+      "oa_pdf_url": "https://arxiv.org/pdf/2412.12039",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Despite their remarkable success, large language models (LLMs) have shown limited ability on safety-critical code tasks such as vulnerability detection. Typically, static analysis (SA) tools, like CodeQL, CodeGuru Security, etc., are used for vulnerability detection. SA relies on predefined, manually-crafted rules for flagging various vulnerabilities. Thus, effectiveness of SA in detecting vulnerabilities depends on human experts and is known to report high error rates. In this study we investigate whether LLM prompting can be an effective alternative to these static analyzers in the partial code setting. We propose prompting strategies that integrate natural language instructions of vulnerabilities with contrastive chain-of-thought reasoning, augmented using contrastive samples from a synthetic dataset. Our findings demonstrate that security-aware prompting techniques can be effective alternatives to the laborious, hand-crafted rules of static analyzers, which often result in high false negative rates in the partial code setting. When leveraging SOTA reasoning models such as DeepSeek-R1, each of our prompting strategies exceeds the static analyzer baseline, with the best strategies improving accuracy by as much as 31.6%, F1-scores by 71.7%, pairwise accuracies by 60.4%, and reducing FNR by as much as 37.6%.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 4,
+      "in_project": null
+    },
+    {
+      "title": "ZeroFalse: Improving Precision in Static Analysis with LLMs",
+      "authors": [
+        {
+          "family": "Iranmanesh",
+          "given": "Mohsen"
+        },
+        {
+          "family": "Sabet",
+          "given": "Sina Moradi"
+        },
+        {
+          "family": "Marefat",
+          "given": "Sina"
+        },
+        {
+          "family": "Ghasr",
+          "given": "Ali Javidi"
+        },
+        {
+          "family": "Wilson",
+          "given": "Allison"
+        },
+        {
+          "family": "Sharafaldin",
+          "given": "Iman"
+        },
+        {
+          "family": "Tayebi",
+          "given": "Mohammad A."
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2510.02534",
+      "arxiv_id": "2510.02534",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416368800",
+      "url": "http://arxiv.org/abs/2510.02534",
+      "oa_pdf_url": "https://arxiv.org/pdf/2510.02534",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "Static Application Security Testing (SAST) tools are integral to modern software development, yet their adoption is undermined by excessive false positives that weaken developer trust and demand costly manual triage. We present ZeroFalse, a framework that integrates static analysis with large language models (LLMs) to reduce false positives while preserving coverage. ZeroFalse treats static analyzer outputs as structured contracts, enriching them with flow-sensitive traces, contextual evidence, and CWE-specific knowledge before adjudication by an LLM. This design preserves the systematic reach of static analysis while leveraging the reasoning capabilities of LLMs. We evaluate ZeroFalse across both benchmarks and real-world projects using ten state-of-the-art LLMs. Our best-performing models achieve F1-scores of 0.912 on the OWASP Java Benchmark and 0.955 on the OpenVuln dataset, maintaining recall and precision above 90%. Results further show that CWE-specialized prompting consistently outperforms generic prompts, and reasoning-oriented LLMs provide the most reliable precision-recall balance. These findings position ZeroFalse as a practical and scalable approach for enhancing the reliability of SAST and supporting its integration into real-world CI/CD pipelines.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 5,
+      "in_project": null
+    },
+    {
+      "title": "Sifting the Noise: A Comparative Study of LLM Agents in Vulnerability False Positive Filtering",
+      "authors": [
+        {
+          "family": "Xiong",
+          "given": "Yunpeng"
+        },
+        {
+          "family": "Zhang",
+          "given": "Ting"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the ACM on software engineering.",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1145/3832100",
+      "arxiv_id": "2601.22952",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7127178521",
+      "url": "https://doi.org/10.1145/3832100",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3832100?download=true",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "Static Application Security Testing (SAST) tools are essential for identifying software vulnerabilities, but they often produce a high volume of False Positives (FPs), imposing a substantial manual triage burden on developers. Recent advances in Large Language Model (LLM) agents offer a promising direction by enabling iterative reasoning, tool use, and environment interaction to refine SAST alerts. However, the comparative effectiveness of different LLM-based agent architectures for FP filtering remains poorly understood. In this paper, we present a comparative study of three state-of-the-art LLM-based agent frameworks, i.e., Aider, OpenHands, and SWE-agent, for vulnerability FP filtering. We evaluate these frameworks using the vulnerabilities from the OWASP Benchmark and real-world open-source Java projects. We further conduct a focused post-cutoff C/C++ study using the strongest configuration to test contamination-free generalization and isolate key agentic capabilities. The experimental results show that LLM-based agents can remove the majority of SAST noise, reducing an initial FP detection rate of over 92% on the OWASP Benchmark to as low as 6.3% in the best configuration. On a real-world Java dataset, the best configuration of LLM-based agents can achieve an FP identification rate of up to 93.3% involving CodeQL alerts. However, the benefits of agents are strongly backbone- and CWE-dependent: agentic frameworks significantly outperform vanilla prompting for stronger models such as Claude Sonnet 4 and GPT-5, but yield limited or inconsistent gains for weaker backbones. On the post-cutoff OSS-Fuzz dataset, SWE-agent with Claude Sonnet 4 identifies 95.5% of FPs while maintaining 95.5% precision, compared with a 36.4% FP identification rate for vanilla prompting. Moreover, aggressive FP reduction can come at the cost of suppressing true vulnerabilities, highlighting important trade-offs. Finally, we observe large disparities in computational cost across agent frameworks. Overall, our study demonstrates that LLM-based agents are a powerful but non-uniform solution for SAST FP filtering, and that their practical deployment requires careful consideration of agent design, backbone model choice, vulnerability category, and operational cost.",
+      "sources": [
+        "crossref",
+        "openalex"
+      ],
+      "idx": 6,
+      "in_project": null
+    },
+    {
+      "title": "Large Language Models Versus Static Code Analysis Tools: A Systematic Benchmark for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Gnieciak",
+          "given": "Damian"
+        },
+        {
+          "family": "Szandała",
+          "given": "Tomasz"
+        }
+      ],
+      "year": 2025,
+      "venue": "IEEE Access",
+      "type": "article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2025.3635168",
+      "arxiv_id": "2508.04448",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416429238",
+      "url": "https://doi.org/10.1109/access.2025.3635168",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.04448",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 32,
+      "abstract": "Modern software relies on a multitude of automated testing and quality assurance tools to prevent errors, bugs and potential vulnerabilities. This study sets out to provide a head-to-head, quantitative and qualitative evaluation of six automated approaches: three industry-standard rule-based static code-analysis tools (SonarQube, CodeQL and SnykCode) and three state-of-the-art large language models hosted on the GitHub Models platform (GPT-4.1, Mistral Large and DeepSeek V3). Using a curated suite of ten real-world C# projects that embed 63 vulnerabilities across common categories such as SQL injection, hard-coded secrets and outdated dependencies, we measure classical detection accuracy (precision, recall, F-score), analysis latency, and the developer effort required to vet true positives. The language-based scanners achieve higher mean F-1 scores,0.797, 0.753 and 0.750, than their static counterparts, which score 0.260, 0.386 and 0.546, respectively. LLMs’ advantage originates from superior recall, confirming an ability to reason across broader code contexts. However, this benefit comes with substantial trade-offs: DeepSeek V3 exhibits the highest false-positive ratio, all language models mislocate issues at line-or-column granularity due to tokenisation artefacts. Overall, language models successfully rival traditional static analysers in finding real vulnerabilities. Still, their noisier output and imprecise localisation limit their standalone use in safety-critical audits. We therefore recommend a hybrid pipeline: employ language models early in development for broad, context-aware triage, while reserving deterministic rule-based scanners for high-assurance verification. The open benchmark and JSON-based result harness released with this paper lay a foundation for reproducible, practitioner-centric research into next-generation automated code security.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 7,
+      "in_project": null
+    },
+    {
+      "title": "Using LLMs to Adjudicate Static-Analysis Alerts with Error Reduction Techniques",
+      "authors": [
+        {
+          "family": "Klieber",
+          "given": "William"
+        },
+        {
+          "family": "Svoboda",
+          "given": "David"
+        },
+        {
+          "family": "Flynn",
+          "given": "Lori"
+        },
+        {
+          "family": "Martins",
+          "given": "Ruben"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2607.09979",
+      "arxiv_id": "2607.09979",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7168267510",
+      "url": "https://arxiv.org/abs/2607.09979",
+      "oa_pdf_url": "https://arxiv.org/pdf/2607.09979",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Static analysis is widely used for finding security weaknesses in source code before deployment, but it often produces far more alerts than analysts can review. We study how well large language models (LLMs) can adjudicate (classify as a real bug or a false alarm) static-analysis alerts. We use two mistake-mitigation methods: (1) a consistency check (CC) that runs the LLM multiple times and checks that the verdicts are consistent with each other, and (2) an LLM reasoning evaluation (LRE) step that runs the LLM multiple times and then asks the LLM to choose a verdict after evaluating the reasoning provided by each run. We evaluated several LLMs on three test suites: Juliet, FormAI, and SV-COMP. Across all three suites, the mid-tier reasoning LLMs that we tested (o4-mini, gpt-oss-120b, gpt-oss-20b) reach high recall (percent of real bugs that the tool correctly flags as needing repair / manual attention) and specificity (percent of actually false alerts that the tool correctly dismisses as false alarms). With mistake mitigation, they reach at least 98% recall and at least 94.8% specificity on every suite (with CC alone on Juliet and SV-COMP, and with LRE+CC on FormAI). We probe Juliet memorization and show that o4-mini can often reconstruct sanitized test cases' original identities, so we base our generalization claims primarily on FormAI, scored against our own unpublished manual adjudications. We also report results of using the LLM to synthesize a program that dynamically triggers the flaw as independent evidence; a validity check rejected every trigger driver aimed at a false alarm, so a valid trigger proved to be strong evidence of a real flaw.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 8,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Driven SAST-Genius: A Hybrid Static Analysis Framework for Comprehensive and Actionable Security",
+      "authors": [
+        {
+          "family": "Agrawal",
+          "given": "Vaibhav"
+        },
+        {
+          "family": "Ahi",
+          "given": "Kiarash"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2509.15433",
+      "arxiv_id": "2509.15433",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415933333",
+      "url": "http://arxiv.org/abs/2509.15433",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.15433",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 15,
+      "abstract": "This report examines the synergy between Large Language Models (LLMs) and Static Application Security Testing (SAST) to improve vulnerability discovery. Traditional SAST tools, while effective for proactive security, are limited by high false-positive rates and a lack of contextual understanding. Conversely, LLMs excel at code analysis and pattern recognition but can be prone to inconsistencies and hallucinations. By integrating these two technologies, a more intelligent and efficient system is created. This combination moves beyond mere vulnerability detection optimization, transforming security into a deeply integrated, contextual process that provides tangible benefits like improved triage, dynamic bug descriptions, bug validation via exploit generation and enhanced analysis of complex codebases. The result is a more effective security approach that leverages the strengths of both technologies while mitigating their weaknesses. SAST-Genius reduced false positives by about 91 % (225 to 20) compared to Semgrep alone.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 9,
+      "in_project": null
+    },
+    {
+      "title": "VULSOLVER: Vulnerability Detection via LLM-Driven Constraint Solving",
+      "authors": [
+        {
+          "family": "Li",
+          "given": "Xiang"
+        },
+        {
+          "family": "Su",
+          "given": "Youfeng"
+        },
+        {
+          "family": "Liu",
+          "given": "Jiahao"
+        },
+        {
+          "family": "Lin",
+          "given": "Zhiwei"
+        },
+        {
+          "family": "Hou",
+          "given": "Y. H."
+        },
+        {
+          "family": "Gao",
+          "given": "Peiming"
+        },
+        {
+          "family": "Zhang",
+          "given": "Yuanchao"
+        }
+      ],
+      "year": 2025,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2509.00882",
+      "arxiv_id": "2509.00882",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4414763653",
+      "url": "http://arxiv.org/abs/2509.00882",
+      "oa_pdf_url": "https://arxiv.org/pdf/2509.00882",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 7,
+      "abstract": "Traditional vulnerability detection methods rely heavily on predefined rule matching, which often fails to capture vulnerabilities accurately. With the rise of large language models (LLMs), leveraging their ability to understand code semantics has emerged as a promising direction for achieving more accurate and efficient vulnerability detection. However, current LLM-based approaches face significant challenges: instability in model outputs, degraded performance with long context, and hallucination. As a result, many existing solutions either use LLMs merely to enrich predefined rule sets, thereby keeping the detection process fundamentally rule-based, or over-rely on them, leading to poor robustness. To address these challenges, we propose a constraint-solving approach powered by LLMs named VULSOLVER. By modeling vulnerability detection as a constraint-solving problem, and by integrating static application security testing (SAST) with the semantic reasoning capabilities of LLMs, our method enables the LLM to act like a professional human security expert. We assess VULSOLVER on the OWASP Benchmark (1,023 labeled samples), achieving 97.85% accuracy, 97.97% F1-score, and 100% recall. Applied to widely-used open-source projects, VULSOLVER identified 15 previously unknown high-severity vulnerabilities (CVSS 7.5-9.8), demonstrating its effectiveness in real-world security analysis.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 10,
+      "in_project": null
+    },
+    {
+      "title": "Code Generation Security in LLMs: A Hybrid Detection and Post-Processing Framework for Vulnerability Mitigation",
+      "authors": [
+        {
+          "family": "Zhang",
+          "given": "Beilei"
+        }
+      ],
+      "year": 2025,
+      "venue": "International Conference on Intelligent Computing (ICIC)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.65286/icic.v21i4.69146",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4416058177",
+      "url": "https://doi.org/10.65286/icic.v21i4.69146",
+      "oa_pdf_url": "http://poster-openaccess.com/files/ICIC2025/2583.pdf",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Large Language Models LLMs have transformed code generation but introduce critical security risks in software development pipelines. This paper proposes a hybrid framework combining static analysis Bandit CodeQL , dynamic fuzzing AFL__ , and syntax-aware repair rules to mitigate vulnerabilities in LLM-generated code without retraining. Evaluated on an enhanced SecurityEval benchmark with 185 test samples, our framework achieves a 68.2 reduction in vulnerabilities 95 CI: 64.7–71.7 while preserving 92.1 functional correctness across four state-of-the-art LLMs Qwen2.5-72B, QwQ-32B, ChatGPT-3.5, and ChatGPT-4 . Key findings reveal significant disparities in model security: ChatGPT-4 demonstrates superior vulnerability awareness static VDR: 83 vs. 61 for Qwen2.5-72B and generates 1.9× fewer vulnerabilities than open-source alternatives. The lightweight repair pipeline operates at 0.8 seconds per sample, enabling real-time deployment. This work highlights the necessity of integrating hybrid detection with context-aware repair to balance security and functionality in LLM-generated code.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 11,
+      "in_project": null
+    },
+    {
+      "title": "Improving SAST Detection Capability with LLMs and Enhanced DFA",
+      "authors": [
+        {
+          "family": "Luo",
+          "given": "Yuan"
+        },
+        {
+          "family": "Chen",
+          "given": "Zhaojun"
+        },
+        {
+          "family": "Dong",
+          "given": "Yuxin"
+        },
+        {
+          "family": "Zhang",
+          "given": "Haiquan"
+        },
+        {
+          "family": "Sun",
+          "given": "Yi"
+        },
+        {
+          "family": "Xie",
+          "given": "Fei"
+        },
+        {
+          "family": "Dong",
+          "given": "Zhiqiang"
+        }
+      ],
+      "year": 2025,
+      "venue": "ACM SIGPLAN International Workshop on Language Models and Programming Languages (LMPL)",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1145/3759425.3763388",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4415002696",
+      "url": "https://doi.org/10.1145/3759425.3763388",
+      "oa_pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3759425.3763388",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Static Application Security Testing (SAST) is a cornerstone of modern vulnerability discovery, enabling tools like GitHub’s CodeQL to identify security flaws in code repositories. However, our large-scale analysis of open-source repositories reveals that SAST’s detection performance is limited by three main factors: (1) incomplete source and sink coverage in built-in propagation rules, (2) failure to recognize sanitization functions, and (3) disruptions in data flow due to insufficient support for certain language features. In this work, we demonstrate how Large Language Models (LLMs) can improve the identification of taint sources and sinks, as well as the recognition of sanitization functions. Using CodeQL as an example, we also introduce the implementation principles of SAST's Data Flow Analysis (DFA). Furthermore, we propose enhancing Java thread support to improve the accuracy of DFA.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 12,
+      "in_project": null
+    },
+    {
+      "title": "Comparison of Static Application Security Testing Tools and Large Language Models for Repo-level Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Zhou",
+          "given": "Xin"
+        },
+        {
+          "family": "Tran",
+          "given": "Duc-Manh"
+        },
+        {
+          "family": "Le-Cong",
+          "given": "Thanh"
+        },
+        {
+          "family": "Zhang",
+          "given": "Ting"
+        },
+        {
+          "family": "Irsan",
+          "given": "Ivana Clairine"
+        },
+        {
+          "family": "Sumarlin",
+          "given": "Joshua"
+        },
+        {
+          "family": "Le",
+          "given": "Xuan-Bach D."
+        },
+        {
+          "family": "Lo",
+          "given": "David"
+        }
+      ],
+      "year": 2024,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2407.16235",
+      "arxiv_id": "2407.16235",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W4406073740",
+      "url": "http://arxiv.org/abs/2407.16235",
+      "oa_pdf_url": "https://arxiv.org/pdf/2407.16235",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 62,
+      "abstract": "Software vulnerabilities pose significant security challenges and potential risks to society, necessitating extensive efforts in automated vulnerability detection. There are two popular lines of work to address automated vulnerability detection. On one hand, Static Application Security Testing (SAST) is usually utilized to scan source code for security vulnerabilities, especially in industries. On the other hand, deep learning (DL)-based methods, especially since the introduction of large language models (LLMs), have demonstrated their potential in software vulnerability detection. However, there is no comparative study between SAST tools and LLMs, aiming to determine their effectiveness in vulnerability detection, understand the pros and cons of both SAST and LLMs, and explore the potential combination of these two families of approaches. In this paper, we compared 15 diverse SAST tools with 12 popular or state-of-the-art open-source LLMs in detecting software vulnerabilities from repositories of three popular programming languages: Java, C, and Python. The experimental results showed that SAST tools obtain low vulnerability detection rates with relatively low false positives, while LLMs can detect up 90\\% to 100\\% of vulnerabilities but suffer from high false positives. By further ensembling the SAST tools and LLMs, the drawbacks of both SAST tools and LLMs can be mitigated to some extent. Our analysis sheds light on both the current progress and future directions for software vulnerability detection.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 13,
+      "in_project": null
+    },
+    {
+      "title": "SIExVulTS: Sensitive Information Exposure Vulnerability Detection System Using Transformer Models and Static Analysis",
+      "authors": [
+        {
+          "family": "Katz",
+          "given": "Kyler"
+        },
+        {
+          "family": "Moshtari",
+          "given": "Sara"
+        },
+        {
+          "family": "Mujhid",
+          "given": "Ibrahim"
+        },
+        {
+          "family": "Mirakhorli",
+          "given": "Mehdi Tarrit"
+        },
+        {
+          "family": "Garcia",
+          "given": "Derek"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the ... ACM-IEEE International Symposium on Empirical Software Engineering and Measurement/International Symposium on Empirical Software Engineering and Measurement",
+      "type": "conference-paper",
+      "venue_kind": "published",
+      "doi": "10.1109/esem64174.2025.00012",
+      "arxiv_id": "2508.19472",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7123337391",
+      "url": "https://doi.org/10.1109/esem64174.2025.00012",
+      "oa_pdf_url": "https://arxiv.org/pdf/2508.19472",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 4,
+      "abstract": "Background: Sensitive Information Exposure (SIEx) vulnerabilities (CWE-200) remain a persistent and underaddressed threat across software systems, often leading to serious security breaches. Existing detection tools rarely target the diverse subcategories of CWE-200 or provide context-aware analysis of code-level data flows. Aims: This paper aims to present SIExVulTS, a novel vulnerability detection system that integrates transformer-based models with static analysis to identify and verify sensitive information exposure in Java applications. Method: SIExVulTS employs a three-stage architecture: (1) an Attack Surface Detection Engine that uses sentence embeddings to identify sensitive variables, strings, comments, and sinks; (2) an Exposure Analysis Engine that instantiates CodeQL queries aligned with the CWE-200 hierarchy; and (3) a Flow Verification Engine that leverages GraphCodeBERT to semantically validate source-to-sink flows. We evaluate SIExVulTS using three curated datasets, including real-world CVEs, a benchmark set of synthetic CWE-200 examples, and labeled flows from 31 open-source projects. Results: The Attack Surface Detection Engine achieved an average$\\mathbf{F 1}$score greater than$\\mathbf{9 3 \\%}$, the Exposure Analysis Engine achieved an F 1 score of 85.71 %, and the Flow Verification Engine increased precision from 22.61 % to 87.23 %. Moreover, SIExVulTS successfully uncovered six previously unknown CVEs in major Apache projects. Conclusions: The results demonstrate that SIExVulTS is effective and practical for improving software security against sensitive data exposure, addressing limitations of existing tools in detecting and verifying CWE-200 vulnerabilities.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 14,
+      "in_project": null
+    },
+    {
+      "title": "Multi-Agent Taint Specification Extraction for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Ghebremichael",
+          "given": "Jonah"
+        },
+        {
+          "family": "Vasan",
+          "given": "Saastha"
+        },
+        {
+          "family": "Ullah",
+          "given": "Saad"
+        },
+        {
+          "family": "Tystahl",
+          "given": "Greg"
+        },
+        {
+          "family": "Adei",
+          "given": "David"
+        },
+        {
+          "family": "Kruegel",
+          "given": "Christopher"
+        },
+        {
+          "family": "Vigna",
+          "given": "Giovanni"
+        },
+        {
+          "family": "Enck",
+          "given": "William"
+        },
+        {
+          "family": "Kapravelos",
+          "given": "Alexandros"
+        }
+      ],
+      "year": 2026,
+      "venue": "arXiv (Cornell University)",
+      "type": "preprint",
+      "venue_kind": "preprint",
+      "doi": "10.48550/arxiv.2601.10865",
+      "arxiv_id": "2601.10865",
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": "W7124765794",
+      "url": "http://arxiv.org/abs/2601.10865",
+      "oa_pdf_url": "https://arxiv.org/pdf/2601.10865",
+      "is_oa": true,
+      "is_retracted": false,
+      "cited_by": 8,
+      "abstract": "Static Application Security Testing (SAST) tools using taint analysis are widely viewed as providing higher-quality vulnerability detection results compared to traditional pattern-based approaches. However, performing static taint analysis for JavaScript poses two major challenges. First, JavaScript's dynamic features complicate data flow extraction required for taint tracking. Second, npm's large library ecosystem makes it difficult to identify relevant sources/sinks and establish taint propagation across dependencies. In this paper, we present SemTaint, a multi-agent system that strategically combines the semantic understanding of Large Language Models (LLMs) with traditional static program analysis to extract taint specifications, including sources, sinks, call edges, and library flow summaries tailored to each package. Conceptually, SemTaint uses static program analysis to calculate a call graph and defers to an LLM to resolve call edges that cannot be resolved statically. Further, it uses the LLM to classify sources and sinks for a given CWE. The resulting taint specification is then provided to a SAST tool, which performs vulnerability analysis. We integrate SemTaint with CodeQL, a state-of-the-art SAST tool, and demonstrate its effectiveness by detecting 106 of 162 vulnerabilities previously undetectable by CodeQL. Furthermore, we find 4 novel vulnerabilities in 4 popular npm packages. In doing so, we demonstrate that LLMs can practically enhance existing static program analysis algorithms, combining the strengths of both symbolic reasoning and semantic understanding for improved vulnerability detection.",
+      "sources": [
+        "openalex"
+      ],
+      "idx": 15,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Driven Adaptive Source–Sink Identification and False Positive Mitigation for Static Analysis",
+      "authors": [
+        {
+          "family": "Lin",
+          "given": "Shiyin"
+        }
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the 2025 8th International Conference on Computer Information Science and Artificial Intelligence",
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202509.0917.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202509.0917.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "Static analysis is effective for discovering software vulnerabilities but notoriously suffers from incomplete source– sink specifications and excessive false positives (FPs). We present ADATAINT, an LLM-driven taint analysis framework that adap- tively infers source/sink specifications and filters spurious alerts through neuro-symbolic reasoning. Unlike LLM-only detectors, ADATAINT grounds model suggestions in program facts and con- straint validation, ensuring both adaptability and determinism. We evaluate ADATAINT on Juliet 1.3, SV-COMP-style C benchmarks, and three large real-world projects. Results show that ADATAINT reduces false positives by 43.7% on average and improves recall by 11.2% compared to state-of-the-art baselines (CodeQL, Joern, and LLM-only pipelines), while maintaining competitive runtime overhead. These findings demonstrate that combining LLM inference with symbolic validation offers a prac- tical path toward more accurate and reliable static vulnerability analysis",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 16,
+      "in_project": null
+    },
+    {
+      "title": "LLM-based multi-agent system for generation and evolution of CodeQL static analysis rules for C/C++",
+      "authors": [
+        {
+          "family": "Arkhipova",
+          "given": "Anastasia B."
+        },
+        {
+          "family": "Azeeva",
+          "given": "Eva D."
+        }
+      ],
+      "year": 2026,
+      "venue": "Digital technology security",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.17212/2782-2230-2026-1-9-28",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.17212/2782-2230-2026-1-9-28",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This paper addresses the problem of ensuring security for C/C++ software systems, where static code analysis serves as a key tool for vulnerability detection but remains costly to maintain due to the complexity of developing rules and taint specifications. Existing approaches are analyzed: industrial static analyzers (Svace, Irbis), IFDS analysis, ML/NN-based solutions, and hybrid schemes involving large language models (LLMs) used for warning filtering, code generation, and automatic rule synthesis (QLPro, KNighter, CodePatchLLM). It is shown that direct use of LLMs as standalone vulnerability detectors yields high recall but is accompanied by a significant number of false positives and hallucinations. As an alternative, a multi-agent module for the SAST tool CodeQL, tailored for C/C++, is proposed. It leverages LLMs for the generation, validation, and evolution of rules in the QL query language within a closed loop of \"generation, verification, refinement, filtering, ranking\". The system architecture is described, featuring generator, validator, refiner, filter, and ranker agents, whose orchestration is implemented using LangGraph and PostgreSQL. Rule validation is performed against CodeQL databases Juliet, SARD, and real-world projects, with calculation of metrics including Precision, Recall, F1, FPR, and Specificity, and consideration of CVSS scores. This enables the selection of rules of acceptable quality and reduces the burden on developers through automated evolution of the rule base.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 17,
+      "in_project": null
+    },
+    {
+      "title": "LLM-FPR: Large Language Model-based False Positive Reduction Framework for Network Intrusion Detection",
+      "authors": [
+        {
+          "family": "Jiang",
+          "given": "Shan"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 6th International Symposium on Computer Technology and Information Science (ISCTIS)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/isctis70043.2026.11572627",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/isctis70043.2026.11572627",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 18,
+      "in_project": null
+    },
+    {
+      "title": "Reducing Hallucinated False Positives in LLM-Based Vulnerability Detection via Multi-Signal Focused Verification",
+      "authors": [
+        {
+          "family": "Chen",
+          "given": "Casper"
+        }
+      ],
+      "year": 2026,
+      "venue": "IEEE Access",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1109/access.2026.3739345",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/access.2026.3739345",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 19,
+      "in_project": null
+    },
+    {
+      "title": "Context Guardian: LLM-Assisted Context-Aware Static Analysis for Vulnerability Detection",
+      "authors": [
+        {
+          "family": "Agbo",
+          "given": "Edem Schaanning"
+        },
+        {
+          "family": "Astekin",
+          "given": "Merve"
+        },
+        {
+          "family": "Nguyen",
+          "given": "Phu"
+        },
+        {
+          "family": "Goknil",
+          "given": "Arda"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 IEEE International Conference on Cyber Security and Resilience (CSR)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/csr69374.2026.11759831",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/csr69374.2026.11759831",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 20,
+      "in_project": null
+    },
+    {
+      "title": "LLM-Driven Hybrid Intrusion Detection Framework for False Positive Reduction in Cyber-Physical Systems",
+      "authors": [
+        {
+          "family": "Priyadarshini",
+          "given": "R."
+        },
+        {
+          "family": "Sundaradhas",
+          "given": "Andrew"
+        },
+        {
+          "family": "Rajendran",
+          "given": "N."
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 5th International Conference on Artificial Intelligence, Internet of Things and Cloud Computing Technology (AIoTC)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/aiotc71250.2026.11689161",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/aiotc71250.2026.11689161",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 21,
+      "in_project": null
+    },
+    {
+      "title": "LegacyGuard: Hybrid LLM, RAG, and Static Analysis for Multi-Lingual Vulnerability Detection in Legacy Codebases",
+      "authors": [
+        {
+          "family": "Potdar",
+          "given": "Yash Yogesh"
+        }
+      ],
+      "year": 2025,
+      "venue": "International Journal for Research in Applied Science and Engineering Technology",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.22214/ijraset.2025.71176",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.22214/ijraset.2025.71176",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 1,
+      "abstract": "Legacy systems, characterized by their heterogeneity and outdated coding practices, present significant security challenges in modern software infrastructure. Recent advances in Large Language Models (LLMs) and Retrieval Augmented Generation (RAG) offer promising solutions for vulnerability detection, as demonstrated by successful implementations of knowledge-level retrieval frameworks [1]. This research proposes LegacyGuard, a hybrid framework that integrates state-of-theart code-specific LLMs with traditional static analysis and RAG-enhanced knowledge retrieval to detect vulnerabilities in multilingual legacy codebases. The framework leverages LLM- based semantic analysis for deep code understanding, while incorporating external vulnerability intelligence through RAG to enhance detection accuracy. Through systematic evaluation using precision, recall, and F1-score metrics, this work aims to demonstrate improved vulnerability detection rates and provide actionable insights through chain-of-thought reasoning. The modular architecture ensures extensibility and adaptability for future security analysis applications, contributing to both theoretical foundations and practical implementations of AI-driven vulnerability detection in legacy systems.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 22,
+      "in_project": null
+    },
+    {
+      "title": "Hybrid Vulnerability Detection: Combining Latent Semantic Analysis with LLM-Assisted Fuzzing via Context Distillation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Kevin"
+        },
+        {
+          "family": "Schoop",
+          "given": "Dominik"
+        }
+      ],
+      "year": 2026,
+      "venue": "Proceedings of the 23rd International Conference on Security and Cryptography",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.5220/0015007300004103",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.5220/0015007300004103",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 23,
+      "in_project": null
+    },
+    {
+      "title": "An approach to website vulnerability detection based on static and dynamic analysis",
+      "authors": [
+        {
+          "family": "Popereshnyak",
+          "given": "S.V."
+        },
+        {
+          "family": "Horokh",
+          "given": "B.D."
+        }
+      ],
+      "year": 2025,
+      "venue": "PROBLEMS IN PROGRAMMING",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.15407/pp2025.04.041",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.15407/pp2025.04.041",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": "This paper proposes an approach to automated website vulnerability detection based on the combination of static and dynamic analysis within a modular scanner architecture. The motivation for this study arises from the growing number of parameterized URLs in modern web applications and, as a consequence, redundant crawling and the high cost of multi-variant testing under limited time and resource budgets in DevSecOps/CI/CD scenarios. The proposed approach is built on a two-stage pipeline: preliminary static analysis of a web resource, which includes sitemap construction by a crawler with depth control, extraction of endpoints, parameters, and input forms, as well as URL template normalization through the generalization of dynamic identifiers; and dynamic vulnerability testing for a normalized set of test points with parallel execution of isolated checks and aggregation of results into machine-readable formats. Quality and performance evaluation metrics are proposed, including precision/recall, the request reduction ratio, and throughput, which enable quantitative assessment of the impact of preliminary normalization and the efficiency of multithreaded processing. The implementation is realized as a Java-based CLI utility with a plugin-based testing model, facilitating extensibility for new vulnerability classes without modification of the core system. Experimental validation was conducted using benchmark vulnerable applications OWASP Juice Shop and OWASP WebGoat, as well as proprietary projects; the results demonstrate a significant reduction in crawler execution time and the achievement of acceptable throughput depending on deployment conditions. The obtained results confirm the effectiveness of combining static structuring of the search space with targeted dynamic checks to improve the scalability and reproducibility of web security analysis.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 24,
+      "in_project": null
+    },
+    {
+      "title": "FPDetection: False Positives Detection in Static Code Analysis with Deep Learning and LLM",
+      "authors": [
+        {
+          "family": "Xu",
+          "given": "Yang"
+        },
+        {
+          "family": "Lv",
+          "given": "Jinming"
+        },
+        {
+          "family": "Nai",
+          "given": "Hang"
+        },
+        {
+          "family": "Li",
+          "given": "Yong"
+        },
+        {
+          "family": "Xie",
+          "given": "Qiaoluan"
+        }
+      ],
+      "year": 2025,
+      "venue": "2025 25th International Conference on Software Quality, Reliability, and Security Companion (QRS-C)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/qrs-c65679.2025.00110",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/qrs-c65679.2025.00110",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 25,
+      "in_project": null
+    },
+    {
+      "title": "The Effect of Regex Signal on False Positive and False Negative Balance in LLM-Based Secret Detection",
+      "authors": [
+        {
+          "family": "Yıldız",
+          "given": "Elif Karadağ"
+        },
+        {
+          "family": "Dalkılıç",
+          "given": "Mehmet Emin"
+        }
+      ],
+      "year": 2026,
+      "venue": "2026 11th International Conference on Computer Science and Engineering (UBMK)",
+      "type": "proceedings-article",
+      "venue_kind": "published",
+      "doi": "10.1109/ubmk71847.2026.11745300",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1109/ubmk71847.2026.11745300",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 26,
+      "in_project": null
+    },
+    {
+      "title": "Dual-use ambiguity in static ransomware detection: false positive analysis and confidence-gated mitigation",
+      "authors": [
+        {
+          "family": "Reddy",
+          "given": "Ch Ram Mohan"
+        },
+        {
+          "family": "Rao",
+          "given": "R. V. Raghavendra"
+        },
+        {
+          "family": "Vishnuprasad",
+          "given": ""
+        },
+        {
+          "family": "Kumar",
+          "given": "K. Sailaja"
+        }
+      ],
+      "year": 2026,
+      "venue": "Scientific Reports",
+      "type": "journal-article",
+      "venue_kind": "published",
+      "doi": "10.1038/s41598-026-67921-z",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.1038/s41598-026-67921-z",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 0,
+      "abstract": null,
+      "sources": [
+        "crossref"
+      ],
+      "idx": 27,
+      "in_project": null
+    },
+    {
+      "title": "CQLLM: A Framework for Generating CodeQL Security Vulnerability Detection Code Based on Large Language Model",
+      "authors": [
+        {
+          "family": "Wang",
+          "given": "Le"
+        },
+        {
+          "family": "Chen",
+          "given": "Chan"
+        },
+        {
+          "family": "Zhu",
+          "given": "Junyi"
+        },
+        {
+          "family": "Zhan",
+          "given": "Rufeng"
+        },
+        {
+          "family": "Han",
+          "given": "Weihong"
+        }
+      ],
+      "year": 2025,
+      "venue": null,
+      "type": "posted-content",
+      "venue_kind": "preprint",
+      "doi": "10.20944/preprints202510.1458.v1",
+      "arxiv_id": null,
+      "pmid": null,
+      "pmcid": null,
+      "openalex_id": null,
+      "url": "https://doi.org/10.20944/preprints202510.1458.v1",
+      "oa_pdf_url": null,
+      "is_oa": null,
+      "is_retracted": false,
+      "cited_by": 2,
+      "abstract": "With the increasing complexity of software systems, the number of security vulnerabilities contained within software has risen accordingly. The existing shift-left security concept aims to detect and fix vulnerabilities during the software development cycle. While CodeQL stands as the premier static code analysis tool currently available on the market, its high barrier to entry poses challenges for meeting the implementation requirements of shift-left security initiatives. While large language model (LLM) offers potential assistance in QL code development, the inherent complexity of code generation tasks often leads to persistent issues such as syntactic inaccuracies and references to non-existent modules, which consequently constrains their practical applicability in this domain. To address these challenges, this paper proposes CQLLM, a novel framework for automating the generation of CodeQL security vulnerability detection code by leveraging LLM. This framework is designed to enhance both the efficiency and the accuracy of automated QL code generation, thereby advancing static code analysis for a more efficient and intelligent paradigm for vulnerability detection.First, retrieval-augmented generation (RAG) is employed to search the vector database for dependency libraries and code snippets that are highly similar to the user’s input, thereby constraining the model’s generation process and preventing the import of invalid modules. Then, the user input and the knowledge chunks retrieved by RAG are fed into a fine-tuned LLM to perform reasoning and generate QL code. By integrating external knowledge bases with the large model, the framework enhances the correctness and completeness of the generated code.Experimental results show that CQLLM significantly improves the executability of the generated QL code, with the execution success rate improving from 0.31% to 72.48%, outperforming the original model by a large margin. Meanwhile, CQLLM also enhances the effectiveness of the generated results, achieving a CWE coverage rate of 57.4% in vulnerability detection tasks, demonstrating its practical applicability in real-world vulnerability detection.",
+      "sources": [
+        "crossref"
+      ],
+      "idx": 28,
+      "in_project": null
+    }
+  ]
+}

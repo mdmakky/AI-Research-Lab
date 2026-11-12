@@ -1,0 +1,372 @@
+# Research standards
+
+The rules every skill and agent in this workspace follows. One source of truth: change rules here, not in individual skills.
+
+## 1. Evidence labels
+Every substantive statement about a paper or the literature carries one label:
+
+| Label | Short | Meaning | Requirement |
+|---|---|---|---|
+| VERIFIED | [V] | Checked against the paper's own data, tables, figures or results text. | Page ref `(key, p. N)` |
+| AUTHOR-CLAIM | [A] | The authors state it; we cannot independently check it (e.g. claims of novelty, interpretations, conclusions beyond the data). | Page ref |
+| INTERPRETATION | [I] | Our own reasoning, synthesis or critique. | Say what it is based on |
+
+Page refs use the `=== [PDF page N] ===` markers in `fulltext.txt` (PDF page index, not printed page number). When a quote is used, it is copied verbatim from `fulltext.txt`.
+
+Citation syntax:
+- Inside a paper's own `analysis.md`: `(p. N)`.
+- Everywhere else (evidence matrix, reports, reviews): pandoc style `[@key, p. N]` or `[@key1; @key2]`. Keys are the folder names under `papers/`. This works with `references.bib` and pandoc.
+- `rlab cite-check <project> <file...>` must pass before any written document is handed to the user.
+
+## 2. Never invent
+- Every DOI, title, author, year and venue comes from `metadata.json` (resolved by `rlab add` from Crossref/OpenAlex/arXiv/PubMed). Never type a DOI from memory.
+- Every finding, number, limitation and quote comes from the paper text. If the paper does not report something, write "not reported".
+- Every citation in written output uses an existing paper key in the project. A claim with no source is either removed or labelled [I].
+- If something cannot be found or verified, say so plainly. An honest "unknown" beats a plausible guess.
+
+## 3. Source quality tiers
+Prefer higher tiers; state the tier when it matters to the argument.
+
+1. Peer-reviewed journal articles and full papers at reputable conferences (`venue_kind: published`); systematic reviews and meta-analyses at the top for evidence synthesis.
+2. Peer-reviewed workshop papers, book chapters from academic publishers.
+3. Preprints (`venue_kind: preprint`, e.g. arXiv): usable, always flagged "not peer-reviewed". If a published version exists, use it instead.
+4. Theses, technical reports, grey literature: background only, flagged.
+5. Blogs, news, Wikipedia, vendor material: never cited as evidence. May guide searching.
+
+`venue_kind: published` means the work appeared in a journal or proceedings; it is not proof of rigorous review. Watch for predatory venues (unknown publisher, implausibly fast review, no indexing) and flag them.
+Retracted papers (`RETRACTED` flag from `rlab`) are excluded from evidence; mention only as retracted.
+
+## 4. Reading depth
+- Detailed methodology, dataset, setup, metrics, findings and limitations require the full text (`evidence_basis: full-text`).
+- Abstract-only analysis (`evidence_basis: abstract-only`) may fill objective and headline claims labelled [A] only. All method sections say "full text not available". Abstract-only papers carry less weight in synthesis and gap claims; say so.
+- Read the whole paper: methods, results, tables, limitations, appendix if relevant. Note skipped parts in "Analyst notes".
+
+## 5. Critical appraisal checklist
+For every empirical paper check and record:
+- Sample size and how it was chosen; power or uncertainty reporting.
+- Baselines and whether they are fair and current.
+- Evaluation design: train/test separation, leakage, cross-validation, held-out data, blinding, control groups.
+- Statistical testing: tests, effect sizes, confidence intervals, multiple comparisons.
+- Reproducibility: data, code, hyper-parameters, protocol available?
+- Conflicts of interest and funding where relevant.
+- Whether conclusions go beyond the data (mark those [A] and note it).
+
+Evidence strength: **strong** = adequate N, sound design, replicated or consistent across studies; **moderate** = sound design but single study or limited N; **weak** = small/unclear N, design flaws, abstract-only, or preprint without replication.
+
+## 6. Contradictions
+When papers disagree: record both sides in the evidence matrix "Contradictions" section with page refs, then compare data, population, method, metric and time. Offer an explanation only as [I]. Never silently pick a side.
+
+## 7. Research gaps and novelty
+A gap is reported only when:
+1. It is supported by evidence from analysed papers (explicit future-work statements, consistent limitations, contradictions, untested populations/conditions, missing method comparisons).
+2. A dedicated novelty check was run: at least 3 targeted searches (`rlab search`) across at least 2 sources, recent years included, plus a web search for very recent work. Queries, date and closest hits are recorded in the gap entry.
+3. Confidence is stated. "No paper found" is phrased as "we found no paper that ... (searches on DATE)", never "this has never been studied".
+
+## 8. Copyright and access
+- Download only legal open-access copies: OpenAlex/Unpaywall OA locations, arXiv, Europe PMC, publisher OA pages. `rlab fetch` enforces this and refuses shadow libraries.
+- Never bypass paywalls, logins, CAPTCHAs, or rate limits. Never use Sci-Hub, LibGen, Anna's Archive or similar.
+- When no OA copy exists: tell the user and ask them to obtain it through their library, then `rlab attach`. Otherwise analyse abstract-only and label it.
+- Quotes stay short and attributed. PDFs stay inside the project folder and are not redistributed.
+
+## 9. Preservation
+- Original PDFs (`paper.pdf`), extracted text (`fulltext.txt`) and completed analyses (`status: complete`) are never overwritten or deleted without the user's explicit permission. A hook asks the user first (once `setup/claude-settings.json` is installed).
+- Analysis status flow: `draft` (in progress) -> `ready` (analyst self-check passed) -> `complete` (critical review passed). Fix review findings while the analysis is `ready`.
+- Revisions to a completed analysis go in a new section `## Revision YYYY-MM-DD` with what changed and why, after the user agrees.
+- `research-log.md` is append-only.
+
+## 10. Talking to the user (a beginner researcher)
+- Progress updates: short, what was done, what was found, what is next.
+- Explain research terms on first use in one plain sentence (e.g. "a *systematic review* is a study that collects and evaluates all studies on a question").
+- Explain important decisions and their reason: scope cuts, exclusions, weak evidence, gaps.
+- Ask only for: scope or research-question choices that change the direction, missing full-text access, paid or restricted resources, and anything destructive.
+---
+name: analyze-paper
+description: Analyse one research paper in depth (objective, method, data, setup, metrics, findings, limitations, validity threats, future work, relevance) with page-cited evidence. Use when a project paper needs its analysis.md written or completed.
+---
+
+# Analyse a paper
+
+`rlab` = `python3 scripts/rlab.py`. Rules: [docs/research-standards.md](../../../docs/research-standards.md) — labels §1, never invent §2, reading depth §4, appraisal checklist §5.
+
+Input: project id + paper key. Files live in `research/<id>/papers/<key>/`.
+
+## 1. Prepare
+- `rlab scaffold <id> <key>` (creates `analysis.md`; never overwrites an existing one).
+- Read `metadata.json`. Note `venue_kind`, `is_retracted`, `fulltext.status`, `fulltext.identity`, `fulltext.text_layer`.
+- `identity` UNCONFIRMED → read PDF page 1 and confirm it is this paper; if not, stop and report.
+- `text_layer` POOR → read pages from `paper.pdf` with the Read tool (`pages` parameter) instead of `fulltext.txt`.
+- No full text → `evidence_basis: abstract-only`; fill objective and headline claims as [A] from the abstract in `metadata.json`, write "full text not available" in sections 3–6, 8 and 10, and stop at step 4.
+
+## 2. Read the whole paper
+Read `fulltext.txt` in chunks (Read with offset/limit) from start to end: abstract, introduction, method, results, tables, discussion, limitations, conclusion. Use Grep for `limitation|threat|future work|we did not|sample|dataset|N =` to make sure nothing is missed. For tables or figures garbled by text extraction, read that PDF page directly. Page numbers come from the nearest preceding `=== [PDF page N] ===` marker.
+
+## 3. Write the analysis
+Fill every section of `analysis.md`. Each [V]/[A] item ends with `(p. N)`. Use "not reported" when the paper is silent — that absence is itself useful information (e.g. no sample size reported). Separate author-stated limitations (section 8, [A]) from limitations you identify (section 9, [I]). Apply the appraisal checklist to section 10. Fill the evidence table (section 13) with rows linked to project RQ ids from `RESEARCH-QUESTIONS.md`.
+
+## 4. Frontmatter
+Fill the single-line frontmatter fields: `design`, `dataset`, `sample_size`, `metrics`, `main_finding` (≤25 words), `relevance` (high/medium/low). These feed the literature matrix.
+
+## 5. Self-check
+- Every [V]/[A] has a page ref; `rlab cite-check <id> research/<id>/papers/<key>/analysis.md` passes.
+- Grep `fulltext.txt` for 3 of your quotes/numbers: each is found on the cited page.
+- No template placeholder or empty required section remains.
+Then set `status: ready` and run `rlab index <id>`.
+
+Done when: `status: ready` and the self-check passed — or `status: draft` with the blocking reason written in "Analyst notes".
+
+## 6. Return
+Report: key, 2-line summary, evidence-table rows, anything surprising (contradicts other work, suspicious results, missing data).
+# Critical review: analyses batch B (2026-11-11)
+
+Scope: `papers/<key>/analysis.md` for 10 keys, checked against `fulltext.txt` (page refs = PDF page index) and `metadata.json`.
+Reviewer role: sceptical peer review. No analysis file was edited.
+
+## Checks run
+
+- `rlab cite-check 2026-11-11-ai-reverse-engineering-vibe-coding <10 analysis files>`: **OK** (59–89 citations per file, all to the paper's own key).
+- `rlab validate <id> <key>`: **could not run.** It fails with `pdftotext not found` (poppler is not installed on this machine). As a fallback I read the `metadata.json` fields:
+  - all 10 papers have `verification.status = verified` and `is_retracted = false`;
+  - PDF identity is `match (arXiv id printed in PDF)` for 8 papers;
+  - PDF identity is only `probable (title found on first pages)` for si2025benchmarking and wu2026looks. Both are ACL Anthology PDFs, and title, authors and venue footer agree with the metadata.
+  - The DOI `10.18653/2026.emnlp-main.2650` (wu2026looks) looks malformed because it has no `v1/`, but it resolves at doi.org (302 to aclanthology.org). The `v1/` variant gives 404. **No problem.**
+  - **Action:** install poppler and re-run `rlab validate` for all 10 keys before setting any of them to `complete`.
+- Spot checks: for each paper I grepped at least 5 numbers or claims (all Key-findings numbers, the sample size and the dataset) in `fulltext.txt` and checked the cited page. Most were correct. The deviations are listed below.
+- RQ links: every analysis cites RQ1–RQ5, and all five exist in `RESEARCH-QUESTIONS.md`.
+
+## Summary
+
+| Key | Verdict | Fixes |
+|---|---|---|
+| mota2026comparing | pass-with-minor-fixes | 3 |
+| pan2026functional | pass-with-minor-fixes | 4 |
+| si2025benchmarking | pass-with-minor-fixes | 6 |
+| tran2026vibe | pass-with-minor-fixes | 6 |
+| wu2026looks | pass-with-minor-fixes | 3 |
+| xiao2025benchmarking | pass-with-minor-fixes | 3 |
+| yang2026programbench | pass-with-minor-fixes | 2 |
+| zhao2025vibe | pass-with-minor-fixes | 3 |
+| zhou2025declarui | pass-with-minor-fixes | 2 |
+| zhu2026understanding | pass-with-minor-fixes | 3 |
+
+Overall quality is high:
+- All 10 are full-text analyses with dense, mostly correct page refs.
+- Their own critiques are paper-specific, not boilerplate (e.g. the DeclarUI ablation arithmetic, the MobileForge screenshot-only contradiction, the RAL-Bench contamination evidence).
+- No invented numbers were found.
+
+The errors are mostly mislabelled author claims, a few factual slips in evidence-table rows (these feed the evidence matrix), and version/provenance drift.
+
+---
+
+## mota2026comparing — pass-with-minor-fixes
+
+1. **§9 bullet 1.**
+   - Current: "a single outlier project (Lovable's wildlife-whisperer-app, p. 3) changes the tool ranking on issues and effort."
+   - Problem: only half true. Replace the outlier's 59 issues with a value like its siblings (~165) and Lovable's raw issue total rises to ~496, above Replit's 463. The effort ranking does not change: each of the other two Lovable projects alone (1,782 and 1,774 min) exceeds v0's three-project total (941 min) (Table 3, p. 3; Table 6, p. 5).
+   - Correct: "…changes the raw issue-count ranking (Lovable would exceed Replit), but not the remediation-effort ranking (p. 3, p. 5)."
+2. **§9 bullet 4.**
+   - Current: "the 'highest remediation effort' conclusion rests on a narrow base."
+   - Problem: overstated, for the reason given in fix 1. The narrow part is the rule concentration (S1874, p. 6), not the project base.
+   - Correct: "Lovable's effort lead is robust across 2 of 3 projects (p. 3) but is driven mainly by one rule, S1874, which per the authors accounts for more than half of the effort (p. 6); whether that rule reflects template code is unknown."
+3. **§7 finding 3, label.**
+   - Problem: "…and, per the authors, more than half of Lovable's effort (p. 6)" sits inside a [V] item. This share cannot be derived from any table; it is an author statement.
+   - Fix: split it out as "[A] S1874 accounts for more than half of Lovable's remediation effort (p. 6)."
+
+## pan2026functional — pass-with-minor-fixes
+
+1. **§13 evidence row RQ3 (factual error).**
+   - Current: "Reference-normalised maintainability (MI lower bound) averages ~31–33%, the weakest non-functional dimension."
+   - Problem: Resource is lower than Maintainability in both tables: standard LLMs Res 31.25 vs Maint 33.45; thinking LLMs Res 28.92 vs Maint 31.38 (Tables 4–5, p. 6).
+   - Correct: "…averages 33.45% (standard) and 31.38% (thinking), among the two weakest dimensions with resource usage (31.25% / 28.92%), while security averages 87.40% / 85.32% (p. 6)."
+   - This row feeds the evidence matrix, so fix it before synthesis.
+2. **§9 last-but-one bullet.**
+   - Current: "All projects are Python libraries or CLI-style tools (p. 2), with no GUI, web front end or interactive application."
+   - Problem: Table 1 includes mitmproxy (which has a web interface), Mailpile (a webmail client), glances and folium (web maps) (p. 2). The accurate limit is how they are tested, not what they are.
+   - Correct: "All 38 projects are Python and are evaluated only through black-box pytest suites against their Python API/CLI surface (p. 3–4); UI behaviour is never exercised."
+3. **§9 prompt-sensitivity bullet.**
+   - Current: "…is not 'small' compared with the roughly 16-point spread across most models (p. 6)."
+   - Problem: "most models" is undefined.
+   - Correct: give the spread exactly: functional scores range 16.23–43.86% (27.6 pp) over all 16 models, and 24.37–43.86% (19.5 pp) without DeepSeek-R1 (Tables 4–5, p. 6). The +7.9 pp prompt effect is about 30–40% of the full model spread.
+4. **Analyst notes.**
+   - Problem 1: the note says Fig. 4 is unusable, but the text layer does show the three overall shares 44.2%, 38.6% and 17.2% (p. 7). Only the mapping of 44.2/38.6 to the two post-executability categories is ambiguous.
+   - Problem 2: the PDF is arXiv **v2** (30 Mar 2026), and the version is not recorded.
+   - Fix: state both.
+
+## si2025benchmarking — pass-with-minor-fixes
+
+1. **§7 finding 4, mislabelled.**
+   - Current: "[V] Fine-tuned open models (WebSight VLM-8B, Design2Code-18B) roughly match Gemini 1.0 Pro Vision Direct (Block 55.9 / 78.5 vs 80.2…)."
+   - Problem: the data contradict the claim for WebSight VLM-8B: Block-Match 55.9 vs 80.2 and Text 86.6 vs 94.6 (Table 1, p. 6). "Match" is the authors' wording (p. 5, p. 6).
+   - Correct: "[A] Authors state fine-tuned models 'match Gemini direct prompting' (p. 6). [V] Design2Code-18B is close on Block (78.5 vs 80.2), but WebSight VLM-8B is far lower on Block (55.9) and Text (86.6), though higher on CLIP (87.6 vs 84.4), Position (77.3 vs 72.3) and Color (79.4 vs 66.2) (p. 6)."
+2. **§7 finding 3 and §13 RQ2 row "miss 30–40% of block elements".**
+   - Problem: this is the authors' paraphrase (p. 8). Block-Match is an area-weighted share that also penalises hallucinated blocks (p. 4–5), so "miss X% of elements" is not what the metric measures. Also, GPT-4o Direct at 56.6 means more than 40% unmatched area.
+   - Fix: label it [A] and add "[V] HARD Block-Match ranges 56.6–75.1 across configurations (Table 3, p. 8)."
+3. **§9/§10 missing validity threat (leakage in metric validation).**
+   - Problem: three facts together undermine the validation.
+     - The logistic regression is trained on 50 of the 100 human-annotated pages (p. 7).
+     - The linear model used for simulated win rates is refit "on the same training examples" and applied "on all 484 examples", which include those training pages (p. 17).
+     - The human "win + tie" rates it is compared with come from the same 100 pages (Table 8, p. 17).
+   - So the r = 0.975 / τ = 0.931 agreement is not an out-of-sample validation.
+   - Fix: add an [I] bullet to §9 and to §10 (Statistical/Internal). Downgrade §13 RQ4 row "Pearson r = 0.975…" (already weak) with this reason.
+4. **§7 finding 2.**
+   - Current: "[V] Text-augmented prompting raises Block-Match and Text for most models."
+   - Problem: Table 1 shows Block-Match falling with text augmentation for GPT-4o (93.0→92.4), Claude 3 Opus (90.2→89.8) and Idefics2 (46.7→23.6) (p. 6); it rises for 4 of 7 prompted models.
+   - Fix: label the "most models" summary [A] (p. 5) and state the counter-examples [V] (p. 6).
+5. **§4 and §9 "Design2Code-HARD origin is inconsistent".**
+   - Problem: "same filtering process" (p. 8) and "Real-World (GitHub)" source (Table 4, p. 14) are not contradictory, because the same filters can be applied to GitHub-sourced pages. The real issue is missing detail.
+   - Correct: "HARD pages are sourced from GitHub (p. 14) and filtered 'using the same filtering process' (p. 8); how the GitHub pages were found and selected is not described."
+6. **§5.**
+   - Current: "Gemini 1.5 gave empty responses in the main experiment [V] (p. 14)."
+   - Problem: the footnote says "We keep getting empty responses … while testing Gemini 1.5" (p. 14), yet Gemini 1.5 Pro/Flash results are reported for HARD (Table 3, p. 8).
+   - Correct: "Gemini 1.5 is absent from the 484-page table; a footnote reports empty responses when testing it (p. 14), although Gemini 1.5 results appear on HARD (p. 8)."
+
+## tran2026vibe — pass-with-minor-fixes
+
+1. **§10 Reproducibility (misreading).**
+   - Current: "evaluator uses LLM sampling without fixed seed ('none set in evaluator code', p. 15) [V]."
+   - Problem: Table 16 reads "Model sampling override ✓ (none set in evaluator code)" (p. 15). That means no sampling-parameter override (provider defaults). Seeds are not mentioned anywhere.
+   - Correct: "Evaluator uses provider-default sampling parameters, with no override set in the evaluator code (p. 15); seeds are not reported."
+2. **§5, label.**
+   - Current: "Main results use one generation per model per app (the variance study is the only multi-run experiment, p. 8). [V]"
+   - Problem: the paper never states this. It is an inference from the SE definition across apps (p. 5) and the separate variance panel (p. 8).
+   - Fix: re-label [I] and say what it is based on. The same applies to §9 bullet 4.
+3. **§13 RQ2 row on difficulty and integrations (strength too high).**
+   - Problem: the subgroups are tiny. In the test split, Hard = 8 apps, Email+Stripe = 7, Stripe-only = 2 and Email-only = 4 (Tables 5–6, p. 6). "6.0% hard" and "13.5% email + Stripe" rest on 7–8 apps each.
+   - Fix: add the n to the claim and set strength to **weak**. Note in §9 that the subgroup cells are too small for comparison.
+4. **Frontmatter `main_finding`.**
+   - Current: "evaluator choice changes step-level agreement from 31.8% to 93.6%."
+   - Problem: 93.6% is human–human agreement (Reviewer A vs B, Table 10, p. 9), not an evaluator-choice effect. The abstract uses this framing (p. 1), but it is the authors' framing.
+   - Correct: "…judge–human step agreement ranges 31.8–87.5% depending on the evaluator model (mean 36.1% for GPT-5.2 vs 86.4% for Claude Sonnet 4.5, p. 9)."
+5. **Provenance / version.**
+   - Problem 1: the header says "(published)" in ACM proceedings, but the analysed PDF is arXiv v3 (13 May 2026) with no ACM header, and all page refs are arXiv pages (Analyst notes say so).
+   - Problem 2: `metadata.json`'s abstract says "50 **public** validation" while the PDF abstract says "50 **private** validation" (p. 1). This is version drift, and it bears on the private/public inconsistency the analysis already flags (§4, §9).
+   - Fix: add both facts to the Venue note. Try `rlab fetch` for the ACM version; if no open-access copy exists, keep arXiv v3 and say so explicitly in the header.
+6. **§9 bullet 2 (over-confident interpretation).**
+   - Current: "…implies GPT-5.2 labels largely the opposite way … which points to a systematic problem."
+   - Problem: speculative. Keep it, but hedge it, and cite the one supporting cue in the paper: GPT-5.2 evaluation cost is $0.093 per workflow vs $1.48 for Sonnet 4.6 (p. 9). That is consistent with very short or terminated runs being scored as fails (p. 5), but the paper does not show this.
+
+## wu2026looks — pass-with-minor-fixes
+
+1. **§6 / §9 human validation of the visual judge.**
+   - Current: "Number and expertise of human raters and their agreement — not reported."
+   - Problem: the paper says "**We** labelled 55 scenarios with a blinded ranking interface" (p. 13). The raters are therefore the authors, which is a missing independence threat.
+   - Fix: add "[I] Human reference labels were produced by the authors themselves (p. 13), not independent raters." Put this in §9 and §10 (Internal).
+2. **§4 page refs.**
+   - Problem: the annotation-accuracy figures (96.8/94.3; 74.1/83.9; 64.7/76.5) are cited "(pp. 3, 9, 15)". Page 9 does not contain them; they are on p. 3 and in Table 9, p. 15.
+   - Fix: change the refs to (p. 3, p. 15).
+3. **§6 cross-judge, label.**
+   - Problem: "no self-preference observed [V] (p. 13)" is a qualitative author statement with no numbers given ("slightly lower normalised Borda").
+   - Fix: re-label [A].
+   - Also add to §10: Gemini 2.5 Pro is both the judge and an evaluated model. The only self-preference check is against one other judge on 139 scenarios from 5 apps (p. 13).
+
+## xiao2025benchmarking — pass-with-minor-fixes
+
+1. **Header author list incomplete.**
+   - Problem: the analysis lists 6 authors. `metadata.json` and the PDF (p. 1) list 9.
+   - Correct: "Xiao, Jingyu; Wan, Yuxuan; Huo, Yintong; Wang, Zixin; Xu, Xinyi; Wang, Wenxuan; Xu, Zhiyao; Wang, Yuhang; Lyu, Michael R."
+2. **§13 RQ2 row.**
+   - Current: "Best human Usability Rate 81% (GPT-4o Mark); Claude 66–77%; Qwen-3B 17–19% on 374 interactions."
+   - Problem: the number of interactions that were human-evaluated is not reported. The analysis's own §6 says "Number of items in the human evaluations — not reported."
+   - Fix: delete "on 374 interactions" and add "(number of evaluated items not reported, p. 6)".
+3. **§7 finding 7.**
+   - Current: "combining visual and human-written text descriptions beats either modality alone for GPT-4o."
+   - Problem: Table VIII has a counter-example. Under the Mark prompt, SSIM for V+T is 0.4336, below V (0.4520) and T (0.4454) (p. 10). The authors' claim that V+T "consistently outperforms single-modality inputs across all prompt types" (p. 10) is therefore not fully supported, on 10 pages only.
+   - Fix: add this as [V] and mark the authors' generalisation [A]. Add it to §9 alongside the FAP contradiction.
+
+## yang2026programbench — pass-with-minor-fixes
+
+1. **§13 RQ4 row.**
+   - Current: "With internet access, 20–36% of runs by stronger models **cheated**…"
+   - Problem: the paper reports tasks **flagged** by majority vote of 9 LM judges, and says judges disagree on 40–57% of tasks for these models (p. 6), with κ = 0.57 (p. 17). "Cheated" overstates it.
+   - Correct: "20–36% of tasks were flagged as cheating by a 9-judge majority vote; judges disagreed on 40–57% of tasks (p. 6; p. 17)."
+2. **§7 finding 9.**
+   - Current: "Probing the executable is the second-largest action category, at 22.6–34.1% of turns (p. 10)."
+   - Problem: the paper states this for the four models in the trajectory analysis ("for all four", p. 10), not for all 9.
+   - Fix: add the scope.
+
+## zhao2025vibe — pass-with-minor-fixes
+
+1. **§7 finding 3 and §13 RQ3 row (Gemini 2.5 Pro "most secure", 30.4%).**
+   - Problem 1: SecPass ⊥ FuncPass is computed on the intersection of tasks solved correctly by **all four** LLMs within a framework (p. 6). That intersection cannot exceed the weakest model's FuncPass: Gemini 2.5 Pro solved 12.9–19.9%, i.e. at most about 24–37 of 186 tasks per framework (Table 3, p. 7).
+   - Problem 2: the subset size is never reported, and the subset is the easiest tasks.
+   - Fix: add [I]: "the secure-ratio comparison rests on a small, unreported and easy-biased subset (≤ ~24–37 tasks per framework)". Downgrade the §13 row from moderate to **weak**.
+   - Also note the authors' own exception: Gemini 3 Pro is best on SWE-agent (36.4%) (p. 6).
+2. **Metadata vs venue (provenance; fix outside the analysis).**
+   - Problem: `metadata.json` still has `venue: arXiv`, `venue_kind: preprint`. The PDF footer says ICML 2026, PMLR 306 (p. 1), and RESEARCH.md (decision 2026-11-11) treats the paper as peer-reviewed. `literature-matrix.*` and `references.bib` will therefore show a preprint. The analysis handles this correctly in its Venue note.
+   - Fix: the orchestrator must resolve this through `rlab` (re-add or refresh), not by hand-editing. Until then, every synthesis citing this key must state the ICML status explicitly.
+3. **§13 RQ4 row** "Results are single-run pass@1 … | V | **strong**".
+   - Problem: the strength column is meant to rate the evidence for a claim about the literature. Rating "strong" here makes this weak study look strong in the matrix.
+   - Fix: use "n/a (design fact)" or the paper-level strength.
+
+## zhou2025declarui — pass-with-minor-fixes
+
+1. **Version (standards §3: "If a published version exists, use it instead").**
+   - Problem: the analysis cites the published PACMSE DOI (10.1145/3715726) but analyses arXiv v1 (18 Sep 2024; `fulltext.source` = arxiv). The Analyst notes flag this, but the numbers that look broken (ablation Table 2) may have been corrected in the published version. PACMSE is an ACM open-access journal, so a legal published copy is probably available.
+   - Fix: try `rlab fetch` for the ACM version, re-check Tables 1–3, and record any differences in a Revision section.
+2. **§9 ablation bullet (sharpen).**
+   - Problem: the bullet should add the decisive detail. In the ablation table, the "Full" row's CLIP/SSIM (0.90/0.72, p. 10) differ from the 50-app values (0.88/0.68, p. 9), while PCR/ACIC/CSR are identical (96.8 / 0.22 / 98.0).
+   - Fix: add that detail and conclude "This strongly suggests the visual metrics were recomputed on 13 apps but PCR/ACIC/CSR were copied from the 50-app run (p. 9–10)."
+
+## zhu2026understanding — pass-with-minor-fixes
+
+1. **§7 finding 5, label.**
+   - Current: "[V] … most prevalent smells were TMB, RFC, PAU, SF, UD, **across all stages and scenarios**."
+   - Problem: Figure 1 pools all repositories, and the analyst read only its caption (Analyst notes). "Consistent appearance across all stages and scenarios" is the authors' text (p. 7).
+   - Fix: keep [V] for the ranking by mean from the Figure 1 caption (p. 8) and label the "all stages and scenarios" part [A] (p. 7).
+2. **Provenance.**
+   - Problem 1: the arXiv PDF title ("AI-Generated Smells: An Analysis of Code and Architecture in LLM- and Agent-Driven Development") differs from the metadata title.
+   - Problem 2: `rlab`'s identity "match" relies on the arXiv id that the metadata itself links to the ACM DOI.
+   - Problem 3: `oa_pdf_url` points to the ACM DL, but the text was taken from arXiv.
+   - Fix: fetch the ACM version (listed as OA) and confirm it is the same work. If it cannot be fetched, keep the analysis but mark the DOI–PDF link as "probable".
+3. **§4 / frontmatter "20 implied".**
+   - Problem: this can be supported. The reported Spearman p-values (ρ = 0.53, p = 0.017; ρ = 0.59, p = 0.007; Table 3, p. 9) are consistent with n ≈ 20.
+   - Fix: add as [I]. Also keep the point that each stage is likely an independent generation, since the stage prompts are self-contained (p. 5).
+
+---
+
+## Cross-paper observations
+
+1. **Same-family construction or judging, with same-family winners (a recurring threat).**
+   - ProgramBench: tests were written by Claude Sonnet 4.5 with source access, and Claude models top the leaderboard [@yang2026programbench, p. 3; p. 31].
+   - Vibe Code Bench: Claude Sonnet 4.5 is the judge, and Anthropic and OpenAI models lead; the specs were drafted by GPT-5 and GPT-5.3-Codex is first [@tran2026vibe, p. 3; p. 4; p. 6].
+   - MobileForge: Gemini 2.5 Pro is both judge and candidate [@wu2026looks, p. 6].
+   - SusVibes: the environment builder is Claude 4 Sonnet, and SWE-agent + Claude 4 Sonnet is best on FuncPass [@zhao2025vibe, p. 7; p. 17].
+   - Only MobileForge tests self-preference, and only qualitatively [@wu2026looks, p. 13].
+   - The evidence matrix should list this as a shared RQ4 weakness, not repeat it per paper.
+2. **Does iterative feedback help? There is an apparent tension.**
+   - One-shot self-repair, environment repair and planning did not raise functional scores and lowered non-functional quality [@pan2026functional, p. 8].
+   - Browser self-testing correlates with accuracy (r = 0.72 across 16 models) [@tran2026vibe, p. 7].
+   - Compiler-feedback loops raise compile success, 74% to 98% [@zhou2025declarui, p. 9], and make build success saturate at 100% [@wu2026looks, p. 12].
+   - [I] Possible reconciliation: one-shot interventions vs multi-step agentic loops, and different outcome metrics (non-functional quality vs workflow pass / compilation). Record both sides under "Contradictions" in the evidence matrix (standards §6). Do not pick a side.
+3. **Reasoning or "thinking" effort.**
+   - "Thinking" models are not consistently better and average slightly below standard ones [@pan2026functional, p. 6].
+   - Higher reasoning effort clearly helps GPT and Gemini 3.1 Pro on Vibe Code Bench (20-app subset) [@tran2026vibe, p. 7].
+   - These differ in setting (single pass vs agentic) and are not a direct contradiction, but should be noted.
+4. **Code size and structure point in different directions depending on the baseline.**
+   - Rebuilt CLIs are smaller and more monolithic than the human originals [@yang2026programbench, p. 9].
+   - Among models, the visual leader writes 2.2× more code with larger files [@wu2026looks, p. 6].
+   - Replit produces about 60% duplicated lines [@mota2026comparing, p. 4].
+   - MetaGPT needed explicit modularity prompts to avoid monolithic God classes [@zhu2026understanding, p. 5].
+   - "More code is worse" is not established. Both mota (per KLOC) and zhu (raw counts, ρ = 0.94 with TLoC) treat smell counts as size-driven, but only mota normalises.
+5. **SonarQube vs PyExamine, and the molison2025llm link.**
+   - zhu2026understanding argues that SonarQube issue counts conflate linting with structural smells, and positions itself against Santa Molison et al. (= project key `molison2025llm`) [@zhu2026understanding, p. 2].
+   - mota2026comparing relies on SonarQube alone [@mota2026comparing, p. 2].
+   - When synthesising RQ3, check molison2025llm's analysis for this disagreement about measurement validity.
+6. **Possible data overlap.**
+   - Interaction2Code takes 100 of its 127 pages from the C4 validation set, using Design2Code's filtering [@xiao2025benchmarking, p. 2].
+   - Design2Code's 484 pages also come from the C4 validation set [@si2025benchmarking, p. 2].
+   - The two benchmarks may share source pages, so they are not fully independent evidence on screenshot-to-code fidelity.
+   - Both reuse the same Position metric (1 − max(|Δx|, |Δy|)) [@si2025benchmarking, p. 4; @xiao2025benchmarking, p. 4].
+7. **Version drift.**
+   - Four analyses cite a published DOI but analyse an arXiv version: tran2026vibe (v3), xiao2025benchmarking (v3, later than ASE 2025), zhou2025declarui (v1, earlier than PACMSE), zhu2026understanding (v1, with a different title).
+   - zhao2025vibe has the opposite problem: published, but metadata says preprint.
+   - Page refs follow the arXiv PDFs in all four cases, so quotes in reports must cite the PDF actually held.
+8. **Model overlap allows a weak consistency check.**
+   - Claude Opus 4.6 is top-tier in three independent benchmarks [@tran2026vibe, p. 6; @yang2026programbench, p. 31; @wu2026looks, p. 7].
+   - GPT-5.2 appears in pan (41.81% functional) and tran (53.50%), and is also the worst-aligned judge in tran [@pan2026functional, p. 6; @tran2026vibe, p. 9].
+   - [I] Rankings agree in broad terms, but the metrics are not comparable, so absolute numbers must not be pooled.
+9. **Contamination handling is uneven.**
+   - Only Interaction2Code runs an explicit check, a BLEU similarity to the original HTML [@xiao2025benchmarking, p. 5], and the analysis rightly calls it weak.
+   - ProgramBench uses a different-language ablation [@yang2026programbench, p. 6].
+   - RAL-Bench acknowledges exposure [@pan2026functional, p. 2].
+   - MobileForge, DeclarUI, SusVibes and Design2Code do not discuss contamination of their own data, even though all use popular public apps or pages.
+   - This is a candidate RQ4/RQ5 gap and needs a novelty check before it can be claimed.

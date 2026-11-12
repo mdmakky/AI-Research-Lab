@@ -1,0 +1,1180 @@
+# Full text extracted from paper.pdf by pdftotext.
+# [PDF page N] = Nth page of the PDF file, which may differ from the printed page number.
+
+
+=== [PDF page 1] ===
+
+                                                   Trust Me, Import This: Dependency Steering
+                                                        Attacks via Malicious Agent Skills
+                                                                              Yiyong Liu1∗          Chia-Yi Hsu2∗       Chun-Ying Huang2
+                                                                                  Michael Backes1         Rui Wen3†        Chia-Mu Yu2†
+                                                                                   1
+                                                                                       CISPA Helmholtz Center for Information Security
+                                                                                         2
+                                                                                           National Yang Ming Chiao Tung University
+                                                                                                  3
+                                                                                                    Institute of Science Tokyo
+
+
+
+
+arXiv:2605.09594v1 [cs.CR] 10 May 2026
+                                            Abstract—LLM-powered coding agents increasingly make soft-         memorization, probabilistic generation, or distributional un-
+                                         ware supply chain decisions. They generate imports, recommend         certainty [9], [12], [13], [14], [15]. This leaves an important
+                                         packages, and write installation commands. Prior work showed          question unanswered: can an attacker actively influence which
+                                         that these systems can hallucinate non-existent package names,
+                                         which attackers may register as malicious packages. In this paper,    dependencies a coding agent recommends?
+                                         we show that this risk is not only a passive model failure. It           In this paper, we show that dependency generation can be
+                                         can be actively induced through the persistent Skill artifact. We     actively steered through persistent instruction artifacts. We
+                                         introduce Dependency Steering, an attack paradigm in which            introduce Dependency Steering, an attack paradigm in which a
+                                         a malicious Skill biases a coding agent toward an attacker-           malicious Skill biases an LLM coding agent toward attacker-
+                                         controlled package during benign coding tasks. The attack does
+                                         not require modifying model weights, training data, or user           chosen packages during otherwise benign programming tasks.
+                                         prompts. To construct realistic attacks, we design a Skill-level      Unlike passive package hallucination attacks, where the at-
+                                         optimization method that searches for localized semantic edits        tacker waits for a model to naturally generate a vulnerable
+                                         that preserve the apparent purpose of the original Skill while        package name, Dependency Steering allows the attacker to
+                                         increasing targeted package generation. Across multiple coding-       shape the model’s dependency selection behavior in advance.
+                                         oriented LLMs and programming benchmarks, Dependency
+                                         Steering achieves high targeted hallucination rates, transfers        The attacker does not need to modify model weights, poison
+                                         across models and task domains, and remains difficult for             training data, compromise the package registry, or control the
+                                         evaluated Skill scanners and LLM-based auditors to detect.            user’s prompt. Instead, the attack operates through a Skill that
+                                         Our results show that persistent agent instructions form an           the coding agent treats as trusted development guidance.
+                                         underexplored software supply chain attack surface.                      Skills significantly expand the attack surface of agentic
+                                                                   I. I NTRODUCTION                            coding systems [16], [17], [18], [19], [20]. We use the
+                                                                                                               term Skill broadly to refer to persistent instruction artifacts,
+                                            Modern coding agents increasingly make software supply
+                                                                                                               including Claude Skills [16], Cursor Rules [21], Windsurf
+                                         chain decisions. They no longer only complete code snippets,
+                                                                                                               Rules [22], AutoGen system prompts [23], LangChain instruc-
+                                         but also choose libraries, generate imports, modify dependency
+                                                                                                               tion templates [24], and project-specific markdown instruction
+                                         files, suggest installation commands, and interact with package
+                                                                                                               files. These artifacts commonly encode coding conventions,
+                                         ecosystems [1], [2], [3]. Systems such as GitHub Copilot [4],
+                                                                                                               preferred frameworks, architectural assumptions, workflow
+                                         Cursor [5], Claude Code [6], OpenAI Codex [7], and Gemini
+                                                                                                               rules, and dependency recommendations. Because they persist
+                                         Code Assist [8] are therefore becoming part of the dependency
+                                                                                                               across interactions and are intentionally loaded as trusted
+                                         selection process in everyday software development. As de-
+                                                                                                               context, a malicious Skill can repeatedly influence dependency
+                                         velopers rely on these agents for routine programming tasks,
+                                                                                                               decisions across tasks, sessions, and users. This makes Skill-
+                                         an incorrect or manipulated dependency recommendation can
+                                                                                                               based Dependency Steering distinct from transient prompt
+                                         directly affect the software supply chain.
+                                                                                                               injection [25], [26], [27], RAG poisoning [28], [29], [30], [31],
+                                            A concrete example of this risk is package hallucination.
+                                                                                                               and prior package hallucination attacks [9], [15].
+                                         Prior work has shown that LLMs may recommend or import
+                                                                                                                  Figure 1 illustrates the attack scenario. An attacker prepares
+                                         non-existent packages during code generation [9]. Attackers
+                                                                                                               a malicious Skill and an attacker-controlled package, then
+                                         can exploit this behavior by registering hallucinated package
+                                                                                                               distributes the Skill through a public marketplace, open-source
+                                         names in public registries and waiting for future users to
+                                                                                                               repository, project template, or shared configuration file. After
+                                         install them, thereby turning model errors into supply chain
+                                                                                                               a user enables the Skill in a coding-agent environment, the
+                                         compromises [10], [11]. Existing studies largely treat package
+                                                                                                               agent uses it as persistent guidance for future programming
+                                         hallucination as a passive model failure caused by imperfect
+                                                                                                               tasks. When the user later asks the agent to implement benign
+                                           ∗ The first two authors made equal contributions.                   functionality, the Skill biases the agent toward importing,
+                                           † Corresponding authors.                                            recommending, or installing the attacker-controlled package. If
+
+=== [PDF page 2] ===
+
+                                            Fig. 1: Overview of our attack scenario.
+
+
+the generated dependency is accepted, the malicious package                targeted package hallucinations during benign code gen-
+can compromise the developer environment. Constructing such                eration tasks.
+attacks is non-trivial: a naive instruction such as “always              • We identify Skills as a persistent software supply
+import package X” is conspicuous and likely to be detected. A              chain attack surface distinct from conventional prompt
+realistic malicious Skill must instead increase the probability            injection or retrieval poisoning attacks, highlighting the
+that the target package appears in generated code while                    security risks introduced by trusted instruction artifacts
+preserving the apparent purpose, utility, and naturalness of the           in agentic coding ecosystems.
+original Skill.                                                          • We propose a novel semantic-preserving optimiza-
+   To address this challenge, we propose a semantic-preserving             tion framework for Dependency Steering attacks. Our
+optimization framework for Dependency Steering that subtly                 method adapts the lifelong strategy exploration paradigm
+manipulates LLM coding agents without compromising the                     of AutoDAN-Turbo to the Skill optimization setting
+original development intent of benign Skills. Our method uti-              through a Multi-Objective Scorer equipped with an ex-
+lizes a Context-Patch Injection Engine to integrate highly con-            plicit veto mechanism, a Context-Patch Injection Engine,
+textualized adversarial mandates, guided by a Multi-Objective              and lifelong strategy extraction via RAG.
+Scorer with an explicit veto mechanism and a Retrieval-                  • We evaluate the attack across models, prompts, package
+Augmented Generation (RAG) driven lifelong strategy explo-                 domains, package names, and defenses. The results show
+ration pipeline. Extensive evaluations across multiple open-               that Dependency Steering is highly effective, transferable,
+source LLMs (e.g., Llama-3.1, Phi-4-mini, Qwen2.5-Coder)                   and not well covered by existing Skill auditing tools.
+demonstrate that our approach substantially increases targeted
+package hallucinations across various domains and models.                        II. BACKGROUND AND P RELIMINARIES
+Ultimately, our findings expose persistent instruction artifacts       A. Persistent Instruction Artifacts
+as a critical software supply chain vulnerability requiring               Modern LLM systems support reusable instruction artifacts
+rigorous security scrutiny.                                            that persist across interactions. These artifacts appear under
+   Contributions. This paper makes the following contribu-             different names, including Skills, Rules, Custom Instructions,
+tions:                                                                 system prompt templates, and project-level instruction files
+   • We introduce Dependency Steering, a new attack                    such as SKILL.md or .cursorrules [16], [17], [21], [22],
+      paradigm in which malicious Skills manipulate the depen-         [23], [24]. In this paper, we use Skill as a general term for such
+      dency selection behavior of LLM coding agents, causing           persistent instruction artifacts.
+
+
+
+                                                                   2
+
+=== [PDF page 3] ===
+
+   A Skill is a textual artifact loaded into the agent context to       We refer to this behavior as Dependency Steering. When Patk
+guide future behavior. In coding workflows, Skills may specify          is a non-existent or attacker-registered package, successful
+coding conventions, preferred libraries, framework choices,             Dependency Steering can instantiate a targeted package hallu-
+architectural patterns, formatting rules, or workflow assump-           cination attack.
+tions. Unlike a one-time user prompt, a Skill can influence                We measure attack effectiveness using the targeted halluci-
+many future generations after it is installed or enabled. This          nation rate:
+persistence makes Skills a natural mechanism for shaping                                   1 X
+coding-agent behavior.                                                       THR(S) =             E [1 (Patk ∈ Deps(M (S, q)))] .
+                                                                                          |Q|
+                                                                                              q∈Q
+B. Package Hallucination
+                                                                        In our setting, THR measures how often the attacker-chosen
+   Package hallucination refers to the generation of a package          package appears in dependency-related outputs under benign
+name that does not correspond to a legitimate package in the            coding prompts. This metric captures the core attack outcome:
+relevant package ecosystem, such as PyPI or npm. Prior work             the malicious Skill causes the coding agent to generate the
+has shown that LLMs may produce plausible but non-existent              target dependency.
+package names during code generation [14], [9], [15]. If an
+attacker registers such a package name and publishes mali-              B. Threat Model
+cious code under it, a hallucinated dependency can become a             Attacker’s Goal. The attacker’s objective is to construct a
+software supply chain risk [9], [15].                                   malicious Skill S ∗ that increases THR(S ∗ ) while preserving
+   We use general hallucination to refer to the generation              the apparent purpose and utility of the original Skill S0 . A
+of any non-existent package. In contrast, our attack focuses            successful attack should satisfy three requirements:
+on whether a specific attacker-chosen package appears in                   • Effectiveness: the modified Skill increases the rate at
+dependency-related outputs. When the attacker-chosen pack-                   which Patk appears in dependency-related outputs.
+age is non-existent before attacker registration, this behavior            • Semantic preservation: the modified Skill remains con-
+instantiates a targeted package hallucination attack.                        sistent with the original Skill’s apparent development
+     III. P ROBLEM S TATEMENT AND T HREAT M ODEL                             purpose.
+                                                                           • Stealth: the modified Skill avoids conspicuous instruc-
+  In this section, we define the Dependency Steering prob-
+lem and formalize the threat model. We first describe the                    tions that would be easily flagged by users, auditors, or
+dependency-generation behavior studied in this paper, then                   automated scanners.
+specify the attacker’s goal, capabilities, and assumptions about           This distinguishes Dependency Steering from direct package
+benign users.                                                           injection. A trivial instruction such as “always install package
+                                                                        X” may increase THR, but it is easy to identify as suspicious.
+A. Problem Statement
+                                                                        Our goal is to study whether dependency choices can be
+   We study whether a persistent instruction artifact can manip-        steered through semantically coherent Skill modifications that
+ulate the dependency selection behavior of an LLM-powered               appear compatible with ordinary development guidance.
+coding agent. Given a user programming request, a coding                Attacker’s Capabilities. We consider an attacker who can
+agent may generate source code, import statements, package              create, modify, distribute, or influence Skill artifacts used by
+installation commands, or dependency-file edits. These outputs          LLM-powered coding agents. The attacker may publish a
+can introduce new third-party packages into the developer’s             malicious Skill through a public Skill marketplace, an open-
+environment. Our central question is: can an attacker modify            source repository, a shared project template, a project config-
+a benign-looking Skill so that the agent preferentially imports,        uration file, or a collaborative development environment. This
+recommends, or installs an attacker-chosen package during               assumption reflects common workflows in which developers
+otherwise benign coding tasks?                                          reuse Skills, Rules, templates, or project-level instruction files
+   Formally, let M denote the target coding agent, S0 a benign          created by third parties.
+Skill, and q ∈ Q a benign coding prompt sampled from a task                The attacker operates only through textual changes to the
+distribution Q. The agent generates an output                           Skill. We assume the attacker cannot modify the model
+                         y = M (S, q),                                  weights, poison the model’s training data, alter the user’s
+                                                                        prompt, compromise the package manager, or directly control
+where S is the Skill loaded into the agent context. Let Deps(y)         the execution environment. The attacker also does not need
+denote the set of dependency-related package names extracted            white-box access to the target model. However, the attacker
+from y, including import statements, installation commands              may query the target model or a proxy model during Skill
+such as pip install, and dependency declarations such                   construction, depending on the optimization setting considered
+as requirements.txt or pyproject.toml entries.                          in our experiments.
+   The attacker chooses a target package Patk and seeks to
+                                                                           The attacker may also register or control the target package
+construct a modified Skill S ∗ such that Patk appears in the
+                                                                        Patk in a public package registry. This captures the standard
+agent’s dependency-related output:
+                                                                        package-hallucination exploitation scenario: once the coding
+                   Patk ∈ Deps(M (S ∗ , q)).                            agent recommends or imports Patk , a user who installs the
+
+
+
+                                                                    3
+
+=== [PDF page 4] ===
+
+package may execute attacker-controlled code. Our experi-                easily detect explicit package insertion patterns. Third, directly
+ments focus on the dependency-generation step, while the                 injected instructions frequently degrade semantic consistency
+downstream package installation and execution risk follows               with the original Skill, reducing stealth and increasing the
+the standard software supply chain threat model.                         likelihood of detection.
+Benign User Assumptions. We assume benign users interact
+                                                                         B. Baseline: Bayesian Optimization
+with coding agents in standard software development work-
+flows. Users may load Skills from public repositories, shared               The direct injection baseline demonstrates that explicit
+templates, collaborative projects, or third-party marketplaces.          package recommendations can influence dependency genera-
+They provide benign programming requests and expect the                  tion behavior; however, its effectiveness remains limited by
+coding agent to generate contextually appropriate code, includ-          poor stealth, weak semantic preservation, and highly con-
+ing imports, dependency recommendations, and installation                strained textual expressiveness. To explore more sophisticated
+commands.                                                                optimization strategies, we introduce a second baseline based
+   We do not assume that users are careless, but we assume               on Bayesian Optimization (BO).
+they do not manually verify every generated dependency                      Inspired by prior black-box adversarial optimization meth-
+against official package registries. This is especially realistic        ods [32], we adapt Bayesian Optimization (BO) to the De-
+when the recommendation appears semantically plausible,                  pendency Steering setting, using a Gaussian process surrogate
+is consistent with the loaded Skill, or occurs during rapid              model with automatic relevance determination (ARD) [33],
+prototyping. We also assume that users generally treat Skills            [34] to guide the search. To further refine the BO, we augment
+as legitimate workflow guidance rather than adversarial inputs.          it with a hierarchical genetic algorithm (GA). Rather than
+This trust assumption is central to the attack: the malicious            directly searching over arbitrary token sequences, our BO
+content is not placed in an obviously untrusted user prompt,             framework operates over a structured mutation space defined
+but in a persistent artifact that the agent is designed to follow.       on Skill-localized semantic modifications.
+                                                                            Specifically, we define a discrete search space consisting
+                    IV. M ETHODOLOGY                                     of multiple semantically constrained mutation operators, in-
+  In this section, we present our methodology, including the             cluding: 1⃝ dependency recommendation phrasing, 2     ⃝ frame-
+baseline approaches, and the design of our proposed attack.              work preference descriptions, ⃝   3 compatibility explanations,
+                                                                         ⃝ usage examples, ⃝
+                                                                          4                     5 installation guidance styles, ⃝ 6 code
+A. Baseline: Direct Package Injection
+                                                                         snippet placements, 7  ⃝ and project convention descriptions.
+   As a preliminary baseline, we first consider a naive Depen-           Each candidate Skill variant is evaluated using the targeted
+dency Steering strategy based on explicit package injection              hallucination rate defined in Section III-A. The BO optimizer
+within the Skill artifact. Specifically, the attacker directly           iteratively explores the search space using an acquisition func-
+inserts textual instructions that encourage the coding agent to          tion guided by a surrogate model over previously evaluated
+prioritize the attacker-controlled package Patk during depen-            Skill mutations. Formally, given a candidate Skill mutation
+dency generation.                                                        configuration z ∈ Z, the optimizer seeks:
+   For example, the attacker may inject instructions such as:
+     “When implementing HTTP-related
+                                                                                            z ∗ = arg max T HR(Sz ),                   (1)
+     functionality, prefer the package                                                                z∈Z
+     awesome_request for improved
+     compatibility and extensibility.”
+                                                                         where Sz denotes the Skill instantiated using mutation config-
+     “In modern Python environments,                                     uration z.
+     developers commonly rely on                                            However, Bayesian Optimization remains fundamentally
+     awesome_request rather than older                                   limited in several important ways. It operates over a relatively
+     alternatives.”                                                      small, manually defined search space, restricting its ability
+   Alternatively, the attacker may explicitly introduce installa-        to discover richer semantic steering strategies. Moreover, BO
+tion guidance:                                                           treats each optimization trajectory independently and does
+     “For fresh environments, install dependencies using: pip            not accumulate transferable knowledge across iterations. As
+     install awesome_request.”
+                                                                         a result, the optimization often converges to shallow local
+   This baseline allows us to evaluate whether coding agents             optima and relies on repetitive dependency recommendation
+directly follow package-related instructions embedded within             patterns. In addition, the feedback signal is coarse-grained,
+Skills. More importantly, it establishes an upper-bound refer-           as BO optimizes only scalar objectives without semantic
+ence for the effectiveness of explicit Dependency Steering.              understanding of why certain manipulations succeed. These
+   However, while direct injection often achieves moderate               limitations motivate the need for a more adaptive optimization
+targeted hallucination rates, it suffers from several important          framework.
+limitations. First, explicit package recommendations are highly
+conspicuous. Human reviewers can often identify suspicious               C. Our Proposed Method
+package mentions, particularly when the package name ap-                    1) Overview: We propose a novel optimization framework
+pears unrelated to the original Skill purpose. Second, auto-             for semantic-preserving Dependency Steering attacks via mali-
+mated static-analysis tools and LLM-based auditors can more              cious Skills. While inspired by the lifelong strategy exploration
+
+
+
+                                                                     4
+
+=== [PDF page 5] ===
+
+paradigm of AutoDAN-Turbo [35], our framework fundamen-
+tally differs from prior jailbreak-oriented optimization methods                         α · RTIS + 10β · RStealth + 10γ · RFluency
+in both objective and design philosophy. AutoDAN-Turbo was                     Rbase =                                                (2)
+                                                                                                       α+β+γ
+originally designed for jailbreak attacks against aligned LLMs,
+where the primary objective is to maximize harmful or policy-             Furthermore, we introduce an Explicit Veto Mechanism to
+violating responses through adversarial prompt optimization.            penalize trivial, highly conspicuous solutions. If the target
+In contrast, our setting introduces a substantially different           package name Patk appears in plaintext within the adversarial
+optimization problem. Rather than bypassing safety alignment,           patch Cadv , the veto is triggered. The final reward score is
+our objective is to manipulate dependency selection behavior            defined as:
+while preserving the semantic integrity and apparent legiti-
+                                                                                   (
+macy of the underlying Skill artifact. Consequently, directly                       1.0,    if Veto enabled and Patk ∈ Cadv
+applying AutoDAN-Turbo is insufficient for our setting. We                 Score =                                                    (3)
+                                                                                    Rbase , otherwise
+therefore redesign multiple core components of the frame-
+work to support semantic-preserving Dependency Steering                    By adjusting these hyperparameters, our framework seam-
+optimization over persistent Skill artifacts. At a high level,          lessly supports different attack configurations to analyze the
+our framework consists of four major components: 1         ⃝ A          inherent trade-off between attack success and imperceptibility.
+Multi-Objective Dependency Steering Scorer with an Explicit             For instance, prioritizing α while disabling the veto allows
+Veto mechanism, ⃝     2 A Context-Patch Injection Engine, 3    ⃝        the framework to operate in an Unconstrained Mode, which
+A Dependency Steering Strategy Library, ⃝        4 and Lifelong         is crucial for probing the absolute upper bound of a target
+Semantic Strategy Exploration.                                          model’s vulnerability to semantic steering. Conversely, enforc-
+   2) Multi-Objective Dependency Steering Scorer: A central             ing β > 0 alongside the veto enables a Stealth-Constrained
+limitation of prior jailbreak-oriented optimization frameworks          Mode for evaluating strictly stealthy adversarial perturbations.
+is that their scoring mechanisms focus exclusively on harmful-             3) Context-Patch Injection Engine: Instead of allowing
+response generation. Such objectives are fundamentally mis-             unrestricted modification over the entire original Skill (which
+aligned with Dependency Steering attacks, where overt ma-               often causes severe semantic drift), our framework employs
+nipulation is easily flagged by security audits. To address this,       a constrained Context-Patch Injection Engine. Rather than
+we introduce an LLM-based multi-objective scorer specifically           rewriting existing text, the proxy attacker model generates
+designed for Skill-based dependency manipulation. Given an              a highly contextualized adversarial suffix (Cadv ) styled as a
+adversarial context patch Cadv integrated into a benign Skill S0        strict organizational compliance mandate (e.g., a "Zero-Trust
+(forming the modified Skill S ′ ), and a benign coding prompt q,        Protocol Update"). The engine then seamlessly integrates this
+the target coding agent generates a code output y = M (S ′ , q).        patch into designated anchor positions (e.g., the system header,
+The scorer evaluates the attack across three joint objectives,          the execution instructions, or the tail end) of the existing Skill
+assigning a reward sub-score to each:                                   schema S0 . The modified Skill becomes:
+      a) Target Inclusion Reward (RTIS ): We measure the ex-
+tent to which the target LLM successfully adopts the attacker-                           S ′ = Inject(S0 , Cadv , position)           (4)
+controlled package Patk in the generated code y. RTIS is
+scaled from 1.0 to 10.0 to reward progressive integration steps            By isolating the adversarial perturbation to a structured
+and it ranges from mere mentions (low score) to providing               compliance patch, the global semantic consistency of the
+installation commands and functional code implementation                original Skill remains intact, ensuring high stealth.
+(high score).                                                              4) Lifelong Semantic Strategy Exploration: To optimize
+      b) Stealth Reward (RStealth ): Dependency Steering at-            Cadv , we adapt the AutoDAN-Turbo pipeline into a two-phase
+tacks aim to preserve the apparent legitimacy of the Skill. The         evolutionary process:
+RStealth metric (scaled from 0.0 to 1.0) evaluates whether the                a) Warm-Up Phase (Exploration): The optimization be-
+injected patch Cadv mimics a professional corporate security            gins with a zero-shot exploration phase. The proxy attacker
+directive without revealing obvious malicious intent.                   generates diverse initial patches across a subset of training
+      c) Fluency Reward (RFluency ): To maintain operational            queries. Successful patches that surpass a predefined scoring
+realism, the injected patch must remain linguistically natural.         threshold are passed to an LLM-based Summarizer, which
+The RFluency metric (scaled from 0.0 to 1.0) evaluates the              extracts the underlying semantic heuristic (e.g., “framing the
+grammatical coherence and technical phrasing of the generated           dependency as a mandated end-to-end encryption standard”)
+patch Cadv .                                                            and records it as a formal strategy within the Strategy Library.
+      d) Optimization Modes and the Explicit Veto Mechanism:                  b) Lifelong Red-Teaming Phase (Exploitation): In
+To compute the final reward signal, we employ a weighted                the subsequent phase, the optimizer leverages Retrieval-
+aggregation of the three objectives, controlled by hyperparam-          Augmented Generation (RAG). Given a new target request
+eters α, β, and γ. First, we compute a base weighted reward             or a previously failed response, the framework computes
+Rbase by scaling RStealth and RFluency by a factor of 10 to align       its semantic embedding and retrieves the most contextually
+with the 10.0 scale of RTIS :                                           relevant historical strategies from the Strategy Library. The
+
+
+
+                                                                    5
+
+=== [PDF page 6] ===
+
+attacker model is then prompted to generate a new Cadv by              For Sections VI-A– VI-D1, we report results across all four
+adapting these proven heuristics to the current context. This          datasets. For the remaining experiments, unless otherwise
+lifelong memory mechanism enables the optimizer to grad-               specified, we use LLM_AT as the default dataset.
+ually accumulate and refine transferable dependency-steering
+knowledge. Instead of forcing the target model to directly obey        C. Target Package Names and Programming Languages
+malicious instructions, the optimized Skill subtly reshapes the           We use awesome_request as the default target package
+conditional dependency distribution P (D | q, S ′ ), causing the       in all experiments. For experiments on target package naming,
+attacker-controlled package to emerge naturally as the optimal         alternative target packages are specified in the corresponding
+logical choice during benign code generation.                          sections. All experiments focus on Python code generation
+                                                                       tasks.
+                 V. E XPERIMENTAL S ETUP
+                                                                       D. Metrics
+A. Target Models
+                                                                       • Targeted Hallucination Rate (THR): Formally defined
+   We evaluate our attack on a diverse set of open-                      in Section IV-C, this measures the expected rate at which
+source instruction-tuned LLMs with varying architectures,                the attacker-chosen package appears in dependency-related
+parameter scales, and domain specializations. Specifically,              outputs, formulated as P (Patk ∈ Deps(M (S, q))).
+we       include     Llama-3.1-8B-Instruct               [36],         • General Hallucination Rate (GHR): The rate at which
+Phi-4-mini-instruct [37], and the Qwen2.5-Coder                          any non-existent Python packages (other than the target)
+series         [38],    including     7B, 14B, and 32B                   are generated, formulated as P (any non-existent package ∈
+variants.         Llama-3.1-8B-Instruct             represents           Deps(M (S, q))).
+a general-purpose instruction-following model with
+strong natural language understanding capabilities.                    E. Hyperparameters and Compute
+Phi-4-mini-instruct is a smaller, efficiency-oriented                     For all experiments, we filter data related to the source
+model designed for lightweight deployment. In contrast,                package and partition it into 90% for Skill optimization and
+the Qwen2.5-Coder family is specifically optimized for                 10% for evaluation.
+code generation tasks, making it particularly relevant for             Bayesian Optimization. The total optimization budget is set
+evaluating attacks in programming contexts. By including               to 300 iterations. We first allocate 60 iterations to BO for
+both general-purpose and code-specialized models, as well as           efficient exploration of the search space, and use the remaining
+a range of model sizes (from small to large), we aim to assess         budget for GA to further exploit and refine candidate solutions.
+the robustness and generality of our attack across different           The population size for GA is set to 10.
+model capabilities and design choices. For brevity, we omit            Ours. The total optimization budget is set to 10 iterations
+the suffix “-instruct” when referring to these models in               per target, with detailed results across optimization rounds
+the following sections.                                                reported in Appendix A. We partition our training data into
+B. Task Benchmarks                                                     two separate splits. The first 15% is dedicated to the warm-up
+                                                                       phase. This phase enables zero-shot exploration and founda-
+  We use the benchmark proposed by [9], which comprises                tional strategy induction. The remaining 85% is allocated to
+four datasets split across two prompt sources and two time             the lifelong red-teaming phase. During this phase, a dynamic
+windows: synthetically generated prompts by an LLM and                 strategy library serves as an evolving memory bank. We utilize
+prompts collected from real Stack Overflow (SO) questions,             Retrieval-Augmented Generation (RAG) to accumulate and
+each further divided into an all-time (AT) and a last-year (LY)        exploit successful attack heuristics. To establish the absolute
+variant.                                                               upper bound of the target models’ vulnerability, we config-
+   • LLM_AT. Prompts synthetically generated by an LLM,                ure our multi-objective scorer in the Unconstrained Mode.
+     designed around the all-time most downloaded/popular              Specifically, we set the weight parameters to α = 1.0 and
+     Python packages on PyPI, to probe hallucination on well-          β = γ = 0.0, bypassing the explicit veto mechanism to
+     established libraries.                                            exclusively maximize the Target Inclusion Reward (RTIS ). For
+   • LLM_LY. Prompts synthetically generated by an LLM,                the target model, we set the temperature to 0.6. For all proxy
+     targeting the most popular Python packages from the past          LLM queries, we set the temperature to 0.7. The proxy LLMs
+     year, to test whether models hallucinate more on newer            handle adversarial patch generation, strategy summarization,
+     or less-familiar libraries.                                       and multi-objective scoring. These temperature settings care-
+   • SO_AT. Prompts derived from the top Stack Overflow                fully balance exploration diversity with logical coherence.
+     questions of all time, covering the most historically             Evaluation. For our primary evaluations, we generate a single
+     popular Python programming tasks and package usage                completion (N = 1) per test request to benchmark the baseline
+     patterns.                                                         attack effectiveness. We apply consistent decoding parameters
+   • SO_LY. Prompts derived from the top Stack Overflow                across all target models to ensure reproducibility. Specifically,
+     questions from the past year, capturing more recent and           we set the temperature to 0.6 and top_p to 0.9 for the target
+     trending Python development needs.                                models. To account for the inherent stochasticity of LLM
+
+
+
+                                                                   6
+
+=== [PDF page 7] ===
+
+generation, we analyze the variance and stability of the target        demonstrate that when malicious intent is explicitly encoded in
+hallucination rate across multiple runs, and provide additional        Skill instructions, current LLM-based coding assistants remain
+results on temperature sensitivity in Appendix C.                      highly vulnerable to direct execution of adversarial directives,
+                                                                       revealing a fundamental limitation in instruction prioritization
+               VI. E XPERIMENTAL R ESULTS                              and safety filtering.
+A. Baseline: Spontaneous Hallucination
+                                                                       TABLE II: Targeted hallucination rates (THRs) of the direct
+   Table I reports the baseline general hallucination rate (GHR)
+                                                                       injection baseline across different models and datasets.
+under benign Skill conditions, reflecting the model’s natu-
+ral tendency to generate hallucinated outputs without adver-            Model                   LLM_AT     LLM_LY     SO_AT     SO_LY
+sarial manipulation. Among the evaluated models, smaller                Llama-3.1-8B              7.14%     12.86%     1.52%     12.5%
+and general-purpose models such as Phi-4-mini and                       Phi-4-mini               11.69%     19.44%    12.50%     5.00%
+Llama-3.1-8B exhibit relatively higher GHR, reaching up                 Qwen2.5-Coder-7B         66.67%     56.25%    27.27%    15.38%
+                                                                        Qwen2.5-Coder-14B        61.29%     62.86%    21.74%     9.52%
+to 32.37% on LLM_LY. In contrast, code-specialized models               Qwen2.5-Coder-32B        87.50%     81.08%    27.59%    16.67%
+such as the Qwen2.5-Coder series demonstrate signifi-
+cantly lower hallucination rates, with larger variants (14B and
+32B) achieving near-zero or zero hallucination on multiple             C. Baseline: Bayesian Optimization
+datasets. We also observe clear dataset-dependent variation,
+                                                                          Table VI-C demonstrates the results under the Bayesian Op-
+with LLM_LY consistently yielding the highest hallucination
+                                                                       timization (BO) setting, where Skill instructions are iteratively
+rates across all evaluated models. Overall, these results es-
+                                                                       optimized to maximize attack effectiveness. Compared to the
+tablish a baseline for subsequent evaluation under adversarial
+                                                                       Direct Injection baseline, we observe a substantial increase
+Skill conditions, highlighting that hallucination is already
+                                                                       in THRs across most models and datasets, indicating that
+present under non-malicious instruction settings, but varies
+                                                                       optimization can effectively enhance the adversarial strength
+significantly across model families and data distributions.
+                                                                       of Skill-based attacks. In particular, larger models such as
+TABLE I: General hallucination rates (GHRs) across four                Qwen2.5-Coder-32B exhibit near-complete vulnerability
+datasets for each model under normal Skill settings.                   in certain configurations, reaching a THR of up to 100%.
+                                                                       Similar trends are observed for Qwen2.5-Coder-7B, where
+ Model                   LLM_AT     LLM_LY     SO_AT    SO_LY          THRs consistently exceed those in the baseline setting, sug-
+ Llama-3.1-8B              8.76%     14.8%    11.75%    14.38%         gesting that optimization significantly improves the transfer-
+ Phi-4-mini               13.78%    32.37%    13.01%    16.67%         ability and reliability of adversarial Skills.
+ Qwen2.5-Coder-7B          3.64%      2.08      0%       3.28%
+ Qwen2.5-Coder-14B           0%      1.79%       0%        0%             However, BO underperforms compared to the results from
+ Qwen2.5-Coder-32B           0%      2.99%     3.70%       0%          our method shown in Table IV. BO operates over a small,
+                                                                       pre-defined structural space rather than exploring open-ended
+                                                                       text, which fundamentally caps its expressiveness. It also lacks
+B. Baseline: Direct Injection                                          mechanisms to accumulate and transfer knowledge across
+   Table VI-B presents the results under the Direct Injection          runs, meaning improvements do not build on one another
+setting, where the Skill explicitly specifies a target package.        over time. Our method builds a growing library of successful
+This represents a trivial but important baseline, as it directly       strategies that continually inform and refine future attempts,
+encodes the adversarial intent into the instruction without            compounding its effectiveness over time. Furthermore, the
+requiring inference or ambiguity. Overall, we observe that all         feedback signal used to guide the search is too coarse to
+models are highly susceptible to direct injection, although the        provide meaningful gradient information, while our method
+targeted hallucination rate (THR) varies significantly across          leverages fine-grained, continuous signals that give its opti-
+model families. Smaller, general-purpose models such as                mizer a real landscape to navigate. In short, the gap is not
+Llama-3.1-8B and Phi-4-mini exhibit moderate THRs,                     attributable to any single missing component but to a combi-
+ranging from approximately 5% to 20% across datasets. In               nation of a constrained search space, weak transferability, a
+contrast, the Qwen2.5-Coder series demonstrates sub-                   coarse feedback loop, and an optimization resolution that falls
+stantially higher vulnerability, with THRs frequently exceed-          well short of what our method.
+ing 60% and reaching up to 87.50% in certain configura-
+tions. Notably, even larger variants (14B and 32B) do not              D. Our Attack Effectiveness
+consistently improve robustness, suggesting that model scale              1) THR Across Models: Table IV presents the THRs of
+alone is insufficient to mitigate direct instruction-following         our attack across different models and datasets. Compared to
+attacks. Furthermore, we find dataset-dependent variation,             Table II and Table III, our method consistently outperforms
+where LLM_AT and LLM_LY consistently yield higher THRs                 both baselines across all settings, achieving high THRs across
+compared to SO_AT and SO_LY. This indicates that attack                all models. In particular, the Qwen2.5-Coder series exhibits
+effectiveness is influenced not only by model capability but           the highest vulnerability, with THRs reaching up to 100% on
+also by task structure and context. Overall, these results             LLM_AT and remaining above 50% across all datasets.
+
+
+
+                                                                   7
+
+=== [PDF page 8] ===
+
+TABLE III: Targeted hallucination rates (THRs) of the                TABLE V: Comparison of THRs achieved by our attack across
+Bayesian optimization baseline across different models and           models for target package names derived from real packages
+datasets.                                                            in different domains.
+ Model                  LLM_AT     LLM_LY    SO_AT    SO_LY                                     awesome_    awesome_    awesome_
+                                                                       Model         Method
+                                                                                                 numpy      request      django
+ Llama-3.1-8B             9.13%     12.86%    2.80%    12.5%
+ Phi-4-mini              10.39%     30.56%   19.64%   32.00%                         Baseline    21.43%      7.14%        26.32%
+                                                                       Llama-
+ Qwen2.5-Coder-7B        76.67%     81.25%   27.27%   59.09%                         BO          23.21%       9.13%       73.68%
+                                                                       3.1-8B
+ Qwen2.5-Coder-14B       61.29%     51.43%   17.39%   46.15%                         Ours        96.43%      78.57%       84.21%
+ Qwen2.5-Coder-32B       93.75%    100.00%   31.03%   50.00%
+                                                                                     Baseline    1.75%       11.69%       5.88%
+                                                                       Phi-4-
+                                                                                     BO           3.51%      10.39%        5.88%
+                                                                       mini
+                                                                                     Ours        42.11%      35.06%       23.53%
+TABLE IV: Targeted hallucination rates (THRs) of our attack                          Baseline     20%        66.67%       8.33%
+                                                                       Qwen2.5-
+across different models and datasets.                                  Coder-7B
+                                                                                     BO           20%        76.67%       66.67%
+                                                                                     Ours        76.00%      89.66%       58.33%
+ Model                  LLM_AT     LLM_LY    SO_AT    SO_LY                          Baseline    56.21%      61.29%         40%
+                                                                       Qwen2.5-
+ Llama-3.1-8B            78.57%    78.57%    39.39%   72.41%                         BO           52.17%     61.29%         60%
+                                                                       Coder-14B
+ Phi-4-mini              35.06%    36.36%    21.43%   22.00%                         Ours        100.00%     93.55%       100.00%
+ Qwen2.5-coder-7B        89.66%    88.00%    31.82%   59.09%                         Baseline    55.17%      87.5%        81.25%
+ Qwen2.5-coder-14B       93.55%    94.29%    52.17%   53.85%           Qwen2.5-
+                                                                                     BO           72.41%     93.75%        87.5%
+ Qwen2.5-coder-32B      100.00%    97.30%    62.07%   63.50%           Coder-32B
+                                                                                     Ours        100.00%      100%        100.00%
+
+
+
+                                                                     E. Influence of Target Package Name
+   2) THR Across Task Domains: In Table IV, we show the
+results using the source package requests, a widely used                1) Name Similarity to Real Packages: To better understand
+Python library for HTTP communication and web requests.              the factors influencing similarity between real and target
+To further investigate whether the domain of the source              package names, we leverage the FastText pre-trained model
+package affects attack effectiveness, we additionally evaluate       (cc.en.300.bin) [39], which contains over 2 million word vec-
+two packages from different domains: numpy, a core scientific        tors, and compute semantic similarity in the embedding space
+computing library for numerical operations and array process-        to select three different levels of similarity. Specifically, we
+ing, and django, a high-level web framework for building             use requests as a real package and compute its similarity
+server-side applications.                                            to each target package. The resulting similarity scores are
+                                                                     0.6084 for requets, 0.1035 for awesome_requests, and
+   Table V demonstrates the targeted hallucination rate (THR)
+                                                                     -0.0243 for dhskhdjn, respectively.
+across different source package domains. We find that attack
+                                                                        Table VI demonstrates the targeted hallucination rate (THR)
+effectiveness is largely consistent across domains, suggest-
+                                                                     across target packages with varying levels of similarity to
+ing that our method generalizes beyond a specific package
+                                                                     the real package requests. We find that requets, which
+category. Under both Baseline and BO settings, THR varies
+                                                                     has the highest semantic similarity to requests, achieves
+across models and packages, but no clear domain-specific
+                                                                     relatively low THR under both the Baseline and BO settings.
+resistance emerges. For instance, while awesome_request
+                                                                     This is likely because the model implicitly normalizes or
+often achieves higher THR under baseline conditions, other
+                                                                     corrects the package name during generation, interpreting
+domains such as numpy and django exhibit comparable or
+                                                                     requets as a typographical error and reverting it to the
+even higher THR after optimization.
+                                                                     legitimate package requests.
+   Under our proposed method, THR increases substan-                    In contrast, target packages with lower similarity, such as
+tially across all domains and models, frequently exceed-             awesome_requests and dhskhdjn, are less likely to
+ing 70% and reaching 100% for larger models such as                  be auto-corrected, resulting in higher THR under the same
+Qwen2.5-Coder-14B and Qwen2.5-Coder-32B. No-                         settings. However, under our proposed method, the THR for
+tably, this trend holds consistently regardless of whether the       all target packages—including requets—increases substan-
+source package belongs to networking, scientific computing,          tially and remains consistently high (e.g., above 70% across
+or web development.                                                  most models, reaching up to 100% for larger models). This in-
+   These results indicate that attack effectiveness is not           dicates that our attack is able to overcome the model’s inherent
+strongly dependent on the semantic domain or functional              correction behavior and reliably induce adversarial package
+role of the source package. Instead, the vulnerability appears       imports, even when the target package closely resembles a
+to stem from the model’s tendency to follow Skill-induced            legitimate one.
+patterns during code generation. Overall, this demonstrates             2) Name Length and Format: We use four target package
+that our attack generalizes across diverse package ecosystems,       names of increasing length: requ, requets, requests3,
+posing a broad and domain-agnostic threat to LLM-assisted            and awesome_request. We also compare two naming for-
+software development.                                                mats: a numeric suffix (e.g., requests3) and an underscore
+
+
+
+                                                                 8
+
+=== [PDF page 9] ===
+
+TABLE VI: Comparison of THRs across models for target                   TABLE VII: Comparison of THRs across models for target
+package names with varying levels of similarity to real pack-           package names with varying lengths and naming formats.
+ages.
+                                                                                                                                awesome_
+                                                                         Model       Method      requ     requets   requests3
+                                                                                                                                request
+                                       awesome_
+  Model          Method     requets                 dhskhdjn                         Baseline   44.29%    14.29%     52.86%       7.14%
+                                       request                           Llama-
+                                                                                     BO         47.14%    25.71%     84.29%       9.13%
+                                                                         3.1-8B
+                 Baseline   14.29%       7.14%       34.29%                          Ours       80.00%    80.00%     84.29%      78.57%
+  Llama-
+                 BO         25.71%       9.13%       54.29%                          Baseline   1.30%        0%      5.19%       11.69%
+  3.1-8B                                                                 Phi-4-
+                 Ours       80.00%      78.57%       75.71%                          BO          6.49%     6.49%     20.78%      10.39%
+                                                                         mini
+                                                                                     Ours       49.35%    61.04%     38.96%      35.06%
+                 Baseline      0%       11.69%         0%
+  Phi-4-
+                 BO          6.49%      10.39%       19.48%              Qwen2.5-
+                                                                                     Baseline   56.67%    9.38%      73.33%      66.67%
+  mini                                                                               BO         46.67%    53.33%     76.67%      76.67%
+                 Ours       61.04%      35.06%       25.97%              Coder-7B
+                                                                                     Ours       96.55%    72.41%     93.10%      89.66%
+                 Baseline    9.38%      66.67%       46.88%
+  Qwen2.5-                                                                           Baseline   48.39%       0%      74.19%      61.29%
+                 BO         53.33%      76.67%        60%                Qwen2.5-
+                                                                                     BO         74.19%     6.45%      80.65%     61.29%
+  Coder-7B                                                               Coder-14B
+                 Ours       72.41%      89.66%       86.21%                          Ours       90.32%    74.19%     100.00%     93.55%
+                 Baseline      0%       61.29%       45.16%                          Baseline   65.63%     9.38%     78.13%        87.5%
+  Qwen2.5-                                                               Qwen2.5-
+                 BO          6.45%      61.29%       45.16%              Coder-32B
+                                                                                     BO           75%      9.38%      93.75%      93.75%
+  Coder-14B                                                                          Ours       100.00%   100.00%    100.00%     100.00%
+                 Ours       74.19%      93.55%       96.77%
+                 Baseline    9.38%       87.5%        46.88%
+  Qwen2.5-
+                 BO          9.38%      93.75%        78.13%
+  Coder-32B
+                 Ours       100.00%      100%        100.00%            and reaching up to 100%. This indicates that adversarial Skills
+                                                                        learned on one model can generalize effectively to others with
+                                                                        similar capabilities. However, transferability is not uniform
+separator (e.g., awesome_request).                                      across all models. In particular, Phi-4-mini exhibits lower
+   Table VII demonstrates the THR across target package                 THRs under cross-model transfer. This is largely due to its
+names with varying lengths and naming formats. Exclud-                  lower self-transfer performance, which is around 35% rather
+ing cases affected by implicit normalization behavior (e.g.,            than a lack of transferability. In fact, the relative performance
+requets), we find that neither package name length nor                  remains consistent across different optimized models, indi-
+surface-level formatting (e.g., numeric suffixes or underscore-         cating that the attack still transfers but is bounded by the
+separated tokens) exhibits a consistent impact on THR. Vari-            model’s overall susceptibility. Overall, these results indicate
+ants such as requ, requests3, and awesome_request                       that Skill-based attacks are highly transferable across model
+achieve comparable performance across models and settings.              architectures and scales, posing a broad threat that cannot be
+Notably, even for typo-like variants such as requets, where             mitigated by model diversity alone.
+baseline THRs are severely diminished (e.g., 0% on Qwen2.5-
+Coder-14B) due to the models’ internal spell-correction priors,
+our framework effectively overrides this resistance to achieve
+substantial gains. Under our method, THR remains consis-
+tently high across all naming variations, indicating that the
+attack is robust to differences in package name structure. Fur-
+thermore, this robustness is particularly pronounced in more
+capable models; for instance, Qwen2.5-Coder-32B reaches a
+100% success rate across every tested package format when
+subjected to our optimized Skills. Overall, these results suggest
+that surface-level lexical features do not provide meaningful
+resistance, and attack effectiveness is primarily driven by
+model susceptibility to instruction-induced patterns.
+
+F. Cross-Model Transferability
+   1) Transfer Matrix: To evaluate the transferability of our           Fig. 2: Transferability performance of our attack across mod-
+attack, we conduct cross-model experiments in which adver-              els, where each cell represents the THR when optimizing on
+sarial Skills are optimized on one model and evaluated on               one model and evaluating on another.
+others. This setup allows us to assess whether the learned
+attack patterns generalize beyond the source model or overfit
+to model-specific behaviors.                                            G. Cross-Prompt Generalization
+   Figure 2 shows that our attack exhibits non-trivial trans-              In our setup, we partition the source-package dataset into
+ferability across models. For code-specialized models, par-             training and held-out test sets, where the training prompts
+ticularly the Qwen2.5-Coder series, cross-model THRs                    are used for Skill optimization, and the held-out prompts are
+remain consistently high, with many settings exceeding 80%              reserved for evaluation. We report THRs on both training
+
+
+
+                                                                    9
+
+=== [PDF page 10] ===
+
+and test prompts to examine whether the optimized Skills
+generalize beyond the prompts seen during optimization.
+   Figure 3 shows the targeted hallucination rates (THRs) on
+training and held-out test prompts, respectively. Overall, we
+find that the THRs on test prompts are comparable to, and
+in some cases even higher than, those on training prompts
+across all models and datasets. For example, Llama-3.1-8B
+and Qwen2.5-Coder-7B exhibit improved performance on
+test data in multiple settings, while larger models such as
+Qwen2.5-Coder-14B and 32B maintain consistently high
+THR across both splits. Importantly, we do not observe a
+significant performance drop when moving from training to
+test prompts. This implies that the optimized Skills do not
+overfit to the specific prompts seen during optimization, but                                                      Fig. 4: Domain transferability performance of our attack,
+instead capture generalizable attack patterns that transfer to                                                     where each cell represents the THR when optimizing on an
+unseen inputs.                                                                                                     optimized domain and evaluating on a target domain.
+
+
+          100         Train         Test                         100         Train         Test                    These results indicate that the attack is not domain-specific,
+           80                                                     80                                               but instead captures domain-agnostic patterns that generalize
+THR (%)                                                THR (%)
+           60                                                     60                                               across different package ecosystems.
+           40                                                     40
+           20                                                     20
+                                                                                                                                              VII. A BLATION S TUDY
+            0                                                      0                                               A. Explicitness Level
+                       i                                                      i
+             1-8B min 5-7B -14B -32B                                1-8B min 5-7B -14B -32B
+         a-3. Phi-4- Qwen2. wen2.5 wen2.5                       a-3. Phi-4- Qwen2. wen2.5 wen2.5                      We categorize the attack into six levels of explicitness,
+    Llam                   Q      Q                        Llam                   Q      Q
+                                                                                                                   ranging from 0 to 5, where higher levels correspond to
+                     (a) LLM_AT                                             (b) LLM_LY                             lower explicitness. The definitions of all explicitness levels
+                                                                                                                   are provided in Appendix B. Figure 5 shows that attack
+          100         Train         Test                         100         Train         Test
+                                                                                                                   effectiveness strongly depends on the level of explicitness.
+           80                                                     80
+                                                                                                                   Levels 0–2 maintain high THR across models, indicating
+THR (%)                                                THR (%)
+           60                                                     60
+                                                                                                                   that simple obfuscation (e.g., concatenation or role masking)
+           40                                                     40
+                                                                                                                   does not significantly reduce attack success. Level 3 leads
+           20                                                     20
+                                                                                                                   to a moderate drop, suggesting that partial hints introduce
+            0                                                      0
+                            i                                                      i                               some difficulty but remain effective. In contrast, Levels 4
+          -3.   1-8B i-4-min n2.5-7B 2.5-14B 2.5-32B                   1-8B i-4-min n2.5-7B 2.5-14B 2.5-32B
+     lama          Ph Qwe Qwen Qwen                             a-3.      Ph Qwe Qwen Qwen
+    L                                                      Llam                                                    and 5 result in 0% THR, indicating that removing or heavily
+                                                                                                                   obscuring the package name prevents successful attacks. This
+                       (c) SO_AT                                              (d) SO_LY
+                                                                                                                   highlights a trade-off between stealth and effectiveness.
+Fig. 3: Comparison of THRs on training and test prompts
+across models and datasets, showing consistent performance                                                                                                                Llama-3.1-8B
+                                                                                                                                    100                                   Phi-4-mini
+across splits.                                                                                                                                                            Qwen2.5-Coder-7B
+                                                                                                                                     80                                   Qwen2.5-Coder-14B
+                                                                                                                                                                          Qwen2.5-Coder-32B
+                                                                                                                                     60
+                                                                                                                          THR (%)
+H. Cross-Domain Transfer
+                                                                                                                                     40
+   To evaluate whether our attack generalizes across domains,
+we optimize adversarial Skills using source packages from dif-                                                                       20
+ferent domains, including requests (networking), numpy                                                                                0
+(scientific computing), and django (web development). We                                                                                  0     1       2         3           4          5
+                                                                                                                                                     Explicitness Level
+then evaluate the optimized Skills on tasks associated with
+other domains to measure cross-domain effectiveness.                                                               Fig. 5: Comparison of THRs of our method across models
+   Figure 4 shows the THRs on Qwen2.5-Coder-7B when                                                                under different levels of explicitness.
+optimizing on one domain and evaluating on a different
+domain. We find that adversarial Skills transfer effectively
+across domains, achieving consistently high THRs even when                                                         B. Skill Length and Dilution
+the optimization and evaluation domains differ. For example,                                                         Here, we examine how Skill length impacts attack effective-
+Skills optimized on requests achieve high performance                                                              ness and whether increasing length leads to a dilution effect.
+when applied to numpy and django tasks, and vice versa.                                                            Table VIII presents the THRs under different Skill lengths.
+
+
+
+                                                                                                              10
+
+=== [PDF page 11] ===
+
+Overall, the results show that as the Skill length increases,                             B. Defense D2: LLM/Agent-Based Skill Auditor
+the THR generally decreases across most models. We observe                                   In addition to traditional static-analysis tools, we also em-
+that the impact of Skill length is model-dependent, with larger                           ploy LLM- and agent-based approaches to analyze Skills.
+models showing reduced sensitivity to length-induced dilution                             Specifically, we use Snyk Agent Red Teaming [44], Cisco
+in some cases.                                                                            Skill Scanner with its optional LLM analyzer, SkillCheck by
+                                                                                          Mondoo [45], and SkillProbe [46]. Snyk Agent Red Teaming
+TABLE VIII: Targeted hallucination rates (THRs) across mod-
+                                                                                          automatically probes AI-powered applications with adversarial
+els under varying Skill lengths.
+                                                                                          inputs to uncover weaknesses in prompt handling, tool access,
+                                 Level
+                                                  Short     Medium       Long
+                                                                                          data protection, and safety guardrails. Cisco Skill Scanner
+                      Model
+                                                                                          combines YARA-based pattern matching, LLM-as-a-judge,
+                      Llama-3.1-8B      78.57% 57.14% 28.57%                              and behavioral dataflow analysis; in our experiments, we
+                      Phi-4-mini        35.06% 29.87% 63.64%
+                      Qwen2.5-Coder-7B 89.66% 82.76% 27.59%                               configure GPT-4.1 [47] as the evaluator for its optional LLM
+                      Qwen2.5-Coder-14B 93.55% 58.06% 58.06%                              analyzer. Mondoo’s SkillCheck is a free, agent-agnostic scan-
+                      Qwen2.5-Coder-32B 100.00% 100.00% 93.75%
+                                                                                          ner that uses a multi-layer pipeline, including pattern matching
+                                                                                          and an ML classifier. SkillProbe is a multi-agent security
+                                                                                          auditing framework for emerging agent skill marketplaces.
+C. Number of Completions (N)                                                              Together, these approaches complement conventional static
+   To evaluate the stability of our attack under a fixed tempera-                         analysis by adding semantic reasoning and, in some cases,
+ture, we repeat the full experiment on the LLM_AT dataset N                               interactive or multi-agent assessment capabilities.
+times and report the mean THR and standard deviation across                               C. Defense D3: Sandbox-based Dynamic Analysis
+runs for each model. Figure 6 shows only minor variations
+                                                                                             In addition to analyzing whether a Skill is malicious based
+in THR across different numbers of runs. The mean THR
+                                                                                          solely on its content, sandbox-based dynamic analysis goes
+remains consistent, and the standard deviation is limited across
+                                                                                          a step further by executing the Skill within a controlled
+all models, not exceeding 6.5%. This indicates that our attack
+                                                                                          sandbox environment and monitoring its runtime behavior to
+is stable and robust to randomness in repeated executions.
+                                                                                          detect any malicious activities. This provides a more advanced
+                                                                                          and comprehensive layer of defense. We evaluate this cate-
+                100                                                                       gory using SandyClaw (commercial product) [48], a dynamic
+                 80                                                                       analysis platform developed by Permiso Security that applies
+
+      THR (%)
+                 60                                                                       sandbox detonation to the agent Skill ecosystem. Unlike static
+                 40       N=5
+                                                                                          or LLM-based approaches, SandyClaw executes the Skill in
+                          N=10                                                            a controlled environment and records all runtime behaviors,
+                 20       N=20
+                          N=50                                                            including LLM actions, network requests, domain resolutions,
+                  0
+                       .1-8B            ini          7B           4B            2B
+                Llama-3          Phi-4-m en2.5-Coder- n2.5-Coder-1 n2.5-Coder-3           file write operations, and attempts to access environment vari-
+                                        Qw         Qwe           Qwe
+                                                    Model                                 ables. Its detection layer leverages multiple security engines,
+                                                                                          including Sigma, YARA, Nova, and Snort, and intercepts and
+Fig. 6: THRs across repeated runs for each model under
+                                                                                          decrypts SSL-encrypted traffic inside the sandbox to inspect
+varying N .
+                                                                                          potential data exfiltration behavior. In addition, the system
+                                                                                          integrates an LLM-based analysis component with a user-
+                                                                                          configurable model; in our evaluation, we use GPT-4.1 as the
+                                      VIII. D EFENSE                                      underlying model.
+A. Defense D1: Skill Static Analysis                                                      D. Defense Comparison
+   To evaluate whether our malicious Skills can be detected by                               Table IX summarizes the detection results across all evalu-
+existing static-analysis defenses, we test them using three pub-                          ated methods. Static analysis tools fail to identify our Skills
+licly available tools: Cisco Skill Scanner [40], SkillRisk [41],                          as malicious; even SkillCheck (Repello AI), despite using an
+and SkillCheck by Repello AI [42]. Cisco Skill Scanner com-                               updated threat database, classifies them as low risk. While
+bines YARA-based signature matching [43] with behavioral                                  LLM/agent-based auditing approaches are generally more
+dataflow analysis to detect prompt injection, credential leak-                            effective, their performance is inconsistent: tools such as
+age, and malicious code patterns. SkillRisk is a browser-based,                           Snyk Agent Red Teaming successfully detect our Skills as
+client-side scanner that targets supply-chain attack indicators                           malicious, whereas others, including SkillCheck (Mondoo),
+such as exfiltration commands and risky MCP configurations.                               Cisco Scanner (LLM), and SkillProbe, fail to do so. Sandbox-
+SkillCheck is a browser-based Skill security scanner provided                             based dynamic analysis, the most powerful approach, reliably
+by Repello AI. In our experiments, it returned a security score                           classifies our Skills as malicious. Overall, the results indicate
+from 0 to 100 together with a five-tier severity verdict: Safe,                           that static analysis is not sensitive to our Skills. The perfor-
+Low, Medium, High, and Critical.                                                          mance of LLM-based approaches is inconsistent, possibly due
+
+
+
+                                                                                     11
+
+=== [PDF page 12] ===
+
+TABLE IX: Detection outcomes for malicious Skills generated by different LLMs across static-analysis, LLM/agent-based,
+and sandbox-based defenses. ✓ = detected, ✗ = not detected, and low indicates that the tool flags the Skill but assigns it a low
+severity.
+                                         Static Analysis                              LLM / Agent-Based                       Sandbox-based Dynamic Analysis
+                                Cisco                  SkillCheck    Snyk Agent     Cisco Scanner   SkillCheck
+           Model                         SkillRisk                                                               SkillProbe             SandyClaw
+                               Scanner                (Repello AI)   Red Teaming       (LLM)        (Mondoo)
+           Llama-3.1-8B          ✗           ✗             low           ✓               ✗              ✗            ✗                      ✓
+           Phi-4-mini            ✗           ✗             low           ✓               ✗              ✗            ✗                      ✓
+           Qwen2.5-Coder-7B      ✗           ✗             low           ✓               ✗              ✗            ✗                      ✓
+           Qwen2.5-Coder-14B     ✗           ✗             low           ✓               ✗              ✗            ✗                      ✓
+           Qwen2.5-Coder-32B     ✗           ✗             low           ✓               ✗              ✗            ✗                      ✓
+
+
+
+
+to differences in how each tool steers the underlying LLM                           success remains largely invariant under these variations. Fi-
+to identify such behaviors. Sandbox-based dynamic analysis                          nally, existing defense mechanisms are insufficient against
+provides more comprehensive coverage and also incorporates                          such attacks. Static analysis fails to detect malicious Skills,
+LLM components, which may contribute to its effectiveness                           LLM-based approaches yield inconsistent results, and even dy-
+in detecting our Skills.                                                            namic sandbox-based defenses can be bypassed under adaptive
+                                                                                    optimization. These findings collectively reveal a fundamental
+E. Adaptive Attacker                                                                gap in current defenses and underscore the need for more
+   To evaluate whether our attack can evade existing de-                            robust, attack-aware mitigation strategies for Skill-based LLM
+fense mechanisms, we incorporate defense feedback into the                          systems.
+optimization loop. Specifically, for each defense tool that
+flags a Skill as malicious, we extract the reported reasons
+                                                                                    B. Generalization Beyond Skills
+and incorporate them as constraints or guidance during Skill
+optimization. For the adaptive attack, we conduct the experi-                          Although our experiments primarily focus on Skills, the un-
+ment on Qwen2.5-Coder-7B using awesome_request                                      derlying attack mechanism generalizes naturally to a broader
+as the target package. Regarding Snyk Agent Red Teaming,                            class of persistent instruction artifacts used in modern agentic
+after incorporating defense feedback into optimization, the                         coding systems. In practice, many platforms provide reusable
+generated Skill is no longer flagged with any issue, indicating                     behavioral guidance mechanisms, including Cursor Rules,
+successful evasion. Similarly, for SandyClaw, the input is                          Windsurf Rules, Custom GPT instructions, repository-level
+downgraded from malicious with a prevented runtime outcome                          configuration files, agent profiles, and project-specific instruc-
+to suspicious, while the runtime result becomes benign. Al-                         tion templates. Despite differences in implementation, these
+though the THR decreases to 65.52% under defense-aware                              mechanisms share a common property: they are persistently
+optimization, the attack remains effective while bypassing                          loaded as trusted context that continuously shapes downstream
+existing detection mechanisms. Overall, these results demon-                        model behavior across interactions. Consequently, the core
+strate that incorporating defense feedback enables our attack to                    Dependency Steering paradigm is not limited to a specific Skill
+effectively bypass existing detection mechanisms, highlighting                      framework, but rather applies broadly to instruction-following
+the limitations of current defenses under adaptive adversarial                      infrastructures that influence dependency selection behavior
+settings.                                                                           over time. This suggests that the attack surface extends beyond
+                                                                                    current Skill ecosystems and may affect a wide range of
+                       IX. D ISCUSSION
+                                                                                    emerging LLM agent platforms.
+A. Key Takeaways
+   Our results reveal several key insights into the security                        C. Limitations
+risks of Skill-based LLM systems. First, LLMs are highly
+vulnerable to Skill-based package injection, where even simple                         Our work has several limitations. First, due to limited
+direct injection can achieve non-trivial success, and optimized                     visibility into proprietary system prompts and deployment
+attacks further amplify effectiveness to near-perfect levels                        pipelines, our experiments primarily focus on open-source
+across multiple models. Second, the attack demonstrates strong                      coding-oriented LLMs rather than closed-source commercial
+generalization: it transfers effectively across models, including                   agents. Second, although we evaluate diverse prompts, models,
+asymmetric transfer from larger to smaller models, maintains                        and package domains, the evaluated prompt distribution cannot
+consistent performance on held-out prompts without signs of                         fully represent real-world software engineering workflows.
+overfitting, and remains effective across different functional                      Third, our evaluation mainly measures dependency-generation
+domains. This suggests that the attack exploits shared, domain-                     behavior rather than full end-to-end compromise after mali-
+agnostic behaviors in LLMs rather than model- or dataset-                           cious package installation. Finally, while we study existing
+specific weaknesses. Third, we find that surface-level lex-                         defenses and adaptive attacks, future defense mechanisms
+ical features—such as package name similarity, length, or                           specifically designed for persistent behavioral steering may
+formatting—do not provide meaningful resistance, as attack                          provide stronger robustness against our attack framework [25].
+
+
+
+                                                                               12
+
+=== [PDF page 13] ===
+
+                     X. R ELATED W ORK                                      While existing attacks largely exploit naturally occurring
+A. LLM-Assisted Code Generation                                          model errors, our work demonstrates that package hallucina-
+                                                                         tion can be intentionally induced and systematically controlled.
+   Large language models are increasingly integral to software           Rather than passively waiting for spontaneous hallucinations,
+engineering workflows. Modern coding assistants (e.g., Claude            attackers can actively hijack the dependency generation pro-
+Code) now perform complex tasks ranging from code gen-                   cess using maliciously crafted Skills. Ultimately, Dependency
+eration to autonomous workflow orchestration. Recent agen-               Steering extends beyond mere hallucination; it represents a
+tic systems further extend these capabilities by interacting             powerful capability to manipulate the underlying dependency
+with external tools and managing software dependencies [6],              selection priors of coding agents using trusted contextual
+[49], [3]. Consequently, coding agents directly participate in           artifacts.
+software supply chain decisions, and developers often accept
+LLM-generated package recommendations or installation com-               D. Software Supply Chain Attacks
+mands without rigorous verification.
+   This reliance introduces critical security implications. Un-             Software supply chain attacks target the dependencies, tools,
+like traditional deterministic tools, LLMs generate dependen-            and registries that modern software ecosystems rely upon,
+cies probabilistically based on statistical associations. This           compromising upstream components to affect downstream
+inherent characteristic makes the dependency selection pro-              applications at scale [53], [54], [55], [56]. Open registries like
+cess highly vulnerable to behavioral manipulation, contextual            PyPI and npm are frequent targets for established malicious
+steering, and targeted hallucination attacks.                            strategies. For example, typosquatting attacks [55], [57] ex-
+                                                                         ploit developer typographical errors by publishing packages
+B. Skills and Instruction Systems                                        with deceptively similar names, while dependency confusion
+                                                                         attacks [54] exploit namespace resolution behaviors to trick
+   As LLM systems become increasingly agentic, developers
+                                                                         package managers into downloading malicious public pack-
+rely on reusable instruction mechanisms, such as Skills, Cus-
+                                                                         ages instead of legitimate private ones.
+tom Instructions, or .cursorrules, to persistently guide
+                                                                            Recent studies on package hallucination [9], [14], [15]
+model behavior. By efficiently encoding project-specific guid-
+                                                                         highlight a new vector where adversaries proactively register
+ance, such as coding conventions and preferred workflows,
+                                                                         non-existent package names frequently generated by LLMs.
+these artifacts act as foundational behavioral priors without
+                                                                         This strategy effectively converts spontaneous model errors
+exhausting the context window.
+                                                                         into active supply chain compromises.
+   Crucially, both users and agents inherently treat Skills as
+highly trusted context. Because these instructions are loaded               Our work introduces a fundamentally different threat model.
+automatically and persist across sessions, they introduce a              Rather than exploiting naturally occurring hallucinations, we
+powerful yet largely invisible attack surface. A maliciously             demonstrate that attackers can intentionally manipulate a cod-
+crafted Skill can systematically manipulate model outputs                ing agent’s dependency generation through malicious Skills.
+without raising user suspicion.                                          Consequently, the Skill artifact itself becomes a novel supply
+   This dynamic creates security implications that are funda-            chain component capable of persistently steering dependency
+mentally distinct from conventional prompt injection. Whereas            selection decisions. This observation significantly broadens
+traditional attacks rely on ephemeral instructions embedded              the traditional attack surface to include the trusted behav-
+within transient user inputs, malicious Skills exploit their             ioral guidance mechanisms embedded within agentic coding
+structural persistence. This allows adversaries to achieve long-         ecosystems.
+term behavioral steering that silently spans multiple coding
+                                                                                               XI. C ONCLUSION
+tasks, users, and development environments.
+                                                                            In conclusion, we demonstrate that package hallucination in
+C. Package Hallucination in LLMs                                         LLM coding agents is not merely a passive model failure, but
+   Hallucination in large language models involves generating            an actively steerable vulnerability. We introduced Dependency
+confident but factually incorrect outputs [13], [50], [51], [52].        Steering, a software supply chain attack where malicious Skills
+In code generation, this frequently manifests as package hal-            manipulate dependency selection, causing agents to output
+lucination, where models recommend or import non-existent                attacker-controlled packages during benign tasks. Unlike con-
+software packages. Recent studies [14], [9], [15] demonstrate            ventional prompt injection, this attack leverages persistent
+that this phenomenon occurs at non-trivial rates across var-             instruction artifacts to continuously shape code generation. To
+ious programming languages and model architectures. Be-                  enable this, we proposed a semantic-preserving optimization
+cause these hallucinated dependencies appear semantically                framework utilizing context-patch injection. Experiments re-
+plausible and contextually appropriate, developers struggle              veal high targeted hallucination rates, strong transferability
+to distinguish them from legitimate libraries. This deceptive            across models and prompts, and evasion of current Skill-
+plausibility creates a critical vulnerability, allowing attackers        auditing defenses. Overall, our findings expose a novel attack
+to execute software supply chain attacks by registering these            surface in agentic ecosystems, emphasizing the critical need
+phantom names in public registries like PyPI or npm.                     for defenses against long-term behavioral steering.
+
+
+
+                                                                    13
+
+=== [PDF page 14] ===
+
+                    E THICAL C ONSIDERATIONS                                          [18] D. Schmotz, L. Beurer-Kellner, S. Abdelnabi, and M. Andriushchenko,
+                                                                                           “Skill-inject: Measuring agent vulnerability to skill file attacks,” 2026.
+   Our work investigates potential security risks in LLM-                                  [Online]. Available: https://arxiv.org/abs/2602.20156
+                                                                                      [19] Y. Liu, Z. Chen, Y. Zhang, G. Deng, Y. Li, J. Ning, Y. Zhang,
+assisted software development. To avoid causing real-world                                 and L. Y. Zhang, “Malicious agent skills in the wild: A large-
+harm, we do not publish or deploy any malicious packages.                                  scale security empirical study,” 2026. [Online]. Available: https:
+Instead, all target packages used in our experiments are benign                            //arxiv.org/abs/2602.06547
+and do not contain harmful functionality. The purpose of                              [20] Z. Chen, Y. Zhang, Y. Liu, G. Deng, Y. Li, Y. Zhang, J. Ning,
+                                                                                           L. Y. Zhang, L. Ma, and Z. Li, “Credential leakage in llm agent
+releasing these packages is solely to simulate realistic attack                            skills: A large-scale empirical study,” 2026. [Online]. Available:
+scenarios and evaluate model behavior under controlled con-                                https://arxiv.org/abs/2604.03070
+ditions.                                                                              [21] Cursor, “Rules | cursor docs,” https://cursor.com/docs/rules, 2026, ac-
+                                                                                           cessed: 2026-05-07.
+                                                                                      [22] Windsurf, “Introduction to rules, memories, & workflows,” https://
+                              R EFERENCES                                                  windsurf.com/university/general-education/intro-rules-memories, 2026,
+                                                                                           accessed: 2026-05-07.
+ [1] I. Bouzenia, P. Devanbu, and M. Pradel, “Repairagent: An autonomous,             [23] Microsoft, “Assistantagent | autogen 0.2,” https://microsoft.github.io/
+     llm-based agent for program repair,” in 2025 IEEE/ACM 47th Inter-                     autogen/0.2/docs/reference/agentchat/assistant_agent/, 2026, accessed:
+     national Conference on Software Engineering (ICSE), 2025, pp. 2188–                   2026-05-07.
+     2200.                                                                            [24] LangChain, “Prompt template format guide - langsmith docs,” https://
+ [2] I. Bouzenia and M. Pradel, “You name it, i run it: An llm agent to                    docs.langchain.com/langsmith/prompt-template-format, 2026, accessed:
+     execute tests of arbitrary projects,” Proc. ACM Softw. Eng., vol. 2, no.              2026-05-07.
+     ISSTA, Jun. 2025. [Online]. Available: https://doi.org/10.1145/3728922           [25] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and
+ [3] J. Yang, C. E. Jimenez, A. Wettig, K. Lieret, S. Yao, K. R.                           M. Fritz, “Not what you’ve signed up for: Compromising real-
+     Narasimhan, and O. Press, “SWE-agent: Agent-computer interfaces                       world llm-integrated applications with indirect prompt injection,” in
+     enable automated software engineering,” in The Thirty-eighth Annual                   Proceedings of the 16th ACM Workshop on Artificial Intelligence
+     Conference on Neural Information Processing Systems, 2024. [Online].                  and Security, ser. AISec ’23. New York, NY, USA: Association
+     Available: https://openreview.net/forum?id=mXpq6ut8J3                                 for Computing Machinery, 2023, p. 79–90. [Online]. Available:
+ [4] GitHub, “Github copilot,” https://github.com/features/copilot, 2026, ac-              https://doi.org/10.1145/3605764.3623985
+     cessed: 2026-05-06.                                                              [26] Q. Zhan, Z. Liang, Z. Ying, and D. Kang, “InjecAgent: Benchmarking
+ [5] Anysphere, “Cursor,” https://cursor.com/, 2026, accessed: 2026-05-06.                 indirect prompt injections in tool-integrated large language model
+ [6] Anthropic, “Claude code overview,” https://code.claude.com/docs/en/                   agents,” in Findings of the Association for Computational Linguistics:
+     overview, 2026, accessed: 2026-05-06.                                                 ACL 2024, L.-W. Ku, A. Martins, and V. Srikumar, Eds. Bangkok,
+ [7] OpenAI,         “Introducing       codex,”      https://openai.com/index/             Thailand: Association for Computational Linguistics, Aug. 2024,
+     introducing-codex/, 2025, accessed: 2026-05-06.                                       pp. 10 471–10 506. [Online]. Available: https://aclanthology.org/2024.
+ [8] Google, “Gemini code assist overview,” https://developers.google.com/                 findings-acl.624/
+     gemini-code-assist/docs/overview, 2026, accessed: 2026-05-06.                    [27] E. Debenedetti, J. Zhang, M. Balunovic, L. Beurer-Kellner, M. Fischer,
+ [9] J. Spracklen, R. Wijewickrama, A. H. M. N. Sakib, A. Maiti,                           and F. Tramèr, “Agentdojo: A dynamic environment to evaluate
+     B. Viswanath, and M. Jadliwala, “We have a package for you! a                         prompt injection attacks and defenses for LLM agents,” in The
+     comprehensive analysis of package hallucinations by code generating                   Thirty-eight Conference on Neural Information Processing Systems
+     llms,” in USENIX Security Symposium, 2025.                                            Datasets and Benchmarks Track, 2024. [Online]. Available: https:
+[10] S. Neupane, G. Holmes, E. Wyss, D. Davidson, and L. D. Carli, “Beyond                 //openreview.net/forum?id=m1YYAQjO3w
+     typosquatting: An in-depth look at package confusion,” in 32nd USENIX            [28] W. Zou, R. Geng, B. Wang, and J. Jia, “Poisonedrag: knowledge
+     Security Symposium (USENIX Security 23). Anaheim, CA: USENIX                          corruption attacks to retrieval-augmented generation of large language
+     Association, Aug. 2023, pp. 3439–3456. [Online]. Available: https:                    models,” in Proceedings of the 34th USENIX Conference on Security
+     //www.usenix.org/conference/usenixsecurity23/presentation/neupane                     Symposium, ser. SEC ’25. USA: USENIX Association, 2025.
+[11] M. Zimmermann, C.-A. Staicu, C. Tenny, and M. Pradel, “Small                     [29] A. RoyChowdhury, M. Luo, P. Sahu, S. Banerjee, and M. Tiwari,
+     world with high risks: A study of security threats in the                             “Confusedpilot: Confused deputy risks in rag-based llms,” 2024.
+     npm ecosystem,” in 28th USENIX Security Symposium (USENIX                             [Online]. Available: https://arxiv.org/abs/2408.04870
+     Security 19). Santa Clara, CA: USENIX Association, Aug. 2019,                    [30] F. Nazary, Y. Deldjoo, and T. d. Noia, “Poison-rag: Adversarial data
+     pp. 995–1010. [Online]. Available: https://www.usenix.org/conference/                 poisoning attacks on retrieval-augmented generation in recommender
+     usenixsecurity19/presentation/zimmerman                                               systems,” in Advances in Information Retrieval, C. Hauff, C. Macdonald,
+[12] L. Huang, W. Yu, W. Ma, W. Zhong, Z. Feng, H. Wang, Q. Chen,                          D. Jannach, G. Kazai, F. M. Nardini, F. Pinelli, F. Silvestri, and
+     W. Peng, X. Feng, B. Qin, and T. Liu, “A survey on hallucination                      N. Tonellotto, Eds. Cham: Springer Nature Switzerland, 2025, pp.
+     in large language models: Principles, taxonomy, challenges, and open                  239–251.
+     questions,” ACM Trans. Inf. Syst., vol. 43, no. 2, Jan. 2025. [Online].          [31] H. Zhu, L. Fiondella, J. Yuan, K. Zeng, and L. Jiao,
+     Available: https://doi.org/10.1145/3703155                                            “Neurogenpoisoning: Neuron-guided attacks on retrieval-augmented
+[13] Z. Ji, N. Lee, R. Frieske, T. Yu, D. Su, Y. Xu, E. Ishii, Y. J. Bang,                 generation of LLM via genetic optimization of external
+     A. Madotto, and P. Fung, “Survey of hallucination in natural language                 knowledge,” in The Thirty-ninth Annual Conference on Neural
+     generation,” ACM Comput. Surv., vol. 55, no. 12, Mar. 2023. [Online].                 Information Processing Systems, 2026. [Online]. Available:
+     Available: https://doi.org/10.1145/3571730                                            https://openreview.net/forum?id=4kTpb8pITI
+[14] A. Krishna, E. Galinkin, L. Derczynski, and J. Martin, “Importing                [32] L. Huang, W. Sun, and M. Yan, “Iterative generation of adversarial
+     phantoms: Measuring llm package hallucination vulnerabilities,” 2025.                 example for deep code models,” in 2025 IEEE/ACM 47th International
+     [Online]. Available: https://arxiv.org/abs/2501.19012                                 Conference on Software Engineering (ICSE), 2025, pp. 2213–2224.
+[15] Z. Zhang, C. Wang, Y. Wang, E. Shi, Y. Ma, W. Zhong, J. Chen,                    [33] C. E. Rasmussen, Gaussian Processes in Machine Learning. Berlin,
+     M. Mao, and Z. Zheng, “Llm hallucinations in practical code                           Heidelberg: Springer Berlin Heidelberg, 2004, pp. 63–71. [Online].
+     generation: Phenomena, mechanism, and mitigation,” Proc. ACM                          Available: https://doi.org/10.1007/978-3-540-28650-9_4
+     Softw. Eng., vol. 2, no. ISSTA, Jun. 2025. [Online]. Available:                  [34] D. Wipf and S. Nagarajan, “A new view of automatic
+     https://doi.org/10.1145/3728894                                                       relevance determination,” in Advances in Neural Information
+[16] Anthropic, “Skills | claude,” https://claude.com/skills, 2026, accessed:              Processing Systems, J. Platt, D. Koller, Y. Singer, and
+     2026-05-07.                                                                           S. Roweis, Eds., vol. 20.             Curran Associates, Inc., 2007.
+[17] OpenAI, “Skills | openai api,” https://developers.openai.com/api/docs/                [Online]. Available: https://proceedings.neurips.cc/paper_files/paper/
+     guides/tools-skills, 2026, accessed: 2026-05-07.                                      2007/file/9c01802ddb981e6bcfbec0f0516b8e35-Paper.pdf
+
+
+
+
+                                                                                 14
+
+=== [PDF page 15] ===
+
+[35] X. Liu, P. Li, G. E. Suh, Y. Vorobeychik, Z. Mao, S. Jha, P. McDaniel,                    Association for Computational Linguistics, Jul. 2020, pp. 1906–1919.
+     H. Sun, B. Li, and C. Xiao, “AutoDAN-turbo: A lifelong agent                              [Online]. Available: https://aclanthology.org/2020.acl-main.173/
+     for strategy self-exploration to jailbreak LLMs,” in The Thirteenth                  [51] P. Sahoo, P. Meharia, A. Ghosh, S. Saha, V. Jain, and A. Chadha,
+     International Conference on Learning Representations, 2025. [Online].                     “A comprehensive survey of hallucination in large language, image,
+     Available: https://openreview.net/forum?id=bhK7U37VW8                                     video and audio foundation models,” in Findings of the Association for
+[36] S. Weerawardhena, P. Kassianik, B. Nelson, B. Saglam, A. Vellore,                         Computational Linguistics: EMNLP 2024, Y. Al-Onaizan, M. Bansal,
+     A. Priyanshu, S. Vijay, M. Aufiero, A. Goldblatt, F. Burch, E. Li,                        and Y.-N. Chen, Eds. Miami, Florida, USA: Association for
+     J. He, D. Kedia, K. Oshiba, Z. Yang, Y. Singer, and A. Karbasi,                           Computational Linguistics, Nov. 2024, pp. 11 709–11 724. [Online].
+     “Llama-3.1-foundationai-securityllm-8b-instruct technical report,” 2025.                  Available: https://aclanthology.org/2024.findings-emnlp.685/
+     [Online]. Available: https://arxiv.org/abs/2508.01059                                [52] W. Xu, S. Agrawal, E. Briakou, M. J. Martindale, and M. Carpuat,
+[37] Microsoft, :, A. Abouelenin, A. Ashfaq, A. Atkinson, H. Awadalla,                         “Understanding and detecting hallucinations in neural machine
+     N. Bach, J. Bao, A. Benhaim, M. Cai, V. Chaudhary, C. Chen,                               translation via model introspection,” Transactions of the Association
+     D. Chen, D. Chen, J. Chen, W. Chen, Y.-C. Chen, Y. ling Chen,                             for Computational Linguistics, vol. 11, pp. 546–564, 2023. [Online].
+     Q. Dai, X. Dai, R. Fan, M. Gao, M. Gao, A. Garg, A. Goswami,                              Available: https://aclanthology.org/2023.tacl-1.32/
+     J. Hao, A. Hendy, Y. Hu, X. Jin, M. Khademi, D. Kim, Y. J. Kim,                      [53] C. Huang, N. Wang, Z. Wang, S. Sun, L. Li, J. Chen, Q. Zhao, J. Han,
+     G. Lee, J. Li, Y. Li, C. Liang, X. Lin, Z. Lin, M. Liu, Y. Liu,                           Z. Yang, and L. Shi, “Donapi: malicious npm packages detector using
+     G. Lopez, C. Luo, P. Madan, V. Mazalov, A. Mitra, A. Mousavi,                             behavior sequence knowledge mapping,” in Proceedings of the 33rd
+     A. Nguyen, J. Pan, D. Perez-Becker, J. Platin, T. Portet, K. Qiu,                         USENIX Conference on Security Symposium, ser. SEC ’24.             USA:
+     B. Ren, L. Ren, S. Roy, N. Shang, Y. Shen, S. Singhal, S. Som,                            USENIX Association, 2024.
+     X. Song, T. Sych, P. Vaddamanu, S. Wang, Y. Wang, Z. Wang, H. Wu,                    [54] P. Ladisa, S. E. Ponta, A. Sabetta, M. Martinez, and O. Barais, “Journey
+     H. Xu, W. Xu, Y. Yang, Z. Yang, D. Yu, I. Zabir, J. Zhang, L. L.                          to the center of software supply chain attacks,” IEEE Security & Privacy,
+     Zhang, Y. Zhang, and X. Zhou, “Phi-4-mini technical report: Compact                       vol. 21, no. 6, pp. 34–49, 2023.
+     yet powerful multimodal language models via mixture-of-loras,” 2025.                 [55] M. Ohm, H. Plate, A. Sykosch, and M. Meier, “Backstabber’s
+     [Online]. Available: https://arxiv.org/abs/2503.01743                                     knife collection: A review of open source software supply chain
+[38] B. Hui, J. Yang, Z. Cui, J. Yang, D. Liu, L. Zhang, T. Liu, J. Zhang,                     attacks,” in Detection of Intrusions and Malware, and Vulnerability
+     B. Yu, K. Lu, K. Dang, Y. Fan, Y. Zhang, A. Yang, R. Men, F. Huang,                       Assessment: 17th International Conference, DIMVA 2020, Lisbon,
+     B. Zheng, Y. Miao, S. Quan, Y. Feng, X. Ren, X. Ren, J. Zhou, and                         Portugal, June 24–26, 2020, Proceedings. Berlin, Heidelberg:
+     J. Lin, “Qwen2.5-coder technical report,” 2024. [Online]. Available:                      Springer-Verlag, 2020, p. 23–43. [Online]. Available: https://doi.org/10.
+     https://arxiv.org/abs/2409.12186                                                          1007/978-3-030-52683-2_2
+[39] E. Grave, P. Bojanowski, P. Gupta, A. Joulin, and T. Mikolov, “Learning              [56] L. Williams, G. Benedetti, S. Hamer, R. Paramitha, I. Rahman,
+     word vectors for 157 languages,” in Proceedings of the Eleventh                           M. Tamanna, G. Tystahl, N. Zahan, P. Morrison, Y. Acar, M. Cukier,
+     International Conference on Language Resources and Evaluation                             C. Kästner, A. Kapravelos, D. Wermke, and W. Enck, “Research
+     (LREC 2018), N. Calzolari, K. Choukri, C. Cieri, T. Declerck,                             directions in software supply chain security,” ACM Trans. Softw.
+     S. Goggi, K. Hasida, H. Isahara, B. Maegaard, J. Mariani, H. Mazo,                        Eng. Methodol., vol. 34, no. 5, May 2025. [Online]. Available:
+     A. Moreno, J. Odijk, S. Piperidis, and T. Tokunaga, Eds. Miyazaki,                        https://doi.org/10.1145/3714464
+     Japan: European Language Resources Association (ELRA), May 2018.                     [57] D.-L. Vu, I. Pashchenko, F. Massacci, H. Plate, and A. Sabetta, “Ty-
+     [Online]. Available: https://aclanthology.org/L18-1550/                                   posquatting and combosquatting attacks on the python ecosystem,” in
+[40] Cisco,          “Introducing        the       ai       agent         security             2020 IEEE European Symposium on Security and Privacy Workshops
+     scanner              for          ides,”         https://blogs.cisco.com/ai/              (EuroS&PW), 2020, pp. 509–514.
+     introducing-the-ai-agent-security-scanner-for-ides-verify-your-agents,
+     2026, accessed: 2026-05-07.
+[41] SkillRisk. (2026) Skillrisk — free ai agent skill security scanner.
+                                                                                                                          A PPENDIX
+     [Online]. Available: https://skillrisk.org/
+                                                                                          A. Convergence Analysis
+[42] Repello AI, “Skillcheck by repello ai | ai skill vulnerability scanner,”
+     https://skills.repello.ai/, 2026, accessed: 2026-05-07.                                 To analyze the convergence behavior of our method, we
+[43] V. M. Álvarez, “YARA: The pattern matching swiss knife for malware
+     researchers,” https://yara.readthedocs.io, 2013.                                     measure the THR across different optimization rounds. We
+[44] Snyk,       “Snyk        agent    red    teaming,”      https://docs.snyk.io/        conduct the experiment on Qwen2.5-Coder-7B with the
+     developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/                   LLM_AT dataset, measuring THR at different optimization
+     snyk-agent-red-teaming, 2026, accessed: 2026-05-07.
+[45] Mondoo, “Ai agent vulnerabilities — free skill scanner,” https://mondoo.
+                                                                                          rounds (1, 5, 10, 20, and 50). Table X presents the results,
+     com/use-cases/ai-agent-vulnerabilities, 2026, accessed: 2026-05-07.                  showing that THR increases rapidly in the early stages, rising
+[46] Z. Guo, Z. Chen, X. Nie, J. Lin, Y. Zhou, and W. Zhang, “Skillprobe:                 from 79.31% at round 1 to 89.66% by round 5. After round
+     Security auditing for emerging agent skill marketplaces via multi-agent
+     collaboration,” arXiv preprint arXiv:2603.21019, 2026.
+                                                                                          10, the performance largely stabilizes, with only marginal
+[47] N. Fachada, D. Fernandes, C. M. Fernandes, B. D. Ferreira-Saraiva, and               improvements to 93.10% at round 20 and no further gains
+     J. P. Matos-Carvalho, “Gpt-4.1 sets the standard in automated experiment             at round 50.
+     design using novel python libraries,” Future Internet, vol. 17, no. 9, p.
+     412, 2025. [Online]. Available: http://dx.doi.org/10.3390/fi17090412                            TABLE X: THRs over optimization rounds.
+[48] Permiso Security, “Introducing sandyclaw — the first dynamic
+     sandbox for ai agent skills and prompts,” https://permiso.io/blog/                                   Optimization
+     introducing-sandyclaw-dynamic-sandbox-ai-agent-skills,                 2026,                           rounds         1         5        10        20        50
+     accessed: 2026-05-07.                                                                 Model
+[49] X. Wang, B. Li, Y. Song, F. F. Xu, X. Tang, M. Zhuge, J. Pan,                              Qwen2.5-
+     Y. Song, B. Li, J. Singh, H. H. Tran, F. Li, R. Ma, M. Zheng, B. Qian,                                              79.31%   89.66%    89.66%    93.10%   93.10%
+                                                                                                Coder-7B
+     Y. Shao, N. Muennighoff, Y. Zhang, B. Hui, J. Lin, R. Brennan,
+     H. Peng, H. Ji, and G. Neubig, “Openhands: An open platform
+     for AI software developers as generalist agents,” in The Thirteenth
+     International Conference on Learning Representations, 2025. [Online].
+     Available: https://openreview.net/forum?id=OJd3ayDDoF
+                                                                                          B. Definition of Explicitness Levels
+[50] J. Maynez, S. Narayan, B. Bohnet, and R. McDonald, “On faithfulness                     To systematically evaluate how explicitly a malicious Skill
+     and factuality in abstractive summarization,” in Proceedings of the
+     58th Annual Meeting of the Association for Computational Linguistics,                references the target package name, we define five levels of
+     D. Jurafsky, J. Chai, N. Schluter, and J. Tetreault, Eds. Online:                    package name obfuscation applied to the adversarial suffix:
+
+
+
+                                                                                     15
+
+=== [PDF page 16] ===
+
+  •  Level 0 — Original: Using the original target package
+     name explicitly (e.g., awesome_request).
+   • Level 1 — String Concatenation: The package name is
+     split into two string literals joined by a concatenation op-
+     erator (e.g., ’awesome’ + ’-request’), preserving
+     all characters while breaking lexical recognition.
+   • Level 2 — Role Masking: The package name is replaced
+     by a semantically plausible but fictitious label (e.g., “the
+     AWESOME-REQUEST enterprise protocol”), obscuring
+     the npm identity while retaining thematic relevance.
+   • Level 3 — Partial Hint: Only a structural hint
+     of the package name is provided (e.g., “the internal
+     ‘*_request’ compliance module, replace the wildcard
+     with ‘awesome’ ”), requiring the model to reconstruct the
+     target through in-context reasoning.
+   • Level 4 — Omission: The package name is entirely
+     removed and replaced with an empty string, forcing the
+     model to infer the target solely from the surrounding
+     context.
+   • Level 5 — Initials Only: The package name is reduced
+     to its acronym (e.g., “A-R enterprise proxy module”),
+     providing only minimal and ambiguous cues.
+   These levels form a spectrum from low obfuscation
+(Level 0) to high obfuscation (Level 5), allowing us to assess
+the resilience of LLM coding agents against Skills that avoid
+explicit package name disclosure.
+C. Temperature Sensitivity
+   Here, we evaluate the robustness of the attack under differ-
+ent decoding temperatures to assess its stability across varying
+levels of generation randomness. Figure 7 demonstrates that
+temperature has a limited impact on attack effectiveness across
+all evaluated models. Across temperatures ranging from 0.0
+to 1.0, the THRs remain relatively stable, with only minor
+fluctuations for most models. The largest variation is observed
+on Qwen2.5-Coder-14B, where THR ranges from 80.65% to
+96.77%, resulting in a maximum gap of 16.12%. Despite this
+variation, the overall THR remains consistently high.
+
+                   100
+
+                    80
+                                                   Llama-3.1-8B
+                    60                             Phi-4-mini
+         THR (%)
+                                                   Qwen2.5-Coder-7B
+                                                   Qwen2.5-Coder-14B
+                    40                             Qwen2.5-Coder-32B
+
+                    20
+
+                     0
+                         0.0   0.2   0.4     0.6      0.8        1.0
+                                     Temperature
+
+Fig. 7: Targeted hallucination rates (THRs) across models
+under varying temperature settings.
+
+
+
+
+                                                                       16

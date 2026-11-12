@@ -1,0 +1,345 @@
+# Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+
+- Project id: `2026-11-11-ai-reverse-engineering-vibe-coding`
+- Started: 2026-11-11
+- Owner: the user (beginner researcher). Claude manages the workflow.
+
+## Topic in plain language
+*Vibe coding* means building software mainly by describing what you want to an AI model in natural language and accepting the code it writes, with little manual coding. This project asks what happens when that is used for *reverse engineering*: rebuilding an existing application only from what can be observed about it (its screens, its behaviour when used, its documentation), without access to its source code. Three questions matter for anyone relying on such a rebuild: does the new app behave like the original (*functional fidelity*), is the generated code well written (*code quality*), and can it be understood and changed later (*maintainability*)? The project reviews what the research literature already knows about each, and where the evidence is missing.
+
+## Scope
+- In scope: AI/LLM-assisted reconstruction or generation of software applications from observable artefacts (UI screenshots, designs, webpages, interaction traces, natural-language specifications/documentation); vibe-coding studies; evaluation of functional correctness/fidelity, visual fidelity, code quality and maintainability of LLM-generated application code; benchmarks and evaluation methods for these.
+- Out of scope: binary/bytecode decompilation; source-to-source code translation and legacy migration (used only as contrast if needed); reverse engineering outside software (e.g. biology); general multimodal model architecture papers; security exploitation; education studies that only measure perceptions, not code outcomes.
+- Time window (publication years): 2020–2026 (the LLM code-generation era); seminal earlier work allowed as background (flagged as such).
+- Disciplines / venues of interest: software engineering (ICSE, FSE, ASE, ESEM, MSR, TOSEM, TSE, EMSE), NLP/ML (ACL, EMNLP, NAACL, NeurIPS, ICLR), HCI (CHI, UIST).
+- Target size for the first pass: up to 20 included papers (raise only with a reason).
+
+## Objectives
+1. O1 — Map the approaches and tools used to reconstruct or generate applications from observable behaviour/UI with AI, and how they relate to vibe-coding workflows.
+2. O2 — Synthesise the evidence on functional fidelity, code quality and maintainability of AI-reconstructed / AI-generated application code.
+3. O3 — Appraise how these outcomes are evaluated: benchmarks, metrics, study designs, sample sizes, reproducibility.
+4. O4 — Identify evidence-backed, novelty-checked research gaps and propose a feasible evaluation study.
+
+## Inclusion / exclusion criteria
+| Include if | Exclude if |
+|---|---|
+| peer-reviewed journal/conference paper, or a preprint that is highly relevant and flagged as such | not about the topic; no empirical or methodological contribution; retracted; duplicate version |
+| empirical study, benchmark, method or systematic review on AI/LLM generation or reconstruction of applications/UIs from observable artefacts | binary decompilation; source-to-source translation as the main subject |
+| empirical study of vibe coding or LLM-generated code that measures correctness, quality or maintainability | opinion/position pieces without evidence (background only); perception-only surveys |
+| evaluation methods/metrics for fidelity, quality or maintainability of generated code | non-software "reverse engineering"; model-architecture papers without code-generation evaluation |
+
+## Search strategy
+- Sources: OpenAlex, Crossref, arXiv (+ web search for very recent work).
+- Query strings (one per facet):
+  - F1 vibe coding: `vibe coding large language models software quality`; `vibe coding empirical study`
+  - F2 UI-to-code reconstruction: `screenshot to code generation multimodal LLM web application`; `design to code webpage generation benchmark`; `interactive webpage generation LLM benchmark`
+  - F3 application-level generation & functional fidelity: `LLM full application generation benchmark functional correctness`; `end-to-end software development benchmark LLM agents`
+  - F4 quality & maintainability: `maintainability code smells LLM-generated code empirical study`; `code quality static analysis AI-generated code`
+  - F5 black-box / GUI reverse engineering: `LLM reverse engineering GUI application reimplementation behavior`; `GUI reverse engineering model extraction app`
+- Snowballing: references/citations of the most central papers (OpenAlex).
+- Every executed search is recorded automatically in `search/search-log.md`.
+
+## Key decisions
+- 2026-11-11 — "Reverse engineering" means reconstruction from behaviour/UI/documentation, not from source code or binaries — chosen by the user; closest to rebuilding an app by vibe coding.
+- 2026-11-11 — Preprints included but flagged and weighted lower — chosen by the user, because vibe coding (term from 2025) is studied mostly in preprints so far.
+- 2026-11-11 — Time window 2020–2026, ~20 papers first pass — default assumption; LLM code generation became practical around 2021.
+- 2026-11-11 — Pilot searches found very little work that combines LLMs with black-box application reverse engineering directly; the review therefore combines adjacent literatures (UI-to-code, app generation, code quality of LLM output, vibe coding). Whether this combination is itself a gap must be confirmed by a novelty check.
+- 2026-11-11 — First pass raised from 20 to 23 papers — the topic joins five separate literatures (vibe coding, UI-to-code, app-level generation, code quality, black-box reverse engineering); each needs ≥4 papers to compare. 22 further relevant papers kept as reserves in search/screening.md.
+- 2026-11-11 — SusVibes (zhao2025vibe) is recorded as arXiv preprint but was published at ICML 2026 (PMLR v306, no DOI); treat as peer-reviewed in synthesis.
+- 2026-11-11 — All 23 full texts obtained legally (arXiv, ACL Anthology, Springer OA). For 9 published papers the open copy is the arXiv version; page citations refer to the PDF we hold (`papers/<key>/paper.pdf`), not the publisher's pagination.
+# Research questions — Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+
+## RQ1: What AI/LLM approaches exist for reconstructing or generating software applications from observable artefacts (UI screenshots, designs, interaction behaviour, specifications), and how do they relate to vibe-coding workflows?
+- Type: descriptive
+- Why it matters: defines what "AI-assisted reverse engineering" currently looks like in practice and research, and which inputs and tools are realistic.
+- Linked objective: O1
+- Status: answered (provisional, after methodology comparison 2026-11-12)
+- Current answer: Six approach families exist (see reports/methodology-comparison.md §2):
+  1. Screenshot or design to code [@si2025benchmarking, p. 4; @zhou2025declarui, p. 3; @wu2026looks, p. 6].
+  2. Interaction video or before/after interaction screenshots to code [@chen2025iwr, p. 5; @xiao2025benchmarking, p. 2].
+  3. Agentic rebuilds from a live running reference or an executable plus docs [@bai2026recreationworld, p. 3; @kim2026programdistill, p. 3; @yang2026programbench, p. 2].
+  4. Natural-language spec or requirements to a full app [@liu2026benchmarking, p. 3; @lu2025webgen, p. 7; @tran2026vibe, p. 3; @pan2026functional, p. 2].
+  5. Commercial vibe-coding platforms and IDE agents [@mota2026comparing, p. 2; @he2026speed, p. 4].
+  6. Behavioural-spec recovery from running apps [@xiong2026propgen, p. 4].
+
+  [I] Almost all evaluations run autonomous agents. Practitioner vibe coding is human-steered natural-language prompting with little review [@fawzy2026vibe, p. 1], and it is studied only in small or proxy studies [@mock2026vibe, p. 15; @asdaque2026novice, p. 1]. "Vibe coding" is defined inconsistently across papers, so their results must not be pooled. **Evidence strength: moderate** (consistent descriptive picture; 7 of 23 papers are preprints; fast-moving field).
+
+## RQ2: How is functional fidelity of AI-reconstructed or AI-generated applications measured, and how well do current approaches achieve it?
+- Type: descriptive / comparative
+- Why it matters: a rebuild is only useful if it behaves like the original; the metrics used decide what "works" means.
+- Linked objective: O2, O3
+- Status: answered (provisional, after methodology comparison 2026-11-12)
+- Current answer: Fidelity is measured with four kinds of oracle:
+  1. Behavioural test replay against the original [@bai2026recreationworld, p. 9; @kim2026programdistill, p. 4; @yang2026programbench, p. 5; @liu2026benchmarking, p. 5].
+  2. LLM or agent judges running natural-language tests [@lu2025webgen, p. 6; @tran2026vibe, p. 4; @chen2025iwr, p. 7].
+  3. Visual similarity [@si2025benchmarking, p. 3; @wu2026looks, p. 4].
+  4. Navigation graphs [@zhou2025declarui, p. 7].
+
+  Fidelity is partial everywhere:
+  - Full behavioural equivalence is rare: 2.8% of apps [@bai2026recreationworld, p. 11] and 0 of 200 programs [@yang2026programbench, p. 6].
+  - The best workflow-level or requirement-level pass rates are about 49–62% [@kim2026programdistill, p. 11; @liu2026benchmarking, p. 6; @tran2026vibe, p. 6].
+  - Interaction logic lags static structure [@bai2026recreationworld, p. 16; @chen2025iwr, p. 16]. chen2025iwr's IFS<VFS gap is partly built into its metrics [@chen2025iwr, p. 7].
+
+  [I] Scores from different benchmarks use different oracles and are not comparable. **Evidence strength: moderate** for "far from complete; interaction is the bottleneck". **Weak** for any specific figure or cross-benchmark ranking (mostly single runs, 5 of the 8 main fidelity benchmarks are preprints).
+
+## RQ3: What is known about the code quality and maintainability of LLM-generated or vibe-coded application code, compared with human-written code?
+- Type: comparative
+- Why it matters: rebuilt apps must be maintained; hidden code smells or technical debt would erase the speed gained.
+- Linked objective: O2
+- Status: partially answered (evidence conflicting, 2026-11-12)
+- Current answer: The evidence is mixed:
+  - Cursor adoption raises project-level SonarQube warnings (+30.26%) and cognitive complexity (+41.64%) [@he2026speed, p. 7]. The result is estimator-sensitive (negative and n.s. under Callaway–Sant'Anna) [@he2026speed, p. 16], and the warning rise runs mainly through more code [@he2026speed, p. 8].
+  - A preregistered RCT found no significant downstream maintainability difference when a second developer evolved AI-assisted code [@borg2026echoes, p. 33; @borg2026echoes, p. 38].
+  - GPT-4o code had fewer SonarQube "bugs" than a weak competitive-programming human baseline, with mixed smells [@molison2025llm, p. 8].
+  - LLM code shows different smell types from human code [@zhu2026understanding, p. 7].
+  - Quality varies by platform [@mota2026comparing, p. 5].
+  - Rebuilds are smaller and more monolithic than their originals [@bai2026recreationworld, p. 15; @yang2026programbench, p. 9].
+  - Practitioners perceive vibe-coded output as "fast but flawed" [@fawzy2026vibe, p. 8].
+
+  [I] The measuring instruments disagree (SonarQube, PyExamine, CodeHealth, MI), and no study measures validated maintainability of reconstructed apps against their originals. **Evidence strength: weak to moderate** (conflicting results; see evidence-matrix.md C1–C3).
+
+## RQ4: What are the methodological strengths and weaknesses of current evaluations (benchmarks, metrics, sample sizes, baselines, reproducibility) in this area?
+- Type: methodological
+- Why it matters: shows how far the reported results can be trusted and how a new study should be designed.
+- Linked objective: O3
+- Status: answered (provisional, after methodology comparison 2026-11-12)
+- Current answer: Strengths:
+  - Implementation-agnostic behavioural oracles with leakage controls [@yang2026programbench, p. 18; @bai2026recreationworld, p. 9].
+  - Oracle audits [@yang2026programbench, p. 7; @liu2026benchmarking, p. 14].
+  - Judge–human alignment checks [@tran2026vibe, p. 9; @wu2026looks, p. 13].
+  - One preregistered RCT [@borg2026echoes, p. 19].
+
+  Recurring weaknesses:
+  1. Single runs with no variance or significance tests [@lu2025webgen, p. 40; @yang2026programbench, p. 10]. Measured generation variance is large [@tran2026vibe, p. 8].
+  2. Same-family or weakly validated oracles and judges [@tran2026vibe, p. 9; @chen2025iwr, p. 17; @si2025benchmarking, p. 17].
+  3. Uneven contamination handling.
+  4. Maintainability absent or measured only by proxies [@pan2026functional, p. 3; @wu2026looks, p. 4].
+  5. Oracles coupled to the original's identifiers, or given structural priors [@liu2026benchmarking, p. 16; @kim2026programdistill, p. 35; @zhou2025declarui, p. 7].
+  6. No human-developer baselines in benchmarks.
+
+  **Evidence strength: strong** for missing variance and significance testing and for absent maintainability measurement (verified across 12+ papers). **Moderate** for the judge, contamination and oracle-coupling problems.
+
+## RQ5: Which gaps remain for jointly evaluating functional fidelity, code quality and maintainability of AI-assisted application reconstruction, and what study design could address them?
+- Type: methodological
+- Why it matters: turns the review into a concrete, feasible research contribution.
+- Linked objective: O4
+- Status: answered (provisional, after novelty check 2026-11-12)
+- Current answer: [I] The main gap that survives the novelty check is a joint evaluation of behavioural fidelity and validated, size-normalised maintainability for applications rebuilt from observable artefacts, with the original app as the baseline. We found no study that does this (searches on 2026-11-12). Evidence that the gap exists is strong [@bai2026recreationworld, p. 15; @yang2026programbench, p. 9; @pan2026functional, p. 3; @wu2026looks, p. 4; @tran2026vibe, p. 9]. Five further gaps are partially novel: same-family builder and judge bias, validity of maintainability tools for AI-built apps, feedback effects on fidelity and quality together, the size of the contamination effect, and human-steered vs autonomous reconstruction. Oracles tied to the original's identifiers and native mobile apps with hidden back-ends are mostly or partly addressed by 2026 work. A related security angle (security-control preservation in black-box reconstruction) is partially novel; see reports/novelty-check-security-fidelity.md.
+
+  Recommended study: the G1 design in gap-report.md (reference apps of known provenance, ≥3 runs, locator-independent behavioural tests, two static tools plus a maintenance task in the style of borg2026echoes [@borg2026echoes, p. 13]). G2 and G3 are easy add-ons using released Vibe Code Bench outputs [@tran2026vibe, p. 11].
+
+  **Evidence strength: moderate** (novelty confidence medium-high for G1; re-check before submission, the field moves monthly).
+# Status — Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+
+## Phases
+- [x] Scoping — objectives and research questions written
+- [x] Discovery — searches run and logged
+- [x] Screening — candidates screened, papers included
+- [x] Acquisition — open-access full texts collected, missing ones reported to user
+- [x] Analysis — every included paper analysed
+- [x] Critical review — analyses checked against the papers (reports/critical-review-batch-{a,b,c}.md; all fixes applied, 23/23 complete)
+- [x] Synthesis — methods compared, evidence matrix complete (evidence-matrix.md 204 rows, C1–C10; reports/methodology-comparison.md)
+- [x] Gaps — research gaps identified and novelty-checked (gap-report.md G1–G8; top: G1 fidelity + validated maintainability)
+- [ ] Writing — literature review / report drafted
+
+## Statistics
+<!-- rlab:stats:start -->
+_Auto-updated 2026-11-12T00:30:10+06:00 by `rlab index`._
+
+- Current phase: **Writing**
+- papers: 23
+- fulltext: 23
+- no fulltext: 0
+- analysed: 23
+- analysis ready: 0
+- analysis draft: 0
+- preprints: 7
+- retracted: 0
+- unverified: 2
+<!-- rlab:stats:end -->
+
+## Next actions
+- 2026-11-12: gaps done (gap-report.md, 8 gaps ranked, G1 novel). Now: research-report (academic-writer). Optional, ask user: add ~19 recommended papers from gap-report + novelty check (scope change).
+- Use corrected facts: bai lowest model = Qwen3.7-Plus (not Grok 4.6); bai code-size/structure findings = 4 models only; chen IFS<VFS gap partly definitional; ehsani's +30%/+41% = he2026speed (count once); liu multi-agent "do not consistently improve".
+- User asked (2026-11-12) for a new cybersecurity-related topic; offered 3 candidates (security fidelity of AI-rebuilt apps [recommended]; detecting AI-cloned phishing sites; behaviour-derived security properties). User chose topic 1; novelty check DONE (partially novel, defensible core: security-control preservation in black-box AI reconstruction of web apps) → reports/novelty-check-security-fidelity.md. Awaiting user: start as new project?
+- Known metadata issues (not blocking): he2026speed + zhu2026understanding `rlab validate` MISMATCH only because arXiv preprint title differs from published title (Crossref/OpenAlex/PDF identity match). zhao2025vibe metadata says preprint/arXiv but published at ICML 2026 (no rlab command to update venue). lu2025webgen metadata lists author "Hou, Haotian" not in PDF. zhou2025declarui, zhu2026understanding analysed from arXiv; published ACM OA version not checked (zhou ablation table suspicious).
+- Synthesis cues from review: same model family builds/judges and wins (yang, tran, wu, zhao, kim, liu, lu); iterative feedback contradiction (pan vs tran/zhou/wu); molison vs he SonarQube direction (different units); "vibe coding" means different things across fawzy/asdaque/mock/he/ehsani — don't pool; contamination handling uneven (gap candidate, needs novelty check).
+- Synthesis notes so far: he2026speed vs borg2026echoes contradict on maintainability harm; visual fidelity >> functional fidelity across UI/reconstruction benchmarks; code quality/maintainability almost never measured in reconstruction benchmarks
+
+## Blocked / needs user
+<!-- e.g. papers without open-access PDF, scope questions. Empty = nothing blocked. -->
+project: 2026-11-11-ai-reverse-engineering-vibe-coding
+topic:   Evaluating AI-Assisted Reverse Engineering for Software Application Reconstruction through Vibe Coding: Functional Fidelity, Code Quality, and Maintainability
+path:    /Users/makky/Downloads/AI-Research-Lab-main/research/2026-11-11-ai-reverse-engineering-vibe-coding
+phase:   Writing
+phases:  [x] Scoping  [x] Discovery  [x] Screening  [x] Acquisition  [x] Analysis  [x] Critical review  [x] Synthesis  [x] Gaps  [ ] Writing
+stats:   papers=23, fulltext=23, no_fulltext=0, analysed=23, analysis_ready=0, analysis_draft=0, preprints=7, retracted=0, unverified=2
+
+Next actions:
+- 2026-11-12: gaps done (gap-report.md, 8 gaps ranked, G1 novel). Now: research-report (academic-writer). Optional, ask user: add ~19 recommended papers from gap-report + novelty check (scope change).
+- Use corrected facts: bai lowest model = Qwen3.7-Plus (not Grok 4.6); bai code-size/structure findings = 4 models only; chen IFS<VFS gap partly definitional; ehsani's +30%/+41% = he2026speed (count once); liu multi-agent "do not consistently improve".
+- User asked (2026-11-12) for a new cybersecurity-related topic; offered 3 candidates (security fidelity of AI-rebuilt apps [recommended]; detecting AI-cloned phishing sites; behaviour-derived security properties). User chose topic 1; novelty check DONE (partially novel, defensible core: security-control preservation in black-box AI reconstruction of web apps) → reports/novelty-check-security-fidelity.md. Awaiting user: start as new project?
+- Known metadata issues (not blocking): he2026speed + zhu2026understanding `rlab validate` MISMATCH only because arXiv preprint title differs from published title (Crossref/OpenAlex/PDF identity match). zhao2025vibe metadata says preprint/arXiv but published at ICML 2026 (no rlab command to update venue). lu2025webgen metadata lists author "Hou, Haotian" not in PDF. zhou2025declarui, zhu2026understanding analysed from arXiv; published ACM OA version not checked (zhou ablation table suspicious).
+- Synthesis cues from review: same model family builds/judges and wins (yang, tran, wu, zhao, kim, liu, lu); iterative feedback contradiction (pan vs tran/zhou/wu); molison vs he SonarQube direction (different units); "vibe coding" means different things across fawzy/asdaque/mock/he/ehsani — don't pool; contamination handling uneven (gap candidate, needs novelty check).
+- Synthesis notes so far: he2026speed vs borg2026echoes contradict on maintainability harm; visual fidelity >> functional fidelity across UI/reconstruction benchmarks; code quality/maintainability almost never measured in reconstruction benchmarks
+
+last log entries:
+- 2026-11-12 00:23 · discovery · search `SWE-CI evaluating agent capabilities maintaining codebases continuous integration` on arxiv,openalex: 5 hits, 4 unique -> search/20261112-002342-swe-ci-evaluating-agent-capabilities.json
+- 2026-11-12 00:25 · discovery · search `MirrorCode AI can rebuild entire programs from behavior alone` on arxiv,openalex: 6 hits, 5 unique -> search/20261112-002559-mirrorcode-ai-can-rebuild-entire.json
+- 2026-11-12 00:26 · discovery · search `code quality maintainability of programs rebuilt by coding agents compared with original source` on arxiv,openalex: 5 hits, 5 unique -> search/20261112-002602-code-quality-maintainability-of-programs.json
+- 2026-11-12 00:29 · gaps · gap-report.md written: 8 candidates novelty-checked (2026-11-12; 39 rlab searches + 9 web searches). G1 joint fidelity+maintainability vs originals = novel (narrow); G2-G6 partially novel; G7 mostly addressed (narrowed); G8 partially addressed. 19 papers recommended for inclusion. cite-check OK.
+- 2026-11-12 00:30 · gaps · Gaps phase done: gap-report.md (G1 joint fidelity+maintainability: novel, medium-high confidence; G2-G6 partially novel; G7-G8 mostly addressed). RQ5 current answer updated.
+20261111-222947-vibe-coding-large-language-models.json
+20261111-222949-screenshot-to-code-generation-multimodal.json
+20261111-222959-llm-reverse-engineering-gui-application.json
+20261111-223002-maintainability-code-smells-llm.json
+20261111-223149-vibe-coding-empirical-study.json
+20261111-223150-llm-full-application-generation.json
+20261111-223151-code-quality-static-analysis-ai.json
+20261111-223151-gui-reverse-engineering-model-extraction.json
+20261111-223152-design-to-code-webpage-generation.json
+20261111-223154-vibe-coding-code-quality-maintainability.json
+20261111-223155-llm-specification-recovery-from.json
+20261111-223156-end-to-end-software-development.json
+20261111-223156-technical-debt-llm-generated-code.json
+20261111-223157-screenshot-to-code-multimodal-llm.json
+20261111-223200-vibe-coding-systematic-review.json
+20261111-223203-interactive-webpage-generation-from.json
+20261111-223203-readability-maintainability-copilot.json
+20261111-223203-web-application-generation-llm-benchmark.json
+20261111-223205-large-language-model-app-exploration-gui.json
+20261111-223206-ai-agent-natural-language-app-building.json
+20261111-223208-gui-to-code-mobile-app-generation.json
+20261111-223210-project-level-code-generation-from.json
+20261111-223210-re-implementing-existing-software-with.json
+20261111-223210-sonarqube-analysis-code-generated-by.json
+20261111-223226-reconstruct-web-application-from-screen.json
+20261111-223232-requirements-extraction-from-mobile-app.json
+20261111-223239-ui-design-image-to-code-mobile.json
+20261111-223244-pix2code-generating-code-from-graphical.json
+20261111-223246-website-generation-from-scratch.json
+20261111-223251-software-development-benchmark-prd.json
+20261111-223311-maintainability-of-agent-generated-code.json
+20261111-223327-survey-ui-code-generation-design-to-code.json
+20261111-223507-coding-agents-rebuild-application-from.json
+20261112-002004-maintainability-of-reconstructed.json
+20261112-002023-application-reconstruction-benchmark.json
+20261112-002026-rebuilding-software-from-reference.json
+20261112-002030-app-clone-generation-llm-maintainability.json
+20261112-002034-human-in-the-loop-versus-autonomous.json
+20261112-002038-vibe-coding-participants-build.json
+20261112-002040-developer-steering-coding-agent-recreate.json
+20261112-002042-data-contamination-benchmark-web.json
+20261112-002045-contamination-free-benchmark-repository.json
+20261112-002048-obfuscated-private-reference-application.json
+20261112-002059-self-preference-bias-llm-judge-code.json
+20261112-002101-llm-as-a-judge-self-enhancement-bias.json
+20261112-002104-benchmark-tests-generated-by-llm-bias.json
+20261112-002107-self-repair-iterative-feedback-code.json
+20261112-002111-iterative-refinement-degrades-code.json
+20261112-002120-multi-turn-feedback-web-application.json
+20261112-002131-agreement-between-static-analysis-tools.json
+20261112-002135-sonarqube-validity-maintainability.json
+20261112-002137-code-smell-detectors-disagreement-llm.json
+20261112-002139-implementation-agnostic-gui-test-oracle.json
+20261112-002144-semantic-test-migration-across-web.json
+20261112-002147-behavioral-equivalence-testing-web.json
+20261112-002150-native-android-app-generation-from.json
+20261112-002152-full-stack-application-reconstruction.json
+20261112-002156-mobile-app-generation-llm-agent-kotlin.json
+20261112-002207-recreate-existing-web-application-coding.json
+20261112-002212-functional-fidelity-and-code-quality.json
+20261112-002215-human-developer-versus-ai-agent-rebuild.json
+20261112-002217-full-stack-web-application-generation.json
+20261112-002219-android-app-reverse-engineering.json
+20261112-002321-why-human-guidance-matters-in.json
+20261112-002323-from-assistant-to-independent-developer.json
+20261112-002326-webdevjudge-evaluating-llms-as-critiques.json
+20261112-002329-generation-of-web-apps-with-agentic-ides.json
+20261112-002337-static-analysis-as-a-feedback-loop.json
+20261112-002342-swe-ci-evaluating-agent-capabilities.json
+20261112-002559-mirrorcode-ai-can-rebuild-entire.json
+20261112-002602-code-quality-maintainability-of-programs.json
+screening.md
+search-log.md
+     970 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-222947-vibe-coding-large-language-models.json
+     661 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-222949-screenshot-to-code-generation-multimodal.json
+     459 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-222959-llm-reverse-engineering-gui-application.json
+     454 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223002-maintainability-code-smells-llm.json
+    2185 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223149-vibe-coding-empirical-study.json
+    2279 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223150-llm-full-application-generation.json
+    1959 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223151-code-quality-static-analysis-ai.json
+    1116 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223151-gui-reverse-engineering-model-extraction.json
+    1905 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223152-design-to-code-webpage-generation.json
+    1894 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223154-vibe-coding-code-quality-maintainability.json
+    1447 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223155-llm-specification-recovery-from.json
+    2744 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223156-end-to-end-software-development.json
+    2079 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223156-technical-debt-llm-generated-code.json
+    2226 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223157-screenshot-to-code-multimodal-llm.json
+    1635 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223200-vibe-coding-systematic-review.json
+    1641 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223203-interactive-webpage-generation-from.json
+    1430 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223203-readability-maintainability-copilot.json
+    2046 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223203-web-application-generation-llm-benchmark.json
+    1517 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223205-large-language-model-app-exploration-gui.json
+    1749 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223206-ai-agent-natural-language-app-building.json
+    1688 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223208-gui-to-code-mobile-app-generation.json
+    2503 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223210-project-level-code-generation-from.json
+    1361 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223210-re-implementing-existing-software-with.json
+    1495 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223210-sonarqube-analysis-code-generated-by.json
+    2021 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223226-reconstruct-web-application-from-screen.json
+    1222 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223232-requirements-extraction-from-mobile-app.json
+    1300 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223239-ui-design-image-to-code-mobile.json
+     688 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223244-pix2code-generating-code-from-graphical.json
+    1852 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223246-website-generation-from-scratch.json
+    1729 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223251-software-development-benchmark-prd.json
+    1540 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223311-maintainability-of-agent-generated-code.json
+     645 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223327-survey-ui-code-generation-design-to-code.json
+     947 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261111-223507-coding-agents-rebuild-application-from.json
+     420 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002004-maintainability-of-reconstructed.json
+     569 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002023-application-reconstruction-benchmark.json
+     361 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002026-rebuilding-software-from-reference.json
+     799 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002030-app-clone-generation-llm-maintainability.json
+     789 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002034-human-in-the-loop-versus-autonomous.json
+     741 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002038-vibe-coding-participants-build.json
+     549 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002040-developer-steering-coding-agent-recreate.json
+     545 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002042-data-contamination-benchmark-web.json
+     464 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002045-contamination-free-benchmark-repository.json
+     545 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002048-obfuscated-private-reference-application.json
+     768 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002059-self-preference-bias-llm-judge-code.json
+     357 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002101-llm-as-a-judge-self-enhancement-bias.json
+     618 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002104-benchmark-tests-generated-by-llm-bias.json
+     473 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002107-self-repair-iterative-feedback-code.json
+     368 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002111-iterative-refinement-degrades-code.json
+     525 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002120-multi-turn-feedback-web-application.json
+     469 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002131-agreement-between-static-analysis-tools.json
+     709 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002135-sonarqube-validity-maintainability.json
+     453 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002137-code-smell-detectors-disagreement-llm.json
+     117 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002139-implementation-agnostic-gui-test-oracle.json
+     824 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002144-semantic-test-migration-across-web.json
+     453 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002147-behavioral-equivalence-testing-web.json
+     533 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002150-native-android-app-generation-from.json
+     801 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002152-full-stack-application-reconstruction.json
+     409 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002156-mobile-app-generation-llm-agent-kotlin.json
+      13 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002207-recreate-existing-web-application-coding.json
+     862 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002212-functional-fidelity-and-code-quality.json
+     337 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002215-human-developer-versus-ai-agent-rebuild.json
+     410 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002217-full-stack-web-application-generation.json
+     310 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002219-android-app-reverse-engineering.json
+     196 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002321-why-human-guidance-matters-in.json
+     212 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002323-from-assistant-to-independent-developer.json
+     207 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002326-webdevjudge-evaluating-llms-as-critiques.json
+     147 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002329-generation-of-web-apps-with-agentic-ides.json
+     192 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002337-static-analysis-as-a-feedback-loop.json
+     264 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002342-swe-ci-evaluating-agent-capabilities.json
+     321 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002559-mirrorcode-ai-can-rebuild-entire.json
+     292 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/20261112-002602-code-quality-maintainability-of-programs.json
+      37 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/screening.md
+      77 research/2026-11-11-ai-reverse-engineering-vibe-coding/search/search-log.md
+     376 research/2026-11-11-ai-reverse-engineering-vibe-coding/evidence-matrix.md
+     403 research/2026-11-11-ai-reverse-engineering-vibe-coding/gap-report.md
+     351 research/2026-11-11-ai-reverse-engineering-vibe-coding/reports/critical-review-batch-a.md
+     254 research/2026-11-11-ai-reverse-engineering-vibe-coding/reports/critical-review-batch-b.md
+     207 research/2026-11-11-ai-reverse-engineering-vibe-coding/reports/critical-review-batch-c.md
+     246 research/2026-11-11-ai-reverse-engineering-vibe-coding/reports/methodology-comparison.md
+     122 research/2026-11-11-ai-reverse-engineering-vibe-coding/reports/novelty-check-security-fidelity.md
+   70882 total
